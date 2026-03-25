@@ -581,6 +581,27 @@
             reader.readAsText(file, 'UTF-8');
         }
 
+        function parseCSVLine(line) {
+            // 支援引號包覆欄位（RFC 4180），自動偵測 Tab 或逗號分隔
+            const delimiter = line.includes('\t') ? '\t' : ',';
+            const cols = [];
+            let cur = '', inQuote = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (inQuote) {
+                    if (ch === '"' && line[i+1] === '"') { cur += '"'; i++; }
+                    else if (ch === '"') { inQuote = false; }
+                    else { cur += ch; }
+                } else {
+                    if (ch === '"') { inQuote = true; }
+                    else if (ch === delimiter) { cols.push(cur.trim()); cur = ''; }
+                    else { cur += ch; }
+                }
+            }
+            cols.push(cur.trim());
+            return cols;
+        }
+
         function parseCsvPreview(csvText) {
             // 移除 BOM
             csvText = csvText.replace(/^﻿/, '');
@@ -598,8 +619,7 @@
             const rows = [];
             const errors = [];
             dataLines.forEach((line, i) => {
-                const delimiter = line.includes('\t') ? '\t' : ',';
-                const cols = line.split(delimiter).map(c => c.replace(/"/g, '').trim());
+                const cols = parseCSVLine(line);
                 const symbol = cols[0];
                 const market = (cols[1] || 'US').toUpperCase();
                 const name = cols[2] || '';
