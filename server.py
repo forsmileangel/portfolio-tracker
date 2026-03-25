@@ -24,9 +24,11 @@ def get_fundamentals(symbol):
             return _yf_cache[symbol]
     try:
         import yfinance as yf
+        import pandas as pd
         t    = yf.Ticker(symbol)
         info = t.info
-        # EPS 下季預估 from earnings_estimate index '0q'
+
+        # EPS 下季預估
         eps_next_q = None
         try:
             ee = t.earnings_estimate
@@ -34,15 +36,50 @@ def get_fundamentals(symbol):
                 eps_next_q = float(ee.loc['0q', 'avg'])
         except Exception:
             pass
+
+        # Revenue Growth FWD (next year)
+        rev_fwd = None
+        try:
+            re = t.revenue_estimate
+            if re is not None and '+1y' in re.index:
+                rev_fwd = float(re.loc['+1y', 'growth'])
+        except Exception:
+            pass
+
+        # 歷史平均 PE (近 5 年季頻)
+        hist_avg_pe = None
+        try:
+            hist = t.history(period='5y', interval='3mo')['Close']
+            hist.index = hist.index.tz_localize(None)
+            fin = t.quarterly_financials
+            for row in ['Diluted EPS', 'Basic EPS', 'EPS']:
+                if row in fin.index:
+                    eps_s = fin.loc[row].sort_index()
+                    eps_s.index = pd.to_datetime(eps_s.index).tz_localize(None)
+                    pe_list = []
+                    for date, price in hist.items():
+                        ttm = eps_s[eps_s.index <= date].head(4).sum()
+                        if ttm > 0:
+                            pe_list.append(price / ttm)
+                    if pe_list:
+                        hist_avg_pe = round(sum(pe_list) / len(pe_list), 2)
+                    break
+        except Exception:
+            pass
+
         result = {
-            'pe':          info.get('trailingPE'),
-            'fpe':         info.get('forwardPE'),
-            'peg':         info.get('trailingPegRatio'),
-            'ps':          info.get('priceToSalesTrailing12Months'),
-            'eps_ttm':     info.get('trailingEps'),
-            'eps_next_q':  eps_next_q,
-            'eps_cur_y':   info.get('epsCurrentYear'),
-            'eps_next_y':  info.get('epsForward'),
+            'pe':           info.get('trailingPE'),
+            'fpe':          info.get('forwardPE'),
+            'peg':          info.get('trailingPegRatio'),
+            'ps':           info.get('priceToSalesTrailing12Months'),
+            'pb':           info.get('priceToBook'),
+            'rev_yoy':      info.get('revenueGrowth'),
+            'rev_fwd':      rev_fwd,
+            'hist_avg_pe':  hist_avg_pe,
+            'eps_ttm':      info.get('trailingEps'),
+            'eps_next_q':   eps_next_q,
+            'eps_cur_y':    info.get('epsCurrentYear'),
+            'eps_next_y':   info.get('epsForward'),
         }
     except Exception as e:
         result = {'error': str(e)}
