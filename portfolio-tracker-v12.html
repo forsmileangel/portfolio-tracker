@@ -100,7 +100,7 @@
                 <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">HKD/TWD</span>
                 <input id="input-hkd-twd" type="number" step="0.001" value="4.050" style="width:90px; padding:0.4rem 0.5rem; font-size:0.85rem;" onchange="applyManualRates()">
             </div>
-            <button onclick="fetchLiveRates()" style="padding:0.4rem 0.9rem; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.35); border-radius:8px; font-weight:600; font-size:0.82rem; text-transform:none; letter-spacing:0;">🌐 抓即時匯率</button>
+            <button onclick="fetchLiveRates(this)" style="padding:0.4rem 0.9rem; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.35); border-radius:8px; font-weight:600; font-size:0.82rem; text-transform:none; letter-spacing:0;">🌐 抓即時匯率</button>
             <span id="rate-source" style="color:#64748b; font-size:0.78rem;"></span>
         </div>
 
@@ -583,8 +583,7 @@
         function parseCsvPreview(csvText) {
             // 移除 BOM
             csvText = csvText.replace(/^﻿/, '');
-            const lines = csvText.trim().split(/
-?\n/).filter(l => l.trim());
+            const lines = csvText.trim().split(/\r?\n|\r/).filter(l => l.trim());
             if (lines.length < 2) {
                 showCsvError('CSV 內容為空或只有標題行');
                 return;
@@ -818,8 +817,7 @@
             renderAll();
         }
 
-        async function fetchLiveRates() {
-            const btn = event.target;
+        async function fetchLiveRates(btn) {
             btn.textContent = '更新中...'; btn.disabled = true;
             try {
                 const controller = new AbortController();
