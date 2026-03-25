@@ -598,7 +598,8 @@
             const rows = [];
             const errors = [];
             dataLines.forEach((line, i) => {
-                const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
+                const delimiter = line.includes('\t') ? '\t' : ',';
+                const cols = line.split(delimiter).map(c => c.replace(/"/g, '').trim());
                 const symbol = cols[0];
                 const market = (cols[1] || 'US').toUpperCase();
                 const name = cols[2] || '';
@@ -662,7 +663,7 @@
         function exportHoldings() {
             if (holdings.length === 0) return alert('尚無持倉');
             const rows = [['Symbol','Market','Name','Quantity','Cost Price','Current Price','Added Date'], ...holdings.map(h => [h.symbol, h.market, h.name||'', h.quantity, h.costPrice, h.currentPrice, h.addedDate||''])];
-            const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+            const csv = rows.map(r => r.join('\t')).join('\n');
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
