@@ -1104,8 +1104,10 @@
         })();
 
         // ==================== Yahoo Finance fetch via CORS proxy ====================
+        const _isLocal = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
         const YF_PROXIES = [
-            u => (BACKEND_URL || '') + '/proxy?url='              + encodeURIComponent(u),
+            // 本機後端或已設定 Render 後端才啟用
+            ...(_isLocal || BACKEND_URL ? [u => (BACKEND_URL || '') + '/proxy?url=' + encodeURIComponent(u)] : []),
             u => 'https://api.allorigins.win/raw?url='             + encodeURIComponent(u),
             u => 'https://thingproxy.freeboard.io/fetch/'          + u,
             u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u)
