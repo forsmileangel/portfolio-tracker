@@ -1145,7 +1145,8 @@
             let pe = null, fpe = null, peg = null, ps = null;
             let eps_ttm = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
             const fundBase = BACKEND_URL || '';
-            if (fundBase !== '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            if (fundBase !== '' || _isLocal) {
+                // 本機或已設 Render 後端：完整資料（含歷史均PE、Revenue Growth 等）
                 try {
                     const fundResp = await fetch(fundBase + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
                     if (fundResp.ok) {
@@ -1161,6 +1162,22 @@
                             eps_cur_y  = raw.eps_cur_y  ?? null;
                             eps_next_y = raw.eps_next_y ?? null;
                         }
+                    }
+                } catch(_) {}
+            } else {
+                // 無後端：從 Yahoo Finance v7 quote API 取基本面（部分欄位）
+                try {
+                    const qUrl  = `${BASE1}/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`;
+                    const qData = await yfFetch(qUrl);
+                    const q     = qData?.quoteResponse?.result?.[0];
+                    if (q) {
+                        pe         = q.trailingPE                       ?? null;
+                        fpe        = q.forwardPE                        ?? null;
+                        peg        = q.pegRatio                         ?? null;
+                        ps         = q.priceToSalesTrailingTwelveMonths ?? null;
+                        eps_ttm    = q.epsTrailingTwelveMonths          ?? null;
+                        eps_next_y = q.epsForward                       ?? null;
+                        fund.pb    = q.priceToBook                      ?? null;
                     }
                 } catch(_) {}
             }
