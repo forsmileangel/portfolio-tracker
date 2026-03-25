@@ -188,7 +188,7 @@
         <!-- 共用：更新按鈕列（Tab2/Tab3 皆顯示） -->
         <div id="analysis-ctrl" style="display:none; padding:1rem 0 0 0;">
             <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap; margin-bottom:0.5rem;">
-                <button onclick="loadAnalysis()" id="analysis-btn" style="padding:0.7rem 1.5rem; background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%); color:#0a1628; font-weight:700; border-radius:10px; font-size:0.9rem; text-transform:none; letter-spacing:0;">🔄 更新分析數據</button>
+                <button onclick="loadAnalysis(event.shiftKey)" id="analysis-btn" title="Shift+Click 強制重新整理（忽略快取）" style="padding:0.7rem 1.5rem; background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%); color:#0a1628; font-weight:700; border-radius:10px; font-size:0.9rem; text-transform:none; letter-spacing:0;">🔄 更新分析數據</button>
                 <button onclick="setBackendUrl()" id="backend-btn" style="padding:0.7rem 1rem; background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.35); border-radius:10px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0;">⚙️ 後端設定</button>
                 <span id="backend-status" style="font-size:0.78rem; color:#64748b;"></span>
                 <span style="color:#64748b; font-size:0.78rem; margin-left:0.5rem;">槓桿 ETF 自動查詢原型股票 · 資料來源：Yahoo Finance</span>
@@ -1106,10 +1106,12 @@
         // ==================== Yahoo Finance fetch via CORS proxy ====================
         const _isLocal = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
         const YF_PROXIES = [
+            // 嘗試直接存取（Yahoo 有時允許 CORS）
+            u => u,
             // 本機後端或已設定 Render 後端才啟用
             ...(_isLocal || BACKEND_URL ? [u => (BACKEND_URL || '') + '/proxy?url=' + encodeURIComponent(u)] : []),
+            u => 'https://corsproxy.io/?'                          + encodeURIComponent(u),
             u => 'https://api.allorigins.win/raw?url='             + encodeURIComponent(u),
-            u => 'https://thingproxy.freeboard.io/fetch/'          + u,
             u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u)
         ];
 
@@ -1233,8 +1235,18 @@
             if (el) el.textContent = saved ? '✓ ' + saved.replace('https://', '') : (location.hostname === 'localhost' ? '（本機）' : '⚠ 未設定後端');
         })();
 
+        // ==================== Analysis Cache (sessionStorage, 1hr TTL) ====================
+        const _CACHE_KEY = 'pf_analysis_v1';
+        const _CACHE_TTL = 60 * 60 * 1000;
+        function _loadCache() {
+            try { const r = JSON.parse(sessionStorage.getItem(_CACHE_KEY)||'{}'); return (Date.now()-(r.ts||0) < _CACHE_TTL) ? (r.data||{}) : {}; } catch { return {}; }
+        }
+        function _saveCache(data) {
+            try { sessionStorage.setItem(_CACHE_KEY, JSON.stringify({ts:Date.now(), data})); } catch {}
+        }
+
         // ==================== Main Analysis Loader ====================
-        async function loadAnalysis() {
+        async function loadAnalysis(forceRefresh) {
             if (holdings.length === 0) { alert('請先匯入持倉數據'); return; }
 
             const btn = document.getElementById('analysis-btn');
@@ -1259,13 +1271,15 @@
             fundTbody.innerHTML = rows.map(r => loadingRow(r, 12, '⏳ 查詢中...')).join('');
             techTbody.innerHTML = rows.map(r => loadingRow(r,  9, '⏳ 查詢中...')).join('').replace(/arow-/g, 'trow-');
 
-            // 循序查詢
-            const allResults = {};
+            // 載入快取（Shift+Click 強制重新整理）
+            const cache = forceRefresh ? {} : _loadCache();
+            const allResults = { ...cache };
             const uniqueQueries = [...new Set(rows.map(r => r.query))];
+            const toFetch = uniqueQueries.filter(s => !allResults[s]);
 
-            for (let i = 0; i < uniqueQueries.length; i++) {
-                const sym = uniqueQueries[i];
-                const prog = '⏳ 查詢中（' + (i+1) + '/' + uniqueQueries.length + '）...';
+            for (let i = 0; i < toFetch.length; i++) {
+                const sym = toFetch[i];
+                const prog = '⏳ 查詢中（' + (i+1) + '/' + toFetch.length + '）...';
                 rows.filter(r => r.query === sym).forEach(r => {
                     const fe = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
                     const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
@@ -1277,8 +1291,9 @@
                 } catch(e) {
                     allResults[sym] = { _error: e.message };
                 }
-                if (i < uniqueQueries.length - 1) await new Promise(res => setTimeout(res, 600));
+                if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 600));
             }
+            _saveCache(allResults);
 
             // ── Render ──
             const fmt  = v => (v != null && !isNaN(v)) ? parseFloat(v).toFixed(2) : '-';
