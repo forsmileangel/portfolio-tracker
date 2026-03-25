@@ -175,7 +175,7 @@
                 <div style="font-size:2.5rem; margin-bottom:0.5rem;">📁</div>
                 <div style="color:#e2e8f0; font-weight:600; margin-bottom:0.25rem;">拖曳 CSV 到這裡，或點擊選擇檔案</div>
                 <div style="color:#64748b; font-size:0.82rem;">支援「匯出持倉數據」產生的 CSV</div>
-                <input id="csv-file-input" type="file" accept=".csv,text/csv" style="display:none;" onchange="handleCsvFile(this.files[0])">
+                <input id="csv-file-input" type="file" accept=".csv,text/csv" style="position:absolute;opacity:0;width:0.1px;height:0.1px;overflow:hidden;" onchange="handleCsvFile(this.files[0])">
             </label>
             <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.82rem; color:#94a3b8; flex-shrink:0;">
                 <span style="color:#60a5fa; font-weight:600;">CSV 欄位順序（第一行為標題）：</span><br>
@@ -681,9 +681,7 @@
                 if (!sheetUrl.includes('docs.google.com')) { alert('URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結'); return; }
 
                 // 同時發出：① 股價 CSV ② 即時匯率，不互相等待
-                const ratePromise = fetch('https://open.er-api.com/v6/latest/USD', {
-                    signal: AbortSignal.timeout(8000)
-                }).then(r => r.json()).catch(() => null);
+                const ratePromise = fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()).catch(() => null);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -819,27 +817,27 @@
 
         async function fetchLiveRates(btn) {
             btn.textContent = '更新中...'; btn.disabled = true;
+            const timer = setTimeout(() => {
+                btn.textContent = '🌐 抓即時匯率'; btn.disabled = false;
+                alert('⏱ 匯率 API 逾時，請稍後再試');
+            }, 8000);
             try {
-                const controller = new AbortController();
-                const tid = setTimeout(() => controller.abort(), 8000);
-                const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: controller.signal });
-                clearTimeout(tid);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                clearTimeout(timer);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
-                if (!data.rates) throw new Error('API 格式異常');
+                if (!data.rates || !data.rates['TWD'] || !data.rates['HKD']) throw new Error('API 回傳格式異常');
                 const twd = data.rates['TWD'];
                 const hkd = data.rates['HKD'];
-                if (!twd || !hkd) throw new Error('找不到 TWD 或 HKD 匯率');
-                exchangeRates.USD_TWD = parseFloat((twd).toFixed(4));
+                exchangeRates.USD_TWD = parseFloat(twd.toFixed(4));
                 exchangeRates.HKD_TWD = parseFloat((twd / hkd).toFixed(4));
                 document.getElementById('input-usd-twd').value = exchangeRates.USD_TWD.toFixed(2);
                 document.getElementById('input-hkd-twd').value = exchangeRates.HKD_TWD.toFixed(4);
-                const updated = new Date().toLocaleTimeString('zh-TW');
-                document.getElementById('rate-source').textContent = `✓ 即時匯率（${updated}）`;
+                document.getElementById('rate-source').textContent = '✓ 即時匯率（' + new Date().toLocaleTimeString('zh-TW') + '）';
                 renderAll();
             } catch(e) {
-                if (e.name === 'AbortError') alert('⏱ 匯率 API 逾時，請稍後再試');
-                else alert(`❌ 無法取得即時匯率：${e.message}`);
+                clearTimeout(timer);
+                alert('❌ 無法取得即時匯率：' + e.message + '\n\n請手動填入匯率。');
             } finally {
                 btn.textContent = '🌐 抓即時匯率'; btn.disabled = false;
             }
