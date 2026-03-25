@@ -196,21 +196,26 @@
                     </div>
                 </div>
                 <div style="overflow-x:auto;">
-                    <table id="analysis-table" style="width:100%; border-collapse:collapse; font-size:0.88rem; min-width:820px;">
+                    <table id="analysis-table" style="width:100%; border-collapse:collapse; font-size:0.88rem; min-width:1200px;">
                         <thead>
                             <tr style="border-bottom:2px solid rgba(251,191,36,0.35);">
                                 <th style="padding:0.6rem 0.75rem; text-align:left; color:#fbbf24; white-space:nowrap;">持倉代碼</th>
                                 <th style="padding:0.6rem 0.75rem; text-align:left; color:#fbbf24; white-space:nowrap;">查詢標的</th>
-                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24;">本益比</th>
-                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">預期本益比</th>
-                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24;">PEG</th>
-                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24;">EPS</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">本益比 (PE)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">預期本益比 (FPE)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">PEG</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">股價營收比 (PS)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (近4季)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (下季預估)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (全年預估)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (明年預估)</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:center; color:#fbbf24; white-space:nowrap;">周 KD 交叉</th>
                                 <th style="padding:0.6rem 0.75rem; text-align:center; color:#fbbf24; white-space:nowrap;">日 KD 交叉</th>
-                                <th style="padding:0.6rem 0.75rpm; text-align:center; color:#fbbf24; white-space:nowrap;">時 KD 交叉</th>
+                                <th style="padding:0.6rem 0.75rem; text-align:center; color:#fbbf24; white-space:nowrap;">時 KD 交叉</th>
                             </tr>
                         </thead>
                         <tbody id="analysis-tbody">
-                            <tr><td colspan="8" style="text-align:center; padding:3rem; color:#64748b;">點擊「更新分析數據」開始載入</td></tr>
+                            <tr><td colspan="13" style="text-align:center; padding:3rem; color:#64748b; white-space:nowrap;">點擊「更新分析數據」開始載入</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1036,36 +1041,49 @@
             const BASE1 = 'https://query1.finance.yahoo.com';
 
             // 基本面：優先用後端 /yfundamentals（yfinance）
-            let pe = null, fpe = null, peg = null, eps = null;
+            let pe = null, fpe = null, peg = null, ps = null;
+            let eps_ttm = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
             const fundBase = BACKEND_URL || '';
             if (fundBase !== '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 try {
                     const fundResp = await fetch(fundBase + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
                     if (fundResp.ok) {
                         const fund = await fundResp.json();
-                        if (!fund.error) { pe = fund.pe ?? null; fpe = fund.fpe ?? null; peg = fund.peg ?? null; eps = fund.eps ?? null; }
+                        if (!fund.error) {
+                            pe         = fund.pe         ?? null;
+                            fpe        = fund.fpe        ?? null;
+                            peg        = fund.peg        ?? null;
+                            ps         = fund.ps         ?? null;
+                            eps_ttm    = fund.eps_ttm    ?? null;
+                            eps_next_q = fund.eps_next_q ?? null;
+                            eps_cur_y  = fund.eps_cur_y  ?? null;
+                            eps_next_y = fund.eps_next_y ?? null;
+                        }
                     }
                 } catch(_) {}
             }
 
-            // KD：用本機 /proxy 轉發 Yahoo Finance chart（v8 chart 不需認證）
+            // KD：用 /proxy 轉發 Yahoo Finance chart（週、日、時）
+            const weeklyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1wk&range=2y`);
             const dailyData  = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=3mo`);
             const hourlyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1h&range=5d`);
 
+            const weeklyQ = weeklyData?.chart?.result?.[0]?.indicators?.quote?.[0] ?? {};
             const dailyQ  = dailyData?.chart?.result?.[0]?.indicators?.quote?.[0]  ?? {};
             const hourlyQ = hourlyData?.chart?.result?.[0]?.indicators?.quote?.[0] ?? {};
 
+            const weeklyKD = calcKD(weeklyQ.high, weeklyQ.low, weeklyQ.close);
             const dailyKD  = calcKD(dailyQ.high,  dailyQ.low,  dailyQ.close);
             const hourlyKD = calcKD(hourlyQ.high, hourlyQ.low, hourlyQ.close);
 
+            const kdCross = kd => kd ? (kd.crossUp ? 'golden' : kd.crossDown ? 'death' : 'none') : 'none';
+
             return {
-                pe, fpe, peg, eps,
-                daily_k:      dailyKD?.k    ?? null,
-                daily_d:      dailyKD?.d    ?? null,
-                daily_cross:  dailyKD  ? (dailyKD.crossUp  ? 'golden' : dailyKD.crossDown  ? 'death' : 'none') : 'none',
-                hourly_k:     hourlyKD?.k   ?? null,
-                hourly_d:     hourlyKD?.d   ?? null,
-                hourly_cross: hourlyKD ? (hourlyKD.crossUp ? 'golden' : hourlyKD.crossDown ? 'death' : 'none') : 'none'
+                pe, fpe, peg, ps,
+                eps_ttm, eps_next_q, eps_cur_y, eps_next_y,
+                weekly_k: weeklyKD?.k ?? null, weekly_d: weeklyKD?.d ?? null, weekly_cross: kdCross(weeklyKD),
+                daily_k:  dailyKD?.k  ?? null, daily_d:  dailyKD?.d  ?? null, daily_cross:  kdCross(dailyKD),
+                hourly_k: hourlyKD?.k ?? null, hourly_d: hourlyKD?.d ?? null, hourly_cross: kdCross(hourlyKD)
             };
         }
 
@@ -1118,7 +1136,7 @@
                 '<tr id="arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_') + '" style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
                 '<td style="padding:0.55rem 0.75rem; font-weight:700; color:#f1f5f9;">' + r.holding + '</td>' +
                 '<td style="padding:0.55rem 0.75rem; color:' + (r.isProxy?'#f59e0b':'#94a3b8') + '; font-size:0.82rem;">' + r.query + (r.isProxy?' <span style="font-size:0.7rem;">(原型)</span>':'') + '</td>' +
-                '<td colspan="6" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.55rem;">⏳ 查詢中...</td></tr>'
+                '<td colspan="11" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.55rem;">⏳ 查詢中...</td></tr>'
             ).join('');
 
             // 循序查詢（每支間隔 600ms），避免 CORS proxy 限速
@@ -1130,7 +1148,7 @@
                 // 更新每列進度
                 rows.filter(r => r.query === sym).forEach(r => {
                     const rowEl = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                    if (rowEl) { rowEl.cells[2].colSpan = 6; rowEl.cells[2].textContent = '⏳ 查詢中（' + (i + 1) + '/' + uniqueQueries.length + '）...'; }
+                    if (rowEl) { rowEl.cells[2].colSpan = 11; rowEl.cells[2].textContent = '⏳ 查詢中（' + (i + 1) + '/' + uniqueQueries.length + '）...'; }
                 });
                 try {
                     allResults[sym] = await fetchSymbolDataFromYahoo(sym);
@@ -1153,7 +1171,7 @@
                     rowEl.innerHTML =
                         '<td style="padding:0.55rem 0.75rem; font-weight:700; color:#f1f5f9;">' + r.holding + '</td>' +
                         '<td style="padding:0.55rem 0.75rem; color:' + (r.isProxy?'#f59e0b':'#94a3b8') + '; font-size:0.82rem;">' + proxyLabel + '</td>' +
-                        '<td colspan="6" style="text-align:left; color:#ef4444; font-size:0.82rem; padding:0.55rem; white-space:pre-wrap;">❌ ' + (d?._error || '無數據').split('\n')[0] + '</td>';
+                        '<td colspan="11" style="text-align:left; color:#ef4444; font-size:0.82rem; padding:0.55rem; white-space:pre-wrap;">❌ ' + (d?._error || '無數據').split('\n')[0] + '</td>';
                     return;
                 }
 
@@ -1169,13 +1187,13 @@
                     return '<span class="' + cls + '">' + label + '</span><br><small style="color:#64748b;font-size:0.75rem;">K:' + parseFloat(k).toFixed(1) + ' D:' + parseFloat(dv).toFixed(1) + '</small>';
                 };
 
+                const td = (val, align) => '<td style="padding:0.55rem 0.75rem; text-align:' + (align||'right') + '; color:#e2e8f0;">' + val + '</td>';
                 rowEl.innerHTML =
                     '<td style="padding:0.55rem 0.75rem; font-weight:700; color:#f1f5f9;">' + r.holding + '</td>' +
                     '<td style="padding:0.55rem 0.75rem; color:' + (r.isProxy?'#f59e0b':'#94a3b8') + '; font-size:0.82rem;">' + proxyLabel + '</td>' +
-                    '<td style="padding:0.55rem 0.75rem; text-align:right; color:#e2e8f0;">' + fmt(d.pe)  + '</td>' +
-                    '<td style="padding:0.55rem 0.75rem; text-align:right; color:#e2e8f0;">' + fmt(d.fpe) + '</td>' +
-                    '<td style="padding:0.55rem 0.75rem; text-align:right; color:#e2e8f0;">' + fmt(d.peg) + '</td>' +
-                    '<td style="padding:0.55rem 0.75rem; text-align:right; color:#e2e8f0;">' + fmt(d.eps) + '</td>' +
+                    td(fmt(d.pe)) + td(fmt(d.fpe)) + td(fmt(d.peg)) + td(fmt(d.ps)) +
+                    td(fmt(d.eps_ttm)) + td(fmt(d.eps_next_q)) + td(fmt(d.eps_cur_y)) + td(fmt(d.eps_next_y)) +
+                    '<td style="padding:0.55rem 0.75rem; text-align:center;">' + buildKD(d.weekly_k, d.weekly_d, d.weekly_cross) + '</td>' +
                     '<td style="padding:0.55rem 0.75rem; text-align:center;">' + buildKD(d.daily_k,  d.daily_d,  d.daily_cross)  + '</td>' +
                     '<td style="padding:0.55rem 0.75rem; text-align:center;">' + buildKD(d.hourly_k, d.hourly_d, d.hourly_cross) + '</td>';
             });
