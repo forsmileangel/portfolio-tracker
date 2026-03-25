@@ -960,30 +960,18 @@
 
         // ==================== KD (Stochastic) Calculation ====================
         function calcKD(highs, lows, closes, period=9) {
-            if (closes.length < period + 3) return null;
-            let k = 50, d = 50;
-            let prevK = 50, prevD = 50;
-            for (let i = period - 1; i < closes.length; i++) {
-                const hh = Math.max(...highs.slice(i - period + 1, i + 1));
-                const ll = Math.min(...lows.slice(i  - period + 1, i + 1));
-                const rsv = hh === ll ? 50 : (closes[i] - ll) / (hh - ll) * 100;
-                prevK = k; prevD = d;
-                k = prevK * (2/3) + rsv * (1/3);
-                d = prevD * (2/3) + k  * (1/3);
-            }
-            const crossUp   = prevK <= prevD && k > d;
-            const crossDown = prevK >= prevD && k < d;
-            return { k: k.toFixed(1), d: d.toFixed(1), crossUp, crossDown };
-        }
-
-        // ==================== KD (Stochastic) Calculation ====================
-        function calcKD(highs, lows, closes, period=9) {
-            if (closes.length < period + 3) return null;
+            if (!highs || !lows || !closes) return null;
+            // filter out null values
+            const valid = closes.map((c,i) => c != null && highs[i] != null && lows[i] != null ? i : -1).filter(i => i >= 0);
+            const h = valid.map(i => highs[i]);
+            const l = valid.map(i => lows[i]);
+            const c = valid.map(i => closes[i]);
+            if (c.length < period + 3) return null;
             let k = 50, d = 50, prevK = 50, prevD = 50;
-            for (let i = period - 1; i < closes.length; i++) {
-                const hh = Math.max(...highs.slice(i - period + 1, i + 1));
-                const ll = Math.min(...lows.slice(i  - period + 1, i + 1));
-                const rsv = hh === ll ? 50 : (closes[i] - ll) / (hh - ll) * 100;
+            for (let i = period - 1; i < c.length; i++) {
+                const hh = Math.max(...h.slice(i - period + 1, i + 1));
+                const ll = Math.min(...l.slice(i - period + 1, i + 1));
+                const rsv = hh === ll ? 50 : (c[i] - ll) / (hh - ll) * 100;
                 prevK = k; prevD = d;
                 k = prevK * (2/3) + rsv * (1/3);
                 d = prevD * (2/3) + k  * (1/3);
@@ -1000,114 +988,74 @@
             return '<span class="' + cls + '">' + label + '</span><br><small style="color:#64748b;font-size:0.75rem;">K:' + kd.k + ' D:' + kd.d + '</small>';
         }
 
-        // ==================== API Key Modal ====================
-        function getApiKey() {
-            return localStorage.getItem('anthropic_api_key') || '';
+        // ==================== Yahoo Finance fetch via CORS proxy ====================
+        const YF_PROXIES = [
+            u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+            u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+            u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+        ];
+
+        async function yfFetch(url) {
+            const errors = [];
+            for (const mkProxy of YF_PROXIES) {
+                try {
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 10000);
+                    const res = await fetch(mkProxy(url), { signal: ctrl.signal });
+                    clearTimeout(tid);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return await res.json();
+                } catch(e) {
+                    errors.push(e.message);
+                }
+            }
+            throw new Error('所有代理均失敗（' + errors.join('；') + '）');
         }
-        function promptApiKey() {
-            const existing = getApiKey();
-            const key = window.prompt(
-                '請輸入您的 Anthropic API Key\n（只存在您的瀏覽器本機，不會上傳）\n\n取得方式：console.anthropic.com → API Keys',
-                existing
-            );
-            if (key && key.trim().startsWith('sk-')) {
-                localStorage.setItem('anthropic_api_key', key.trim());
-                return key.trim();
-            } else if (key !== null) {
-                alert('API Key 格式不正確，應以 sk- 開頭');
-            }
-            return null;
+
+        async function fetchSymbolDataFromYahoo(symbol) {
+            const BASE = 'https://query2.finance.yahoo.com';
+            const BASE1 = 'https://query1.finance.yahoo.com';
+            const [summaryData, dailyData, hourlyData] = await Promise.all([
+                yfFetch(`${BASE}/v10/finance/quoteSummary/${symbol}?modules=summaryDetail,defaultKeyStatistics`),
+                yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=3mo`),
+                yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1h&range=5d`)
+            ]);
+
+            const sd  = summaryData?.quoteSummary?.result?.[0]?.summaryDetail      ?? {};
+            const ks  = summaryData?.quoteSummary?.result?.[0]?.defaultKeyStatistics ?? {};
+
+            const dailyQ  = dailyData?.chart?.result?.[0]?.indicators?.quote?.[0]  ?? {};
+            const hourlyQ = hourlyData?.chart?.result?.[0]?.indicators?.quote?.[0] ?? {};
+
+            const dailyKD  = calcKD(dailyQ.high,  dailyQ.low,  dailyQ.close);
+            const hourlyKD = calcKD(hourlyQ.high, hourlyQ.low, hourlyQ.close);
+
+            return {
+                pe:   sd.trailingPE?.raw  ?? null,
+                fpe:  sd.forwardPE?.raw   ?? null,
+                peg:  ks.pegRatio?.raw    ?? null,
+                eps:  ks.trailingEps?.raw ?? null,
+                daily_k:      dailyKD?.k    ?? null,
+                daily_d:      dailyKD?.d    ?? null,
+                daily_cross:  dailyKD  ? (dailyKD.crossUp  ? 'golden' : dailyKD.crossDown  ? 'death' : 'none') : 'none',
+                hourly_k:     hourlyKD?.k   ?? null,
+                hourly_d:     hourlyKD?.d   ?? null,
+                hourly_cross: hourlyKD ? (hourlyKD.crossUp ? 'golden' : hourlyKD.crossDown ? 'death' : 'none') : 'none'
+            };
         }
 
-        // ==================== Claude API: fetch fundamentals + KD via web search ====================
-        async function fetchSymbolDataViaClaudeAPI(symbols, apiKey) {
-            const symbolList = symbols.join(', ');
-            const prompt = `你是金融數據助手。請查詢以下股票的最新數據，以 JSON 格式回傳，不要有任何說明文字，只輸出純 JSON。
 
-股票清單：${symbolList}
-
-請回傳格式如下（所有欄位若無數據填 null）：
-{
-  "SYMBOL": {
-    "pe": 數字或null,
-    "fpe": 數字或null,
-    "peg": 數字或null,
-    "eps": 數字或null,
-    "daily_k": 數字或null,
-    "daily_d": 數字或null,
-    "daily_cross": "golden"或"death"或"none",
-    "hourly_k": 數字或null,
-    "hourly_d": 數字或null,
-    "hourly_cross": "golden"或"death"或"none"
-  }
-}
-
-說明：
-- pe = 本益比（trailing P/E）
-- fpe = 預期本益比（forward P/E）
-- peg = PEG ratio
-- eps = 每股盈餘（trailing EPS）
-- daily_k / daily_d = 日線隨機指標 K/D 值（9期，2/3平滑）
-- daily_cross = golden（K由下往上穿越D）, death（K由上往下穿越D）, none
-- hourly_k / hourly_d = 小時線隨機指標 K/D 值
-- hourly_cross = 同上`;
-
-            let response;
-            try {
-                response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-opus-4-6',
-                        max_tokens: 4096,
-                        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-                        messages: [{ role: 'user', content: prompt }]
-                    })
-                });
-            } catch (netErr) {
-                throw new Error('網路連線失敗（' + netErr.message + '）\n\n若從本機 file:// 開啟，請改用瀏覽器的 Live Server 或上傳至網頁伺服器後再試。');
-            }
-
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error((err.error?.message) || 'API 回應 ' + response.status);
-            }
-
-            const data = await response.json();
-            // Extract text from response (may have tool_use blocks first)
-            let jsonText = '';
-            for (const block of data.content || []) {
-                if (block.type === 'text') { jsonText += block.text; }
-            }
-            // Parse JSON - strip any markdown fences
-            jsonText = jsonText.replace(/```json|```/g, '').trim();
-            const firstBrace = jsonText.indexOf('{');
-            const lastBrace  = jsonText.lastIndexOf('}');
-            if (firstBrace === -1) throw new Error('API 未回傳有效 JSON');
-            return JSON.parse(jsonText.slice(firstBrace, lastBrace + 1));
-        }
 
         // ==================== Main Analysis Loader ====================
         async function loadAnalysis() {
             if (holdings.length === 0) { alert('請先匯入持倉數據'); return; }
-
-            let apiKey = getApiKey();
-            if (!apiKey) {
-                apiKey = promptApiKey();
-                if (!apiKey) return;
-            }
 
             const btn = document.getElementById('analysis-btn');
             btn.textContent = '載入中...'; btn.disabled = true;
 
             const tbody = document.getElementById('analysis-tbody');
 
-            // Build symbol list (leveraged → underlying)
+            // Build symbol list (leveraged → underlying), deduplicate queries
             const rows = holdings.map(h => ({
                 holding: h.symbol,
                 query: getQuerySymbol(h.symbol),
@@ -1119,44 +1067,31 @@
                 '<tr id="arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_') + '" style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
                 '<td style="padding:0.55rem 0.75rem; font-weight:700; color:#f1f5f9;">' + r.holding + '</td>' +
                 '<td style="padding:0.55rem 0.75rem; color:' + (r.isProxy?'#f59e0b':'#94a3b8') + '; font-size:0.82rem;">' + r.query + (r.isProxy?' <span style="font-size:0.7rem;">(原型)</span>':'') + '</td>' +
-                '<td colspan="6" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.55rem;">⏳ Claude 搜尋中...</td></tr>'
+                '<td colspan="6" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.55rem;">⏳ 查詢中...</td></tr>'
             ).join('');
 
-            // Split into batches of 5 to avoid token limits
-            const batchSize = 5;
+            // Fetch each symbol individually (parallel within batches)
             const allResults = {};
+            const uniqueQueries = [...new Set(rows.map(r => r.query))];
+            const batchSize = 4;
 
-            for (let i = 0; i < rows.length; i += batchSize) {
-                const batch = rows.slice(i, i + batchSize);
-                const syms  = batch.map(r => r.query);
-                // Update rows to show which batch is processing
-                batch.forEach(r => {
-                    const rowEl = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                    if (rowEl) rowEl.querySelector('td:last-child') && (rowEl.cells[2].colSpan = 6) && (rowEl.cells[2].textContent = '⏳ 查詢中（批次 ' + (Math.floor(i/batchSize)+1) + '/' + Math.ceil(rows.length/batchSize) + '）...');
-                });
-
-                try {
-                    const results = await fetchSymbolDataViaClaudeAPI(syms, apiKey);
-                    Object.assign(allResults, results);
-                } catch(e) {
-                    // Mark this batch as failed
-                    batch.forEach(r => {
-                        allResults[r.query] = { _error: e.message.split('\n')[0] };
+            for (let i = 0; i < uniqueQueries.length; i += batchSize) {
+                const batch = uniqueQueries.slice(i, i + batchSize);
+                // Update loading text
+                batch.forEach(sym => {
+                    rows.filter(r => r.query === sym).forEach(r => {
+                        const rowEl = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
+                        if (rowEl) { rowEl.cells[2].colSpan = 6; rowEl.cells[2].textContent = '⏳ 查詢中（' + (i + batch.indexOf(sym) + 1) + '/' + uniqueQueries.length + '）...'; }
                     });
-                    // If auth error, clear key and stop
-                    if (e.message.includes('401') || e.message.includes('authentication') || e.message.includes('API Key')) {
-                        localStorage.removeItem('anthropic_api_key');
-                        alert('❌ API Key 無效，請重新輸入\n\n' + e.message);
-                        btn.textContent = '🔄 更新分析數據'; btn.disabled = false;
-                        return;
+                });
+                // Parallel fetch within batch
+                await Promise.all(batch.map(async sym => {
+                    try {
+                        allResults[sym] = await fetchSymbolDataFromYahoo(sym);
+                    } catch(e) {
+                        allResults[sym] = { _error: e.message };
                     }
-                    // If network/CORS error, stop all batches and alert
-                    if (e.message.includes('網路連線失敗')) {
-                        alert(e.message);
-                        btn.textContent = '🔄 更新分析數據'; btn.disabled = false;
-                        return;
-                    }
-                }
+                }));
             }
 
             // Render all rows
