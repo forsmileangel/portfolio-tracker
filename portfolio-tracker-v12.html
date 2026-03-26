@@ -129,68 +129,64 @@
            ═══════════════════════════════════════ */
         @media (max-width: 640px) {
 
-            /* 全體縮小邊距 */
-            body { padding: 0.6rem !important; }
+            /* 全體邊距最小化 */
+            body { padding: 0.25rem !important; }
 
             /* 標題區 */
-            #main-header { padding-top: 2.8rem !important; margin-bottom: 0.75rem !important; }
-            #main-header-wrap { padding: 0.6rem 1rem !important; margin-bottom: 0.25rem !important; }
-            #main-title { font-size: 1.45rem !important; letter-spacing: 1px !important; }
-            #main-header .subtitle { font-size: 0.7rem !important; letter-spacing: 0.5px !important; }
+            #main-header { padding-top: 2.6rem !important; margin-bottom: 0.5rem !important; }
+            #main-header-wrap { padding: 0.5rem 0.75rem !important; margin-bottom: 0.2rem !important; }
+            #main-title { font-size: 1.35rem !important; letter-spacing: 0.5px !important; }
+            #main-header .subtitle { font-size: 0.68rem !important; letter-spacing: 0.3px !important; }
 
             /* 幣別切換縮小 */
-            #currency-toggle { top: 0.55rem !important; right: 0.55rem !important; }
-            #currency-toggle button { padding: 0.32rem 0.6rem !important; font-size: 0.72rem !important; }
+            #currency-toggle { top: 0.45rem !important; right: 0.45rem !important; }
+            #currency-toggle button { padding: 0.3rem 0.55rem !important; font-size: 0.7rem !important; }
 
             /* Tab 標籤縮小 */
-            .tab-btn { padding: 0.5rem 0.7rem !important; font-size: 0.78rem !important; letter-spacing: 0 !important; }
+            .tab-btn { padding: 0.5rem 0.65rem !important; font-size: 0.78rem !important; letter-spacing: 0 !important; }
 
-            /* 統計卡片：2欄 */
-            #stats-grid { grid-template-columns: 1fr 1fr !important; gap: 0.6rem !important; margin-bottom: 1rem !important; }
-            .stat-card { padding: 0.75rem !important; border-radius: 12px !important; }
-            .stat-card .stat-icon { width: 32px !important; height: 32px !important; font-size: 0.9rem !important; }
-            .stat-card .stat-val { font-size: 1.1rem !important; }
-            .stat-card .stat-sub { font-size: 0.75rem !important; }
+            /* 統計卡片：2欄、極小間距 */
+            #stats-grid { grid-template-columns: 1fr 1fr !important; gap: 0.4rem !important; margin-bottom: 0.6rem !important; }
+            .stat-card { padding: 0.65rem 0.6rem !important; border-radius: 10px !important; }
+
+            /* ★ 所有 glass-card 縮小左右 padding ★ */
+            .glass-card { padding: 0.65rem !important; border-radius: 12px !important; margin-bottom: 0.6rem !important; }
+            /* glass-card 內部若有額外包層也一起縮 */
+            .glass-card > div { padding-left: 0 !important; padding-right: 0 !important; }
 
             /* 持倉明細 */
-            .holding-row { padding: 0.85rem 0.85rem 0.85rem 1.1rem !important; border-radius: 12px !important; margin-bottom: 0.6rem !important; }
-            /* 成本/現價 input 全寬 */
+            .holding-row { padding: 0.7rem 0.7rem 0.7rem 1rem !important; border-radius: 10px !important; margin-bottom: 0.5rem !important; }
             .holding-row input[type="number"] { width: 100% !important; }
 
-            /* glass-card 內距 */
-            .glass-card { border-radius: 14px !important; }
-            .glass-card > div[style*="padding:2rem"],
-            .glass-card > div[style*="padding: 2rem"] { padding: 0.9rem !important; }
-
             /* 分析控制列 */
-            #analysis-ctrl { padding: 0.6rem 0 0 0 !important; }
-            #analysis-ctrl > div { gap: 0.4rem !important; }
-            #analysis-btn { padding: 0.55rem 1rem !important; font-size: 0.82rem !important; }
-            #backend-btn  { padding: 0.55rem 0.75rem !important; font-size: 0.75rem !important; }
-            #backend-status { font-size: 0.7rem !important; }
+            #analysis-ctrl { padding: 0.4rem 0 0 0 !important; }
+            #analysis-ctrl > div { gap: 0.35rem !important; flex-wrap: wrap !important; }
+            #analysis-btn { padding: 0.5rem 0.85rem !important; font-size: 0.8rem !important; }
+            #backend-btn  { padding: 0.5rem 0.65rem !important; font-size: 0.74rem !important; }
+            #backend-status { font-size: 0.68rem !important; }
 
-            /* 基本面/技術面表格：允許橫向滾動，提示 */
-            #tab-pane-2 .glass-card > div,
-            #tab-pane-3 .glass-card > div { padding: 0.75rem !important; }
+            /* 基本面/技術面 tab padding */
+            #tab-pane-2,
+            #tab-pane-3 { padding-top: 0.4rem !important; }
 
             /* 表格字體縮小 */
-            #fund-tbody td, #fund-tbody th,
-            #tech-tbody td, #tech-tbody th { font-size: 0.75rem !important; padding: 0.4rem 0.4rem !important; }
+            #fund-tbody td, #tech-tbody td { font-size: 0.74rem !important; padding: 0.35rem 0.35rem !important; }
 
-            /* Modal 全寬 */
+            /* Modal */
             #import-modal > div,
             #confirm-modal > div,
-            #review-modal > div { padding: 1.1rem !important; border-radius: 14px !important; }
+            #review-modal > div { padding: 0.9rem !important; border-radius: 12px !important; }
 
-            /* 表單欄位：手機 2欄 */
-            #trade-form-grid { grid-template-columns: 1fr 1fr !important; gap: 0.65rem !important; }
+            /* 表單欄位：2欄 */
+            #trade-form-grid { grid-template-columns: 1fr 1fr !important; gap: 0.5rem !important; }
         }
 
         /* 超小螢幕 (≤380px) */
         @media (max-width: 380px) {
-            .tab-btn { padding: 0.45rem 0.5rem !important; font-size: 0.72rem !important; }
-            #stats-grid { grid-template-columns: 1fr 1fr !important; }
-            .stat-card { padding: 0.6rem !important; }
+            body { padding: 0.15rem !important; }
+            .tab-btn { padding: 0.42rem 0.45rem !important; font-size: 0.7rem !important; }
+            .glass-card { padding: 0.5rem !important; }
+            .stat-card { padding: 0.5rem !important; }
         }
     </style>
 </head>
