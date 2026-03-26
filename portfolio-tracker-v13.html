@@ -724,7 +724,11 @@
         // ==================== v13 LocalStorage 持久化 ====================
         const PT_STORAGE_KEY = 'pt_v13_state';
 
+        let _storageReady = false; // 初始化完成前不允許存檔
+
         function saveToStorage() {
+            if (!_storageReady) return;      // init 完成前不存
+            if (holdings.length === 0) return; // 持倉為空時絕不覆蓋已存資料
             try {
                 const state = {
                     holdings,
@@ -1621,8 +1625,10 @@
         // ==================== 初始化 ====================
         function init() {
             holdings = [];
+            _storageReady = false; // 還原期間禁止寫入
             // v13：優先從 localStorage 還原上次持倉
             const hadSaved = loadFromStorage();
+            _storageReady = true;  // 還原完成，開放寫入
             renderAll();
             if (hadSaved) {
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
