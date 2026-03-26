@@ -992,13 +992,38 @@
                     return;
                 }
 
-                showPriceReview(prices);
+                directApplyPrices(prices);
 
             } catch(e) {
                 alert(`❌ 更新失敗：${e.message}`);
             } finally {
                 btn.disabled = false; text.textContent = '一鍵更新報價 + 匯率'; icon.style.animation = 'none';
             }
+        }
+
+        // 直接套用股價（不跳確認視窗）
+        function directApplyPrices(prices) {
+            saveHistory();
+            let updated = 0;
+            holdings.forEach(h => {
+                const newP = prices[h.symbol];
+                if (newP != null && !isNaN(newP) && newP > 0) {
+                    h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
+                    updated++;
+                }
+            });
+            renderAll();
+            // 輕量 toast 通知
+            const toast = document.createElement('div');
+            toast.textContent = `✅ 已更新 ${updated} 檔股價`;
+            Object.assign(toast.style, {
+                position:'fixed', bottom:'1.5rem', left:'50%', transform:'translateX(-50%)',
+                background:'rgba(16,185,129,0.92)', color:'#0a1628', padding:'0.6rem 1.4rem',
+                borderRadius:'20px', fontWeight:'700', fontSize:'0.95rem',
+                zIndex:'9999', boxShadow:'0 4px 16px rgba(0,0,0,0.4)', pointerEvents:'none'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
         }
 
         function manualPriceReview() {
@@ -1519,6 +1544,22 @@
             holdings = [];
             renderAll();
             console.log('%c✅ Portfolio Tracker 已啟動', 'color:#10b981; font-size:14px;');
+            // 啟動時自動抓取即時匯率
+            (async () => {
+                try {
+                    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                    if (!res.ok) throw new Error();
+                    const data = await res.json();
+                    if (data.rates && data.rates['TWD'] && data.rates['HKD']) {
+                        exchangeRates.USD_TWD = parseFloat(data.rates['TWD'].toFixed(4));
+                        exchangeRates.HKD_TWD = parseFloat((data.rates['TWD'] / data.rates['HKD']).toFixed(4));
+                        syncRateInputs();
+                        const rateEl = document.getElementById('rate-source');
+                        if (rateEl) rateEl.textContent = '✓ 即時匯率（' + new Date().toLocaleTimeString('zh-TW') + '）';
+                        renderAll();
+                    }
+                } catch(_) { /* 無網路時靜默失敗，維持預設值 */ }
+            })();
         }
         window.onload = init;
 
@@ -1541,7 +1582,7 @@
     </script>
 
     <!-- 浮動字體調整 (觸控裝置顯示) -->
-    <div id="font-ctrl" style="position:fixed; bottom:5.5rem; right:0.75rem; z-index:998;
+    <div id="font-ctrl" style="position:fixed; top:3.8rem; right:0.5rem; z-index:998;
          background:rgba(8,18,35,0.93); border:1.5px solid rgba(251,191,36,0.45);
          border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.6);
          display:flex; flex-direction:column; align-items:center; user-select:none;">
