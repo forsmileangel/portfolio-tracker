@@ -212,18 +212,19 @@
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">歷史均PE</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">預期本益比 (FPE)</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">PEG</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">PS</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">市銷率 (PS)</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">股價淨值比 (PB)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">Revenue Growth (YoY)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">Revenue Growth (FWD)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (近4季)</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">營收成長 (YoY)</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">營收成長 (FWD)</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (本季預估)</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (下季預估)</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (近4季)</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (全年預估)</th>
                                 <th style="padding:0.55rem 0.6rem; text-align:right; color:#fbbf24; white-space:nowrap;">EPS (明年預估)</th>
                             </tr>
                         </thead>
                         <tbody id="fund-tbody">
-                            <tr><td colspan="14" style="text-align:center; padding:3rem; color:#64748b;">點擊「更新分析數據」開始載入</td></tr>
+                            <tr><td colspan="15" style="text-align:center; padding:3rem; color:#64748b;">點擊「更新分析數據」開始載入</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1146,7 +1147,7 @@
             // 基本面：優先用後端 /yfundamentals（yfinance）
             let fund = {};
             let pe = null, fpe = null, peg = null, ps = null;
-            let eps_ttm = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
+            let eps_ttm = null, eps_cur_q = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
             const fundBase = BACKEND_URL || '';
             if (fundBase !== '' || _isLocal) {
                 // 本機或已設 Render 後端：完整資料（含歷史均PE、Revenue Growth 等）
@@ -1161,6 +1162,7 @@
                             peg        = raw.peg        ?? null;
                             ps         = raw.ps         ?? null;
                             eps_ttm    = raw.eps_ttm    ?? null;
+                            eps_cur_q  = raw.eps_cur_q  ?? null;
                             eps_next_q = raw.eps_next_q ?? null;
                             eps_cur_y  = raw.eps_cur_y  ?? null;
                             eps_next_y = raw.eps_next_y ?? null;
@@ -1182,7 +1184,8 @@
                         peg        = f.peg        ?? null;
                         ps         = f.ps         ?? null;
                         eps_ttm    = f.eps_ttm    ?? null;
-                        eps_next_q = f.eps_next_q ?? null;
+                        eps_cur_q  = f.eps_cur_q  ?? f.eps_next_q ?? null; // 相容舊版 JSON
+                        eps_next_q = f.eps_next_q2 ?? null;
                         eps_cur_y  = f.eps_cur_y  ?? null;
                         eps_next_y = f.eps_next_y ?? null;
                     }
@@ -1219,7 +1222,7 @@
                 rev_yoy:    fund?.rev_yoy     ?? null,
                 rev_fwd:    fund?.rev_fwd     ?? null,
                 hist_avg_pe:fund?.hist_avg_pe ?? null,
-                eps_ttm, eps_next_q, eps_cur_y, eps_next_y,
+                eps_ttm, eps_cur_q, eps_next_q, eps_cur_y, eps_next_y,
                 // KD
                 weekly_k: weeklyKD?.k ?? null, weekly_d: weeklyKD?.d ?? null, weekly_cross: kdCross(weeklyKD),
                 daily_k:  dailyKD?.k  ?? null, daily_d:  dailyKD?.d  ?? null, daily_cross:  kdCross(dailyKD),
@@ -1317,7 +1320,7 @@
                 '<td style="padding:0.5rem 0.6rem; color:' + (r.isProxy?'#f59e0b':'#94a3b8') + '; font-size:0.82rem;">' + r.query + (r.isProxy?' <span style="font-size:0.7rem;">(原型)</span>':'') + '</td>' +
                 '<td colspan="' + colspan + '" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.5rem;">' + msg + '</td></tr>';
 
-            fundTbody.innerHTML = rows.map(r => loadingRow(r, 12, '⏳ 查詢中...')).join('');
+            fundTbody.innerHTML = rows.map(r => loadingRow(r, 13, '⏳ 查詢中...')).join('');
             techTbody.innerHTML = rows.map(r => loadingRow(r,  9, '⏳ 查詢中...')).join('').replace(/arow-/g, 'trow-');
 
             // 載入快取（Shift+Click 強制重新整理）
@@ -1332,7 +1335,7 @@
                 rows.filter(r => r.query === sym).forEach(r => {
                     const fe = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
                     const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                    if (fe) { fe.cells[2].colSpan = 12; fe.cells[2].textContent = prog; }
+                    if (fe) { fe.cells[2].colSpan = 13; fe.cells[2].textContent = prog; }
                     if (te) { te.cells[2].colSpan =  9; te.cells[2].textContent = prog; }
                 });
                 try {
@@ -1368,7 +1371,7 @@
 
                 if (!d || d._error) {
                     const errMsg = '❌ ' + (d?._error||'無數據').split('\n')[0];
-                    if (fe) fe.innerHTML = symTd + qryTd + '<td colspan="12" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">' + errMsg + '</td>';
+                    if (fe) fe.innerHTML = symTd + qryTd + '<td colspan="13" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">' + errMsg + '</td>';
                     if (te) te.innerHTML = symTd + qryTd + '<td colspan="9"  style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">' + errMsg + '</td>';
                     return;
                 }
@@ -1378,7 +1381,7 @@
                     tr(fmt(d.pe)) + tr(fmt(d.hist_avg_pe)) + tr(fmt(d.fpe)) +
                     tr(fmt(d.peg)) + tr(fmt(d.ps)) + tr(fmt(d.pb)) +
                     tr(fmtp(d.rev_yoy)) + tr(fmtp(d.rev_fwd)) +
-                    tr(fmt(d.eps_ttm)) + tr(fmt(d.eps_next_q)) + tr(fmt(d.eps_cur_y)) + tr(fmt(d.eps_next_y));
+                    tr(fmt(d.eps_cur_q)) + tr(fmt(d.eps_next_q)) + tr(fmt(d.eps_ttm)) + tr(fmt(d.eps_cur_y)) + tr(fmt(d.eps_next_y));
 
                 // 技術面表
                 if (te) te.innerHTML = symTd + qryTd +

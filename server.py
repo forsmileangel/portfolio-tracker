@@ -28,12 +28,16 @@ def get_fundamentals(symbol):
         t    = yf.Ticker(symbol)
         info = t.info
 
-        # EPS 下季預估
+        # EPS 本季 / 下季預估
+        eps_cur_q  = None
         eps_next_q = None
         try:
             ee = t.earnings_estimate
-            if ee is not None and '0q' in ee.index:
-                eps_next_q = float(ee.loc['0q', 'avg'])
+            if ee is not None:
+                if '0q' in ee.index:
+                    eps_cur_q  = float(ee.loc['0q',  'avg'])
+                if '+1q' in ee.index:
+                    eps_next_q = float(ee.loc['+1q', 'avg'])
         except Exception:
             pass
 
@@ -77,7 +81,8 @@ def get_fundamentals(symbol):
             'rev_fwd':      rev_fwd,
             'hist_avg_pe':  hist_avg_pe,
             'eps_ttm':      info.get('trailingEps'),
-            'eps_next_q':   eps_next_q,
+            'eps_cur_q':    eps_cur_q,
+            'eps_next_q2':  eps_next_q,
             'eps_cur_y':    info.get('epsCurrentYear'),
             'eps_next_y':   info.get('epsForward'),
         }
