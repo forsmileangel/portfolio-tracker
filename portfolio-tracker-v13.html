@@ -498,7 +498,8 @@
         // ==================== 計算統計（強制 100%） ====================
         function calculateStats() {
             let totalCostUSD = 0, totalValueUSD = 0, totalCostTWD = 0, totalValueTWD = 0;
-            let totalDayPnLUSD = 0, totalDayPnLTWD = 0, hasDayPnL = false;
+            let totalDayPnLUSD  = 0, totalDayPnLTWD  = 0, hasDayPnL  = false;
+            let totalPrevDayPnLUSD = 0, totalPrevDayPnLTWD = 0, hasPrevDayPnL = false;
 
             // 第一遍：計算各持倉的 USD/TWD 市值並累加總計
             let holdingsWithStats = holdings.map(h => {
@@ -519,12 +520,30 @@
                 totalCostUSD += costUSD; totalValueUSD += valueUSD;
                 totalCostTWD += costTWD; totalValueTWD += valueTWD;
 
-                // 當日損益：從 _prevCloseCache 取昨收價；前日漲跌：從 _prevPrevCloseCache 取前日收盤
+                // 當日損益：從 _prevCloseCache 取昨收價；昨日漲跌：從 _prevPrevCloseCache 取前日收盤
                 const prevClose     = window._prevCloseCache?.[h.symbol]     ?? null;
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
                 let prevDayChangePct = null;
+                let prevDayPnlUSD = null, prevDayPnlTWD = null;
                 if (prevClose != null && prevClose > 0 && prevPrevClose != null && prevPrevClose > 0) {
                     prevDayChangePct = (prevClose - prevPrevClose) / prevPrevClose * 100;
+                    const prevDayPnlNative = (prevClose - prevPrevClose) * h.quantity;
+                    if (h.symbol === '9747.HK') {
+                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.USD_TWD;
+                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.USD_TWD;
+                    } else if (h.market === 'TW') {
+                        prevDayPnlUSD = prevDayPnlNative / exchangeRates.USD_TWD;
+                        prevDayPnlTWD = prevDayPnlNative;
+                    } else if (h.market === 'HK') {
+                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
+                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.HKD_TWD;
+                    } else {
+                        prevDayPnlUSD = prevDayPnlNative;
+                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.USD_TWD;
+                    }
+                    totalPrevDayPnLUSD += prevDayPnlUSD;
+                    totalPrevDayPnLTWD += prevDayPnlTWD;
+                    hasPrevDayPnL = true;
                 }
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
                 if (prevClose != null && prevClose > 0) {
@@ -551,7 +570,9 @@
 
                 return { ...h, costTotalUSD: costUSD, valueTotalUSD: valueUSD,
                     costTotalTWD: costTWD, valueTotalTWD: valueTWD, percentage: 0,
-                    prevClose, prevPrevClose, prevDayChangePct, dayChangePct, dayPnlUSD, dayPnlTWD };
+                    prevClose, prevPrevClose,
+                    prevDayChangePct, prevDayPnlUSD, prevDayPnlTWD,
+                    dayChangePct, dayPnlUSD, dayPnlTWD };
             });
 
             // 第二遍：計算占比
@@ -569,6 +590,7 @@
                 totalCostTWD, totalValueTWD, totalPnLTWD,
                 totalPnLPercentTWD: totalCostTWD > 0 ? (totalPnLTWD / totalCostTWD) * 100 : 0,
                 totalDayPnLUSD, totalDayPnLTWD, hasDayPnL,
+                totalPrevDayPnLUSD, totalPrevDayPnLTWD, hasPrevDayPnL,
                 holdingsWithStats
             };
         }
@@ -605,24 +627,78 @@
         }
 
         // ==================== 渲染 ====================
+        // 金額格式化：個位數（不含小數）
+        function fmtAmt(val, ccy) {
+            const v = Math.round(Math.abs(val));
+            return (ccy === 'USD' ? '$' : 'NT$') + v.toLocaleString('en-US');
+        }
+        function fmtPnl(val, ccy) {
+            return (val >= 0 ? '+' : '-') + fmtAmt(val, ccy);
+        }
+
         function renderStats(stats) {
             const grid = document.getElementById('stats-grid');
+            // ── 昨日損益 卡片 ──────────────────────────────
+            const prevDayCard = (function() {
+                if (!stats.hasPrevDayPnL) return '';
+                const d   = currency==='USD' ? stats.totalPrevDayPnLUSD : stats.totalPrevDayPnLTWD;
+                const pos = d >= 0;
+                const col = pos ? '#10b981' : '#ef4444';
+                const mainStr = fmtPnl(d, currency);
+                const subStr  = currency==='USD'
+                    ? fmtPnl(stats.totalPrevDayPnLTWD, 'TWD')
+                    : fmtPnl(stats.totalPrevDayPnLUSD, 'USD');
+                const prevVal = stats.totalValue - stats.totalDayPnLUSD - stats.totalPrevDayPnLUSD;
+                const pct = prevVal > 0 ? (stats.totalPrevDayPnLUSD / prevVal * 100).toFixed(2) : null;
+                const pctStr = pct != null ? ' (' + (pos?'+':'') + pct + '%)' : '';
+                return '<div class="stat-card" style="border:1px solid rgba(148,163,184,0.2);">'
+                    + '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">'
+                    +   '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#64748b 0%,#475569 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(100,116,139,0.4);">📆</div>'
+                    +   '<span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">昨日損益</span>'
+                    + '</div>'
+                    + '<div class="mono" style="font-size:1.8rem;font-weight:700;color:'+col+';">'+mainStr+'<span style="font-size:1.1rem;margin-left:0.4rem;">'+pctStr+'</span></div>'
+                    + '<div class="mono" style="font-size:0.9rem;margin-top:0.5rem;color:'+col+';">'+subStr+'</div>'
+                    + '</div>';
+            })();
+            // ── 當日損益 卡片 ──────────────────────────────
+            const dayCard = (function() {
+                if (!stats.hasDayPnL) return '';
+                const d   = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
+                const pos = d >= 0;
+                const col = pos ? '#10b981' : '#ef4444';
+                const mainStr = fmtPnl(d, currency);
+                const subStr  = currency==='USD'
+                    ? fmtPnl(stats.totalDayPnLTWD, 'TWD')
+                    : fmtPnl(stats.totalDayPnLUSD, 'USD');
+                const prevVal = stats.totalValue - stats.totalDayPnLUSD;
+                const pct = prevVal > 0 ? (stats.totalDayPnLUSD / prevVal * 100).toFixed(2) : null;
+                const pctStr = pct != null ? ' (' + (pos?'+':'') + pct + '%)' : '';
+                return '<div class="stat-card" style="border:1px solid rgba(251,191,36,0.25);">'
+                    + '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">'
+                    +   '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,0.4);">📅</div>'
+                    +   '<span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">當日損益</span>'
+                    + '</div>'
+                    + '<div class="mono" style="font-size:1.8rem;font-weight:700;color:'+col+';">'+mainStr+'<span style="font-size:1.1rem;margin-left:0.4rem;">'+pctStr+'</span></div>'
+                    + '<div class="mono" style="font-size:0.9rem;margin-top:0.5rem;color:'+col+';">'+subStr+'</div>'
+                    + '</div>';
+            })();
+
             grid.innerHTML = `
                 <div class="stat-card">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(251,191,36,0.4);">💰</div>
                         <span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總投入</span>
                     </div>
-                    <div class="mono" style="color:#fbbf24;font-size:1.8rem;font-weight:700;">${currency==='USD' ? '$' + stats.totalCost.toLocaleString('en-US',{minimumFractionDigits:2}) : 'NT$' + Math.round(stats.totalCostTWD).toLocaleString('en-US')}</div>
-                    <div class="mono" style="color:#64748b;font-size:0.9rem;margin-top:0.5rem;">${currency==='USD' ? 'NT$' + Math.round(stats.totalCostTWD).toLocaleString('en-US') : '$' + stats.totalCost.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+                    <div class="mono" style="color:#fbbf24;font-size:1.8rem;font-weight:700;">${currency==='USD' ? fmtAmt(stats.totalCost,'USD') : fmtAmt(stats.totalCostTWD,'TWD')}</div>
+                    <div class="mono" style="color:#64748b;font-size:0.9rem;margin-top:0.5rem;">${currency==='USD' ? fmtAmt(stats.totalCostTWD,'TWD') : fmtAmt(stats.totalCost,'USD')}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(59,130,246,0.4);">📈</div>
                         <span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總市值</span>
                     </div>
-                    <div class="mono" style="color:#3b82f6;font-size:1.8rem;font-weight:700;">${currency==='USD' ? '$' + stats.totalValue.toLocaleString('en-US',{minimumFractionDigits:2}) : 'NT$' + Math.round(stats.totalValueTWD).toLocaleString('en-US')}</div>
-                    <div class="mono" style="color:#64748b;font-size:0.9rem;margin-top:0.5rem;">${currency==='USD' ? 'NT$' + Math.round(stats.totalValueTWD).toLocaleString('en-US') : '$' + stats.totalValue.toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+                    <div class="mono" style="color:#3b82f6;font-size:1.8rem;font-weight:700;">${currency==='USD' ? fmtAmt(stats.totalValue,'USD') : fmtAmt(stats.totalValueTWD,'TWD')}</div>
+                    <div class="mono" style="color:#64748b;font-size:0.9rem;margin-top:0.5rem;">${currency==='USD' ? fmtAmt(stats.totalValueTWD,'TWD') : fmtAmt(stats.totalValue,'USD')}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
@@ -630,37 +706,15 @@
                         <span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總損益</span>
                     </div>
                     <div class="mono" style="font-size:1.8rem;font-weight:700;">
-                        <span class="${stats.totalPnL>=0?'profit':'loss'}">
-                            ${currency==='USD' ? (stats.totalPnL>=0?'+':'-') + '$' + Math.abs(stats.totalPnL).toLocaleString('en-US',{minimumFractionDigits:2}) : (stats.totalPnLTWD>=0?'+':'-') + 'NT$' + Math.abs(Math.round(stats.totalPnLTWD)).toLocaleString('en-US')}
-                        </span>
+                        <span class="${stats.totalPnL>=0?'profit':'loss'}">${currency==='USD' ? fmtPnl(stats.totalPnL,'USD') : fmtPnl(stats.totalPnLTWD,'TWD')}</span>
                         <span style="font-size:1.1rem;margin-left:0.5rem;" class="${stats.totalPnL>=0?'profit':'loss'}">(${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%)</span>
                     </div>
                     <div class="mono" style="font-size:0.9rem;margin-top:0.5rem;">
-                        <span class="${stats.totalPnLTWD>=0?'profit':'loss'}">
-                            ${currency==='USD' ? (stats.totalPnLTWD>=0?'+':'-') + 'NT$' + Math.abs(Math.round(stats.totalPnLTWD)).toLocaleString('en-US') : (stats.totalPnL>=0?'+':'-') + '$' + Math.abs(stats.totalPnL).toLocaleString('en-US',{minimumFractionDigits:2})}
-                        </span>
+                        <span class="${stats.totalPnLTWD>=0?'profit':'loss'}">${currency==='USD' ? fmtPnl(stats.totalPnLTWD,'TWD') : fmtPnl(stats.totalPnL,'USD')}</span>
                     </div>
                 </div>
-                ${(function() {
-                    if (!stats.hasDayPnL) return '';
-                    const d   = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
-                    const pos = d >= 0;
-                    const col = pos ? '#10b981' : '#ef4444';
-                    const mainStr = currency==='USD'
-                        ? (pos?'+':'-')+'$'+Math.abs(d).toLocaleString('en-US',{minimumFractionDigits:2})
-                        : (pos?'+':'-')+'NT$'+Math.abs(Math.round(d)).toLocaleString('en-US');
-                    const subStr  = currency==='USD'
-                        ? (stats.totalDayPnLTWD>=0?'+':'-')+'NT$'+Math.abs(Math.round(stats.totalDayPnLTWD)).toLocaleString('en-US')
-                        : (stats.totalDayPnLUSD>=0?'+':'-')+'$'+Math.abs(stats.totalDayPnLUSD).toLocaleString('en-US',{minimumFractionDigits:2});
-                    return '<div class="stat-card" style="border:1px solid rgba(251,191,36,0.25);">'
-                        + '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">'
-                        +   '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(245,158,11,0.4);">📅</div>'
-                        +   '<span style="color:#fbbf24;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">當日損益</span>'
-                        + '</div>'
-                        + '<div class="mono" style="font-size:1.8rem;font-weight:700;color:'+col+';">'+mainStr+'</div>'
-                        + '<div class="mono" style="font-size:0.9rem;margin-top:0.5rem;color:'+col+';">'+subStr+'</div>'
-                        + '</div>';
-                })()}
+                ${prevDayCard}
+                ${dayCard}
             `;
         }
 
@@ -669,11 +723,11 @@
                 const pnl = h.valueTotalUSD - h.costTotalUSD;
                 const isProfit = pnl >= 0;
                 const priceCcy = h.market==='HK'&&h.symbol!=='9747.HK' ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
-                const displayValue = currency==='USD' ? '$' + h.valueTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2}) : 'NT$' + Math.round(h.valueTotalTWD).toLocaleString('en-US');
-                const displayPnl = currency==='USD' ? `${isProfit?'+':'-'}$${Math.abs(pnl).toLocaleString('en-US',{minimumFractionDigits:2})}` : `${pnl>=0?'+':'-'}NT$${Math.abs(Math.round(pnl)).toLocaleString('en-US')}`;
+                const displayValue = currency==='USD' ? fmtAmt(h.valueTotalUSD,'USD') : fmtAmt(h.valueTotalTWD,'TWD');
+                const displayPnl   = currency==='USD' ? fmtPnl(pnl,'USD') : fmtPnl(pnl,'TWD');
                 const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
 
-                // 前日漲跌
+                // 昨日漲跌
                 let prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#64748b;">-</td>';
                 if (h.prevDayChangePct != null) {
                     const pp = h.prevDayChangePct >= 0;
@@ -689,11 +743,9 @@
                     dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
                         + '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:'+(cp?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)')+';color:'+(cp?'#10b981':'#ef4444')+';font-weight:600;">'
                         + (cp?'+':'') + h.dayChangePct.toFixed(2) + '%</span></td>';
-                    const dp = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
-                    const dpp = dp >= 0;
-                    const dpStr = currency==='USD'
-                        ? (dpp?'+':'-')+'$'+Math.abs(dp).toLocaleString('en-US',{minimumFractionDigits:2})
-                        : (dpp?'+':'-')+'NT$'+Math.abs(Math.round(dp)).toLocaleString('en-US');
+                    const dp    = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
+                    const dpp   = dp >= 0;
+                    const dpStr = fmtPnl(dp, currency);
                     dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:'+(dpp?'#10b981':'#ef4444')+';">'+dpStr+'</td>';
                 }
 
@@ -712,11 +764,10 @@
             }).join('');
 
             const dayPnlFooter = stats.hasDayPnL ? (() => {
-                const dp = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
+                const dp  = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
                 const pos = dp >= 0;
-                const dpStr = (pos?'+':'-') + (currency==='USD'?'$':'NT$')
-                    + (currency==='USD' ? Math.abs(dp).toLocaleString('en-US',{minimumFractionDigits:2}) : Math.abs(Math.round(dp)).toLocaleString('en-US'));
-                return '<td></td>'   // 前日漲跌（合計列空白）
+                const dpStr = fmtPnl(dp, currency);
+                return '<td></td>'   // 昨日漲跌（合計列空白）
                     + '<td style="padding:0.65rem 0.75rem;text-align:right;color:'+(pos?'#10b981':'#ef4444')+';font-weight:700;"></td>'
                     + '<td style="padding:0.65rem 0.75rem;text-align:right;color:'+(pos?'#10b981':'#ef4444')+';font-weight:700;">'+dpStr+'</td>';
             })() : '<td></td><td></td><td></td>';
@@ -727,7 +778,7 @@
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">持有股數</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">成本價</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">現價</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#94a3b8;">前日漲跌</th>
+                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#94a3b8;">昨日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">當日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">當日損益</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#fbbf24;">市值 (${currency})</th>
@@ -739,8 +790,8 @@
                     <td style="padding:0.65rem 0.75rem;color:#fbbf24;font-weight:700;">合計</td>
                     <td></td><td></td><td></td>
                     ${dayPnlFooter}
-                    <td style="padding:0.65rem 0.75rem;text-align:right;color:#fbbf24;font-weight:700;">${currency==='USD'?'$'+stats.totalValue.toLocaleString('en-US',{minimumFractionDigits:2}):'NT$'+Math.round(stats.totalValueTWD).toLocaleString('en-US')}</td>
-                    <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${currency==='USD'?(stats.totalPnL>=0?'+':'-')+'$'+Math.abs(stats.totalPnL).toLocaleString('en-US',{minimumFractionDigits:2}):(stats.totalPnLTWD>=0?'+':'-')+'NT$'+Math.abs(Math.round(stats.totalPnLTWD)).toLocaleString('en-US')}</td>
+                    <td style="padding:0.65rem 0.75rem;text-align:right;color:#fbbf24;font-weight:700;">${currency==='USD'?fmtAmt(stats.totalValue,'USD'):fmtAmt(stats.totalValueTWD,'TWD')}</td>
+                    <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${currency==='USD'?fmtPnl(stats.totalPnL,'USD'):fmtPnl(stats.totalPnLTWD,'TWD')}</td>
                     <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%</td>
                 </tr></tfoot>`;
         }
