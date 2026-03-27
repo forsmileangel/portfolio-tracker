@@ -1387,17 +1387,63 @@
         }
 
         async function fetchSymbolDataFromYahoo(symbol) {
-            const BASE1 = 'https://query1.finance.yahoo.com';
+            const BASE1    = 'https://query1.finance.yahoo.com';
+            const fundBase = BACKEND_URL || '';
 
-            // 基本面：優先用後端 /yfundamentals（yfinance）
+            // ══════════════════════════════════════════════════════════════════
+            // ① 優先讀 data/fundamentals.json（本機 & GitHub Pages 都用同一份）
+            //    讓兩端數字完全一致。新標的不在 JSON 中才走後面的 API 路徑。
+            // ══════════════════════════════════════════════════════════════════
+            try {
+                if (!window._fundJsonCache) {
+                    const r = await fetch('./data/fundamentals.json');
+                    window._fundJsonCache = r.ok ? await r.json() : {};
+                }
+                const f = window._fundJsonCache?.data?.[symbol];
+                if (f && !f.error) {
+                    const pe         = f.pe         ?? null;
+                    const fpe        = f.fpe        ?? null;
+                    const peg        = f.peg        ?? null;
+                    const ps         = f.ps         ?? null;
+                    const eps_ttm    = f.eps_ttm    ?? null;
+                    const eps_cur_q  = f.eps_cur_q  ?? f.eps_next_q ?? null; // 相容舊版
+                    const eps_next_q = f.eps_next_q2 ?? null;
+                    const eps_cur_y  = f.eps_cur_y  ?? null;
+                    const eps_next_y = f.eps_next_y ?? null;
+
+                    // 若 JSON 含技術面數據（新版 update_fund.py）→ 直接返回
+                    if (f.daily_k != null || f.weekly_k != null || f.hourly_k != null) {
+                        return {
+                            pe, fpe, peg, ps,
+                            pb:          f.pb          ?? null,
+                            rev_yoy:     f.rev_yoy     ?? null,
+                            rev_fwd:     f.rev_fwd     ?? null,
+                            hist_avg_pe: f.hist_avg_pe ?? null,
+                            eps_ttm, eps_cur_q, eps_next_q, eps_cur_y, eps_next_y,
+                            daily_k:  f.daily_k  ?? null, daily_d:  f.daily_d  ?? null, daily_cross:  f.daily_cross  ?? 'none',
+                            weekly_k: f.weekly_k ?? null, weekly_d: f.weekly_d ?? null, weekly_cross: f.weekly_cross ?? 'none',
+                            hourly_k: f.hourly_k ?? null, hourly_d: f.hourly_d ?? null, hourly_cross: f.hourly_cross ?? 'none',
+                            daily_macd:  f.daily_macd  ?? null,
+                            weekly_macd: f.weekly_macd ?? null,
+                            hourly_macd: f.hourly_macd ?? null,
+                            daily_rsi:   f.daily_rsi   ?? null,
+                            weekly_rsi:  f.weekly_rsi  ?? null,
+                            hourly_rsi:  f.hourly_rsi  ?? null,
+                        };
+                    }
+                }
+            } catch(_) {}
+
+            // ══════════════════════════════════════════════════════════════════
+            // ② 備用：JSON 無此標的（新標的）→ 用後端 / CORS proxy 即時抓取
+            // ══════════════════════════════════════════════════════════════════
             let fund = {};
             let pe = null, fpe = null, peg = null, ps = null;
             let eps_ttm = null, eps_cur_q = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
-            const fundBase = BACKEND_URL || '';
+
             if (fundBase !== '' || _isLocal) {
-                // 本機或已設 Render 後端：完整資料（含歷史均PE、Revenue Growth 等）
                 try {
-                    const fundResp = await fetch(fundBase + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
+                    const fundResp = await fetch((fundBase || '') + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
                     if (fundResp.ok) {
                         const raw = await fundResp.json();
                         if (!raw.error) {
@@ -1414,30 +1460,9 @@
                         }
                     }
                 } catch(_) {}
-            } else {
-                // GitHub Pages 無後端：讀取 GitHub Actions 預先產生的 data/fundamentals.json
-                try {
-                    if (!window._fundJsonCache) {
-                        const r = await fetch('./data/fundamentals.json');
-                        window._fundJsonCache = r.ok ? await r.json() : {};
-                    }
-                    const f = window._fundJsonCache?.data?.[symbol];
-                    if (f && !f.error) {
-                        fund       = f;
-                        pe         = f.pe         ?? null;
-                        fpe        = f.fpe        ?? null;
-                        peg        = f.peg        ?? null;
-                        ps         = f.ps         ?? null;
-                        eps_ttm    = f.eps_ttm    ?? null;
-                        eps_cur_q  = f.eps_cur_q  ?? f.eps_next_q ?? null; // 相容舊版 JSON
-                        eps_next_q = f.eps_next_q2 ?? null;
-                        eps_cur_y  = f.eps_cur_y  ?? null;
-                        eps_next_y = f.eps_next_y ?? null;
-                    }
-                } catch(_) {}
             }
 
-            // KD：用 /proxy 轉發 Yahoo Finance chart（週、日、時）
+            // 技術面：Yahoo Finance API（本機後端或 CORS proxy）
             const weeklyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1wk&range=2y`);
             const dailyData  = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=3mo`);
             const hourlyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1h&range=5d`);
@@ -1452,7 +1477,7 @@
 
             const kdCross = kd => kd ? (kd.crossUp ? 'golden' : kd.crossDown ? 'death' : 'none') : 'none';
 
-            const weeklyC  = weeklyQ.close, dailyC = dailyQ.close, hourlyC = hourlyQ.close;
+            const weeklyC    = weeklyQ.close, dailyC = dailyQ.close, hourlyC = hourlyQ.close;
             const weeklyMACD = calcMACD(weeklyC);
             const dailyMACD  = calcMACD(dailyC);
             const hourlyMACD = calcMACD(hourlyC);
@@ -1461,21 +1486,17 @@
             const hourlyRSI  = calcRSI(hourlyC);
 
             return {
-                // fundamentals
                 pe, fpe, peg, ps,
                 pb:         fund?.pb         ?? null,
-                rev_yoy:    fund?.rev_yoy     ?? null,
-                rev_fwd:    fund?.rev_fwd     ?? null,
+                rev_yoy:    fund?.rev_yoy    ?? null,
+                rev_fwd:    fund?.rev_fwd    ?? null,
                 hist_avg_pe:fund?.hist_avg_pe ?? null,
                 eps_ttm, eps_cur_q, eps_next_q, eps_cur_y, eps_next_y,
-                // KD
                 weekly_k: weeklyKD?.k ?? null, weekly_d: weeklyKD?.d ?? null, weekly_cross: kdCross(weeklyKD),
                 daily_k:  dailyKD?.k  ?? null, daily_d:  dailyKD?.d  ?? null, daily_cross:  kdCross(dailyKD),
                 hourly_k: hourlyKD?.k ?? null, hourly_d: hourlyKD?.d ?? null, hourly_cross: kdCross(hourlyKD),
-                // MACD
                 weekly_macd: weeklyMACD, daily_macd: dailyMACD, hourly_macd: hourlyMACD,
-                // RSI
-                weekly_rsi: weeklyRSI, daily_rsi: dailyRSI, hourly_rsi: hourlyRSI
+                weekly_rsi:  weeklyRSI,  daily_rsi:  dailyRSI,  hourly_rsi:  hourlyRSI
             };
         }
 
