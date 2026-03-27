@@ -219,14 +219,43 @@ for sym in symbols:
 
         # 昨收價 & 前日收盤價（用於前端計算當日/前日漲跌）
         prev_close = info.get('regularMarketPreviousClose') or info.get('previousClose')
+        # fast_info 備援（yfinance 新版部分 ticker 的 info 可能缺欄位）
+        if not prev_close:
+            try:
+                prev_close = getattr(t.fast_info, 'previous_close', None) or None
+            except Exception:
+                pass
+
         prev_prev_close = None
         try:
-            d5 = t.history(period='5d', interval='1d')
-            closes5 = d5['Close'].dropna().tolist()
-            if len(closes5) >= 3:
-                prev_prev_close = safe_float(closes5[-3])
-            elif len(closes5) >= 2:
-                prev_prev_close = safe_float(closes5[-2])
+            d10 = t.history(period='10d', interval='1d')
+            if not d10.empty:
+                closes10 = d10['Close'].dropna().tolist()
+                # 判斷今日是否有 K 棒（比對最後一根日期與今日 UTC-4 近似）
+                last_bar_date = d10.index[-1]
+                if hasattr(last_bar_date, 'tz_localize'):
+                    last_bar_date = last_bar_date.tz_localize(None)
+                import pytz as _ptz
+                et = _ptz.timezone('America/New_York')
+                now_et_date = datetime.now(_ptz.utc).astimezone(et).date()
+                try:
+                    last_et_date = pd.Timestamp(last_bar_date).tz_localize('UTC').tz_convert(et).date()
+                except Exception:
+                    last_et_date = pd.Timestamp(last_bar_date).date()
+                today_open = (last_et_date == now_et_date)
+
+                if today_open:
+                    # closes[-1]=今日進行中, [-2]=昨日, [-3]=前日
+                    if not prev_close and len(closes10) >= 2:
+                        prev_close = safe_float(closes10[-2])
+                    if len(closes10) >= 3:
+                        prev_prev_close = safe_float(closes10[-3])
+                else:
+                    # closes[-1]=昨日, [-2]=前日
+                    if not prev_close and len(closes10) >= 1:
+                        prev_close = safe_float(closes10[-1])
+                    if len(closes10) >= 2:
+                        prev_prev_close = safe_float(closes10[-2])
         except Exception:
             pass
 

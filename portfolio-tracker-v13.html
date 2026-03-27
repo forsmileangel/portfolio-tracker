@@ -266,9 +266,9 @@
             <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin-bottom:1.5rem;">持倉分布圖</h2>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; align-items:start;">
                 <div><canvas id="pieCanvas" width="400" height="400"></canvas></div>
-                <div>
-                    <h3 style="color:#fbbf24; font-size:1.1rem; font-weight:700; margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px;">持倉占比明細</h3>
-                    <div id="pie-legend" style="display:flex; flex-direction:column; gap:0.2rem; max-height:400px; overflow-y:auto; padding-right:0.5rem;"></div>
+                <div style="padding-top:0;">
+                    <h3 style="color:#fbbf24; font-size:1.1rem; font-weight:700; margin:0 0 0.6rem 0; text-transform:uppercase; letter-spacing:1px;">持倉占比明細</h3>
+                    <div id="pie-legend" style="display:flex; flex-direction:column; gap:0.15rem; max-height:400px; overflow-y:auto; padding-right:0.5rem;"></div>
                 </div>
             </div>
         </div>
@@ -885,12 +885,12 @@
             });
 
             const legendHTML = pieData.map((d, i) => `
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.35rem 0.6rem; background:rgba(15,23,42,0.3); border-radius:5px; font-size:0.85rem; border-left:3px solid ${colors[i % colors.length]};">
-                    <div style="display:flex; align-items:center; gap:0.4rem;">
-                        <div style="width:8px;height:8px;border-radius:2px;background:${colors[i % colors.length]};"></div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${colors[i % colors.length]};">
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <div style="width:7px;height:7px;border-radius:2px;background:${colors[i % colors.length]};flex-shrink:0;"></div>
                         <span style="color:#e2e8f0;font-weight:600;">${d.name}</span>
                     </div>
-                    <span style="color:#3b82f6;font-weight:600;">${d.value.toFixed(2)}%</span>
+                    <span style="color:#3b82f6;font-weight:600;white-space:nowrap;">${d.value.toFixed(2)}%</span>
                 </div>`).join('');
             document.getElementById('pie-legend').innerHTML = legendHTML;
         }
@@ -1608,6 +1608,30 @@
                     // 新版 JSON 已含技術面 → 直接返回，兩端數字完全一致
                     if (f.daily_k != null || f.weekly_k != null || f.hourly_k != null) {
                         _jsonHasTech = true;
+                        let prevClose     = f.prev_close      ?? null;
+                        let prevPrevClose = f.prev_prev_close ?? null;
+                        let marketOpenedToday = null; // 預設未知
+
+                        // JSON 缺 prevClose（舊版 JSON 或 yfinance 未回傳）→ 快速抓 5-day chart 補充
+                        if (prevClose == null) {
+                            try {
+                                const qd  = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=5d`);
+                                const ch  = qd?.chart?.result?.[0];
+                                const tss = ch?.timestamp ?? [];
+                                const c   = (ch?.indicators?.quote?.[0]?.close ?? []).filter(v => v != null);
+                                const todayET = new Date().toLocaleDateString('en-US', {timeZone:'America/New_York'});
+                                const barET   = tss.length ? new Date(tss[tss.length-1]*1000).toLocaleDateString('en-US',{timeZone:'America/New_York'}) : '';
+                                marketOpenedToday = (todayET === barET);
+                                if (marketOpenedToday) {
+                                    if (c.length >= 2) prevClose     = c[c.length - 2];
+                                    if (c.length >= 3) prevPrevClose = c[c.length - 3];
+                                } else {
+                                    if (c.length >= 1) prevClose     = c[c.length - 1];
+                                    if (c.length >= 2) prevPrevClose = c[c.length - 2];
+                                }
+                            } catch(_) {}
+                        }
+
                         return {
                             pe, fpe, peg, ps,
                             pb:           f.pb          ?? null,
@@ -1615,8 +1639,7 @@
                             rev_fwd:      f.rev_fwd     ?? null,
                             hist_avg_pe:  f.hist_avg_pe ?? null,
                             eps_ttm, eps_cur_q, eps_next_q, eps_cur_y, eps_next_y,
-                            prevClose:     f.prev_close      ?? null,
-                            prevPrevClose: f.prev_prev_close ?? null,
+                            prevClose, prevPrevClose, marketOpenedToday,
                             daily_k:  f.daily_k  ?? null, daily_d:  f.daily_d  ?? null, daily_cross:  f.daily_cross  ?? 'none',
                             weekly_k: f.weekly_k ?? null, weekly_d: f.weekly_d ?? null, weekly_cross: f.weekly_cross ?? 'none',
                             hourly_k: f.hourly_k ?? null, hourly_d: f.hourly_d ?? null, hourly_cross: f.hourly_cross ?? 'none',
@@ -1680,13 +1703,23 @@
             const dailyRSI   = calcRSI(dailyC);
             const hourlyRSI  = calcRSI(hourlyC);
 
-            // 昨收價 & 前日收盤：優先用 JSON，備用從日線圖取倒數第二、三根收盤
+            // 昨收價 & 前日收盤：判斷今日是否開盤後，選正確 index
             let prevClose     = fund?.prev_close      ?? null;
             let prevPrevClose = fund?.prev_prev_close ?? null;
-            if (Array.isArray(dailyC) && dailyC.length >= 2) {
-                const valid = dailyC.filter(c => c != null);
-                if (prevClose == null && valid.length >= 2)     prevClose     = valid[valid.length - 2];
-                if (prevPrevClose == null && valid.length >= 3) prevPrevClose = valid[valid.length - 3];
+            const dailyTs3   = dailyData?.chart?.result?.[0]?.timestamp ?? [];
+            const lastDailyTs = dailyTs3[dailyTs3.length - 1];
+            const todayET3    = new Date().toLocaleDateString('en-US', {timeZone:'America/New_York'});
+            const barET3      = lastDailyTs ? new Date(lastDailyTs*1000).toLocaleDateString('en-US',{timeZone:'America/New_York'}) : '';
+            const marketOpenedToday = (todayET3 === barET3);
+            const valid3 = Array.isArray(dailyC) ? dailyC.filter(c => c != null) : [];
+            if (marketOpenedToday) {
+                // 最後一根 = 今日進行中 → [-2]=昨日, [-3]=前日
+                if (prevClose == null && valid3.length >= 2)     prevClose     = valid3[valid3.length - 2];
+                if (prevPrevClose == null && valid3.length >= 3) prevPrevClose = valid3[valid3.length - 3];
+            } else {
+                // 最後一根 = 昨日（今日未開盤）→ [-1]=昨日, [-2]=前日
+                if (prevClose == null && valid3.length >= 1)     prevClose     = valid3[valid3.length - 1];
+                if (prevPrevClose == null && valid3.length >= 2) prevPrevClose = valid3[valid3.length - 2];
             }
 
             return {
@@ -1696,7 +1729,7 @@
                 rev_fwd:    fund?.rev_fwd    ?? null,
                 hist_avg_pe:fund?.hist_avg_pe ?? null,
                 eps_ttm, eps_cur_q, eps_next_q, eps_cur_y, eps_next_y,
-                prevClose, prevPrevClose,
+                prevClose, prevPrevClose, marketOpenedToday,
                 weekly_k: weeklyKD?.k ?? null, weekly_d: weeklyKD?.d ?? null, weekly_cross: kdCross(weeklyKD),
                 daily_k:  dailyKD?.k  ?? null, daily_d:  dailyKD?.d  ?? null, daily_cross:  kdCross(dailyKD),
                 hourly_k: hourlyKD?.k ?? null, hourly_d: hourlyKD?.d ?? null, hourly_cross: kdCross(hourlyKD),
@@ -1872,15 +1905,16 @@
 
             btn.textContent = '🔄 更新分析數據'; btn.disabled = false;
 
-            // ── 儲存 prevClose / prevPrevClose 快取 ──
-            // 非槓桿 ETF：直接用分析結果
+            // ── 儲存 prevClose / prevPrevClose / marketOpenedToday 快取 ──
             if (!window._prevCloseCache)     window._prevCloseCache     = {};
             if (!window._prevPrevCloseCache) window._prevPrevCloseCache = {};
+            if (!window._marketOpenedToday)  window._marketOpenedToday  = {};
             rows.forEach(r => {
                 const d = allResults[r.query];
                 if (!r.isProxy) {
-                    if (d?.prevClose     != null) window._prevCloseCache[r.holding]     = d.prevClose;
-                    if (d?.prevPrevClose != null) window._prevPrevCloseCache[r.holding] = d.prevPrevClose;
+                    if (d?.prevClose         != null) window._prevCloseCache[r.holding]     = d.prevClose;
+                    if (d?.prevPrevClose     != null) window._prevPrevCloseCache[r.holding] = d.prevPrevClose;
+                    if (d?.marketOpenedToday != null) window._marketOpenedToday[r.holding]  = d.marketOpenedToday;
                 }
             });
 
