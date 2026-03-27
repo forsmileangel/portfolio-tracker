@@ -1390,9 +1390,15 @@
             const BASE1    = 'https://query1.finance.yahoo.com';
             const fundBase = BACKEND_URL || '';
 
+            // 外層變數：讓 ①②③ 三個步驟共用同一組基本面數值
+            let fund = {};
+            let pe = null, fpe = null, peg = null, ps = null;
+            let eps_ttm = null, eps_cur_q = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
+            let _jsonHasTech = false; // JSON 是否含技術面
+
             // ══════════════════════════════════════════════════════════════════
             // ① 優先讀 data/fundamentals.json（本機 & GitHub Pages 都用同一份）
-            //    讓兩端數字完全一致。新標的不在 JSON 中才走後面的 API 路徑。
+            //    確保兩端數字完全一致；新標的不在 JSON 才走後面的 API 路徑。
             // ══════════════════════════════════════════════════════════════════
             try {
                 if (!window._fundJsonCache) {
@@ -1401,18 +1407,21 @@
                 }
                 const f = window._fundJsonCache?.data?.[symbol];
                 if (f && !f.error) {
-                    const pe         = f.pe         ?? null;
-                    const fpe        = f.fpe        ?? null;
-                    const peg        = f.peg        ?? null;
-                    const ps         = f.ps         ?? null;
-                    const eps_ttm    = f.eps_ttm    ?? null;
-                    const eps_cur_q  = f.eps_cur_q  ?? f.eps_next_q ?? null; // 相容舊版
-                    const eps_next_q = f.eps_next_q2 ?? null;
-                    const eps_cur_y  = f.eps_cur_y  ?? null;
-                    const eps_next_y = f.eps_next_y ?? null;
+                    // 把基本面寫入外層變數（無論有無技術面都先存）
+                    fund       = f;
+                    pe         = f.pe         ?? null;
+                    fpe        = f.fpe        ?? null;
+                    peg        = f.peg        ?? null;
+                    ps         = f.ps         ?? null;
+                    eps_ttm    = f.eps_ttm    ?? null;
+                    eps_cur_q  = f.eps_cur_q  ?? f.eps_next_q ?? null; // 相容舊版 JSON
+                    eps_next_q = f.eps_next_q2 ?? null;
+                    eps_cur_y  = f.eps_cur_y  ?? null;
+                    eps_next_y = f.eps_next_y ?? null;
 
-                    // 若 JSON 含技術面數據（新版 update_fund.py）→ 直接返回
+                    // 新版 JSON 已含技術面 → 直接返回，兩端數字完全一致
                     if (f.daily_k != null || f.weekly_k != null || f.hourly_k != null) {
+                        _jsonHasTech = true;
                         return {
                             pe, fpe, peg, ps,
                             pb:          f.pb          ?? null,
@@ -1431,17 +1440,15 @@
                             hourly_rsi:  f.hourly_rsi  ?? null,
                         };
                     }
+                    // 舊版 JSON（無技術面）→ 基本面已存入外層變數，繼續往下抓技術面
                 }
             } catch(_) {}
 
             // ══════════════════════════════════════════════════════════════════
-            // ② 備用：JSON 無此標的（新標的）→ 用後端 / CORS proxy 即時抓取
+            // ② 基本面備用：JSON 無此標的（新標的）且有後端時才呼叫
+            //    若 ① 已從 JSON 取得 pe，此段跳過
             // ══════════════════════════════════════════════════════════════════
-            let fund = {};
-            let pe = null, fpe = null, peg = null, ps = null;
-            let eps_ttm = null, eps_cur_q = null, eps_next_q = null, eps_cur_y = null, eps_next_y = null;
-
-            if (fundBase !== '' || _isLocal) {
+            if (pe === null && (fundBase !== '' || _isLocal)) {
                 try {
                     const fundResp = await fetch((fundBase || '') + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
                     if (fundResp.ok) {
