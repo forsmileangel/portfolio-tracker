@@ -742,27 +742,32 @@
         }
 
         function loadFromStorage() {
+            // ① 先還原持倉（最重要，獨立 try/catch，失敗直接回傳 false）
+            let state = null;
             try {
                 const raw = localStorage.getItem(PT_STORAGE_KEY);
                 if (!raw) return false;
-                const state = JSON.parse(raw);
+                state = JSON.parse(raw);
                 if (Array.isArray(state.holdings) && state.holdings.length > 0) {
                     holdings = state.holdings;
                 }
+            } catch(e) { return false; }
+
+            // ② 還原其他設定（失敗不影響持倉顯示）
+            try {
                 if (state.sheetUrl) {
                     const el = document.getElementById('sheet-url');
                     if (el) el.value = state.sheetUrl;
                 }
-                if (state.currency) {
-                    currency = state.currency;
-                }
+                if (state.currency) currency = state.currency;
                 if (state.exchangeRates?.USD_TWD) {
                     exchangeRates.USD_TWD = state.exchangeRates.USD_TWD;
                     exchangeRates.HKD_TWD = state.exchangeRates.HKD_TWD || exchangeRates.HKD_TWD;
                     syncRateInputs();
                 }
-                return Array.isArray(state.holdings) && state.holdings.length > 0;
-            } catch(e) { return false; }
+            } catch(e) { /* 設定還原失敗不影響持倉 */ }
+
+            return holdings.length > 0;
         }
 
         // ==================== 操作 ====================
@@ -1214,6 +1219,8 @@
 
 
         // ==================== Tab System ====================
+        let _lastAnalysisLoad = 0; // 最後一次載入分析的時間戳
+
         function switchTab(n) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1221,6 +1228,16 @@
             document.getElementById('tab-btn-' + n).classList.add('active');
             const ctrl = document.getElementById('analysis-ctrl');
             if (ctrl) ctrl.style.display = (n === 2 || n === 3) ? 'block' : 'none';
+
+            // 切換到基本面/技術面時自動載入（表格空白 或 資料已超過 30 分鐘）
+            if ((n === 2 || n === 3) && holdings.length > 0) {
+                const tbody = document.getElementById('fund-tbody');
+                const isEmpty = !tbody || tbody.innerHTML.trim() === '';
+                const isStale = Date.now() - _lastAnalysisLoad > 30 * 60 * 1000;
+                if (isEmpty || isStale) {
+                    loadAnalysis(isStale); // 超過 30 分鐘則強制重整快取
+                }
+            }
         }
 
         // ==================== Leveraged ETF → Underlying Map ====================
@@ -1575,6 +1592,13 @@
             }
             _saveCache(allResults);
 
+            // ── 偵測未在 fundamentals.json 中的新標的（GitHub Pages 模式）──
+            if (!_isLocal && !BACKEND_URL && window._fundJsonCache?.data) {
+                const fundData = window._fundJsonCache.data;
+                const missing = uniqueQueries.filter(s => !fundData[s] && s !== 'BTC-USD');
+                if (missing.length > 0) _showMissingFundNotice(missing);
+            }
+
             // ── Render ──
             const fmt  = v => (v != null && !isNaN(v)) ? parseFloat(v).toFixed(2) : '-';
             const fmtp = v => (v != null && !isNaN(v)) ? (parseFloat(v)*100).toFixed(1) + '%' : '-';
@@ -1621,6 +1645,7 @@
             });
 
             btn.textContent = '🔄 更新分析數據'; btn.disabled = false;
+            _lastAnalysisLoad = Date.now(); // 記錄完成時間，供 switchTab 判斷是否需要重整
         }
         // ==================== 初始化 ====================
         function init() {
@@ -1652,8 +1677,12 @@
             })();
             // 啟動每分鐘自動更新報價
             startAutoRefresh();
-            // 啟動每小時自動更新基本面 & 技術面
+            // 啟動每30分鐘自動更新基本面 & 技術面
             startAutoAnalysis();
+            // 有持倉時：延遲 2 秒靜默預載分析（讓主畫面先渲染完）
+            if (hadSaved && holdings.length > 0) {
+                setTimeout(() => loadAnalysis(false, true), 2000);
+            }
         }
         window.onload = init;
 
@@ -1686,6 +1715,63 @@
                 const cd = document.getElementById('auto-refresh-countdown');
                 if (cd) cd.textContent = _secondsLeft;
             }, 1000);
+        }
+
+        // ── 偵測新標的並提示更新 symbols.json ──
+        async function _showMissingFundNotice(missingSymbols) {
+            // 取得目前 symbols.json
+            let currentSymbols = [];
+            try {
+                const r = await fetch('./data/symbols.json');
+                if (r.ok) currentSymbols = await r.json();
+            } catch(_) {}
+
+            // 合併新標的（去重）
+            const merged = [...new Set([...currentSymbols, ...missingSymbols])];
+            const newOnes = missingSymbols.filter(s => !currentSymbols.includes(s));
+            if (newOnes.length === 0) return; // 都已在 symbols.json 裡
+
+            // 建立提示 Toast（帶下載按鈕）
+            const notice = document.createElement('div');
+            notice.id = 'missing-fund-notice';
+            Object.assign(notice.style, {
+                position:'fixed', bottom:'1.5rem', left:'50%', transform:'translateX(-50%)',
+                background:'rgba(15,40,80,0.97)', border:'1.5px solid rgba(251,191,36,0.5)',
+                color:'#e2e8f0', padding:'0.9rem 1.2rem', borderRadius:'14px',
+                fontSize:'0.88rem', zIndex:'9999', maxWidth:'92vw',
+                boxShadow:'0 6px 24px rgba(0,0,0,0.6)', lineHeight:'1.6',
+                display:'flex', flexDirection:'column', gap:'0.55rem'
+            });
+            notice.innerHTML = `
+                <div style="color:#fbbf24;font-weight:700;">⚠️ 新標的尚無基本面資料</div>
+                <div>以下標的不在 <code>data/symbols.json</code> 中，基本面欄位顯示 "-"：<br>
+                    <span style="color:#f59e0b;font-weight:600;">${newOnes.join('、')}</span></div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    <button onclick="_downloadUpdatedSymbols(${JSON.stringify(merged).replace(/"/g,'&quot;')})"
+                        style="flex:1;padding:0.45rem 0.8rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);
+                               color:#0a1628;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;min-width:140px;">
+                        ⬇ 下載更新版 symbols.json</button>
+                    <button onclick="document.getElementById('missing-fund-notice')?.remove()"
+                        style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#94a3b8;
+                               border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
+                        略過</button>
+                </div>
+                <div style="color:#64748b;font-size:0.78rem;">下載後替換 data/symbols.json 並推送至 GitHub，Actions 下次執行時會自動更新基本面資料。</div>`;
+            // 移除舊的通知
+            document.getElementById('missing-fund-notice')?.remove();
+            document.body.appendChild(notice);
+        }
+
+        function _downloadUpdatedSymbols(merged) {
+            const json = JSON.stringify(merged, null, 2);
+            const blob = new Blob([json], { type:'application/json' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = 'symbols.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('missing-fund-notice')?.remove();
+            showImportToast('✅ symbols.json 已下載，請替換 data/symbols.json 後推送至 GitHub', 4000);
         }
 
         // ── 每小時自動更新基本面 & 技術面 ──
