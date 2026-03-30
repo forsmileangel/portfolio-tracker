@@ -1789,45 +1789,40 @@
                     }
                 } catch(_) {}
             }
-            // ②-b + ③ 並行抓取：quoteSummary（如需基本面）與三個週期 K 線圖同時發出
-            //    使用 Promise.all 將原本 3-4 個循序請求壓縮為 1 輪並行，顯著降低等待時間
-            const _needQs = (pe === null);
-            const [_qsRaw, weeklyData, dailyData, hourlyData] = await Promise.all([
-                _needQs
-                    ? yfFetch(
-                        `${BASE1}/v10/finance/quoteSummary/${encodeURIComponent(symbol)}` +
-                        `?modules=defaultKeyStatistics%2CfinancialData%2CearningsTrend%2CsummaryDetail`
-                      ).catch(() => null)
+            // ②-b + ③ 並行抓取：v6/finance/quote（基本面，無需認證）+ 三個週期 K 線圖
+            // Yahoo Finance v10/quoteSummary 自 2025 年起要求 crumb 驗證（HTTP 401），
+            // 改用 v6/finance/quote 不需任何 cookie/crumb，可直接透過 CORS proxy 取得。
+            const _needFund = (pe === null);
+            const [_quoteRaw, weeklyData, dailyData, hourlyData] = await Promise.all([
+                _needFund
+                    ? yfFetch(`https://query2.finance.yahoo.com/v6/finance/quote?symbols=${encodeURIComponent(symbol)}`).catch(() => null)
                     : Promise.resolve(null),
                 yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1wk&range=2y`).catch(() => null),
                 yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=3mo`).catch(() => null),
                 yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1h&range=5d`).catch(() => null)
             ]);
 
-            // 處理 quoteSummary 基本面結果
-            if (_needQs && _qsRaw) {
-                const res = _qsRaw?.quoteSummary?.result?.[0];
-                if (res) {
-                    const sd = res.summaryDetail        || {};
-                    const ks = res.defaultKeyStatistics || {};
-                    const fd = res.financialData        || {};
-                    const et = res.earningsTrend?.trend ?? [];
-                    pe  = sd.trailingPE?.raw                            ?? null;
-                    fpe = sd.forwardPE?.raw                             ?? null;
-                    peg = ks.pegRatio?.raw                              ?? null;
-                    ps  = sd.priceToSalesTrailing12Months?.raw          ?? null;
+            // 處理 v6/finance/quote 基本面結果
+            if (_needFund && _quoteRaw) {
+                const q = _quoteRaw?.quoteResponse?.result?.[0];
+                if (q) {
+                    pe  = q.trailingPE                              ?? null;
+                    fpe = q.forwardPE                               ?? null;
+                    peg = q.pegRatio                                ?? null;
+                    ps  = q.priceToSalesTrailing12Months            ?? null;
                     fund = {
-                        pb:               ks.priceToBook?.raw                                                ?? null,
+                        pb:               q.priceToBook                  ?? null,
                         hist_avg_pe:      null,
-                        rev_yoy:          fd.revenueGrowth?.raw                                             ?? null,
-                        rev_fwd:          (et.find(t => t.period === '+1y')?.revenueEstimate?.growth?.raw)  ?? null,
-                        gross_margin:     fd.grossMargins?.raw                                              ?? null,
-                        operating_margin: fd.operatingMargins?.raw                                         ?? null,
-                        eps_ttm:          ks.trailingEps?.raw                                               ?? null,
-                        eps_cur_q:        (et.find(t => t.period === '0q')?.earningsEstimate?.avg?.raw)     ?? null,
-                        eps_next_q:       (et.find(t => t.period === '+1q')?.earningsEstimate?.avg?.raw)    ?? null,
-                        eps_cur_y:        (et.find(t => t.period === '0y')?.earningsEstimate?.avg?.raw)     ?? null,
-                        eps_next_y:       (et.find(t => t.period === '+1y')?.earningsEstimate?.avg?.raw)    ?? null,
+                        rev_yoy:          q.revenueGrowth                ?? null,
+                        rev_fwd:          null,
+                        // v6/quote 偶爾包含利潤率（不保證），有則顯示
+                        gross_margin:     q.grossMargins                 ?? null,
+                        operating_margin: q.operatingMargins             ?? null,
+                        eps_ttm:          q.epsTrailingTwelveMonths      ?? null,
+                        eps_cur_q:        null,
+                        eps_next_q:       null,
+                        eps_cur_y:        q.epsForward                   ?? null,
+                        eps_next_y:       null,
                     };
                     eps_ttm    = fund.eps_ttm;
                     eps_cur_q  = fund.eps_cur_q;
@@ -2018,34 +2013,7 @@
                 if (missing.length > 0) _showMissingFundNotice(missing);
             }
 
-            // ── 補充抓取毛利率/營益率（Yahoo quoteSummary financialData）──
-            // fundamentals.json 目前不含這兩個欄位，透過 quoteSummary 補充
-            {
-                const needMargins = uniqueQueries.filter(s => {
-                    const d = allResults[s];
-                    return d && !d._error && d.gross_margin == null;
-                });
-                // 強制重整時清除標記，確保重新抓取
-                if (forceRefresh) window._marginFetched = new Set();
-                if (!window._marginFetched) window._marginFetched = new Set();
-                const toFetchM = needMargins.filter(s => !window._marginFetched.has(s));
-                for (let mi = 0; mi < toFetchM.length; mi++) {
-                    const sym = toFetchM[mi];
-                    try {
-                        const qsr = await yfFetch(
-                            `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}?modules=financialData`
-                        );
-                        const fd = qsr?.quoteSummary?.result?.[0]?.financialData;
-                        if (fd && allResults[sym]) {
-                            allResults[sym].gross_margin     = fd.grossMargins?.raw     ?? null;
-                            allResults[sym].operating_margin = fd.operatingMargins?.raw ?? null;
-                        }
-                        window._marginFetched.add(sym);
-                    } catch(_) {}
-                    if (mi < toFetchM.length - 1) await new Promise(r => setTimeout(r, 150));
-                }
-                if (toFetchM.length > 0) _saveCache(allResults);
-            }
+            // ── 毛利率/營益率：v6/quote 若有提供則已在 ②-b 填入；quoteSummary 需 crumb 已停用 ──
 
             // ── Render ──
             const fmt  = v => (v != null && !isNaN(v)) ? parseFloat(v).toFixed(2) : '-';
@@ -2362,7 +2330,10 @@
             const allQs = { ...cache };
             const toFetch = symbols.filter(s => !allQs[s]);
 
-            // 每批 3 個標的同時抓取（parallel），減少總等待時間
+            // 每批 3 個標的同時抓取：
+            //   - v8/finance/chart?events=earnings → 近4季 EPS 實際 vs 預估（不需認證）
+            //   - v6/finance/quote               → 分析師評級、目標股價、利潤率（不需認證）
+            // Yahoo Finance v10/quoteSummary 需要 crumb，已停用。
             const BATCH = 3;
             for (let i = 0; i < toFetch.length; i += BATCH) {
                 const batch = toFetch.slice(i, i + BATCH);
@@ -2370,12 +2341,44 @@
                     `(${Math.min(i + BATCH, toFetch.length)}/${toFetch.length}) 查詢 ${batch.join(', ')}...`;
                 await Promise.all(batch.map(async sym => {
                     try {
-                        const data = await yfFetch(
-                            `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}` +
-                            `?modules=earningsHistory%2CupgradeDowngradeHistory%2CrecommendationTrend%2CfinancialData%2CearningsTrend%2CdefaultKeyStatistics%2CsummaryDetail`
-                        );
-                        const res = data?.quoteSummary?.result?.[0];
-                        allQs[sym] = res || { _error: 'No data' };
+                        const [chartData, quoteData] = await Promise.all([
+                            yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=3mo&range=2y&events=earnings`).catch(() => null),
+                            yfFetch(`https://query2.finance.yahoo.com/v6/finance/quote?symbols=${encodeURIComponent(sym)}`).catch(() => null)
+                        ]);
+                        if (!chartData && !quoteData) { allQs[sym] = { _error: '無法取得數據' }; return; }
+
+                        // 從 chart events 轉換成 earningsHistory.history 格式（與 quoteSummary 相同結構）
+                        const rawEvents = chartData?.chart?.result?.[0]?.events?.earnings ?? {};
+                        const earningsHistoryArr = Object.entries(rawEvents)
+                            .sort(([a],[b]) => Number(a) - Number(b))
+                            .map(([ts, e]) => {
+                                const surpRaw = e.epsSurprisePct ?? e.surprisePct ?? null;
+                                const d = new Date(Number(ts) * 1000);
+                                const qNum = Math.ceil((d.getMonth() + 1) / 3);
+                                return {
+                                    epsActual:       { raw: e.epsActual   ?? e.actual   ?? null },
+                                    epsEstimate:     { raw: e.epsEstimate ?? e.estimate ?? null },
+                                    surprisePercent: { raw: surpRaw != null ? surpRaw / 100 : null },
+                                    quarter:         { fmt: `${d.getFullYear()} Q${qNum}` }
+                                };
+                            });
+
+                        // 從 v6/quote 取分析師共識、目標股價、利潤率
+                        const q = quoteData?.quoteResponse?.result?.[0] ?? {};
+                        allQs[sym] = {
+                            earningsHistory:          { history: earningsHistoryArr },
+                            upgradeDowngradeHistory:  { history: [] }, // v6 不提供評級異動
+                            financialData: {
+                                recommendationKey:        q.recommendationKey                       ?? '',
+                                numberOfAnalystOpinions:  { raw: q.numberOfAnalystOpinions          ?? 0 },
+                                targetMeanPrice:          q.targetMeanPrice  != null ? { raw: q.targetMeanPrice  } : null,
+                                targetLowPrice:           q.targetLowPrice   != null ? { raw: q.targetLowPrice   } : null,
+                                targetHighPrice:          q.targetHighPrice  != null ? { raw: q.targetHighPrice  } : null,
+                                grossMargins:             q.grossMargins     != null ? { raw: q.grossMargins     } : null,
+                                operatingMargins:         q.operatingMargins != null ? { raw: q.operatingMargins } : null,
+                                revenueGrowth:            q.revenueGrowth    != null ? { raw: q.revenueGrowth    } : null,
+                            },
+                        };
                     } catch(e) {
                         allQs[sym] = { _error: e.message.split('\n')[0] };
                     }
@@ -2384,7 +2387,7 @@
             }
             _saveQsCache(allQs);
 
-            // 同步更新 analysis cache 的毛利率/營益率，讓基本面 Tab 也能顯示
+            // 同步毛利率/營益率（若 v6/quote 有提供）到基本面快取
             const analysisCache = _loadCache();
             let acUpdated = false;
             for (const sym of symbols) {
