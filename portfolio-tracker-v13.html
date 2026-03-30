@@ -1642,11 +1642,18 @@
             u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u)
         ];
 
+        // 記住上次成功的 proxy 索引（頁面週期內有效），避免每次都從第一個重試
+        let _yfProxyIdx = 0;
+
         async function yfFetch(url) {
             const errors = [];
-            for (const mkProxy of YF_PROXIES) {
+            const n = YF_PROXIES.length;
+            for (let attempt = 0; attempt < n; attempt++) {
+                const idx = (_yfProxyIdx + attempt) % n;
+                const mkProxy = YF_PROXIES[idx];
                 const ctrl = new AbortController();
-                const tid  = setTimeout(() => ctrl.abort(), 12000);
+                // 超時從 12s 縮短至 5s，失敗時可更快切換到下一個 proxy
+                const tid  = setTimeout(() => ctrl.abort(), 5000);
                 try {
                     const res  = await fetch(mkProxy(url), { signal: ctrl.signal });
                     clearTimeout(tid);
@@ -1655,6 +1662,7 @@
                     // 確認是 JSON（proxy 可能回傳 HTML 錯誤頁）
                     if (!text.trimStart().startsWith('{') && !text.trimStart().startsWith('['))
                         throw new Error('非 JSON 回應');
+                    _yfProxyIdx = idx; // 記住成功的 proxy，下次直接從這裡開始
                     return JSON.parse(text);
                 } catch(e) {
                     clearTimeout(tid);
@@ -1781,49 +1789,53 @@
                     }
                 } catch(_) {}
             }
-            // ②-b Yahoo Finance quoteSummary（無後端或後端無資料時的通用備援）
-            if (pe === null) {
-                try {
-                    const qsr = await yfFetch(
+            // ②-b + ③ 並行抓取：quoteSummary（如需基本面）與三個週期 K 線圖同時發出
+            //    使用 Promise.all 將原本 3-4 個循序請求壓縮為 1 輪並行，顯著降低等待時間
+            const _needQs = (pe === null);
+            const [_qsRaw, weeklyData, dailyData, hourlyData] = await Promise.all([
+                _needQs
+                    ? yfFetch(
                         `${BASE1}/v10/finance/quoteSummary/${encodeURIComponent(symbol)}` +
                         `?modules=defaultKeyStatistics%2CfinancialData%2CearningsTrend%2CsummaryDetail`
-                    );
-                    const res = qsr?.quoteSummary?.result?.[0];
-                    if (res) {
-                        const sd = res.summaryDetail        || {};
-                        const ks = res.defaultKeyStatistics || {};
-                        const fd = res.financialData        || {};
-                        const et = res.earningsTrend?.trend ?? [];
-                        pe  = sd.trailingPE?.raw                            ?? null;
-                        fpe = sd.forwardPE?.raw                             ?? null;
-                        peg = ks.pegRatio?.raw                              ?? null;
-                        ps  = sd.priceToSalesTrailing12Months?.raw          ?? null;
-                        fund = {
-                            pb:               ks.priceToBook?.raw                                                ?? null,
-                            hist_avg_pe:      null,
-                            rev_yoy:          fd.revenueGrowth?.raw                                             ?? null,
-                            rev_fwd:          (et.find(t => t.period === '+1y')?.revenueEstimate?.growth?.raw)  ?? null,
-                            gross_margin:     fd.grossMargins?.raw                                              ?? null,
-                            operating_margin: fd.operatingMargins?.raw                                         ?? null,
-                            eps_ttm:          ks.trailingEps?.raw                                               ?? null,
-                            eps_cur_q:        (et.find(t => t.period === '0q')?.earningsEstimate?.avg?.raw)     ?? null,
-                            eps_next_q:       (et.find(t => t.period === '+1q')?.earningsEstimate?.avg?.raw)    ?? null,
-                            eps_cur_y:        (et.find(t => t.period === '0y')?.earningsEstimate?.avg?.raw)     ?? null,
-                            eps_next_y:       (et.find(t => t.period === '+1y')?.earningsEstimate?.avg?.raw)    ?? null,
-                        };
-                        eps_ttm    = fund.eps_ttm;
-                        eps_cur_q  = fund.eps_cur_q;
-                        eps_next_q = fund.eps_next_q;
-                        eps_cur_y  = fund.eps_cur_y;
-                        eps_next_y = fund.eps_next_y;
-                    }
-                } catch(_) {}
-            }
+                      ).catch(() => null)
+                    : Promise.resolve(null),
+                yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1wk&range=2y`).catch(() => null),
+                yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=3mo`).catch(() => null),
+                yfFetch(`${BASE1}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1h&range=5d`).catch(() => null)
+            ]);
 
-            // 技術面：Yahoo Finance API（本機後端或 CORS proxy）
-            const weeklyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1wk&range=2y`);
-            const dailyData  = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=3mo`);
-            const hourlyData = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1h&range=5d`);
+            // 處理 quoteSummary 基本面結果
+            if (_needQs && _qsRaw) {
+                const res = _qsRaw?.quoteSummary?.result?.[0];
+                if (res) {
+                    const sd = res.summaryDetail        || {};
+                    const ks = res.defaultKeyStatistics || {};
+                    const fd = res.financialData        || {};
+                    const et = res.earningsTrend?.trend ?? [];
+                    pe  = sd.trailingPE?.raw                            ?? null;
+                    fpe = sd.forwardPE?.raw                             ?? null;
+                    peg = ks.pegRatio?.raw                              ?? null;
+                    ps  = sd.priceToSalesTrailing12Months?.raw          ?? null;
+                    fund = {
+                        pb:               ks.priceToBook?.raw                                                ?? null,
+                        hist_avg_pe:      null,
+                        rev_yoy:          fd.revenueGrowth?.raw                                             ?? null,
+                        rev_fwd:          (et.find(t => t.period === '+1y')?.revenueEstimate?.growth?.raw)  ?? null,
+                        gross_margin:     fd.grossMargins?.raw                                              ?? null,
+                        operating_margin: fd.operatingMargins?.raw                                         ?? null,
+                        eps_ttm:          ks.trailingEps?.raw                                               ?? null,
+                        eps_cur_q:        (et.find(t => t.period === '0q')?.earningsEstimate?.avg?.raw)     ?? null,
+                        eps_next_q:       (et.find(t => t.period === '+1q')?.earningsEstimate?.avg?.raw)    ?? null,
+                        eps_cur_y:        (et.find(t => t.period === '0y')?.earningsEstimate?.avg?.raw)     ?? null,
+                        eps_next_y:       (et.find(t => t.period === '+1y')?.earningsEstimate?.avg?.raw)    ?? null,
+                    };
+                    eps_ttm    = fund.eps_ttm;
+                    eps_cur_q  = fund.eps_cur_q;
+                    eps_next_q = fund.eps_next_q;
+                    eps_cur_y  = fund.eps_cur_y;
+                    eps_next_y = fund.eps_next_y;
+                }
+            }
 
             const weeklyQ = weeklyData?.chart?.result?.[0]?.indicators?.quote?.[0] ?? {};
             const dailyQ  = dailyData?.chart?.result?.[0]?.indicators?.quote?.[0]  ?? {};
@@ -1995,7 +2007,7 @@
                 } catch(e) {
                     allResults[sym] = { _error: e.message };
                 }
-                if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 600));
+                if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 200));
             }
             _saveCache(allResults);
 
@@ -2030,7 +2042,7 @@
                         }
                         window._marginFetched.add(sym);
                     } catch(_) {}
-                    if (mi < toFetchM.length - 1) await new Promise(r => setTimeout(r, 350));
+                    if (mi < toFetchM.length - 1) await new Promise(r => setTimeout(r, 150));
                 }
                 if (toFetchM.length > 0) _saveCache(allResults);
             }
@@ -2132,7 +2144,7 @@
                             allResults[query].marketOpenedToday = opened;
                         }
                     } catch(_) {}
-                    if (mi < missingSyms.length - 1) await new Promise(res => setTimeout(res, 300));
+                    if (mi < missingSyms.length - 1) await new Promise(res => setTimeout(res, 150));
                 }
                 // 更新快取（含補抓後的 prevClose）
                 _saveCache(allResults);
@@ -2350,20 +2362,25 @@
             const allQs = { ...cache };
             const toFetch = symbols.filter(s => !allQs[s]);
 
-            for (let i = 0; i < toFetch.length; i++) {
-                const sym = toFetch[i];
-                if (statusEl) statusEl.textContent = `(${i+1}/${toFetch.length}) 查詢 ${sym}...`;
-                try {
-                    const data = await yfFetch(
-                        `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}` +
-                        `?modules=earningsHistory%2CupgradeDowngradeHistory%2CrecommendationTrend%2CfinancialData%2CearningsTrend%2CdefaultKeyStatistics%2CsummaryDetail`
-                    );
-                    const res = data?.quoteSummary?.result?.[0];
-                    allQs[sym] = res || { _error: 'No data' };
-                } catch(e) {
-                    allQs[sym] = { _error: e.message.split('\n')[0] };
-                }
-                if (i < toFetch.length - 1) await new Promise(r => setTimeout(r, 500));
+            // 每批 3 個標的同時抓取（parallel），減少總等待時間
+            const BATCH = 3;
+            for (let i = 0; i < toFetch.length; i += BATCH) {
+                const batch = toFetch.slice(i, i + BATCH);
+                if (statusEl) statusEl.textContent =
+                    `(${Math.min(i + BATCH, toFetch.length)}/${toFetch.length}) 查詢 ${batch.join(', ')}...`;
+                await Promise.all(batch.map(async sym => {
+                    try {
+                        const data = await yfFetch(
+                            `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}` +
+                            `?modules=earningsHistory%2CupgradeDowngradeHistory%2CrecommendationTrend%2CfinancialData%2CearningsTrend%2CdefaultKeyStatistics%2CsummaryDetail`
+                        );
+                        const res = data?.quoteSummary?.result?.[0];
+                        allQs[sym] = res || { _error: 'No data' };
+                    } catch(e) {
+                        allQs[sym] = { _error: e.message.split('\n')[0] };
+                    }
+                }));
+                if (i + BATCH < toFetch.length) await new Promise(r => setTimeout(r, 300));
             }
             _saveQsCache(allQs);
 
