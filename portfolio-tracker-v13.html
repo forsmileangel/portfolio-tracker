@@ -544,15 +544,14 @@
             let holdingsWithStats = holdings.map(h => {
                 const costTotal  = h.costPrice * h.quantity;
                 const valueTotal = h.currentPrice * h.quantity;
+                const _isHK = h.market === 'HK' || h.symbol.endsWith('.HK');
                 let costUSD = costTotal, valueUSD = valueTotal, costTWD = costTotal, valueTWD = valueTotal;
-                if (h.symbol === '9747.HK') {
-                    costTWD = costTotal * exchangeRates.USD_TWD; valueTWD = valueTotal * exchangeRates.USD_TWD;
-                } else if (h.market === 'TW') {
-                    costUSD = costTotal / exchangeRates.USD_TWD; valueUSD = valueTotal / exchangeRates.USD_TWD;
-                } else if (h.market === 'HK') {
+                if (_isHK) {
                     costUSD = costTotal * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                     valueUSD = valueTotal * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                     costTWD = costTotal * exchangeRates.HKD_TWD; valueTWD = valueTotal * exchangeRates.HKD_TWD;
+                } else if (h.market === 'TW') {
+                    costUSD = costTotal / exchangeRates.USD_TWD; valueUSD = valueTotal / exchangeRates.USD_TWD;
                 } else {
                     costTWD = costTotal * exchangeRates.USD_TWD; valueTWD = valueTotal * exchangeRates.USD_TWD;
                 }
@@ -567,15 +566,12 @@
                 if (prevClose != null && prevClose > 0 && prevPrevClose != null && prevPrevClose > 0) {
                     prevDayChangePct = (prevClose - prevPrevClose) / prevPrevClose * 100;
                     const prevDayPnlNative = (prevClose - prevPrevClose) * h.quantity;
-                    if (h.symbol === '9747.HK') {
-                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.USD_TWD;
-                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.USD_TWD;
+                    if (_isHK) {
+                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
+                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.HKD_TWD;
                     } else if (h.market === 'TW') {
                         prevDayPnlUSD = prevDayPnlNative / exchangeRates.USD_TWD;
                         prevDayPnlTWD = prevDayPnlNative;
-                    } else if (h.market === 'HK') {
-                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
-                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.HKD_TWD;
                     } else {
                         prevDayPnlUSD = prevDayPnlNative;
                         prevDayPnlTWD = prevDayPnlNative * exchangeRates.USD_TWD;
@@ -592,15 +588,12 @@
                     const dayChange = h.currentPrice - prevClose;
                     dayChangePct = (dayChange / prevClose) * 100;
                     const dayPnlNative = dayChange * h.quantity;
-                    if (h.symbol === '9747.HK') {
-                        dayPnlUSD = dayPnlNative * exchangeRates.USD_TWD;
-                        dayPnlTWD = dayPnlNative * exchangeRates.USD_TWD;
+                    if (_isHK) {
+                        dayPnlUSD = dayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
+                        dayPnlTWD = dayPnlNative * exchangeRates.HKD_TWD;
                     } else if (h.market === 'TW') {
                         dayPnlUSD = dayPnlNative / exchangeRates.USD_TWD;
                         dayPnlTWD = dayPnlNative;
-                    } else if (h.market === 'HK') {
-                        dayPnlUSD = dayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
-                        dayPnlTWD = dayPnlNative * exchangeRates.HKD_TWD;
                     } else {
                         dayPnlUSD = dayPnlNative;
                         dayPnlTWD = dayPnlNative * exchangeRates.USD_TWD;
@@ -764,7 +757,7 @@
             const tbodyHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h,i) => {
                 const pnl = h.valueTotalUSD - h.costTotalUSD;
                 const isProfit = pnl >= 0;
-                const priceCcy = h.market==='HK'&&h.symbol!=='9747.HK' ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
                 const displayValue = currency==='USD' ? fmtAmt(h.valueTotalUSD,'USD') : fmtAmt(h.valueTotalTWD,'TWD');
                 const displayPnl   = currency==='USD' ? fmtPnl(pnl,'USD') : fmtPnl(pnl,'TWD');
                 const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
@@ -843,7 +836,7 @@
             container.innerHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h, i) => {
                 const pnl = h.valueTotalUSD - h.costTotalUSD;
                 const isProfit = pnl >= 0;
-                const priceCcy = h.market==='HK'&&h.symbol!=='9747.HK' ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
                 return `
                 <div class="holding-row" style="animation-delay:${i*0.05}s;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
@@ -2224,8 +2217,10 @@
                             const rawCloses = res0?.indicators?.quote?.[0]?.close ?? [];
                             const closes = rawCloses.filter(c => c != null);
                             const lastTs   = ts[ts.length - 1];
-                            const todayET  = new Date().toLocaleDateString('en-US', {timeZone: 'America/New_York'});
-                            const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: 'America/New_York'}) : '';
+                            // 港股用 Asia/Hong_Kong 時區判斷今日是否開盤，美股 ETF 用 America/New_York
+                            const _tz = r.holding.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York';
+                            const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
+                            const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
                             const todayOpened = (todayET === barET);
                             _tmpMarketOpened[r.holding] = todayOpened;
                             const adjCls = closes.slice();
