@@ -192,8 +192,8 @@
         
         <!-- Currency Toggle -->
         <div id="currency-toggle" style="position:fixed; top:1.25rem; right:1.25rem; z-index:999; display:flex; border-radius:10px; overflow:hidden; border:2px solid rgba(251,191,36,0.35); box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-            <button id="currency-usd" onclick="setCurrency('USD')" style="padding:0.45rem 1rem; border:none; font-weight:700; font-size:0.85rem; background:linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color:#0a1628;">$ USD</button>
-            <button id="currency-twd" onclick="setCurrency('TWD')" style="padding:0.45rem 1rem; border:none; font-weight:700; font-size:0.85rem; background:rgba(10,22,40,0.92); color:#64748b;">NT$ TWD</button>
+            <button id="currency-usd" onclick="setCurrency('USD')" style="padding:0.45rem 1rem; border:none; font-weight:700; font-size:0.85rem; background:rgba(10,22,40,0.92); color:#64748b;">$ USD</button>
+            <button id="currency-twd" onclick="setCurrency('TWD')" style="padding:0.45rem 1rem; border:none; font-weight:700; font-size:0.85rem; background:linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color:#0a1628;">NT$ TWD</button>
         </div>
 
         <!-- Header -->
@@ -499,7 +499,7 @@
         // ==================== 全域變數 ====================
         let holdings = [];
         let history = [];
-        let currency = 'USD';
+        let currency = 'TWD';
         let exchangeRates = { USD_TWD: 31.5, HKD_TWD: 4.05 };
         let tradeType = 'buy';
         let priceReviewData = null;
@@ -2275,6 +2275,7 @@
             // v13：優先從 localStorage 還原上次持倉
             const hadSaved = loadFromStorage();
             _storageReady = true;  // 還原完成，開放寫入
+            setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
             renderAll();
             if (hadSaved) {
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
