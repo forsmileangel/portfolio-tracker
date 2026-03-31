@@ -544,9 +544,10 @@
             let holdingsWithStats = holdings.map(h => {
                 const costTotal  = h.costPrice * h.quantity;
                 const valueTotal = h.currentPrice * h.quantity;
-                const _isHK = h.market === 'HK' || h.symbol.endsWith('.HK');
+                // 港股但以美金計價的 ETF（掛牌港交所、報價單位為 USD）
+                const _isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
                 let costUSD = costTotal, valueUSD = valueTotal, costTWD = costTotal, valueTWD = valueTotal;
-                if (_isHK) {
+                if (_isHK_HKD) {
                     costUSD = costTotal * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                     valueUSD = valueTotal * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                     costTWD = costTotal * exchangeRates.HKD_TWD; valueTWD = valueTotal * exchangeRates.HKD_TWD;
@@ -566,7 +567,7 @@
                 if (prevClose != null && prevClose > 0 && prevPrevClose != null && prevPrevClose > 0) {
                     prevDayChangePct = (prevClose - prevPrevClose) / prevPrevClose * 100;
                     const prevDayPnlNative = (prevClose - prevPrevClose) * h.quantity;
-                    if (_isHK) {
+                    if (_isHK_HKD) {
                         prevDayPnlUSD = prevDayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                         prevDayPnlTWD = prevDayPnlNative * exchangeRates.HKD_TWD;
                     } else if (h.market === 'TW') {
@@ -588,7 +589,7 @@
                     const dayChange = h.currentPrice - prevClose;
                     dayChangePct = (dayChange / prevClose) * 100;
                     const dayPnlNative = dayChange * h.quantity;
-                    if (_isHK) {
+                    if (_isHK_HKD) {
                         dayPnlUSD = dayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
                         dayPnlTWD = dayPnlNative * exchangeRates.HKD_TWD;
                     } else if (h.market === 'TW') {
@@ -757,7 +758,7 @@
             const tbodyHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h,i) => {
                 const pnl = h.valueTotalUSD - h.costTotalUSD;
                 const isProfit = pnl >= 0;
-                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
                 const displayValue = currency==='USD' ? fmtAmt(h.valueTotalUSD,'USD') : fmtAmt(h.valueTotalTWD,'TWD');
                 const displayPnl   = currency==='USD' ? fmtPnl(pnl,'USD') : fmtPnl(pnl,'TWD');
                 const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
@@ -836,7 +837,7 @@
             container.innerHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h, i) => {
                 const pnl = h.valueTotalUSD - h.costTotalUSD;
                 const isProfit = pnl >= 0;
-                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
                 return `
                 <div class="holding-row" style="animation-delay:${i*0.05}s;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
@@ -1472,6 +1473,9 @@
         function getQuerySymbol(symbol) {
             return LEVERAGED_MAP[symbol] || symbol;
         }
+
+        // 掛牌港交所但以美金（USD）計價的 ETF — 損益/市值換算用 USD_TWD，幣別顯示 $
+        const HK_USD_PRICED = new Set(['9747.HK']);
 
         // ==================== KD (Stochastic) Calculation ====================
         function calcKD(highs, lows, closes, period=9) {
