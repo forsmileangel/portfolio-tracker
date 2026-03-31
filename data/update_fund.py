@@ -223,6 +223,20 @@ for sym in symbols:
         gross_margin     = safe_float(info.get('grossMargins'))
         operating_margin = safe_float(info.get('operatingMargins'))
 
+        # ── 券商目標價 ────────────────────────────────────────────────
+        target_mean_price   = safe_float(info.get('targetMeanPrice'))
+        target_low_price    = safe_float(info.get('targetLowPrice'))
+        target_high_price   = safe_float(info.get('targetHighPrice'))
+        target_median_price = safe_float(info.get('targetMedianPrice'))
+        number_of_analysts  = info.get('numberOfAnalystOpinions')
+        if isinstance(number_of_analysts, float) and (number_of_analysts != number_of_analysts):
+            number_of_analysts = None  # NaN guard
+        elif number_of_analysts is not None:
+            try:
+                number_of_analysts = int(number_of_analysts)
+            except Exception:
+                number_of_analysts = None
+
         # ── 技術面 ──────────────────────────────────────────
         daily_k = daily_d = daily_cross = None
         weekly_k = weekly_d = weekly_cross = None
@@ -317,8 +331,13 @@ for sym in symbols:
             'eps_next_q2':      eps_next_q,
             'eps_cur_y':        safe_float(info.get('epsCurrentYear')),
             'eps_next_y':       safe_float(info.get('epsForward')),
-            'gross_margin':     gross_margin,
-            'operating_margin': operating_margin,
+            'gross_margin':        gross_margin,
+            'operating_margin':    operating_margin,
+            'target_mean_price':   target_mean_price,
+            'target_low_price':    target_low_price,
+            'target_high_price':   target_high_price,
+            'target_median_price': target_median_price,
+            'number_of_analysts':  number_of_analysts,
             'earnings_history': earnings_history,   # 季度 EPS 歷史
             'prev_close':      safe_float(prev_close),
             'prev_prev_close': prev_prev_close,
