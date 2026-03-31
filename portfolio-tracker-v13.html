@@ -2594,6 +2594,8 @@
                     target_high:   fj.target_high_price,
                     target_median: fj.target_median_price,
                     n_analysts:    fj.number_of_analysts,
+                    // 原型股昨收（供槓桿 ETF 目標價漲跌幅比較用）
+                    prev_close:    fj.prev_close,
                 };
             }
 
@@ -2746,10 +2748,14 @@
                 const tgtLow   = fd.targetLowPrice?.raw   ?? qs._fund?.target_low   ?? null;
                 const tgtHigh  = fd.targetHighPrice?.raw  ?? qs._fund?.target_high  ?? null;
                 const tgtMed   = fd.targetMedianPrice?.raw ?? qs._fund?.target_median ?? null;
-                const curPrice = h.currentPrice > 0 ? h.currentPrice : null;
-                const upside   = tgtMean && curPrice ? ((tgtMean - curPrice) / curPrice * 100).toFixed(1) : null;
-                const upsideLow  = tgtLow  && curPrice ? ((tgtLow  - curPrice) / curPrice * 100).toFixed(1) : null;
-                const upsideHigh = tgtHigh && curPrice ? ((tgtHigh - curPrice) / curPrice * 100).toFixed(1) : null;
+                // 目標價漲跌幅：槓桿/代理 ETF 需用原型股價比較（非槓桿 ETF 本身股價）
+                const refPrice = isProxy
+                    ? (qs._fund?.prev_close ?? null)   // 原型股昨收（來自 fundamentals.json）
+                    : (h.currentPrice > 0 ? h.currentPrice : null);
+                const refLabel = isProxy ? `（原型 ${sym}）` : '';
+                const upside   = tgtMean && refPrice ? ((tgtMean - refPrice) / refPrice * 100).toFixed(1) : null;
+                const upsideLow  = tgtLow  && refPrice ? ((tgtLow  - refPrice) / refPrice * 100).toFixed(1) : null;
+                const upsideHigh = tgtHigh && refPrice ? ((tgtHigh - refPrice) / refPrice * 100).toFixed(1) : null;
                 const recColor = recColors[recKey] || '#94a3b8';
                 const recLabel = recLabels[recKey] || (recKey ? recKey : '-');
 
@@ -2803,37 +2809,58 @@
                         </div>
                     </div>` : '';
 
-                // ── 券商目標價區塊 ──────────────────────────────────────
+                // ── 券商目標價區塊（緊湊寬度，不佔滿全行）──────────────
                 const upsideColor = upside != null ? (parseFloat(upside) >= 0 ? '#10b981' : '#ef4444') : '#94a3b8';
                 const targetBlock = tgtMean ? (() => {
-                    // 視覺化進度條：目前價在 low~high 之間的位置
+                    // 格式化目標價數字（KRW 等大數字用千分位，其餘保留小數）
+                    const fmtTgt = v => {
+                        if (v == null) return '-';
+                        return v >= 1000 ? v.toLocaleString('en-US', {maximumFractionDigits: 0}) : v.toFixed(2);
+                    };
+                    // 視覺化進度條：原型股價在 low~high 之間的位置
                     let barHtml = '';
-                    if (tgtLow != null && tgtHigh != null && curPrice != null && tgtHigh > tgtLow) {
-                        const pct = Math.max(0, Math.min(100, (curPrice - tgtLow) / (tgtHigh - tgtLow) * 100));
-                        const meanPct = Math.max(0, Math.min(100, (tgtMean - tgtLow) / (tgtHigh - tgtLow) * 100));
+                    if (tgtLow != null && tgtHigh != null && refPrice != null && tgtHigh > tgtLow) {
+                        const pct     = Math.max(0, Math.min(100, (refPrice - tgtLow) / (tgtHigh - tgtLow) * 100));
+                        const meanPct = Math.max(0, Math.min(100, (tgtMean  - tgtLow) / (tgtHigh - tgtLow) * 100));
                         barHtml = `
-                        <div style="margin-top:0.55rem;">
-                            <div style="position:relative;height:6px;border-radius:3px;background:linear-gradient(to right,rgba(239,68,68,0.25),rgba(251,191,36,0.35),rgba(16,185,129,0.25));">
-                                <!-- 目標均價線 -->
-                                <div style="position:absolute;top:-3px;left:${meanPct}%;transform:translateX(-50%);width:2px;height:12px;background:#fbbf24;border-radius:1px;" title="平均目標價"></div>
-                                <!-- 目前價格指示點 -->
-                                <div style="position:absolute;top:50%;left:${pct}%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#60a5fa;border:2px solid #1e3a5f;box-shadow:0 0 4px #60a5fa80;" title="目前股價"></div>
+                        <div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(96,165,250,0.12);">
+                            <div style="position:relative;height:6px;border-radius:3px;
+                                background:linear-gradient(to right,rgba(239,68,68,0.3),rgba(251,191,36,0.3),rgba(16,185,129,0.3));">
+                                <div style="position:absolute;top:-4px;left:${meanPct}%;transform:translateX(-50%);
+                                    width:2px;height:14px;background:#fbbf24;border-radius:1px;" title="平均目標 $${fmtTgt(tgtMean)}"></div>
+                                <div style="position:absolute;top:50%;left:${pct}%;transform:translate(-50%,-50%);
+                                    width:10px;height:10px;border-radius:50%;background:#60a5fa;
+                                    border:2px solid #0f1e3c;box-shadow:0 0 5px #60a5fa90;"
+                                    title="${isProxy?sym+'昨收':'目前股價'} $${fmtTgt(refPrice)}"></div>
                             </div>
-                            <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
-                                <span style="color:#64748b;font-size:0.7rem;">低 $${tgtLow.toFixed(0)}${upsideLow!=null?` (${parseFloat(upsideLow)>=0?'+':''}${upsideLow}%)`:''}  </span>
-                                <span style="color:#64748b;font-size:0.7rem;">  高 $${tgtHigh.toFixed(0)}${upsideHigh!=null?` (${parseFloat(upsideHigh)>=0?'+':''}${upsideHigh}%)`:''}  </span>
+                            <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
+                                <span style="color:#64748b;font-size:0.69rem;">低 $${fmtTgt(tgtLow)}${upsideLow!=null?' ('+( parseFloat(upsideLow)>=0?'+':'')+upsideLow+'%)':''}</span>
+                                <span style="color:#64748b;font-size:0.69rem;">高 $${fmtTgt(tgtHigh)}${upsideHigh!=null?' ('+(parseFloat(upsideHigh)>=0?'+':'')+upsideHigh+'%)':''}</span>
                             </div>
                         </div>`;
                     }
                     return `
-                    <div style="background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.18);border-radius:8px;padding:0.55rem 0.75rem;margin-bottom:0.65rem;">
-                        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-                            <span style="color:#94a3b8;font-size:0.74rem;font-weight:600;">🎯 券商平均目標價</span>
-                            <span style="font-size:1rem;font-weight:800;color:#60a5fa;">$${tgtMean.toFixed(2)}</span>
-                            ${tgtMed != null && Math.abs(tgtMed - tgtMean) > 0.01 ? `<span style="color:#64748b;font-size:0.74rem;">中位 $${tgtMed.toFixed(2)}</span>` : ''}
-                            <span style="padding:0.1rem 0.45rem;border-radius:5px;background:${upsideColor}22;color:${upsideColor};font-size:0.8rem;font-weight:700;">${upside!=null?(parseFloat(upside)>=0?'↑ +':'↓ ')+upside+'%':''}</span>
-                            ${nAna > 0 ? `<span style="color:#64748b;font-size:0.72rem;margin-left:auto;">${nAna} 位分析師</span>` : ''}
+                    <div style="display:inline-block;min-width:220px;max-width:340px;vertical-align:top;
+                        background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.2);
+                        border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:0.65rem;">
+                        <!-- 標題行 -->
+                        <div style="color:#94a3b8;font-size:0.72rem;font-weight:600;margin-bottom:0.35rem;">
+                            🎯 券商平均目標價${isProxy?`<span style="color:#f59e0b;font-weight:400;font-size:0.69rem;"> · ${sym} 原型</span>`:''}
                         </div>
+                        <!-- 主要數字行 -->
+                        <div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;">
+                            <span style="font-size:1.15rem;font-weight:800;color:#60a5fa;letter-spacing:-0.5px;">$${fmtTgt(tgtMean)}</span>
+                            ${tgtMed != null && Math.abs(tgtMed - tgtMean) > 0.5 ? `<span style="color:#64748b;font-size:0.74rem;">中位 $${fmtTgt(tgtMed)}</span>` : ''}
+                            <span style="padding:0.12rem 0.4rem;border-radius:5px;background:${upsideColor}20;
+                                color:${upsideColor};font-size:0.82rem;font-weight:700;white-space:nowrap;">
+                                ${upside!=null?(parseFloat(upside)>=0?'↑ +':'↓ ')+upside+'%':'—'}
+                            </span>
+                        </div>
+                        <!-- 比較基準標註 -->
+                        ${refPrice != null ? `<div style="color:#475569;font-size:0.69rem;margin-top:0.2rem;">
+                            vs ${isProxy?sym+' ':''}現價 $${fmtTgt(refPrice)}
+                            ${nAna > 0 ? ` · ${nAna} 位分析師` : ''}
+                        </div>` : (nAna > 0 ? `<div style="color:#475569;font-size:0.69rem;margin-top:0.2rem;">${nAna} 位分析師</div>` : '')}
                         ${barHtml}
                     </div>`;
                 })() : '';
