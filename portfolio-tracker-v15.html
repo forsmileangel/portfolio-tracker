@@ -847,12 +847,13 @@
                                 <span class="market-badge">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.market}</span>
                                 <span class="mono" style="color:#f1f5f9;font-size:1.1rem;font-weight:600;">${h.symbol}</span>
                                 <span style="padding:0.25rem 0.5rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:0.75rem;font-weight:600;color:#60a5fa;">${h.percentage.toFixed(2)}%</span>
-                                <label title="打勾後下次開啟網頁此持倉仍保留" style="display:flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;">
-                                    <input type="checkbox" ${h.persist ? 'checked' : ''} onchange="togglePersist(${h.id}, this.checked)" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;">
-                                    <span style="font-size:0.78rem;color:${h.persist ? '#10b981' : '#64748b'};">${h.persist ? '✓ 保留' : '不保留'}</span>
-                                </label>
+
                             </div>
                             ${h.name ? `<div style="color:#94a3b8;font-size:0.9rem;">${h.name}</div>` : ''}
+                            <label title="打勾後下次開啟網頁此持倉仍保留" style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none;margin-top:0.4rem;padding:0.25rem 0.6rem;background:${h.persist ? 'rgba(16,185,129,0.12)' : 'rgba(100,116,139,0.1)'};border:1px solid ${h.persist ? 'rgba(16,185,129,0.4)' : 'rgba(100,116,139,0.25)'};border-radius:6px;">
+                                <input type="checkbox" ${h.persist ? 'checked' : ''} onchange="togglePersist(${h.id}, this.checked)" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;">
+                                <span style="font-size:0.8rem;font-weight:600;color:${h.persist ? '#10b981' : '#64748b'};">${h.persist ? '✓ 下次保留' : '下次不保留'}</span>
+                            </label>
                             <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
                                 <span style="color:#64748b;font-size:0.85rem;">持有</span>
                                 <input type="number" step="0.01" value="${h.quantity}" onchange="updateQuantity(${h.id}, this.value)" style="width:100px;padding:0.25rem 0.5rem;font-size:0.85rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:4px;color:#e2e8f0;">
