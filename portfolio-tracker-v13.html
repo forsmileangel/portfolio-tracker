@@ -2084,13 +2084,15 @@
                         const tech = await fetchTechDataFromYahoo(_psym);
                         allResults[_psym] = { ...(allResults[_psym] || {}), ...tech };
                     } catch(_) {}
-                    // 再用 range=5d 補抓精確 prevClose（與完整更新路徑一致；同時處理 HKD→USD 換算）
+                    // range=5d 偵測今日是否開盤；開盤時再用 range=1d chartPreviousClose 取昨收
+                    // （range=1d chartPreviousClose 可跨越空白交易日，比 close array 更可靠）
                     try {
-                        const _pd = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=5d`);
-                        const _pr = _pd?.chart?.result?.[0];
-                        const _pts = _pr?.timestamp ?? [];
-                        const _praw = _pr?.indicators?.quote?.[0]?.close ?? [];
-                        const _pccy = _pr?.meta?.currency ?? '';
+                        const _BASE_pc = 'https://query1.finance.yahoo.com';
+                        const _pd5 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=5d`);
+                        const _pr5 = _pd5?.chart?.result?.[0];
+                        const _pts = _pr5?.timestamp ?? [];
+                        const _praw = _pr5?.indicators?.quote?.[0]?.close ?? [];
+                        const _pccy = _pr5?.meta?.currency ?? '';
                         const _pscale = (HK_USD_PRICED.has(_psym) && _pccy === 'HKD')
                             ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
                         const _pcls = _praw.filter(c => c != null).map(c => c * _pscale);
@@ -2099,14 +2101,23 @@
                         const _ptd = new Date().toLocaleDateString('en-US', {timeZone: _ptz});
                         const _pbd = _plast ? new Date(_plast * 1000).toLocaleDateString('en-US', {timeZone: _ptz}) : '';
                         const _popened = (_ptd === _pbd);
-                        const _padj = _pcls.slice();
-                        if (!_popened) { while (_padj.length >= 2 && _padj[_padj.length-1] === _padj[_padj.length-2]) _padj.pop(); }
                         if (!allResults[_psym]) allResults[_psym] = {};
                         allResults[_psym].marketOpenedToday = _popened;
                         if (_popened) {
-                            if (_padj.length >= 2) allResults[_psym].prevClose     = _padj[_padj.length - 2];
-                            if (_padj.length >= 3) allResults[_psym].prevPrevClose = _padj[_padj.length - 3];
+                            // 今日開盤：range=1d chartPreviousClose 取昨收（跨越空白交易日仍準確）
+                            let _cpc = null;
+                            try {
+                                const _pd1 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=1d`);
+                                const _m1  = _pd1?.chart?.result?.[0]?.meta;
+                                const _sc1 = (HK_USD_PRICED.has(_psym) && (_m1?.currency ?? '') === 'HKD')
+                                    ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
+                                if (_m1?.chartPreviousClose != null) _cpc = _m1.chartPreviousClose * _sc1;
+                            } catch(_) {}
+                            allResults[_psym].prevClose     = _cpc ?? (_pcls.length >= 2 ? _pcls[_pcls.length - 2] : null);
+                            if (_pcls.length >= 2) allResults[_psym].prevPrevClose = _pcls[_pcls.length - 2];
                         } else {
+                            const _padj = _pcls.slice();
+                            while (_padj.length >= 2 && _padj[_padj.length-1] === _padj[_padj.length-2]) _padj.pop();
                             if (_padj.length >= 1) allResults[_psym].prevClose     = _padj[_padj.length - 1];
                             if (_padj.length >= 2) allResults[_psym].prevPrevClose = _padj[_padj.length - 2];
                         }
@@ -2262,32 +2273,39 @@
                     for (let pi = 0; pi < proxyRows.length; pi++) {
                         const r = proxyRows[pi];
                         try {
+                            // range=5d：偵測今日開盤 & prevPrevClose
                             const data  = await yfFetch(`${BASE1_lev}/v8/finance/chart/${r.holding}?interval=1d&range=5d`);
                             const res0  = data?.chart?.result?.[0];
                             const ts    = res0?.timestamp ?? [];
                             const rawCloses = res0?.indicators?.quote?.[0]?.close ?? [];
-                            // HK_USD_PRICED 標的若 Yahoo 以 HKD 計價則換算成 USD
                             const _chartCcy = res0?.meta?.currency ?? '';
                             const _ccyScale = (HK_USD_PRICED.has(r.holding) && _chartCcy === 'HKD')
                                 ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
                             const closes = rawCloses.filter(c => c != null).map(c => c * _ccyScale);
                             const lastTs   = ts[ts.length - 1];
-                            // 港股用 Asia/Hong_Kong 時區判斷今日是否開盤，美股 ETF 用 America/New_York
                             const _tz = r.holding.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York';
                             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
                             const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
                             const todayOpened = (todayET === barET);
                             _tmpMarketOpened[r.holding] = todayOpened;
-                            const adjCls = closes.slice();
-                            if (!todayOpened) { while (adjCls.length >= 2 && adjCls[adjCls.length-1] === adjCls[adjCls.length-2]) adjCls.pop(); }
                             if (todayOpened) {
-                                if (adjCls.length >= 2) _tmpPrevClose[r.holding]     = adjCls[adjCls.length - 2];
-                                if (adjCls.length >= 3) _tmpPrevPrevClose[r.holding] = adjCls[adjCls.length - 3];
+                                // 今日開盤：range=1d chartPreviousClose 取昨收（跨越空白交易日仍準確）
+                                let prevCloseFrom1d = null;
+                                try {
+                                    const d1   = await yfFetch(`${BASE1_lev}/v8/finance/chart/${r.holding}?interval=1d&range=1d`);
+                                    const m1   = d1?.chart?.result?.[0]?.meta;
+                                    const _sc1 = (HK_USD_PRICED.has(r.holding) && (m1?.currency ?? '') === 'HKD')
+                                        ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
+                                    if (m1?.chartPreviousClose != null) prevCloseFrom1d = m1.chartPreviousClose * _sc1;
+                                } catch(_) {}
+                                _tmpPrevClose[r.holding]     = prevCloseFrom1d ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
+                                _tmpPrevPrevClose[r.holding] = closes.length >= 2 ? closes[closes.length - 2] : null;
                             } else {
+                                const adjCls = closes.slice();
+                                while (adjCls.length >= 2 && adjCls[adjCls.length-1] === adjCls[adjCls.length-2]) adjCls.pop();
                                 if (adjCls.length >= 1) _tmpPrevClose[r.holding]     = adjCls[adjCls.length - 1];
                                 if (adjCls.length >= 2) _tmpPrevPrevClose[r.holding] = adjCls[adjCls.length - 2];
                             }
-                            // 儲存至 allResults 讓後續快取可直接使用（不重抓 ETF prevClose）
                             allResults[r.holding] = {
                                 prevClose: _tmpPrevClose[r.holding] ?? null,
                                 prevPrevClose: _tmpPrevPrevClose[r.holding] ?? null,
