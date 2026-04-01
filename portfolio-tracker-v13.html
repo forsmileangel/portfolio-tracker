@@ -2114,7 +2114,7 @@
                                 if (_m1?.chartPreviousClose != null) _cpc = _m1.chartPreviousClose * _sc1;
                             } catch(_) {}
                             allResults[_psym].prevClose     = _cpc ?? (_pcls.length >= 2 ? _pcls[_pcls.length - 2] : null);
-                            if (_pcls.length >= 2) allResults[_psym].prevPrevClose = _pcls[_pcls.length - 2];
+                            if (_pcls.length >= 3) allResults[_psym].prevPrevClose = _pcls[_pcls.length - 3];
                         } else {
                             const _padj = _pcls.slice();
                             while (_padj.length >= 2 && _padj[_padj.length-1] === _padj[_padj.length-2]) _padj.pop();
@@ -2299,7 +2299,7 @@
                                     if (m1?.chartPreviousClose != null) prevCloseFrom1d = m1.chartPreviousClose * _sc1;
                                 } catch(_) {}
                                 _tmpPrevClose[r.holding]     = prevCloseFrom1d ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
-                                _tmpPrevPrevClose[r.holding] = closes.length >= 2 ? closes[closes.length - 2] : null;
+                                _tmpPrevPrevClose[r.holding] = closes.length >= 3 ? closes[closes.length - 3] : null;
                             } else {
                                 const adjCls = closes.slice();
                                 while (adjCls.length >= 2 && adjCls[adjCls.length-1] === adjCls[adjCls.length-2]) adjCls.pop();
