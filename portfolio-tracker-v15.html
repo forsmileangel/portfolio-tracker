@@ -3,6 +3,7 @@
   v15.0 - 基於 v13，加入持倉保留勾選功能，預設空白持倉
   v15.1 - 配色改為藍黑色系
   v15.2 - Service Worker 自動偵測新版本並更新，不再需要手動清快取
+  v15.3 - 雲端 CSV 路徑設定欄位，可選擇是否記憶路徑
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -340,13 +341,26 @@
             <div id="holdings-list"></div>
         </div>
 
-        <!-- Google Sheet URL（移至底部）-->
+        <!-- 雲端 CSV 設定 -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
-            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600; white-space:nowrap;">📊 Google Sheet CSV：</label>
-                <input id="sheet-url" type="text" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vQnBPPnq7jgMZ3oZ8UVaxe77InNipxW-ItNAoqxQrAgnKfLNqX1P4xxOLMqKGjKWTRIN-VZ4SkgKFBt/pub?gid=0&single=true&output=csv" onchange="saveToStorage()" style="flex:1; min-width:200px; padding:0.55rem 0.75rem; background:rgba(10,25,45,0.8); border:1px solid rgba(59,130,246,0.3); border-radius:8px; color:#e2e8f0; font-size:0.85rem;">
-                <span style="color:#10b981; font-size:0.8rem; white-space:nowrap;">✓ 已設定</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;">☁️ 雲端持倉 CSV 路徑</label>
+                <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; user-select:none;">
+                    <input type="checkbox" id="sheet-url-remember" onchange="saveSheetUrlSetting()"
+                        style="width:15px; height:15px; accent-color:#3b82f6; cursor:pointer;">
+                    <span id="sheet-url-remember-label" style="font-size:0.8rem; color:#64748b;">下次開啟記住此路徑</span>
+                </label>
             </div>
+            <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+                <input id="sheet-url" type="text" placeholder="貼上 Google Sheet CSV 連結 或 任何可公開存取的 CSV 網址"
+                    onchange="saveSheetUrlSetting()"
+                    style="flex:1; min-width:200px; padding:0.55rem 0.75rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.85rem;">
+                <button onclick="clearSheetUrl()" title="清除路徑"
+                    style="padding:0.5rem 0.75rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; font-size:0.8rem; font-weight:600; white-space:nowrap; text-transform:none; letter-spacing:0;">
+                    ✕ 清除
+                </button>
+            </div>
+            <div id="sheet-url-status" style="margin-top:0.45rem; font-size:0.78rem; color:#475569;"></div>
         </div>
     </div>
 
@@ -1021,6 +1035,56 @@
         const PT_STORAGE_KEY = 'pt_v13p_state';
 
         let _storageReady = false; // 初始化完成前不允許存檔
+
+        // ── 雲端 CSV 路徑設定（獨立於持倉 localStorage）──
+        const SHEET_URL_KEY = 'pt_sheet_url_v15';
+
+        function saveSheetUrlSetting() {
+            const url = document.getElementById('sheet-url')?.value?.trim() || '';
+            const remember = document.getElementById('sheet-url-remember')?.checked;
+            const label = document.getElementById('sheet-url-remember-label');
+            const status = document.getElementById('sheet-url-status');
+
+            if (remember) {
+                // 打勾 → 存到 localStorage
+                localStorage.setItem(SHEET_URL_KEY, url);
+                if (label) { label.textContent = '✓ 已記住路徑'; label.style.color = '#10b981'; }
+                if (status && url) status.textContent = '✓ 路徑已儲存，下次開啟自動帶入';
+            } else {
+                // 沒打勾 → 清除 localStorage
+                localStorage.removeItem(SHEET_URL_KEY);
+                if (label) { label.textContent = '下次開啟記住此路徑'; label.style.color = '#64748b'; }
+                if (status) status.textContent = url ? '⚠ 路徑未儲存，關閉後消失' : '';
+            }
+            if (status && !url) status.textContent = '';
+        }
+
+        function clearSheetUrl() {
+            const el = document.getElementById('sheet-url');
+            if (el) el.value = '';
+            localStorage.removeItem(SHEET_URL_KEY);
+            const label = document.getElementById('sheet-url-remember-label');
+            const cb = document.getElementById('sheet-url-remember');
+            const status = document.getElementById('sheet-url-status');
+            if (label) { label.textContent = '下次開啟記住此路徑'; label.style.color = '#64748b'; }
+            if (cb) cb.checked = false;
+            if (status) status.textContent = '';
+            saveToStorage();
+        }
+
+        function loadSheetUrlSetting() {
+            const saved = localStorage.getItem(SHEET_URL_KEY);
+            const el = document.getElementById('sheet-url');
+            const cb = document.getElementById('sheet-url-remember');
+            const label = document.getElementById('sheet-url-remember-label');
+            const status = document.getElementById('sheet-url-status');
+            if (saved && el) {
+                el.value = saved;
+                if (cb) cb.checked = true;
+                if (label) { label.textContent = '✓ 已記住路徑'; label.style.color = '#10b981'; }
+                if (status) status.textContent = '✓ 已自動帶入上次儲存的路徑';
+            }
+        }
 
         function saveToStorage() {
             if (!_storageReady) return;
@@ -2437,6 +2501,7 @@
             // v13：優先從 localStorage 還原上次持倉
             const hadSaved = loadFromStorage();
             _storageReady = true;  // 還原完成，開放寫入
+            loadSheetUrlSetting(); // 還原雲端 CSV 路徑設定
             loadCash();
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
             renderAll();
