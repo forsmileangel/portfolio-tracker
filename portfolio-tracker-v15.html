@@ -3,7 +3,8 @@
   v15.0 - 基於 v13，加入持倉保留勾選功能，預設空白持倉
   v15.1 - 配色改為藍黑色系
   v15.2 - Service Worker 自動偵測新版本並更新，不再需要手動清快取
-  v15.3 - 雲端 CSV 路徑設定欄位，可選擇是否記憶路徑
+  v15.3 - 雲端報價 CSV 路徑設定欄位，可選擇是否記憶路徑
+  v15.4 - GitHub Gist 跨裝置同步（推送/拉取持倉）
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -341,10 +342,35 @@
             <div id="holdings-list"></div>
         </div>
 
+        <!-- GitHub Gist 跨裝置同步 -->
+        <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;">☁️ 跨裝置同步（GitHub Gist）</label>
+                <a href="https://github.com/settings/tokens/new?scopes=gist&description=PortfolioTracker"
+                   target="_blank" rel="noopener"
+                   style="font-size:0.78rem; color:#60a5fa; text-decoration:none;">取得 Token ↗</a>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr auto; gap:0.5rem; margin-bottom:0.5rem;">
+                <input id="gist-token" type="password" placeholder="GitHub Personal Access Token（gist 範圍）"
+                    style="padding:0.55rem 0.75rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.82rem;">
+                <input id="gist-id" type="text" placeholder="Gist ID（首次推送後自動填入）"
+                    style="padding:0.55rem 0.75rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.82rem; min-width:200px;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                <button onclick="gistPush()" style="padding:0.65rem; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; text-transform:none; letter-spacing:0;">
+                    ⬆ 推送至雲端
+                </button>
+                <button onclick="gistPull()" style="padding:0.65rem; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; text-transform:none; letter-spacing:0;">
+                    ⬇ 從雲端拉取
+                </button>
+            </div>
+            <div id="gist-status" style="margin-top:0.45rem; font-size:0.78rem; color:#475569;"></div>
+        </div>
+
         <!-- 雲端 CSV 設定 -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
-                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;">☁️ 雲端持倉 CSV 路徑</label>
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;">📊 雲端報價 CSV 路徑</label>
                 <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; user-select:none;">
                     <input type="checkbox" id="sheet-url-remember" onchange="saveSheetUrlSetting()"
                         style="width:15px; height:15px; accent-color:#3b82f6; cursor:pointer;">
@@ -1035,6 +1061,152 @@
         const PT_STORAGE_KEY = 'pt_v13p_state';
 
         let _storageReady = false; // 初始化完成前不允許存檔
+
+        // ── GitHub Gist 跨裝置同步 ──
+        const GIST_TOKEN_KEY = 'pt_gist_token_v15';
+        const GIST_ID_KEY    = 'pt_gist_id_v15';
+        const GIST_FILENAME  = 'portfolio-tracker-holdings.json';
+
+        function loadGistSettings() {
+            const token = localStorage.getItem(GIST_TOKEN_KEY) || '';
+            const id    = localStorage.getItem(GIST_ID_KEY)    || '';
+            const tokenEl = document.getElementById('gist-token');
+            const idEl    = document.getElementById('gist-id');
+            if (tokenEl && token) tokenEl.value = token;
+            if (idEl    && id)    idEl.value    = id;
+        }
+
+        function saveGistSettings(token, id) {
+            if (token) localStorage.setItem(GIST_TOKEN_KEY, token);
+            if (id)    localStorage.setItem(GIST_ID_KEY,    id);
+        }
+
+        function setGistStatus(msg, color) {
+            const el = document.getElementById('gist-status');
+            if (el) { el.textContent = msg; el.style.color = color || '#475569'; }
+        }
+
+        async function gistPush() {
+            const token = document.getElementById('gist-token')?.value?.trim();
+            const gistId = document.getElementById('gist-id')?.value?.trim();
+            if (!token) { setGistStatus('❌ 請先填入 GitHub Token', '#ef4444'); return; }
+            if (holdings.length === 0) { setGistStatus('❌ 目前無持倉可推送', '#ef4444'); return; }
+
+            setGistStatus('⏳ 推送中...', '#60a5fa');
+            const payload = JSON.stringify({
+                holdings,
+                currency,
+                exchangeRates,
+                pushedAt: new Date().toISOString()
+            }, null, 2);
+
+            try {
+                let url, method;
+                if (gistId) {
+                    // 更新既有 Gist
+                    url    = `https://api.github.com/gists/${gistId}`;
+                    method = 'PATCH';
+                } else {
+                    // 首次建立 Gist
+                    url    = 'https://api.github.com/gists';
+                    method = 'POST';
+                }
+
+                const body = {
+                    description: 'Portfolio Tracker 持倉同步',
+                    public: false,
+                    files: { [GIST_FILENAME]: { content: payload } }
+                };
+
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || `HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                const newId = data.id;
+
+                // 首次推送後自動填入 Gist ID
+                if (!gistId) {
+                    const idEl = document.getElementById('gist-id');
+                    if (idEl) idEl.value = newId;
+                }
+
+                // 永遠記住 Token 和 Gist ID
+                saveGistSettings(token, newId);
+
+                const t = new Date().toLocaleTimeString('zh-TW');
+                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉（${t}）`, '#10b981');
+                showImportToast('✅ 持倉已推送至 GitHub Gist', 2500);
+
+            } catch(e) {
+                setGistStatus(`❌ 推送失敗：${e.message}`, '#ef4444');
+            }
+        }
+
+        async function gistPull() {
+            const token  = document.getElementById('gist-token')?.value?.trim();
+            const gistId = document.getElementById('gist-id')?.value?.trim();
+            if (!token)  { setGistStatus('❌ 請先填入 GitHub Token', '#ef4444'); return; }
+            if (!gistId) { setGistStatus('❌ 請填入 Gist ID（先在其他裝置推送過一次）', '#ef4444'); return; }
+
+            setGistStatus('⏳ 從雲端拉取中...', '#60a5fa');
+            try {
+                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || `HTTP ${res.status}`);
+                }
+
+                const data    = await res.json();
+                const rawUrl  = data.files?.[GIST_FILENAME]?.raw_url;
+                if (!rawUrl) throw new Error(`找不到 ${GIST_FILENAME} 檔案`);
+
+                const fileRes = await fetch(rawUrl);
+                if (!fileRes.ok) throw new Error('讀取檔案失敗');
+                const saved = await fileRes.json();
+
+                if (!Array.isArray(saved.holdings) || saved.holdings.length === 0)
+                    throw new Error('雲端資料為空');
+
+                saveHistory();
+                holdings = saved.holdings;
+                if (saved.currency)      currency = saved.currency;
+                if (saved.exchangeRates) {
+                    exchangeRates = saved.exchangeRates;
+                    syncRateInputs();
+                }
+
+                // 永遠記住 Token 和 Gist ID
+                saveGistSettings(token, gistId);
+                _storageReady = true;
+                saveToStorage();
+                renderAll();
+
+                const t = new Date().toLocaleTimeString('zh-TW');
+                setGistStatus(`✅ 已拉取 ${holdings.length} 筆持倉（${t}）`, '#10b981');
+                showImportToast(`✅ 已從雲端拉取 ${holdings.length} 筆持倉`, 2500);
+
+            } catch(e) {
+                setGistStatus(`❌ 拉取失敗：${e.message}`, '#ef4444');
+            }
+        }
 
         // ── 雲端 CSV 路徑設定（獨立於持倉 localStorage）──
         const SHEET_URL_KEY = 'pt_sheet_url_v15';
@@ -2502,6 +2674,7 @@
             const hadSaved = loadFromStorage();
             _storageReady = true;  // 還原完成，開放寫入
             loadSheetUrlSetting(); // 還原雲端 CSV 路徑設定
+            loadGistSettings();      // 還原 Gist Token & ID
             loadCash();
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
             renderAll();
