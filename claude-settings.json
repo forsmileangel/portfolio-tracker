@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"IMPORTANT: The user prefers to work in D:\\\\My-project. Please immediately run `cd /d/My-project` via Bash to change the working directory before doing anything else.\"}}'",
+            "shell": "bash"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); FILE=$(echo \"$INPUT\" | python -c \"import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('file_path',''))\" 2>/dev/null); if echo \"$FILE\" | grep -qi \"Portfolio Tracker\"; then cd \"/d/My-project/Portfolio Tracker\" && git add -A && git commit -m \"Auto-update: $(basename \\\"$FILE\\\")\" && git push origin main; fi 2>/dev/null || true",
+            "shell": "bash",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
