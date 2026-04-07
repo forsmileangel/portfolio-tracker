@@ -5,6 +5,7 @@
   v15.2 - Service Worker 自動偵測新版本並更新，不再需要手動清快取
   v15.3 - 雲端報價 CSV 路徑設定欄位，可選擇是否記憶路徑
   v15.4 - GitHub Gist 跨裝置同步（推送/拉取持倉）
+  v15.5 - 修正賣出 bug：賣出時不需填價格，確認按鈕文字跟著切換
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -318,7 +319,7 @@
                 <div><label id="form-qty-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入股數 *</label><input id="form-quantity" type="number" step="0.0001" placeholder="數量"></div>
                 <div><label id="form-price-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入價格 *</label><input id="form-cost" type="number" step="0.0001" placeholder="此次買入均價"></div>
             </div>
-            <button onclick="addHolding()" style="margin-top:1.5rem; width:100%; padding:0.85rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 確認買入</button>
+            <button id="submit-btn" onclick="addHolding()" style="margin-top:1.5rem; width:100%; padding:0.85rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 確認買入</button>
         </div>
 
         <!-- Holdings Table -->
@@ -720,6 +721,13 @@
             document.getElementById('form-qty-label').textContent = type === 'buy' ? '買入股數 *' : '賣出股數 *';
             document.getElementById('form-price-label').textContent = type === 'buy' ? '買入價格 *' : '賣出價格 *';
             document.getElementById('trade-hint').textContent = type === 'buy' ? '買入時若代碼已存在將自動加倉並重算加權平均成本' : '賣出時將從持倉中扣除股數，賣至歸零將移除該持倉';
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.textContent = type === 'buy' ? '▲ 確認買入' : '▼ 確認賣出';
+                submitBtn.style.background = type === 'buy'
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            }
         }
 
         // ==================== 渲染 ====================
@@ -1312,10 +1320,11 @@
             const quantity = parseFloat(document.getElementById('form-quantity').value);
             const costPrice = parseFloat(document.getElementById('form-cost').value);
             const market = document.getElementById('form-market').value;
-            if (!symbol || !quantity || !costPrice) return alert('請填寫所有必要欄位');
+            const isBuy = tradeType === 'buy';
+            if (!symbol || !quantity) return alert('請填寫所有必要欄位');
+            if (isBuy && !costPrice) return alert('請填寫買入價格');
             saveHistory();
             const existingIndex = holdings.findIndex(h => h.symbol === symbol);
-            const isBuy = tradeType === 'buy';
             if (!isBuy) {
                 if (existingIndex === -1) return alert('找不到持倉，無法賣出');
                 const existing = holdings[existingIndex];
