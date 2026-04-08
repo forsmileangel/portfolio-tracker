@@ -1,11 +1,9 @@
 /* Portfolio Tracker – Service Worker
    版本號更新會清除舊快取並重新下載 */
-const CACHE_NAME = 'portfolio-tracker-v1';
+const CACHE_NAME = 'portfolio-tracker-v2';
 const PRECACHE = [
-  './portfolio-tracker-v12.html',
-  './data/fundamentals.json',
+  './portfolio-tracker-v15.html',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-  'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap'
 ];
 
 // 安裝：預快取核心資源
@@ -28,27 +26,8 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 請求攔截：優先網路，網路失敗才用快取（fundamentals.json 用快取優先）
+// 請求攔截：全部網路優先，失敗才用快取（確保資料最新）
 self.addEventListener('fetch', event => {
-  const url = event.request.url;
-
-  // fundamentals.json → 快取優先（離線也能顯示舊資料）
-  if (url.includes('fundamentals.json')) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(cache =>
-        cache.match(event.request).then(cached => {
-          const fresh = fetch(event.request).then(res => {
-            cache.put(event.request, res.clone());
-            return res;
-          });
-          return cached || fresh;
-        })
-      )
-    );
-    return;
-  }
-
-  // 其他資源 → 網路優先，失敗再用快取
   event.respondWith(
     fetch(event.request)
       .then(res => {
