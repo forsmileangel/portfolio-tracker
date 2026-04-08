@@ -329,7 +329,7 @@
             </div>
             <p id="trade-hint" style="color:#64748b; font-size:0.85rem; margin-bottom:1.5rem; margin-top:-0.5rem;">買入時若代碼已存在將自動加倉並重算加權平均成本</p>
             <div id="trade-form-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
-                <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">市場</label><select id="form-market"><option value="US">🇺🇸 美股</option><option value="TW">🇹🇼 台股</option><option value="HK">🇭🇰 港股</option></select></div>
+                <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">市場</label><select id="form-market" onchange="onMarketChange(this.value)"><option value="US">🇺🇸 美股</option><option value="TW">🇹🇼 台股</option><option value="HK">🇭🇰 港股</option></select></div>
                 <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">股票代碼 *</label><input id="form-symbol" type="text" placeholder="例: AAPL, 2330, 0700" style="text-transform:uppercase;" oninput="onSymbolInput(this.value)"></div>
                 <div><label id="form-qty-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入股數 *</label><input id="form-quantity" type="number" step="0.0001" placeholder="數量"></div>
                 <div><label id="form-price-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入價格 * <span id="form-price-ccy" style="color:#60a5fa; font-weight:700;">(USD)</span></label><input id="form-cost" type="number" step="0.0001" placeholder="此次買入均價"></div>
