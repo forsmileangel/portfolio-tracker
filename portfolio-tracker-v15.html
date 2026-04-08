@@ -2348,9 +2348,18 @@
                 log(`localStorage 已用 ${(used/1024).toFixed(1)} KB`, true);
             } catch(e) { log(`localStorage 錯誤: ${e.message}`, false); }
 
-            // 測試 4：backend_url
+            // 測試 4：backend_url + Render 連線
             const bu = localStorage.getItem('backend_url');
-            log(`backend_url: ${bu || '（未設定）'}`, true);
+            log(`backend_url: ${bu || '（未設定）'}`, !!bu);
+            if (bu) {
+                try {
+                    const t0 = Date.now();
+                    const r = await fetch(bu + '/yfundamentals?symbol=NVDA', { signal: AbortSignal.timeout(15000) });
+                    const ms = Date.now() - t0;
+                    const d = await r.json();
+                    log(`Render /yfundamentals (${ms}ms) PE=${d.pe ?? 'null'}`, r.ok && !d.error);
+                } catch(e) { log(`Render /yfundamentals 失敗: ${e.message}`, false); }
+            }
 
             // 顯示結果
             alert('=== 連線診斷結果 ===\n\n' + results.join('\n'));
