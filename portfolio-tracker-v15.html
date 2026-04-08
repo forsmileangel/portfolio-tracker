@@ -2154,7 +2154,7 @@
             // ══════════════════════════════════════════════════════════════════
             // ② 無後端模式：fundamentals.json 找不到資料 → 顯示同步中，不觸發 Proxy
             // ══════════════════════════════════════════════════════════════════
-            if (!_isLocal && !BACKEND_URL) {
+            if (!_isLocal) {
                 return { pe:null, fpe:null, peg:null, ps:null, eps_ttm:null,
                          eps_cur_q:null, eps_next_q:null, eps_cur_y:null, eps_next_y:null,
                          prevClose:null, prevPrevClose:null, marketOpenedToday:null,
@@ -2165,7 +2165,7 @@
                          daily_rsi:null, weekly_rsi:null, hourly_rsi:null,
                          _pending: true };
             }
-            // ②-b + ③ 並行抓取三個週期 K 線圖（有後端或本機模式才執行）
+            // ②-b + ③ 本機模式才抓 K 線圖
             // 週線加入 events=earnings → 免認證取得各季 EPS Actual/Estimate
             // Yahoo Finance v6/v7/v10 quote API 均需 crumb 認證，已全面停用。
             const [weeklyData, dailyData, hourlyData] = await Promise.all([
