@@ -2279,6 +2279,17 @@
         }
 
         // ==================== 後端網址設定 ====================
+        async function forceUpdatePWA() {
+            if (!confirm('清除所有 Service Worker 快取並重新載入頁面？')) return;
+            try {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(k => caches.delete(k)));
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+            } catch(e) {}
+            window.location.reload(true);
+        }
+
         function setBackendUrl() {
             const current = localStorage.getItem('backend_url') || '';
             const url = window.prompt(
