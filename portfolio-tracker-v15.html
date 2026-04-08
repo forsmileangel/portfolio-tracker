@@ -6,6 +6,8 @@
   v15.3 - 雲端報價 CSV 路徑設定欄位，可選擇是否記憶路徑
   v15.4 - GitHub Gist 跨裝置同步（推送/拉取持倉）
   v15.5 - 修正賣出 bug：賣出時不需填價格，確認按鈕文字跟著切換
+  v15.6 - 買賣輸入代碼時自動偵測市場與計價幣別（市場欄位改為純分類 tag）
+  v15.7 - 新標的一鍵同步至清單，自動觸發基本面更新
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -315,9 +317,9 @@
             <p id="trade-hint" style="color:#64748b; font-size:0.85rem; margin-bottom:1.5rem; margin-top:-0.5rem;">買入時若代碼已存在將自動加倉並重算加權平均成本</p>
             <div id="trade-form-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
                 <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">市場</label><select id="form-market"><option value="US">🇺🇸 美股</option><option value="TW">🇹🇼 台股</option><option value="HK">🇭🇰 港股</option></select></div>
-                <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">股票代碼 *</label><input id="form-symbol" type="text" placeholder="例: AAPL, 2330, 0700" style="text-transform:uppercase;"></div>
+                <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">股票代碼 *</label><input id="form-symbol" type="text" placeholder="例: AAPL, 2330, 0700" style="text-transform:uppercase;" oninput="onSymbolInput(this.value)"></div>
                 <div><label id="form-qty-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入股數 *</label><input id="form-quantity" type="number" step="0.0001" placeholder="數量"></div>
-                <div><label id="form-price-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入價格 *</label><input id="form-cost" type="number" step="0.0001" placeholder="此次買入均價"></div>
+                <div><label id="form-price-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入價格 * <span id="form-price-ccy" style="color:#60a5fa; font-weight:700;">(USD)</span></label><input id="form-cost" type="number" step="0.0001" placeholder="此次買入均價"></div>
             </div>
             <button id="submit-btn" onclick="addHolding()" style="margin-top:1.5rem; width:100%; padding:0.85rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 確認買入</button>
         </div>
@@ -1315,6 +1317,25 @@
         }
 
         // ==================== 操作 ====================
+        function getSymbolMarket(symbol) {
+            const s = symbol.toUpperCase().trim();
+            if (s.endsWith('.HK')) return 'HK';
+            if (s.endsWith('.TW') || /^\d{4}$/.test(s)) return 'TW';
+            return 'US';
+        }
+        function getSymbolCurrency(symbol) {
+            const s = symbol.toUpperCase().trim();
+            if (s.endsWith('.HK')) return HK_USD_PRICED.has(s) ? 'USD' : 'HKD';
+            if (s.endsWith('.TW') || /^\d{4}$/.test(s)) return 'TWD';
+            return 'USD';
+        }
+        function onSymbolInput(val) {
+            const s = val.toUpperCase().trim();
+            if (!s) return;
+            document.getElementById('form-market').value = getSymbolMarket(s);
+            document.getElementById('form-price-ccy').textContent = '(' + getSymbolCurrency(s) + ')';
+        }
+
         function addHolding() {
             const symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
             const quantity = parseFloat(document.getElementById('form-quantity').value);
@@ -2783,31 +2804,46 @@
                 <div>以下標的不在 <code>data/symbols.json</code> 中，基本面欄位顯示 "-"：<br>
                     <span style="color:#3b82f6;font-weight:600;">${newOnes.join('、')}</span></div>
                 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <button onclick="_downloadUpdatedSymbols(${JSON.stringify(merged).replace(/"/g,'&quot;')})"
+                    <button id="sync-symbols-btn" onclick="_syncSymbols(${JSON.stringify(merged).replace(/"/g,'&quot;')})"
                         style="flex:1;padding:0.45rem 0.8rem;background:linear-gradient(135deg,#60a5fa,#3b82f6);
                                color:#060d1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;min-width:140px;">
-                        ⬇ 下載更新版 symbols.json</button>
+                        ✅ 一鍵更新清單</button>
                     <button onclick="document.getElementById('missing-fund-notice')?.remove()"
                         style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#94a3b8;
                                border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
                         略過</button>
                 </div>
-                <div style="color:#64748b;font-size:0.78rem;">下載後替換 data/symbols.json 並推送至 GitHub，Actions 下次執行時會自動更新基本面資料。</div>`;
+                <div style="color:#64748b;font-size:0.78rem;">更新後基本面資料將於下次排程自動補齊。</div>`;
             // 移除舊的通知
             document.getElementById('missing-fund-notice')?.remove();
             document.body.appendChild(notice);
         }
 
-        function _downloadUpdatedSymbols(merged) {
-            const json = JSON.stringify(merged, null, 2);
-            const blob = new Blob([json], { type:'application/json' });
-            const url  = URL.createObjectURL(blob);
-            const a    = document.createElement('a');
-            a.href = url; a.download = 'symbols.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            document.getElementById('missing-fund-notice')?.remove();
-            showImportToast('✅ symbols.json 已下載，請替換 data/symbols.json 後推送至 GitHub', 4000);
+        async function _syncSymbols(merged) {
+            const btn = document.getElementById('sync-symbols-btn');
+            const backendUrl = localStorage.getItem('backend_url') || '';
+            if (!backendUrl) {
+                showImportToast('⚠️ 請先設定後端網址', 3000); return;
+            }
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ 更新中...'; }
+            try {
+                const resp = await fetch(backendUrl + '/update-symbols', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(merged)
+                });
+                const result = await resp.json();
+                if (result.ok) {
+                    document.getElementById('missing-fund-notice')?.remove();
+                    showImportToast('✅ 清單已更新', 2500);
+                } else {
+                    showImportToast('❌ 更新失敗：' + (result.error || '未知錯誤'), 4000);
+                    if (btn) { btn.disabled = false; btn.textContent = '✅ 一鍵更新清單'; }
+                }
+            } catch(e) {
+                showImportToast('❌ 連線失敗，請確認後端設定', 4000);
+                if (btn) { btn.disabled = false; btn.textContent = '✅ 一鍵更新清單'; }
+            }
         }
 
         // ── 後台自動更新：財報分析每12小時 ──

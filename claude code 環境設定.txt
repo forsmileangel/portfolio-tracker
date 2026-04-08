@@ -1,0 +1,16 @@
+### 1. Claude Code 環境設定
+
+- 設定 `SessionStart` hook：每次 Claude Code 啟動自動切換到 `D:\My-project`
+- 設定 `PostToolUse` hook：每次修改 Portfolio Tracker 內的檔案後，自動 `git add → commit → push` 到 GitHub
+- 設定檔位置：`C:\Users\Hank_Lin\.claude\settings.json`
+
+### 2. Git Repo 初始化
+
+- 在 `D:\My-project\Portfolio Tracker\` 初始化 git
+- 連結遠端：`https://github.com/forsmileangel/portfolio-tracker.git`
+- 同步遠端 `main` branch，確認本地與遠端一致
+
+### 3. 跨裝置設定備份
+
+- 將 `settings.json` 複製為 `claude-settings.json` 存入 GitHub repo
+- 任何電腦都能從 repo 取得設定檔，不需重新設定
