@@ -2,8 +2,9 @@
 """
 Portfolio Tracker Backend
 - Static file server (local dev only)
-- GET /proxy?url=...         → CORS proxy for Yahoo Finance chart
-- GET /yfundamentals?symbol= → PE/FPE/PEG/EPS via yfinance
+- GET  /proxy?url=...         → CORS proxy for Yahoo Finance chart
+- GET  /yfundamentals?symbol= → PE/FPE/PEG/EPS via yfinance
+- POST /update-symbols        → 更新 GitHub repo 的 data/symbols.json
 """
 import http.server
 import urllib.request
@@ -11,6 +12,10 @@ import urllib.parse
 import json
 import os
 import threading
+
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+GITHUB_REPO  = 'forsmileangel/portfolio-tracker'
+SYMBOLS_PATH = 'data/symbols.json'
 
 PORT = int(os.environ.get('PORT', 3000))
 DIR  = os.path.dirname(os.path.abspath(__file__))
