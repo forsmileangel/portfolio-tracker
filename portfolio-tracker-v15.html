@@ -2154,20 +2154,29 @@
             } catch(_) {}
 
             // ══════════════════════════════════════════════════════════════════
-            // ② 無後端模式：fundamentals.json 找不到資料 → 顯示同步中，不觸發 Proxy
+            // ② 有後端時呼叫 /yfundamentals 即時抓取
             // ══════════════════════════════════════════════════════════════════
-            if (!_isLocal) {
-                return { pe:null, fpe:null, peg:null, ps:null, eps_ttm:null,
-                         eps_cur_q:null, eps_next_q:null, eps_cur_y:null, eps_next_y:null,
-                         prevClose:null, prevPrevClose:null, marketOpenedToday:null,
-                         daily_k:null, daily_d:null, daily_cross:'none',
-                         weekly_k:null, weekly_d:null, weekly_cross:'none',
-                         hourly_k:null, hourly_d:null, hourly_cross:'none',
-                         daily_macd:null, weekly_macd:null, hourly_macd:null,
-                         daily_rsi:null, weekly_rsi:null, hourly_rsi:null,
-                         _pending: true };
+            if (pe === null && (fundBase !== '' || _isLocal)) {
+                try {
+                    const fundResp = await fetch((fundBase || '') + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
+                    if (fundResp.ok) {
+                        const raw = await fundResp.json();
+                        if (!raw.error) {
+                            fund       = raw;
+                            pe         = raw.pe         ?? null;
+                            fpe        = raw.fpe        ?? null;
+                            peg        = raw.peg        ?? null;
+                            ps         = raw.ps         ?? null;
+                            eps_ttm    = raw.eps_ttm    ?? null;
+                            eps_cur_q  = raw.eps_cur_q  ?? null;
+                            eps_next_q = raw.eps_next_q ?? null;
+                            eps_cur_y  = raw.eps_cur_y  ?? null;
+                            eps_next_y = raw.eps_next_y ?? null;
+                        }
+                    }
+                } catch(_) {}
             }
-            // ②-b + ③ 本機模式才抓 K 線圖
+            // ③ 並行抓取三個週期 K 線圖
             // 週線加入 events=earnings → 免認證取得各季 EPS Actual/Estimate
             // Yahoo Finance v6/v7/v10 quote API 均需 crumb 認證，已全面停用。
             const [weeklyData, dailyData, hourlyData] = await Promise.all([
