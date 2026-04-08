@@ -2092,8 +2092,8 @@
                     eps_cur_y  = f.eps_cur_y  ?? null;
                     eps_next_y = f.eps_next_y ?? null;
 
-                    // 新版 JSON 已含技術面 → 直接返回，兩端數字完全一致
-                    if (f.daily_k != null || f.weekly_k != null || f.hourly_k != null) {
+                    // fundamentals.json 有此標的 → 直接返回，技術面若為 null 顯示 -
+                    {
                         _jsonHasTech = true;
                         let prevClose     = f.prev_close      ?? null;
                         let prevPrevClose = f.prev_prev_close ?? null;
