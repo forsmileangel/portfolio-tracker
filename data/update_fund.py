@@ -366,8 +366,19 @@ output = {
     'data': result
 }
 
+def sanitize(obj):
+    """遞迴將 NaN / Infinity 換成 None，確保輸出合法 JSON"""
+    if isinstance(obj, float):
+        import math
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize(v) for v in obj]
+    return obj
+
 out_path = os.path.join(ROOT, 'fundamentals.json')
 with open(out_path, 'w', encoding='utf-8') as f:
-    json.dump(output, f, ensure_ascii=False, indent=2)
+    json.dump(sanitize(output), f, ensure_ascii=False, indent=2)
 
 print(f'\nDone. {len(result)} symbols → fundamentals.json  ({datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")})')
