@@ -2281,6 +2281,53 @@
         }
 
         // ==================== 後端網址設定 ====================
+        async function runDiagnostics() {
+            const results = [];
+            const log = (msg, ok) => results.push((ok ? '✅' : '❌') + ' ' + msg);
+
+            // 測試 1：fundamentals.json
+            try {
+                const t0 = Date.now();
+                const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
+                const ms = Date.now() - t0;
+                if (r.ok) {
+                    const d = await r.json();
+                    const count = Object.keys(d.data || {}).length;
+                    log(`fundamentals.json (${ms}ms, ${count} 筆)`, true);
+                } else {
+                    log(`fundamentals.json HTTP ${r.status}`, false);
+                }
+            } catch(e) { log(`fundamentals.json 失敗: ${e.message}`, false); }
+
+            // 測試 2：CORS Proxy (corsproxy.io)
+            const testUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=1d';
+            const proxies = [
+                ['corsproxy.io', 'https://corsproxy.io/?' + encodeURIComponent(testUrl)],
+                ['codetabs.com', 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(testUrl)],
+            ];
+            for (const [name, url] of proxies) {
+                try {
+                    const t0 = Date.now();
+                    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+                    const ms = Date.now() - t0;
+                    log(`Proxy ${name} (${ms}ms) HTTP ${r.status}`, r.ok);
+                } catch(e) { log(`Proxy ${name} 失敗: ${e.message}`, false); }
+            }
+
+            // 測試 3：localStorage 空間
+            try {
+                const used = JSON.stringify(localStorage).length;
+                log(`localStorage 已用 ${(used/1024).toFixed(1)} KB`, true);
+            } catch(e) { log(`localStorage 錯誤: ${e.message}`, false); }
+
+            // 測試 4：backend_url
+            const bu = localStorage.getItem('backend_url');
+            log(`backend_url: ${bu || '（未設定）'}`, true);
+
+            // 顯示結果
+            alert('=== 連線診斷結果 ===\n\n' + results.join('\n'));
+        }
+
         async function forceUpdatePWA() {
             if (!confirm('清除所有 Service Worker 快取並重新載入頁面？')) return;
             try {
