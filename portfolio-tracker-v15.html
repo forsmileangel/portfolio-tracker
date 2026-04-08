@@ -2305,9 +2305,12 @@
                 const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
                 const ms = Date.now() - t0;
                 if (r.ok) {
-                    const d = await r.json();
+                    const txt = await r.text();
+                    const cleaned = txt.replace(/:\s*NaN/g, ': null').replace(/:\s*Infinity/g, ': null').replace(/:\s*-Infinity/g, ': null');
+                    const d = JSON.parse(cleaned);
                     const count = Object.keys(d.data || {}).length;
-                    log(`fundamentals.json (${ms}ms, ${count} 筆)`, true);
+                    const hasNaN = txt.includes(':NaN') || txt.includes(': NaN');
+                    log(`fundamentals.json (${ms}ms, ${count} 筆)${hasNaN ? ' ⚠️含NaN(已清理)' : ''}`, true);
                 } else {
                     log(`fundamentals.json HTTP ${r.status}`, false);
                 }
