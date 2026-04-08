@@ -2906,13 +2906,15 @@
 
         async function _syncSymbols(merged) {
             const btn = document.getElementById('sync-symbols-btn');
-            const backendUrl = localStorage.getItem('backend_url') || '';
-            if (!backendUrl) {
+            // 優先用 Cloudflare Worker（寫死），沒有才退回 backend_url
+            const WORKER_URL = 'https://syncsymbols.forsmileangel.workers.dev';
+            const updateUrl = WORKER_URL || localStorage.getItem('backend_url') || '';
+            if (!updateUrl) {
                 showImportToast('⚠️ 請先設定後端網址', 3000); return;
             }
             if (btn) { btn.disabled = true; btn.textContent = '⏳ 更新中...'; }
             try {
-                const resp = await fetch(backendUrl + '/update-symbols', {
+                const resp = await fetch(updateUrl + '/update-symbols', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(merged)
