@@ -2142,32 +2142,9 @@
             } catch(_) {}
 
             // ══════════════════════════════════════════════════════════════════
-            // ② 基本面備用：
-            //    ②-a 有後端時呼叫後端 /yfundamentals
-            //    ②-b 無後端 / 後端無資料 → 直接查 Yahoo Finance quoteSummary
-            //         GitHub Pages 不設後端也能取得完整基本面數據
+            // ② 基本面備用：無後端 / 後端無資料 → 直接查 Yahoo Finance quoteSummary
+            //    backend_url 僅用於 /update-symbols，基本面統一從 fundamentals.json 讀取
             // ══════════════════════════════════════════════════════════════════
-            // ②-a 後端
-            if (pe === null && (fundBase !== '' || _isLocal)) {
-                try {
-                    const fundResp = await fetch((fundBase || '') + '/yfundamentals?symbol=' + encodeURIComponent(symbol));
-                    if (fundResp.ok) {
-                        const raw = await fundResp.json();
-                        if (!raw.error) {
-                            fund       = raw;
-                            pe         = raw.pe         ?? null;
-                            fpe        = raw.fpe        ?? null;
-                            peg        = raw.peg        ?? null;
-                            ps         = raw.ps         ?? null;
-                            eps_ttm    = raw.eps_ttm    ?? null;
-                            eps_cur_q  = raw.eps_cur_q  ?? null;
-                            eps_next_q = raw.eps_next_q ?? null;
-                            eps_cur_y  = raw.eps_cur_y  ?? null;
-                            eps_next_y = raw.eps_next_y ?? null;
-                        }
-                    }
-                } catch(_) {}
-            }
             // ②-b + ③ 並行抓取三個週期 K 線圖
             // 週線加入 events=earnings → 免認證取得各季 EPS Actual/Estimate
             // Yahoo Finance v6/v7/v10 quote API 均需 crumb 認證，已全面停用。
