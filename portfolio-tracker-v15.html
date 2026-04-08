@@ -1406,7 +1406,28 @@
             document.getElementById('confirm-text').innerHTML = `確定要刪除「${h.symbol}」的持倉嗎？<br>此操作無法復原。`;
             document.getElementById('confirm-modal').style.display = 'flex';
         }
-        function confirmDelete() { saveHistory(); holdings = holdings.filter(h => h.id !== currentDeleteId); hideConfirmModal(); renderAll(); }
+        function confirmDelete() {
+            saveHistory();
+            const deletedId = currentDeleteId;
+            holdings = holdings.filter(h => h.id !== deletedId);
+            // 直接從 localStorage 移除該筆，確保 persist:true 的持倉也能被刪除
+            try {
+                const raw = localStorage.getItem(PT_STORAGE_KEY);
+                if (raw) {
+                    const state = JSON.parse(raw);
+                    if (Array.isArray(state.holdings)) {
+                        state.holdings = state.holdings.filter(h => h.id !== deletedId);
+                        if (state.holdings.length > 0) {
+                            localStorage.setItem(PT_STORAGE_KEY, JSON.stringify(state));
+                        } else {
+                            localStorage.removeItem(PT_STORAGE_KEY);
+                        }
+                    }
+                }
+            } catch(_) {}
+            hideConfirmModal();
+            renderAll();
+        }
 
         // ── 持倉保留勾選 ──
         function togglePersist(id, checked) {
