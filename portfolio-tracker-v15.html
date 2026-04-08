@@ -1350,6 +1350,15 @@
             document.getElementById('form-market').value = getSymbolMarket(s);
             document.getElementById('form-price-ccy').textContent = '(' + getSymbolCurrency(s) + ')';
         }
+        // 市場手動切換時，重新計算幣別顯示
+        function onMarketChange(market) {
+            const sym = document.getElementById('form-symbol').value.trim().toUpperCase();
+            if (!sym) return;
+            document.getElementById('form-price-ccy').textContent = '(' + (
+                market === 'HK' ? (HK_USD_PRICED.has(sym.endsWith('.HK') ? sym : sym + '.HK') ? 'USD' : 'HKD') :
+                market === 'TW' ? 'TWD' : 'USD'
+            ) + ')';
+        }
 
         function addHolding() {
             let symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
