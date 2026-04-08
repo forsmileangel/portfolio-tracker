@@ -98,9 +98,36 @@ def get_fundamentals(symbol):
     return result
 
 
+def github_update_symbols(symbols):
+    import base64
+    api_url = f'https://api.github.com/repos/{GITHUB_REPO}/contents/{SYMBOLS_PATH}'
+    headers = {
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'portfolio-tracker-backend',
+    }
+    req = urllib.request.Request(api_url, headers=headers)
+    with urllib.request.urlopen(req, timeout=15) as r:
+        current = json.loads(r.read())
+    sha = current['sha']
+    content = base64.b64encode(json.dumps(symbols, indent=2, ensure_ascii=False).encode()).decode()
+    body = json.dumps({'message': 'update symbols', 'content': content, 'sha': sha}).encode()
+    req = urllib.request.Request(api_url, data=body, headers=headers, method='PUT')
+    with urllib.request.urlopen(req, timeout=15) as r:
+        r.read()
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIR, **kwargs)
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -111,12 +138,31 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         else:
             super().do_GET()
 
+    def do_POST(self):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == '/update-symbols':
+            self._update_symbols()
+        else:
+            self.send_error(404)
+
+    def _update_symbols(self):
+        try:
+            length = int(self.headers.get('Content-Length', 0))
+            symbols = json.loads(self.rfile.read(length))
+            if not GITHUB_TOKEN:
+                self._send_json({'error': 'GITHUB_TOKEN not configured'}, 500); return
+            github_update_symbols(symbols)
+            self._send_json({'ok': True})
+        except Exception as e:
+            self._send_json({'error': str(e)}, 500)
+
     def _send_json(self, data, status=200):
         body = json.dumps(data).encode()
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
         self.wfile.write(body)
 
