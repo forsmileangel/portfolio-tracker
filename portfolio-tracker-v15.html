@@ -2010,11 +2010,11 @@
         const YF_PROXIES = [
             // 嘗試直接存取（Yahoo 有時允許 CORS）
             u => u,
-            // 本機後端或已設定 Render 後端才啟用
+            // 本機後端或已設定後端才啟用
             ...(_isLocal || BACKEND_URL ? [u => (BACKEND_URL || '') + '/proxy?url=' + encodeURIComponent(u)] : []),
-            u => 'https://corsproxy.io/?'                          + encodeURIComponent(u),
             u => 'https://api.allorigins.win/raw?url='             + encodeURIComponent(u),
-            u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u)
+            u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u),
+            u => 'https://corsproxy.io/?'                          + encodeURIComponent(u),
         ];
 
         // 記住上次成功的 proxy 索引（頁面週期內有效），避免每次都從第一個重試
