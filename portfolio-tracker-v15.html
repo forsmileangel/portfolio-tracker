@@ -1352,10 +1352,12 @@
         }
 
         function addHolding() {
-            const symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
+            let symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
             const quantity = parseFloat(document.getElementById('form-quantity').value);
             const costPrice = parseFloat(document.getElementById('form-cost').value);
             const market = document.getElementById('form-market').value;
+            // 自動補後綴：港股不帶 .HK 時補上
+            if (market === 'HK' && !symbol.endsWith('.HK')) symbol = symbol + '.HK';
             const isBuy = tradeType === 'buy';
             if (!symbol || !quantity) return alert('請填寫所有必要欄位');
             if (isBuy && !costPrice) return alert('請填寫買入價格');
