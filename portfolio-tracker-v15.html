@@ -273,6 +273,16 @@
         <div id="tab-pane-1" class="tab-pane active" style="padding-top:1.5rem;">
 
         <!-- Stats -->
+        <div style="display:flex; justify-content:flex-end; margin-bottom:0.4rem;">
+            <button id="privacy-btn" onclick="togglePrivacy()" title="點擊隱藏敏感金額"
+                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
+                <span style="position:relative;display:inline-block;font-size:1rem;line-height:1;">
+                    👁
+                    <span id="privacy-slash" style="display:none;position:absolute;left:-2px;right:-2px;top:48%;border-top:2.5px solid #ef4444;transform:rotate(-30deg);pointer-events:none;"></span>
+                </span>
+                <span style="font-size:0.75rem;">隱私</span>
+            </button>
+        </div>
         <div id="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem; margin-bottom:2rem;"></div>
 
         <!-- Exchange Rate Controls -->
