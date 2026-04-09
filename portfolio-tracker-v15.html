@@ -3341,6 +3341,9 @@
                 if (ni < symbols.length - 1) await new Promise(r => setTimeout(r, 300));
             }
             if (tCacheNewsUpdated) {
+                // 限制最多 200 筆，避免 localStorage 無限成長
+                const _entries = Object.entries(tCacheNews);
+                if (_entries.length > 200) tCacheNews = Object.fromEntries(_entries.slice(-200));
                 try { localStorage.setItem(_tCacheKeyNews, JSON.stringify({ts:Date.now(), data:tCacheNews})); } catch(_) {}
             }
 
