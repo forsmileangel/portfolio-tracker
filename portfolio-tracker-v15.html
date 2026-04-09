@@ -765,6 +765,32 @@
             return (val >= 0 ? '+' : '-') + fmtAmt(val, ccy);
         }
 
+        // ==================== 隱私模式 ====================
+        let _privacyMode = false;
+        const PT_PRIVACY_KEY = 'pt_privacy_mode';
+        const PV_MASK = '<span style="letter-spacing:0.1em;color:#475569;">*****</span>';
+
+        function pv(str) { return _privacyMode ? PV_MASK : str; }
+
+        function togglePrivacy() {
+            _privacyMode = !_privacyMode;
+            localStorage.setItem(PT_PRIVACY_KEY, _privacyMode ? '1' : '0');
+            _updatePrivacyBtn();
+            renderAll();
+        }
+        function _updatePrivacyBtn() {
+            const slash = document.getElementById('privacy-slash');
+            const btn   = document.getElementById('privacy-btn');
+            if (!slash || !btn) return;
+            slash.style.display = _privacyMode ? 'block' : 'none';
+            btn.title = _privacyMode ? '隱私模式開啟 — 點擊顯示金額' : '點擊隱藏敏感金額';
+            btn.style.borderColor = _privacyMode ? 'rgba(239,68,68,0.5)' : 'rgba(100,116,139,0.3)';
+        }
+        function loadPrivacy() {
+            _privacyMode = localStorage.getItem(PT_PRIVACY_KEY) === '1';
+            _updatePrivacyBtn();
+        }
+
         function renderStats(stats) {
             const grid = document.getElementById('stats-grid');
             // ── 昨日損益 卡片 ──────────────────────────────
