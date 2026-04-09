@@ -3719,6 +3719,8 @@
                         await new Promise(r => setTimeout(r, 300)); // 避免 rate limit
                     }
                     if (tUpdated) {
+                        const _te = Object.entries(tCache);
+                        if (_te.length > 200) tCache = Object.fromEntries(_te.slice(-200));
                         try { localStorage.setItem(_tCacheKey, JSON.stringify({ts:Date.now(), data:tCache})); } catch(_) {}
                     }
                 } catch(_) {}
