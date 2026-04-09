@@ -3100,6 +3100,7 @@
                 if (holdings.length === 0) return;
                 const btn = document.getElementById('analysis-btn');
                 if (btn?.disabled) return; // 已在更新中，跳過
+                window._fundJsonCache = null; // 釋放上次快取，下次重新讀取最新 fundamentals.json
                 // forceRefresh=false → 讓 loadAnalysis 依快取 TTL 決定更新範圍
                 // 技術面(1hr)或基本面(4hr)過期時自動刷新；均有效時直接跳過
                 await loadAnalysis(false, true); // silent=true 不顯示 loading 狀態
