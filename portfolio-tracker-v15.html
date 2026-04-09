@@ -1086,16 +1086,21 @@
         }
 
         // ==================== 現金 ====================
-        const PT_CASH_KEY = 'pt_v13_cash';
+        const PT_CASH_KEY     = 'pt_v13_cash';
+        const PT_CASH_PIE_KEY = 'pt_cash_pie_cb';
         function saveCash() {
             const v = parseFloat(document.getElementById('cash-twd-input')?.value) || 0;
             if (v > 0) localStorage.setItem(PT_CASH_KEY, v);
             else localStorage.removeItem(PT_CASH_KEY);
+            const cb = document.getElementById('cash-pie-cb');
+            if (cb) localStorage.setItem(PT_CASH_PIE_KEY, cb.checked ? '1' : '0');
         }
         function loadCash() {
             const v = parseFloat(localStorage.getItem(PT_CASH_KEY)) || 0;
             const el = document.getElementById('cash-twd-input');
             if (el && v > 0) el.value = v;
+            const cb = document.getElementById('cash-pie-cb');
+            if (cb) cb.checked = (localStorage.getItem(PT_CASH_PIE_KEY) === '1');
         }
 
         // ==================== v13 LocalStorage 持久化 ====================
