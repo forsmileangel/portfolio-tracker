@@ -1002,10 +1002,19 @@
         function renderPie(stats) {
             const pieSection = document.getElementById('pie-section');
             const cashTWD = parseFloat(document.getElementById('cash-twd-input')?.value) || 0;
+            const showCashInPie = document.getElementById('cash-pie-cb')?.checked ?? false;
             pieSection.style.display = (holdings.length > 0 || cashTWD > 0) ? 'block' : 'none';
             if (holdings.length === 0 && cashTWD <= 0) return;
 
-            const grandTotal = stats.totalValueTWD + cashTWD;
+            // 更新勾選框顏色
+            const cbLabel = document.getElementById('cash-pie-cb-label');
+            const cbWrap  = document.getElementById('cash-pie-label');
+            if (cbLabel) cbLabel.style.color = showCashInPie ? '#22c55e' : '#64748b';
+            if (cbWrap)  cbWrap.style.borderColor = showCashInPie ? 'rgba(34,197,94,0.5)' : 'rgba(34,197,94,0.25)';
+
+            // 依勾選決定是否納入現金
+            const effectiveCash = showCashInPie ? cashTWD : 0;
+            const grandTotal = stats.totalValueTWD + effectiveCash;
             // 將股票佔比縮放至含現金的總量
             const stockScale = (grandTotal > 0 && stats.totalValueTWD > 0) ? stats.totalValueTWD / grandTotal : 1;
             const adjHoldings = stats.holdingsWithStats.map(h => ({ name: h.symbol, value: h.percentage * stockScale }));
@@ -1014,10 +1023,10 @@
             let others = adjHoldings.filter(d => d.value < 1).reduce((sum, d) => sum + d.value, 0);
             if (others > 0) pieData.push({ name: '其他', value: others });
 
-            // 現金欄
+            // 現金欄（只在勾選時加入）
             const cashColor = '#22c55e';
             let cashEntry = null;
-            if (cashTWD > 0 && grandTotal > 0) {
+            if (showCashInPie && cashTWD > 0 && grandTotal > 0) {
                 cashEntry = { name: '現金', value: (cashTWD / grandTotal) * 100, isCash: true };
                 pieData.push(cashEntry);
             }
