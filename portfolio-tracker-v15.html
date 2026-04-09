@@ -1051,6 +1051,22 @@
             const cashTWD = parseFloat(document.getElementById('cash-twd-input')?.value) || 0;
             const showCashInPie = document.getElementById('cash-pie-cb')?.checked ?? false;
             pieSection.style.display = (holdings.length > 0 || cashTWD > 0) ? 'block' : 'none';
+
+            // ── 總資產列 ──
+            const taBar = document.getElementById('total-assets-bar');
+            if (taBar) {
+                const stockTWD   = stats.totalValueTWD || 0;
+                const totalTWD   = stockTWD + cashTWD;
+                const fmtTWD = v => 'NT$' + Math.round(v).toLocaleString('en-US');
+                const taStock  = document.getElementById('ta-stock');
+                const taCash   = document.getElementById('ta-cash');
+                const taTotal  = document.getElementById('ta-total');
+                if (taStock)  taStock.innerHTML  = pv(fmtTWD(stockTWD));
+                if (taCash)   taCash.innerHTML   = pv(fmtTWD(cashTWD));
+                if (taTotal)  taTotal.innerHTML  = pv(fmtTWD(totalTWD));
+                taBar.style.display = (holdings.length > 0 || cashTWD > 0) ? 'flex' : 'none';
+            }
+
             if (holdings.length === 0 && cashTWD <= 0) return;
 
             // 更新勾選框顏色
