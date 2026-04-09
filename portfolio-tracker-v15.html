@@ -860,16 +860,16 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#60a5fa 0%,#3b82f6 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(56,139,253,0.4);">💰</div>
                         <span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總投入</span>
                     </div>
-                    <div class="mono stat-amount" style="color:#60a5fa;">${currency==='USD' ? fmtAmt(stats.totalCost,'USD') : fmtAmt(stats.totalCostTWD,'TWD')}</div>
-                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${currency==='USD' ? fmtAmt(stats.totalCostTWD,'TWD') : fmtAmt(stats.totalCost,'USD')}</div>
+                    <div class="mono stat-amount" style="color:#60a5fa;">${pv(currency==='USD' ? fmtAmt(stats.totalCost,'USD') : fmtAmt(stats.totalCostTWD,'TWD'))}</div>
+                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalCostTWD,'TWD') : fmtAmt(stats.totalCost,'USD'))}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
                         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(59,130,246,0.4);">📈</div>
                         <span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總市值</span>
                     </div>
-                    <div class="mono stat-amount" style="color:#3b82f6;">${currency==='USD' ? fmtAmt(stats.totalValue,'USD') : fmtAmt(stats.totalValueTWD,'TWD')}</div>
-                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${currency==='USD' ? fmtAmt(stats.totalValueTWD,'TWD') : fmtAmt(stats.totalValue,'USD')}</div>
+                    <div class="mono stat-amount" style="color:#3b82f6;">${pv(currency==='USD' ? fmtAmt(stats.totalValue,'USD') : fmtAmt(stats.totalValueTWD,'TWD'))}</div>
+                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalValueTWD,'TWD') : fmtAmt(stats.totalValue,'USD'))}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:nowrap;">
@@ -879,9 +879,9 @@
                         </div>
                         <span class="mono stat-pct ${stats.totalPnL>=0?'profit':'loss'}" style="flex-shrink:0;">(${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%)</span>
                     </div>
-                    <div class="mono stat-amount ${stats.totalPnL>=0?'profit':'loss'}">${currency==='USD' ? fmtPnl(stats.totalPnL,'USD') : fmtPnl(stats.totalPnLTWD,'TWD')}</div>
+                    <div class="mono stat-amount ${stats.totalPnL>=0?'profit':'loss'}">${pv(currency==='USD' ? fmtPnl(stats.totalPnL,'USD') : fmtPnl(stats.totalPnLTWD,'TWD'))}</div>
                     <div class="mono stat-amount-sub" style="margin-top:0.45rem;">
-                        <span class="${stats.totalPnLTWD>=0?'profit':'loss'}">${currency==='USD' ? fmtPnl(stats.totalPnLTWD,'TWD') : fmtPnl(stats.totalPnL,'USD')}</span>
+                        <span class="${stats.totalPnLTWD>=0?'profit':'loss'}">${pv(currency==='USD' ? fmtPnl(stats.totalPnLTWD,'TWD') : fmtPnl(stats.totalPnL,'USD'))}</span>
                     </div>
                 </div>
                 ${prevDayCard}
