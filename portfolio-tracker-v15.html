@@ -2945,6 +2945,22 @@
             if (hadSaved && holdings.length > 0) {
                 setTimeout(() => loadAnalysis(false, true), 2000);
             }
+
+            // ── 分頁隱藏時暫停所有計時器，切回後恢復（減少背景 CPU/記憶體佔用）──
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(_autoRefreshTimer);
+                    clearInterval(_countdownTimer);
+                    clearInterval(_autoAnalysisTimer);
+                    clearInterval(_autoMacroTimer);
+                    clearInterval(_autoEarningsTimer);
+                } else {
+                    startAutoRefresh();
+                    startAutoAnalysis();
+                    startAutoMacro();
+                    startAutoEarnings();
+                }
+            });
         }
         window.onload = init;
 
