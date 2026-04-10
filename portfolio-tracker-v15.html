@@ -688,6 +688,8 @@
         let history = [];
         let currency = 'TWD';
         let _allExpanded = true;
+        let _fxDirection = 'to_twd';   // 'to_twd' = 各幣→TWD；'from_twd' = TWD→各幣
+        let _fxLastData  = null;        // 快取最後一次 fx 資料供切換方向時重繪
 
         function toggleAllHoldings() {
             _allExpanded = !_allExpanded;
