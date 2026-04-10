@@ -3596,6 +3596,21 @@
             const symbols = [...new Set(holdings.map(h => getQuerySymbol(h.symbol)))];
             const cache = forceRefresh ? {} : _loadQsCache();
             const allQs = { ...cache };
+
+            // 全域快取補充（localStorage 沒有的標的，從 cache.json 補）
+            if (!forceRefresh) {
+                try {
+                    const gc = await _loadGlobalCache();
+                    const gcE = gc?.earnings || {};
+                    for (const sym of symbols) {
+                        if (!allQs[sym] && gcE[sym] &&
+                            (Date.now() - (gcE[sym].fetched_at || 0)) < _QS_CACHE_TTL) {
+                            allQs[sym] = gcE[sym].data;
+                        }
+                    }
+                } catch(_) {}
+            }
+
             const toFetch = symbols.filter(s => !allQs[s]);
 
             // 逐一查詢（循序，避免代理 rate limit）
