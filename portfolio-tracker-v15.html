@@ -115,6 +115,8 @@
         .holding-header:hover { background:rgba(59,130,246,0.05); }
         .holding-body { padding:0.25rem 1rem 0.85rem 1.25rem; border-top:1px solid rgba(255,255,255,0.06); }
         .holding-row::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+        body.privacy-active .pv-field { color: transparent !important; text-shadow: 0 0 7px rgba(200,200,200,0.4) !important; }
+        body.privacy-active .pv-hint  { visibility: hidden; }
         
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         
