@@ -3661,6 +3661,19 @@
             }
             _saveQsCache(allQs);
 
+            // 回寫全域快取（有後端時非同步推送）
+            try {
+                const gc = await _loadGlobalCache();
+                if (!gc.earnings) gc.earnings = {};
+                for (const sym of symbols) {
+                    if (allQs[sym] && !allQs[sym]._error) {
+                        gc.earnings[sym] = { data: allQs[sym], fetched_at: Date.now() };
+                    }
+                }
+                _globalCacheDirty = true;
+                _pushGlobalCache();
+            } catch(_) {}
+
             // ── 從 fundamentals.json 補充遺漏的季度 EPS 歷史與財務指標 ──────
             // 原因：CORS 代理不回傳 Yahoo Finance 的 events.earnings 欄位；
             //       Python 腳本透過 yfinance.earnings_dates 直接取得並存入 fundamentals.json
