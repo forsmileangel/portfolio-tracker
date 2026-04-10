@@ -380,7 +380,7 @@
                 <div style="display:flex; flex-direction:column; gap:0.45rem; align-items:flex-end;">
                     <!-- 現金列 -->
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
+                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap; width:90px; text-align:right;">現金（TWD）</span>
                         <input type="number" id="cash-twd-input" min="0" placeholder="0" onchange="saveCash(); renderAll();" class="pv-field"
                             style="width:120px; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem;">
                         <span style="min-width:80px; display:inline-block;"></span>
@@ -391,13 +391,24 @@
                     </div>
                     <!-- 加密列 -->
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">加密（TWD）</span>
+                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap; width:90px; text-align:right;">加密（TWD）</span>
                         <input type="number" id="crypto-twd-input" min="0" placeholder="0" onchange="saveCrypto(); renderAll();" class="pv-field"
                             style="width:120px; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem;">
                         <span id="crypto-usdt-hint" class="pv-hint" style="color:#475569; font-size:0.75rem; white-space:nowrap; min-width:80px;"></span>
                         <label id="crypto-pie-label" title="勾選後圓餅圖會納入加密倉位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
                             <input type="checkbox" id="crypto-pie-cb" onchange="saveCrypto(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
                             <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含加密</span>
+                        </label>
+                    </div>
+                    <!-- MOXA 股票列 -->
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap; width:90px; text-align:right;">MOXA（TWD）</span>
+                        <input type="number" id="moxa-twd-input" min="0" placeholder="0" onchange="saveMoxa(); renderAll();" class="pv-field"
+                            style="width:120px; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem;">
+                        <span style="min-width:80px; display:inline-block;"></span>
+                        <label id="moxa-pie-label" title="勾選後圓餅圖會納入 MOXA 股票部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:6px;">
+                            <input type="checkbox" id="moxa-pie-cb" onchange="saveMoxa(); renderAll();" style="width:14px;height:14px;accent-color:#f59e0b;cursor:pointer;">
+                            <span id="moxa-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含MOXA</span>
                         </label>
                     </div>
                 </div>
