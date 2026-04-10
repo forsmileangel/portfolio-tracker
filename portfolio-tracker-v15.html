@@ -280,7 +280,12 @@
         <div id="tab-pane-1" class="tab-pane active" style="padding-top:1.5rem;">
 
         <!-- Stats -->
-        <div style="display:flex; justify-content:flex-end; margin-bottom:0.4rem;">
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+            <button id="font-toggle-btn" onclick="toggleFont()" title="切換字型"
+                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
+                <span style="font-size:0.9rem;font-weight:700;font-family:serif;">Aa</span>
+                <span id="font-toggle-label" style="font-size:0.75rem;">預設字型</span>
+            </button>
             <button id="privacy-btn" onclick="togglePrivacy()" title="點擊隱藏敏感金額"
                 style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
                 <span style="position:relative;display:inline-block;font-size:1rem;line-height:1;">
