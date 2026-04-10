@@ -1069,66 +1069,78 @@
         }
 
         function renderPie(stats) {
-            const pieSection = document.getElementById('pie-section');
-            const cashTWD = parseFloat(document.getElementById('cash-twd-input')?.value) || 0;
-            const showCashInPie = document.getElementById('cash-pie-cb')?.checked ?? false;
-            pieSection.style.display = (holdings.length > 0 || cashTWD > 0) ? 'block' : 'none';
+            const pieSection    = document.getElementById('pie-section');
+            const cashTWD       = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
+            const cryptoTWD     = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            const showCashInPie   = document.getElementById('cash-pie-cb')?.checked   ?? false;
+            const showCryptoInPie = document.getElementById('crypto-pie-cb')?.checked ?? false;
+            const hasAny = holdings.length > 0 || cashTWD > 0 || cryptoTWD > 0;
+            pieSection.style.display = hasAny ? 'block' : 'none';
 
             // ── 總資產列 ──
             const taBar = document.getElementById('total-assets-bar');
             if (taBar) {
-                const stockTWD   = stats.totalValueTWD || 0;
-                const totalTWD   = stockTWD + cashTWD;
-                const fmtTWD = v => 'NT$' + Math.round(v).toLocaleString('en-US');
-                const taStock  = document.getElementById('ta-stock');
-                const taCash   = document.getElementById('ta-cash');
-                const taTotal  = document.getElementById('ta-total');
+                const stockTWD = stats.totalValueTWD || 0;
+                const totalTWD = stockTWD + cashTWD + cryptoTWD;
+                const fmtTWD   = v => 'NT$' + Math.round(v).toLocaleString('en-US');
+                const taStock      = document.getElementById('ta-stock');
+                const taCash       = document.getElementById('ta-cash');
+                const taCrypto     = document.getElementById('ta-crypto');
+                const taCryptoWrap = document.getElementById('ta-crypto-wrap');
+                const taTotal      = document.getElementById('ta-total');
                 if (taStock)  taStock.innerHTML  = pv(fmtTWD(stockTWD));
                 if (taCash)   taCash.innerHTML   = pv(fmtTWD(cashTWD));
+                if (taCrypto) taCrypto.innerHTML = pv(fmtTWD(cryptoTWD));
+                if (taCryptoWrap) taCryptoWrap.style.display = cryptoTWD > 0 ? 'inline-flex' : 'none';
                 if (taTotal)  taTotal.innerHTML  = pv(fmtTWD(totalTWD));
-                taBar.style.display = (holdings.length > 0 || cashTWD > 0) ? 'flex' : 'none';
+                taBar.style.display = hasAny ? 'flex' : 'none';
             }
 
-            if (holdings.length === 0 && cashTWD <= 0) return;
+            // ── USDT 換算提示 ──
+            _updateCryptoHint();
 
-            // 更新勾選框顏色
-            const cbLabel = document.getElementById('cash-pie-cb-label');
-            const cbWrap  = document.getElementById('cash-pie-label');
-            if (cbLabel) cbLabel.style.color = showCashInPie ? '#22c55e' : '#64748b';
-            if (cbWrap)  cbWrap.style.borderColor = showCashInPie ? 'rgba(34,197,94,0.5)' : 'rgba(34,197,94,0.25)';
+            if (!hasAny) return;
 
-            // 依勾選決定是否納入現金
-            const effectiveCash = showCashInPie ? cashTWD : 0;
-            const grandTotal = stats.totalValueTWD + effectiveCash;
-            // 將股票佔比縮放至含現金的總量
+            // ── 勾選框顏色 ──
+            const cbLabel   = document.getElementById('cash-pie-cb-label');
+            const cbWrap    = document.getElementById('cash-pie-label');
+            const crLabel   = document.getElementById('crypto-pie-cb-label');
+            const crWrap    = document.getElementById('crypto-pie-label');
+            if (cbLabel) cbLabel.style.color = showCashInPie   ? '#22c55e' : '#64748b';
+            if (cbWrap)  cbWrap.style.borderColor  = showCashInPie   ? 'rgba(34,197,94,0.5)'   : 'rgba(34,197,94,0.25)';
+            if (crLabel) crLabel.style.color = showCryptoInPie ? '#fbbf24' : '#64748b';
+            if (crWrap)  crWrap.style.borderColor  = showCryptoInPie ? 'rgba(251,191,36,0.5)' : 'rgba(251,191,36,0.25)';
+
+            // ── 計算圓餅比例 ──
+            const effectiveCash   = showCashInPie   ? cashTWD   : 0;
+            const effectiveCrypto = showCryptoInPie ? cryptoTWD : 0;
+            const grandTotal = stats.totalValueTWD + effectiveCash + effectiveCrypto;
             const stockScale = (grandTotal > 0 && stats.totalValueTWD > 0) ? stats.totalValueTWD / grandTotal : 1;
             const adjHoldings = stats.holdingsWithStats.map(h => ({ name: h.symbol, value: h.percentage * stockScale }));
 
             let pieData = adjHoldings.filter(d => d.value >= 1);
-            let others = adjHoldings.filter(d => d.value < 1).reduce((sum, d) => sum + d.value, 0);
+            let others  = adjHoldings.filter(d => d.value < 1).reduce((sum, d) => sum + d.value, 0);
             if (others > 0) pieData.push({ name: '其他', value: others });
 
-            // 現金欄（只在勾選時加入）
-            const cashColor = '#22c55e';
-            let cashEntry = null;
-            if (showCashInPie && cashTWD > 0 && grandTotal > 0) {
-                cashEntry = { name: '現金', value: (cashTWD / grandTotal) * 100, isCash: true };
-                pieData.push(cashEntry);
-            }
+            const cashColor   = '#22c55e';
+            const cryptoColor = '#fbbf24';
+            if (showCashInPie   && cashTWD   > 0 && grandTotal > 0)
+                pieData.push({ name: '現金',     value: (cashTWD   / grandTotal) * 100, isCash:   true });
+            if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
+                pieData.push({ name: '加密倉位', value: (cryptoTWD / grandTotal) * 100, isCrypto: true });
 
-            // 再次強制 100%
-            const total = pieData.reduce((sum, d) => sum + d.value, 0);
+            // 強制 100%
+            const total = pieData.reduce((s, d) => s + d.value, 0);
             if (total > 0) pieData.forEach(d => d.value = (d.value / total) * 100);
 
-            // 按百分比降冪排列；其他 固定最後
             pieData.sort((a, b) => {
                 if (a.name === '其他') return 1;
                 if (b.name === '其他') return -1;
                 return b.value - a.value;
             });
 
-            const colors = ['#3b82f6','#8b5cf6','#10b981','#3b82f6','#ef4444','#06b6d4','#ec4899','#14b8a6','#f97316','#6366f1'];
-            const pieColors = pieData.map((d, i) => d.isCash ? cashColor : colors[i % colors.length]);
+            const colors    = ['#3b82f6','#8b5cf6','#10b981','#3b82f6','#ef4444','#06b6d4','#ec4899','#14b8a6','#f97316','#6366f1'];
+            const pieColors = pieData.map((d, i) => d.isCash ? cashColor : d.isCrypto ? cryptoColor : colors[i % colors.length]);
 
             if (chartInstance) chartInstance.destroy();
             const ctx = document.getElementById('pieCanvas');
@@ -1144,7 +1156,9 @@
             const legendHTML = pieData.map((d, i) => {
                 const color = pieColors[i];
                 const subLabel = d.isCash
-                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${cashTWD.toLocaleString('zh-TW', {maximumFractionDigits:0})} TWD)</span>`
+                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0})} TWD)</span>`
+                    : d.isCrypto && _usdtTWD > 0
+                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(≈${(cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0})} USDT)</span>`
                     : '';
                 return `
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${color};">
