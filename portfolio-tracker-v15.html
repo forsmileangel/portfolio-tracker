@@ -2657,6 +2657,28 @@
             } catch(_) {}
 
             // ══════════════════════════════════════════════════════════════════
+            // ①.5 查 GitHub 全域快取（data/cache.json）跨裝置共享，2小時 TTL
+            // ══════════════════════════════════════════════════════════════════
+            if (pe === null) {
+                try {
+                    const gc = await _loadGlobalCache();
+                    const cf = gc?.fundamentals?.[symbol];
+                    if (cf && !cf.error && (Date.now() - (cf.fetched_at || 0)) < FUND_CACHE_TTL) {
+                        fund       = cf;
+                        pe         = cf.pe         ?? null;
+                        fpe        = cf.fpe        ?? null;
+                        peg        = cf.peg        ?? null;
+                        ps         = cf.ps         ?? null;
+                        eps_ttm    = cf.eps_ttm    ?? null;
+                        eps_cur_q  = cf.eps_cur_q  ?? null;
+                        eps_next_q = cf.eps_next_q ?? null;
+                        eps_cur_y  = cf.eps_cur_y  ?? null;
+                        eps_next_y = cf.eps_next_y ?? null;
+                    }
+                } catch(_) {}
+            }
+
+            // ══════════════════════════════════════════════════════════════════
             // ② 有後端時呼叫 /yfundamentals 即時抓取
             // ══════════════════════════════════════════════════════════════════
             if (pe === null && (fundBase !== '' || _isLocal)) {
@@ -2675,6 +2697,13 @@
                             eps_next_q = raw.eps_next_q ?? null;
                             eps_cur_y  = raw.eps_cur_y  ?? null;
                             eps_next_y = raw.eps_next_y ?? null;
+                            // 成功抓取 → 回寫全域快取（非同步，不阻塞）
+                            try {
+                                const gc = await _loadGlobalCache();
+                                gc.fundamentals[symbol] = { ...raw, fetched_at: Date.now() };
+                                _globalCacheDirty = true;
+                                _pushGlobalCache();
+                            } catch(_) {}
                         }
                     }
                 } catch(_) {}
