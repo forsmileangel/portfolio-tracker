@@ -2194,46 +2194,60 @@
         function hideFxTable() {
             document.getElementById('fx-table-popup').style.display = 'none';
         }
+        function _renderFxTable(extra, ts, fromCache) {
+            const body   = document.getElementById('fx-table-body');
+            const timeEl = document.getElementById('fx-table-time');
+            const title  = document.getElementById('fx-table-title');
+            if (!extra || Object.keys(extra).length === 0) {
+                body.innerHTML = '<div style="color:#64748b;font-size:0.85rem;">尚無資料，請先按「抓即時匯率」</div>';
+                return;
+            }
+            const toTwd = _fxDirection === 'to_twd';
+            if (title) title.textContent = toTwd ? '💱 各幣 → TWD' : '💱 TWD → 各幣';
+            body.innerHTML = FX_TABLE_CURRENCIES.map(({ code, name, dec }) => {
+                const rate = extra[code];
+                if (rate == null || rate === 0) return '';
+                const value   = toTwd ? rate : 1 / rate;
+                const digitsR = toTwd ? (dec > 4 ? 4 : dec) : (value < 0.01 ? 6 : value < 1 ? 4 : 2);
+                const display = value.toFixed(digitsR);
+                const left    = toTwd ? `1 ${code} <span style="color:#475569;font-size:0.78rem;">(${name})</span>` : `1 TWD`;
+                const right   = toTwd ? `${display} <span style="color:#64748b;font-size:0.76rem;">TWD</span>` : `${display} <span style="color:#64748b;font-size:0.76rem;">${code}</span>`;
+                return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span style="color:#94a3b8;font-size:0.85rem;white-space:nowrap;">${left}</span>
+                    <span class="mono" style="color:#f1f5f9;font-weight:600;font-size:0.9rem;">${right}</span>
+                </div>`;
+            }).join('');
+            if (ts) {
+                const t = new Date(ts).toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
+                timeEl.textContent = fromCache ? `快取 ${t}（${_fxAgeStr(ts)}）` : `即時 ${t}`;
+            }
+        }
+
+        function toggleFxDirection() {
+            _fxDirection = _fxDirection === 'to_twd' ? 'from_twd' : 'to_twd';
+            if (_fxLastData?.extra) _renderFxTable(_fxLastData.extra, _fxLastData.ts, _fxLastData.fromCache);
+        }
+
         async function showFxTable(e) {
             e?.stopPropagation();
             const popup = document.getElementById('fx-table-popup');
-            const body  = document.getElementById('fx-table-body');
-            const timeEl = document.getElementById('fx-table-time');
             popup.style.display = 'flex';
 
             // 先用快取渲染（快，無延遲）
             const cached = _loadFxCache();
-            const renderTable = (extra, ts, fromCache) => {
-                if (!extra || Object.keys(extra).length === 0) {
-                    body.innerHTML = '<div style="color:#64748b;font-size:0.85rem;">尚無資料，請先按「抓即時匯率」</div>';
-                    return;
-                }
-                body.innerHTML = FX_TABLE_CURRENCIES.map(({ code, name, dec }) => {
-                    const rate = extra[code];
-                    if (rate == null) return '';
-                    const display = rate < 0.01
-                        ? rate.toFixed(dec)
-                        : rate.toFixed(dec > 4 ? 4 : dec);
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <span style="color:#94a3b8;font-size:0.85rem;white-space:nowrap;">1 ${code} <span style="color:#475569;font-size:0.78rem;">(${name})</span></span>
-                        <span class="mono" style="color:#f1f5f9;font-weight:600;font-size:0.9rem;">${display} <span style="color:#64748b;font-size:0.76rem;">TWD</span></span>
-                    </div>`;
-                }).join('');
-                if (ts) {
-                    const t = new Date(ts).toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
-                    timeEl.textContent = fromCache ? `快取 ${t}（${_fxAgeStr(ts)}）` : `即時 ${t}`;
-                }
-            };
-
             if (cached?.extra) {
-                renderTable(cached.extra, cached.ts, true);
+                _fxLastData = { extra: cached.extra, ts: cached.ts, fromCache: true };
+                _renderFxTable(cached.extra, cached.ts, true);
             } else {
-                body.innerHTML = '<div style="color:#64748b;font-size:0.85rem;">載入中...</div>';
+                document.getElementById('fx-table-body').innerHTML = '<div style="color:#64748b;font-size:0.85rem;">載入中...</div>';
             }
 
             // 背景靜默更新（快取未過期時直接回傳，不打 API）
             const fx = await _fetchFxRates(false);
-            if (fx?.extra) renderTable(fx.extra, fx.ts, fx.fromCache);
+            if (fx?.extra) {
+                _fxLastData = { extra: fx.extra, ts: fx.ts, fromCache: fx.fromCache };
+                _renderFxTable(fx.extra, fx.ts, fx.fromCache);
+            }
         }
 
         async function fetchLiveRates(btn) {
