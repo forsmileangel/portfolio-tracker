@@ -722,6 +722,40 @@
         // ── 匯率快取（localStorage, 1hr TTL，大幅減少 open.er-api 用量）──
         // 策略：按需更新（On-Demand）。只有啟動/手動觸發時才檢查；快取 1hr 內直接用舊值。
         // 每分鐘自動更新報價時 (silentRefreshPrices) 若快取未過期，完全不打 API。
+        // ── GitHub 全域快取（data/cache.json）跨裝置基本面快取 ──
+        const GITHUB_CACHE_RAW = 'https://raw.githubusercontent.com/forsmileangel/portfolio-tracker/main/data/cache.json';
+        const FUND_CACHE_TTL   = 2 * 60 * 60 * 1000; // 基本面：2小時
+        let _globalCache       = null;
+        let _globalCacheLoaded = false;
+        let _globalCacheDirty  = false;
+
+        async function _loadGlobalCache() {
+            if (_globalCacheLoaded) return _globalCache;
+            try {
+                const r = await fetch(GITHUB_CACHE_RAW + '?_t=' + Date.now(), { cache: 'no-store' });
+                _globalCache = r.ok ? await r.json() : { fundamentals: {} };
+            } catch(_) {
+                _globalCache = { fundamentals: {} };
+            }
+            if (!_globalCache.fundamentals) _globalCache.fundamentals = {};
+            _globalCacheLoaded = true;
+            return _globalCache;
+        }
+
+        async function _pushGlobalCache() {
+            if (!_globalCacheDirty || !_globalCache) return;
+            const base = _isLocal ? '' : (BACKEND_URL || null);
+            if (base === null) return; // 無後端，無法回寫
+            try {
+                const r = await fetch(base + '/update-cache', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(_globalCache)
+                });
+                if (r.ok) _globalCacheDirty = false;
+            } catch(_) {}
+        }
+
         const PT_FX_CACHE_KEY = 'pt_fx_v1';
         const FX_TTL = 60 * 60 * 1000; // 1 小時
 
