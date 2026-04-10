@@ -2022,26 +2022,15 @@
 
         async function fetchLiveRates(btn) {
             btn.textContent = '更新中...'; btn.disabled = true;
-            const timer = setTimeout(() => {
-                btn.textContent = '🌐 抓即時匯率'; btn.disabled = false;
-                showWarnToast('⏱ 匯率 API 逾時，請稍後再試');
-            }, 8000);
             try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                clearTimeout(timer);
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                if (!data.rates || !data.rates['TWD'] || !data.rates['HKD']) throw new Error('API 回傳格式異常');
-                const twd = data.rates['TWD'];
-                const hkd = data.rates['HKD'];
-                exchangeRates.USD_TWD = parseFloat(twd.toFixed(4));
-                exchangeRates.HKD_TWD = parseFloat((twd / hkd).toFixed(4));
-                document.getElementById('input-usd-twd').value = exchangeRates.USD_TWD.toFixed(2);
-                document.getElementById('input-hkd-twd').value = exchangeRates.HKD_TWD.toFixed(4);
+                const fx = await _fetchFxRates(true); // 手動觸發 → 強制重新抓取
+                if (!fx) throw new Error('API 回傳格式異常或逾時');
+                exchangeRates.USD_TWD = fx.USD_TWD;
+                exchangeRates.HKD_TWD = fx.HKD_TWD;
+                syncRateInputs();
                 document.getElementById('rate-source').textContent = '✓ 即時匯率（' + new Date().toLocaleTimeString('zh-TW') + '）';
                 renderAll();
             } catch(e) {
-                clearTimeout(timer);
                 showWarnToast('❌ 無法取得即時匯率：' + e.message);
             } finally {
                 btn.textContent = '🌐 抓即時匯率'; btn.disabled = false;
