@@ -1467,7 +1467,9 @@
             document.getElementById('table-section').style.display = holdings.length > 0 ? 'block' : 'none';
             document.getElementById('rate-usd-twd').textContent = exchangeRates.USD_TWD.toFixed(2);
             document.getElementById('rate-hkd-twd').textContent = exchangeRates.HKD_TWD.toFixed(4);
-            saveToStorage(); // v13：每次畫面更新同步儲存
+            // v15.022：防抖儲存，500ms 內多次 renderAll 只寫一次 localStorage
+            clearTimeout(_saveStorageTimer);
+            _saveStorageTimer = setTimeout(saveToStorage, 500);
         }
 
         // ==================== 現金 ====================
