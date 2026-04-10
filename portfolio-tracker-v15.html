@@ -3018,6 +3018,8 @@
                     }
                 } catch(_) { /* 無網路時靜默失敗，維持預設值 */ }
             })();
+            // 啟動時抓取 USDT/TWD 匯率（CoinGecko）
+            fetchUsdtRate();
             // 啟動每分鐘自動更新報價
             startAutoRefresh();
             // 啟動後台自動更新（技術面1hr / 基本面4hr，由快取TTL決定刷新範圍）
