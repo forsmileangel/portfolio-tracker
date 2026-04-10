@@ -1810,6 +1810,18 @@
                     const cb = document.getElementById('crypto-pie-cb');
                     if (cb) cb.checked = !!saved.crypto_pie_cb;
                 }
+                // 還原 MOXA 部位
+                if (saved.moxa_twd != null) {
+                    const v = saved.moxa_twd || 0;
+                    if (v > 0) localStorage.setItem(PT_MOXA_KEY, v); else localStorage.removeItem(PT_MOXA_KEY);
+                    const el = document.getElementById('moxa-twd-input');
+                    if (el) el.value = v > 0 ? v : '';
+                }
+                if (saved.moxa_pie_cb != null) {
+                    localStorage.setItem(PT_MOXA_PIE_KEY, saved.moxa_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('moxa-pie-cb');
+                    if (cb) cb.checked = !!saved.moxa_pie_cb;
+                }
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
