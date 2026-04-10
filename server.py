@@ -172,6 +172,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             self._send_json({'error': str(e)}, 500)
 
+    def _update_cache(self):
+        try:
+            length = int(self.headers.get('Content-Length', 0))
+            cache_data = json.loads(self.rfile.read(length))
+            if not GITHUB_TOKEN:
+                self._send_json({'error': 'GITHUB_TOKEN not configured'}, 500); return
+            github_update_cache(cache_data)
+            self._send_json({'ok': True})
+        except Exception as e:
+            self._send_json({'error': str(e)}, 500)
+
     def _send_json(self, data, status=200):
         body = json.dumps(data).encode()
         self.send_response(status)
