@@ -696,6 +696,17 @@
         let history = [];
         let currency = 'TWD';
         let _allExpanded = true;
+        let _tableSort = { by: 'value', dir: 'desc' }; // 持倉一覽排序狀態
+
+        function setTableSort(by) {
+            if (_tableSort.by === by) {
+                _tableSort.dir = _tableSort.dir === 'desc' ? 'asc' : 'desc';
+            } else {
+                _tableSort.by = by;
+                _tableSort.dir = 'desc';
+            }
+            renderAll();
+        }
         let _fxDirection = 'to_twd';   // 'to_twd' = 各幣→TWD；'from_twd' = TWD→各幣
         let _fxLastData  = null;        // 快取最後一次 fx 資料供切換方向時重繪
 
