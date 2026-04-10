@@ -1225,16 +1225,16 @@
 
             document.getElementById('holdings-table').innerHTML = `
                 <thead><tr>
-                    <th style="padding:0.6rem 0.75rem;text-align:left;color:#60a5fa;">代碼</th>
+                    ${thBtn('symbol','代碼','left')}
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#94a3b8;">昨日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日損益</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">市值 (${currency})</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">總損益 (${currency})</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">總損益%</th>
+                    ${thBtn('value','市值 ('+currency+')')}
+                    ${thBtn('pnl','總損益 ('+currency+')')}
+                    ${thBtn('pnlpct','總損益%')}
                 </tr></thead>
                 <tbody>${tbodyHTML}</tbody>
                 <tfoot><tr style="background:rgba(30,58,110,0.2);">
