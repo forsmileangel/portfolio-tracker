@@ -319,49 +319,47 @@
 
         <!-- Pie Chart -->
         <div id="pie-section" class="glass-card" style="padding:2rem; margin-bottom:2rem; display:none;">
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.5rem;">
-                <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0;">持倉分布圖</h2>
-                <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+            <!-- 標題列 + 輸入欄 -->
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+                <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
+                <div style="display:flex; flex-direction:column; gap:0.45rem; align-items:flex-end;">
                     <!-- 現金列 -->
-                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <span style="color:#94a3b8; font-size:0.875rem;">現金（TWD）：</span>
-                            <input type="number" id="cash-twd-input" min="0" placeholder="0" oninput="saveCash(); renderAll();"
-                                style="width:130px; padding:0.35rem 0.6rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.875rem;">
-                        </div>
-                        <label id="cash-pie-label" title="勾選後圓餅圖會納入現金部位" style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none;padding:0.25rem 0.6rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
-                            <input type="checkbox" id="cash-pie-cb" onchange="saveCash(); renderAll();" style="width:15px;height:15px;accent-color:#22c55e;cursor:pointer;">
-                            <span id="cash-pie-cb-label" style="font-size:0.82rem;font-weight:600;color:#64748b;">含現金分布</span>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
+                        <input type="number" id="cash-twd-input" min="0" placeholder="0" oninput="saveCash(); renderAll();"
+                            style="width:120px; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem;">
+                        <label id="cash-pie-label" title="勾選後圓餅圖會納入現金部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
+                            <input type="checkbox" id="cash-pie-cb" onchange="saveCash(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
+                            <span id="cash-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含現金</span>
                         </label>
                     </div>
-                    <!-- 加密倉位列 -->
-                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <span style="color:#94a3b8; font-size:0.875rem;">加密（TWD）：</span>
-                            <input type="number" id="crypto-twd-input" min="0" placeholder="0" oninput="saveCrypto(); renderAll();"
-                                style="width:130px; padding:0.35rem 0.6rem; background:rgba(15,23,42,0.5); border:1px solid rgba(251,191,36,0.2); border-radius:6px; color:#f1f5f9; font-size:0.875rem;">
-                            <span id="crypto-usdt-hint" style="color:#64748b; font-size:0.78rem; white-space:nowrap;"></span>
-                        </div>
-                        <label id="crypto-pie-label" title="勾選後圓餅圖會納入加密倉位" style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none;padding:0.25rem 0.6rem;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:6px;">
-                            <input type="checkbox" id="crypto-pie-cb" onchange="saveCrypto(); renderAll();" style="width:15px;height:15px;accent-color:#fbbf24;cursor:pointer;">
-                            <span id="crypto-pie-cb-label" style="font-size:0.82rem;font-weight:600;color:#64748b;">含加密倉位</span>
+                    <!-- 加密列 -->
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">加密（TWD）</span>
+                        <input type="number" id="crypto-twd-input" min="0" placeholder="0" oninput="saveCrypto(); renderAll();"
+                            style="width:120px; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem;">
+                        <span id="crypto-usdt-hint" style="color:#475569; font-size:0.75rem; white-space:nowrap; min-width:80px;"></span>
+                        <label id="crypto-pie-label" title="勾選後圓餅圖會納入加密倉位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
+                            <input type="checkbox" id="crypto-pie-cb" onchange="saveCrypto(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
+                            <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含加密</span>
                         </label>
                     </div>
                 </div>
-                <!-- 總資產列 -->
-                <div id="total-assets-bar" style="margin-top:0.75rem; padding:0.55rem 0.9rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; display:none; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                    <span style="color:#22c55e;font-size:0.82rem;font-weight:700;">💰 總資產</span>
-                    <span style="color:#64748b;font-size:0.78rem;">庫存</span>
-                    <span id="ta-stock" class="mono" style="color:#60a5fa;font-size:0.85rem;font-weight:700;"></span>
-                    <span style="color:#64748b;font-size:0.78rem;">＋ 現金</span>
-                    <span id="ta-cash" class="mono" style="color:#22c55e;font-size:0.85rem;font-weight:700;"></span>
-                    <span id="ta-crypto-wrap" style="display:none; align-items:center; gap:0.5rem;">
-                        <span style="color:#64748b;font-size:0.78rem;">＋ 加密</span>
-                        <span id="ta-crypto" class="mono" style="color:#fbbf24;font-size:0.85rem;font-weight:700;"></span>
-                    </span>
-                    <span style="color:#64748b;font-size:0.78rem;">＝</span>
-                    <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
-                </div>
+            </div>
+            <!-- 總資產列（獨立一行，不與上方 flex 混排）-->
+            <div id="total-assets-bar" style="margin-bottom:1.25rem; padding:0.5rem 0.9rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; display:none; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span style="color:#22c55e;font-size:0.82rem;font-weight:700;">💰 總資產</span>
+                <span style="color:#475569;font-size:0.76rem;">(TWD)</span>
+                <span style="color:#64748b;font-size:0.78rem;">　庫存</span>
+                <span id="ta-stock" class="mono" style="color:#60a5fa;font-size:0.85rem;font-weight:700;"></span>
+                <span style="color:#64748b;font-size:0.78rem;">＋ 現金</span>
+                <span id="ta-cash" class="mono" style="color:#22c55e;font-size:0.85rem;font-weight:700;"></span>
+                <span id="ta-crypto-wrap" style="display:none; align-items:center; gap:0.4rem;">
+                    <span style="color:#64748b;font-size:0.78rem;">＋ 加密</span>
+                    <span id="ta-crypto" class="mono" style="color:#22c55e;font-size:0.85rem;font-weight:700;"></span>
+                </span>
+                <span style="color:#64748b;font-size:0.78rem;">＝</span>
+                <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; align-items:start;">
                 <div><canvas id="pieCanvas" width="400" height="400"></canvas></div>
