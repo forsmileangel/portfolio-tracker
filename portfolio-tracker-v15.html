@@ -942,7 +942,7 @@
             const rb = document.getElementById('redo-btn');
             if (uc) uc.textContent = `(${history.length})`;
             if (rc) rc.textContent = `(${_redoStack.length})`;
-            if (rb) rb.disabled = _redoStack.length === 0;
+            if (rb) { rb.disabled = _redoStack.length === 0; rb.style.opacity = _redoStack.length === 0 ? '0.4' : '1'; }
         }
         function saveHistory() {
             if (history.length >= 50) history.shift();
