@@ -928,15 +928,27 @@
         }
 
         // ==================== 工具函數 ====================
+        let _redoStack = [];
+
+        function _syncUndoRedoBtns() {
+            const uc = document.getElementById('undo-count');
+            const rc = document.getElementById('redo-count');
+            const rb = document.getElementById('redo-btn');
+            if (uc) uc.textContent = `(${history.length})`;
+            if (rc) rc.textContent = `(${_redoStack.length})`;
+            if (rb) rb.disabled = _redoStack.length === 0;
+        }
         function saveHistory() {
-            if (history.length >= 10) history.shift();
+            if (history.length >= 50) history.shift();
             history.push(JSON.parse(JSON.stringify(holdings)));
-            document.getElementById('undo-count').textContent = `(${history.length})`;
+            _redoStack = []; // 新操作清除 redo
+            _syncUndoRedoBtns();
         }
         function undoLastAction() {
-            if (history.length === 0) return alert('已無可還原步驟');
+            if (history.length === 0) return;
+            _redoStack.push(JSON.parse(JSON.stringify(holdings)));
             holdings = history.pop();
-            document.getElementById('undo-count').textContent = `(${history.length})`;
+            _syncUndoRedoBtns();
             renderAll();
         }
         function setCurrency(c) {
