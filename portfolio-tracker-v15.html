@@ -1432,9 +1432,11 @@
             const pieSection    = document.getElementById('pie-section');
             const cashTWD       = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
             const cryptoTWD     = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            const moxaTWD       = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
             const showCashInPie   = document.getElementById('cash-pie-cb')?.checked   ?? false;
             const showCryptoInPie = document.getElementById('crypto-pie-cb')?.checked ?? false;
-            const hasAny = holdings.length > 0 || cashTWD > 0 || cryptoTWD > 0;
+            const showMoxaInPie   = document.getElementById('moxa-pie-cb')?.checked   ?? false;
+            const hasAny = holdings.length > 0 || cashTWD > 0 || cryptoTWD > 0 || moxaTWD > 0;
             pieSection.style.display = hasAny ? 'block' : 'none';
 
             // ── 總資產列 ──
