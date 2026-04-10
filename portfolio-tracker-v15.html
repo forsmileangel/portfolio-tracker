@@ -937,6 +937,7 @@
         function togglePrivacy() {
             _privacyMode = !_privacyMode;
             localStorage.setItem(PT_PRIVACY_KEY, _privacyMode ? '1' : '0');
+            document.body.classList.toggle('privacy-active', _privacyMode);
             _updatePrivacyBtn();
             renderAll();
         }
