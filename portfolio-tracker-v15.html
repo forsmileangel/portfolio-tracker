@@ -1514,7 +1514,7 @@
             });
 
             const colors    = ['#3b82f6','#8b5cf6','#10b981','#3b82f6','#ef4444','#06b6d4','#ec4899','#14b8a6','#f97316','#6366f1'];
-            const pieColors = pieData.map((d, i) => d.isCash ? cashColor : d.isCrypto ? cryptoColor : colors[i % colors.length]);
+            const pieColors = pieData.map((d, i) => d.isCash ? cashColor : d.isCrypto ? cryptoColor : d.isMoxa ? moxaColor : colors[i % colors.length]);
 
             if (chartInstance) chartInstance.destroy();
             const ctx = document.getElementById('pieCanvas');
