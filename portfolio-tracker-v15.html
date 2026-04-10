@@ -657,6 +657,46 @@
         let history = [];
         let currency = 'TWD';
         let exchangeRates = { USD_TWD: 31.5, HKD_TWD: 4.05 };
+
+        // ── 匯率快取（localStorage, 1hr TTL，大幅減少 open.er-api 用量）──
+        // 策略：按需更新（On-Demand）。只有啟動/手動觸發時才檢查；快取 1hr 內直接用舊值。
+        // 每分鐘自動更新報價時 (silentRefreshPrices) 若快取未過期，完全不打 API。
+        const PT_FX_CACHE_KEY = 'pt_fx_v1';
+        const FX_TTL = 60 * 60 * 1000; // 1 小時
+
+        function _loadFxCache() {
+            try {
+                const r = JSON.parse(localStorage.getItem(PT_FX_CACHE_KEY) || '{}');
+                if (r.ts && r.USD_TWD && r.HKD_TWD && (Date.now() - r.ts < FX_TTL)) return r;
+            } catch(_) {}
+            return null;
+        }
+        function _saveFxCache(USD_TWD, HKD_TWD) {
+            try { localStorage.setItem(PT_FX_CACHE_KEY, JSON.stringify({ ts: Date.now(), USD_TWD, HKD_TWD })); } catch(_) {}
+        }
+        function _fxAgeStr(ts) {
+            const mins = Math.round((Date.now() - ts) / 60000);
+            return mins < 1 ? '剛更新' : mins + ' 分鐘前';
+        }
+        // force=true → 強制打 API；force=false → 快取 1hr 內直接回傳快取值
+        async function _fetchFxRates(force) {
+            if (!force) {
+                const cached = _loadFxCache();
+                if (cached) return { USD_TWD: cached.USD_TWD, HKD_TWD: cached.HKD_TWD, fromCache: true, ts: cached.ts };
+            }
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000) });
+                if (!res.ok) return null;
+                const data = await res.json();
+                const twd = data.rates?.TWD, hkd = data.rates?.HKD;
+                if (!twd || !hkd) return null;
+                const USD_TWD = parseFloat(twd.toFixed(4));
+                const HKD_TWD = parseFloat((twd / hkd).toFixed(4));
+                _saveFxCache(USD_TWD, HKD_TWD);
+                return { USD_TWD, HKD_TWD, fromCache: false, ts: Date.now() };
+            } catch(_) { return null; }
+        }
+
         let tradeType = 'buy';
         let priceReviewData = null;
         let chartInstance = null;
