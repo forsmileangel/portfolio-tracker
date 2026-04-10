@@ -355,8 +355,23 @@
 
         <!-- Pie Chart -->
         <div id="pie-section" class="glass-card" style="padding:2rem; margin-bottom:2rem; display:none;">
+            <!-- 總資產列（最頂部）-->
+            <div id="total-assets-bar" style="margin-bottom:1.25rem; padding:0.5rem 0.9rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; display:none; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span style="color:#22c55e;font-size:0.82rem;font-weight:700;">💰 總資產</span>
+                <span style="color:#475569;font-size:0.76rem;">(TWD)</span>
+                <span style="color:#64748b;font-size:0.78rem;">　庫存</span>
+                <span id="ta-stock" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
+                <span style="color:#64748b;font-size:0.78rem;">＋ 現金</span>
+                <span id="ta-cash" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
+                <span id="ta-crypto-wrap" style="display:none; align-items:center; gap:0.4rem;">
+                    <span style="color:#64748b;font-size:0.78rem;">＋ 加密</span>
+                    <span id="ta-crypto" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
+                </span>
+                <span style="color:#64748b;font-size:0.78rem;">＝</span>
+                <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
+            </div>
             <!-- 標題列 + 輸入欄 -->
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.25rem;">
                 <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
                 <div style="display:flex; flex-direction:column; gap:0.45rem; align-items:flex-end;">
                     <!-- 現金列 -->
@@ -382,21 +397,6 @@
                         </label>
                     </div>
                 </div>
-            </div>
-            <!-- 總資產列（獨立一行，不與上方 flex 混排）-->
-            <div id="total-assets-bar" style="margin-bottom:1.25rem; padding:0.5rem 0.9rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; display:none; align-items:center; gap:0.4rem; flex-wrap:wrap;">
-                <span style="color:#22c55e;font-size:0.82rem;font-weight:700;">💰 總資產</span>
-                <span style="color:#475569;font-size:0.76rem;">(TWD)</span>
-                <span style="color:#64748b;font-size:0.78rem;">　庫存</span>
-                <span id="ta-stock" class="mono" style="color:#60a5fa;font-size:0.85rem;font-weight:700;"></span>
-                <span style="color:#64748b;font-size:0.78rem;">＋ 現金</span>
-                <span id="ta-cash" class="mono" style="color:#22c55e;font-size:0.85rem;font-weight:700;"></span>
-                <span id="ta-crypto-wrap" style="display:none; align-items:center; gap:0.4rem;">
-                    <span style="color:#64748b;font-size:0.78rem;">＋ 加密</span>
-                    <span id="ta-crypto" class="mono" style="color:#22c55e;font-size:0.85rem;font-weight:700;"></span>
-                </span>
-                <span style="color:#64748b;font-size:0.78rem;">＝</span>
-                <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; align-items:start;">
                 <div><canvas id="pieCanvas" width="400" height="400"></canvas></div>
