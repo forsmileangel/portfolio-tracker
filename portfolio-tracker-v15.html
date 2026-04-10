@@ -952,6 +952,7 @@
         }
         function loadPrivacy() {
             _privacyMode = localStorage.getItem(PT_PRIVACY_KEY) === '1';
+            document.body.classList.toggle('privacy-active', _privacyMode);
             _updatePrivacyBtn();
         }
 
