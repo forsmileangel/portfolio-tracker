@@ -4097,6 +4097,22 @@
                     }
                     return;
                 }
+                // localStorage 無快取 → 嘗試全域快取
+                try {
+                    const gc = await _loadGlobalCache();
+                    const gcM = gc?.macro;
+                    if (gcM && (Date.now() - (gcM.fetched_at || 0)) < _MACRO_CACHE_TTL) {
+                        _saveMacroCache(gcM.results, gcM.news);
+                        renderMacroTab(gcM.results, gcM.news);
+                        _macroLoaded = true;
+                        if (btn) { btn.textContent = '🔄 更新總經數據'; btn.disabled = false; }
+                        if (statusEl) {
+                            const t = new Date(gcM.fetched_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+                            statusEl.textContent = `全域快取 ${t}（1hr 後自動更新）`;
+                        }
+                        return;
+                    }
+                } catch(_) {}
             }
 
             if (btn) { btn.textContent = '載入中...'; btn.disabled = true; }
