@@ -1147,7 +1147,26 @@
         }
 
         function renderTable(stats) {
-            const tbodyHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h,i) => {
+            const sorted = [...stats.holdingsWithStats].sort((a, b) => {
+                let va, vb;
+                if (_tableSort.by === 'symbol') {
+                    va = a.symbol; vb = b.symbol;
+                    return _tableSort.dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+                } else if (_tableSort.by === 'pnl') {
+                    va = a.valueTotalUSD - a.costTotalUSD;
+                    vb = b.valueTotalUSD - b.costTotalUSD;
+                } else if (_tableSort.by === 'pnlpct') {
+                    va = a.costTotalUSD > 0 ? (a.valueTotalUSD - a.costTotalUSD) / a.costTotalUSD : 0;
+                    vb = b.costTotalUSD > 0 ? (b.valueTotalUSD - b.costTotalUSD) / b.costTotalUSD : 0;
+                } else { // value (default)
+                    va = a.valueTotalUSD; vb = b.valueTotalUSD;
+                }
+                return _tableSort.dir === 'asc' ? va - vb : vb - va;
+            });
+            const si = (col) => _tableSort.by === col ? (_tableSort.dir === 'desc' ? ' ▼' : ' ▲') : '';
+            const thBtn = (col, label, align='right') =>
+                `<th onclick="setTableSort('${col}')" style="padding:0.6rem 0.75rem;text-align:${align};color:#60a5fa;cursor:pointer;user-select:none;white-space:nowrap;">${label}${si(col)}</th>`;
+            const tbodyHTML = sorted.map((h,i) => {
                 const pnl    = h.valueTotalUSD - h.costTotalUSD;
                 const pnlTWD = h.valueTotalTWD - h.costTotalTWD;
                 const isProfit = pnl >= 0;
