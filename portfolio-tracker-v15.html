@@ -279,22 +279,27 @@
 
         <!-- Stats -->
         <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+            <!-- 幣別切換 -->
+            <div style="display:inline-flex;align-items:center;border:1px solid rgba(100,116,139,0.3);border-radius:8px;overflow:hidden;">
+                <button id="currency-usd" onclick="setCurrency('USD')" style="padding:0.3rem 0.65rem;background:rgba(15,30,60,0.5);border:none;border-right:1px solid rgba(100,116,139,0.2);font-weight:700;font-size:0.78rem;color:#f1f5f9;cursor:pointer;">$ USD</button>
+                <button id="currency-twd" onclick="setCurrency('TWD')" style="padding:0.3rem 0.65rem;background:rgba(15,30,60,0.5);border:none;font-weight:700;font-size:0.78rem;color:#f1f5f9;cursor:pointer;">NT$ TWD</button>
+            </div>
             <!-- 字體大小 -->
             <div style="display:inline-flex;align-items:center;background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;overflow:hidden;">
                 <button onclick="adjustFontSize(-1)" title="縮小字體"
-                    style="padding:0.3rem 0.55rem;background:none;border:none;border-right:1px solid rgba(100,116,139,0.2);color:#94a3b8;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A-</button>
-                <span id="font-size-label" style="font-size:0.72rem;color:#64748b;padding:0 0.45rem;min-width:2.8em;text-align:center;">16px</span>
+                    style="padding:0.3rem 0.55rem;background:none;border:none;border-right:1px solid rgba(100,116,139,0.2);color:#f1f5f9;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A-</button>
+                <span id="font-size-label" style="font-size:0.72rem;color:#94a3b8;padding:0 0.45rem;min-width:2.8em;text-align:center;">16px</span>
                 <button onclick="adjustFontSize(1)" title="放大字體"
-                    style="padding:0.3rem 0.55rem;background:none;border:none;border-left:1px solid rgba(100,116,139,0.2);color:#94a3b8;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A+</button>
+                    style="padding:0.3rem 0.55rem;background:none;border:none;border-left:1px solid rgba(100,116,139,0.2);color:#f1f5f9;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A+</button>
             </div>
             <!-- 字型切換 -->
             <button id="font-toggle-btn" onclick="toggleFont()" title="切換字型"
-                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
+                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#f1f5f9;transition:all 0.2s;">
                 <span style="font-size:0.9rem;font-weight:700;font-family:serif;">Aa</span>
                 <span id="font-toggle-label" style="font-size:0.75rem;">預設字型</span>
             </button>
             <button id="privacy-btn" onclick="togglePrivacy()" title="點擊隱藏敏感金額"
-                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
+                style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#f1f5f9;transition:all 0.2s;">
                 <span style="position:relative;display:inline-block;font-size:1rem;line-height:1;">
                     👁
                     <span id="privacy-slash" style="display:none;position:absolute;left:-2px;right:-2px;top:48%;border-top:2.5px solid #ef4444;transform:rotate(-30deg);pointer-events:none;"></span>
