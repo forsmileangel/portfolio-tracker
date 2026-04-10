@@ -1081,7 +1081,7 @@
             if (taBar) {
                 const stockTWD = stats.totalValueTWD || 0;
                 const totalTWD = stockTWD + cashTWD + cryptoTWD;
-                const fmtTWD   = v => 'NT$' + Math.round(v).toLocaleString('en-US');
+                const fmtTWD   = v => Math.round(v).toLocaleString('en-US');
                 const taStock      = document.getElementById('ta-stock');
                 const taCash       = document.getElementById('ta-cash');
                 const taCrypto     = document.getElementById('ta-crypto');
