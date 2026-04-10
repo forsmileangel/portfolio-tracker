@@ -156,6 +156,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == '/update-symbols':
             self._update_symbols()
+        elif parsed.path == '/update-cache':
+            self._update_cache()
         else:
             self.send_error(404)
 
