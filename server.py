@@ -16,6 +16,7 @@ import threading
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 GITHUB_REPO  = 'forsmileangel/portfolio-tracker'
 SYMBOLS_PATH = 'data/symbols.json'
+CACHE_PATH   = 'data/cache.json'
 
 PORT = int(os.environ.get('PORT', 3000))
 DIR  = os.path.dirname(os.path.abspath(__file__))
