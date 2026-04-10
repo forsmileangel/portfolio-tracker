@@ -855,10 +855,10 @@
         }
         function setCurrency(c) {
             currency = c;
-            document.getElementById('currency-usd').style.background = c === 'USD' ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' : 'rgba(6,13,26,0.92)';
-            document.getElementById('currency-usd').style.color = c === 'USD' ? '#060d1a' : '#64748b';
-            document.getElementById('currency-twd').style.background = c === 'TWD' ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' : 'rgba(6,13,26,0.92)';
-            document.getElementById('currency-twd').style.color = c === 'TWD' ? '#060d1a' : '#64748b';
+            const usdBtn = document.getElementById('currency-usd');
+            const twdBtn = document.getElementById('currency-twd');
+            if (usdBtn) { usdBtn.style.background = c === 'USD' ? 'rgba(96,165,250,0.25)' : 'rgba(15,30,60,0.5)'; usdBtn.style.fontWeight = c === 'USD' ? '800' : '600'; }
+            if (twdBtn) { twdBtn.style.background = c === 'TWD' ? 'rgba(96,165,250,0.25)' : 'rgba(15,30,60,0.5)'; twdBtn.style.fontWeight = c === 'TWD' ? '800' : '600'; }
             renderAll(); // saveToStorage 已在 renderAll 中呼叫
         }
         function setTradeType(type) {
