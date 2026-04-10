@@ -679,22 +679,40 @@
             const mins = Math.round((Date.now() - ts) / 60000);
             return mins < 1 ? '剛更新' : mins + ' 分鐘前';
         }
+        // 匯率表：顯示幣種（代碼 → { 名稱, 小數位 }）
+        const FX_TABLE_CURRENCIES = [
+            { code: 'USD', name: '美金',   dec: 2 },
+            { code: 'JPY', name: '日圓',   dec: 4 },
+            { code: 'KRW', name: '韓元',   dec: 5 },
+            { code: 'SGD', name: '新加坡元', dec: 4 },
+            { code: 'EUR', name: '歐元',   dec: 3 },
+            { code: 'AUD', name: '澳幣',   dec: 3 },
+            { code: 'THB', name: '泰銖',   dec: 3 },
+            { code: 'VND', name: '越南盾',  dec: 5 },
+        ];
+
         // force=true → 強制打 API；force=false → 快取 1hr 內直接回傳快取值
         async function _fetchFxRates(force) {
             if (!force) {
                 const cached = _loadFxCache();
-                if (cached) return { USD_TWD: cached.USD_TWD, HKD_TWD: cached.HKD_TWD, fromCache: true, ts: cached.ts };
+                if (cached) return { USD_TWD: cached.USD_TWD, HKD_TWD: cached.HKD_TWD, extra: cached.extra || {}, fromCache: true, ts: cached.ts };
             }
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000) });
                 if (!res.ok) return null;
                 const data = await res.json();
-                const twd = data.rates?.TWD, hkd = data.rates?.HKD;
+                const r = data.rates || {};
+                const twd = r.TWD, hkd = r.HKD;
                 if (!twd || !hkd) return null;
                 const USD_TWD = parseFloat(twd.toFixed(4));
                 const HKD_TWD = parseFloat((twd / hkd).toFixed(4));
-                _saveFxCache(USD_TWD, HKD_TWD);
-                return { USD_TWD, HKD_TWD, fromCache: false, ts: Date.now() };
+                // 計算各幣種對 TWD 的匯率（1 單位外幣 = ? TWD）
+                const extra = {};
+                FX_TABLE_CURRENCIES.forEach(({ code }) => {
+                    if (r[code]) extra[code] = parseFloat((twd / r[code]).toFixed(6));
+                });
+                _saveFxCache(USD_TWD, HKD_TWD, extra);
+                return { USD_TWD, HKD_TWD, extra, fromCache: false, ts: Date.now() };
             } catch(_) { return null; }
         }
 
