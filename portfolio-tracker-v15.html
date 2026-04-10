@@ -672,8 +672,8 @@
             } catch(_) {}
             return null;
         }
-        function _saveFxCache(USD_TWD, HKD_TWD) {
-            try { localStorage.setItem(PT_FX_CACHE_KEY, JSON.stringify({ ts: Date.now(), USD_TWD, HKD_TWD })); } catch(_) {}
+        function _saveFxCache(USD_TWD, HKD_TWD, extra) {
+            try { localStorage.setItem(PT_FX_CACHE_KEY, JSON.stringify({ ts: Date.now(), USD_TWD, HKD_TWD, extra: extra || {} })); } catch(_) {}
         }
         function _fxAgeStr(ts) {
             const mins = Math.round((Date.now() - ts) / 60000);
