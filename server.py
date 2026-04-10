@@ -99,24 +99,37 @@ def get_fundamentals(symbol):
     return result
 
 
-def github_update_symbols(symbols):
+def _github_put(path, data, message):
+    """通用 GitHub Contents API PUT（新增或更新檔案）"""
     import base64
-    api_url = f'https://api.github.com/repos/{GITHUB_REPO}/contents/{SYMBOLS_PATH}'
+    api_url = f'https://api.github.com/repos/{GITHUB_REPO}/contents/{path}'
     headers = {
         'Authorization': f'token {GITHUB_TOKEN}',
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
         'User-Agent': 'portfolio-tracker-backend',
     }
-    req = urllib.request.Request(api_url, headers=headers)
-    with urllib.request.urlopen(req, timeout=15) as r:
-        current = json.loads(r.read())
-    sha = current['sha']
-    content = base64.b64encode(json.dumps(symbols, indent=2, ensure_ascii=False).encode()).decode()
-    body = json.dumps({'message': 'update symbols', 'content': content, 'sha': sha}).encode()
-    req = urllib.request.Request(api_url, data=body, headers=headers, method='PUT')
+    # 取得現有 SHA（檔案不存在時略過）
+    sha = None
+    try:
+        req = urllib.request.Request(api_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=15) as r:
+            sha = json.loads(r.read()).get('sha')
+    except Exception:
+        pass
+    content = base64.b64encode(json.dumps(data, indent=2, ensure_ascii=False).encode()).decode()
+    body_obj = {'message': message, 'content': content}
+    if sha:
+        body_obj['sha'] = sha
+    req = urllib.request.Request(api_url, data=json.dumps(body_obj).encode(), headers=headers, method='PUT')
     with urllib.request.urlopen(req, timeout=15) as r:
         r.read()
+
+def github_update_symbols(symbols):
+    _github_put(SYMBOLS_PATH, symbols, 'update symbols')
+
+def github_update_cache(cache_data):
+    _github_put(CACHE_PATH, cache_data, 'update cache')
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
