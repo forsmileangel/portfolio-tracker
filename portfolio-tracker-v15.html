@@ -281,7 +281,16 @@
         <div id="tab-pane-1" class="tab-pane active" style="padding-top:1.5rem;">
 
         <!-- Stats -->
-        <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+            <!-- 字體大小 -->
+            <div style="display:inline-flex;align-items:center;background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;overflow:hidden;">
+                <button onclick="adjustFontSize(-1)" title="縮小字體"
+                    style="padding:0.3rem 0.55rem;background:none;border:none;border-right:1px solid rgba(100,116,139,0.2);color:#94a3b8;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A-</button>
+                <span id="font-size-label" style="font-size:0.72rem;color:#64748b;padding:0 0.45rem;min-width:2.8em;text-align:center;">16px</span>
+                <button onclick="adjustFontSize(1)" title="放大字體"
+                    style="padding:0.3rem 0.55rem;background:none;border:none;border-left:1px solid rgba(100,116,139,0.2);color:#94a3b8;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A+</button>
+            </div>
+            <!-- 字型切換 -->
             <button id="font-toggle-btn" onclick="toggleFont()" title="切換字型"
                 style="background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;transition:all 0.2s;">
                 <span style="font-size:0.9rem;font-weight:700;font-family:serif;">Aa</span>
