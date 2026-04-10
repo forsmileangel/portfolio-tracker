@@ -1495,10 +1495,13 @@
 
             const cashColor   = '#22c55e';
             const cryptoColor = '#22c55e';
+            const moxaColor   = '#f59e0b';
             if (showCashInPie   && cashTWD   > 0 && grandTotal > 0)
                 pieData.push({ name: '現金',     value: (cashTWD   / grandTotal) * 100, isCash:   true });
             if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
                 pieData.push({ name: '加密倉位', value: (cryptoTWD / grandTotal) * 100, isCrypto: true });
+            if (showMoxaInPie   && moxaTWD    > 0 && grandTotal > 0)
+                pieData.push({ name: 'MOXA股票', value: (moxaTWD   / grandTotal) * 100, isMoxa:   true });
 
             // 強制 100%
             const total = pieData.reduce((s, d) => s + d.value, 0);
