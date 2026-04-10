@@ -109,7 +109,10 @@
         .stat-pct { font-size: clamp(0.78rem, 4.5cqw, 1rem) !important; font-weight:600; white-space:nowrap; flex-shrink:0; }
         .stat-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(56,139,253,0.12) 0%, transparent 70%); pointer-events: none; }
         
-        .holding-row { background: linear-gradient(135deg, rgba(15,30,60,0.6) 0%, rgba(10,20,40,0.8) 100%); border: 2px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; transition: border-color 0.3s; animation: slideIn 0.5s ease; position: relative; overflow: hidden; }
+        .holding-row { background: linear-gradient(135deg, rgba(15,30,60,0.6) 0%, rgba(10,20,40,0.8) 100%); border: 2px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; border-radius: 16px; padding: 0; margin-bottom: 2px; transition: border-color 0.3s; animation: slideIn 0.5s ease; position: relative; overflow: hidden; }
+        .holding-header { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 1rem 0.65rem 1.25rem; cursor:pointer; gap:0.5rem; flex-wrap:wrap; user-select:none; }
+        .holding-header:hover { background:rgba(59,130,246,0.05); }
+        .holding-body { padding:0.25rem 1rem 0.85rem 1.25rem; border-top:1px solid rgba(255,255,255,0.06); }
         .holding-row::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 0 20px rgba(59,130,246,0.5); }
         
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
