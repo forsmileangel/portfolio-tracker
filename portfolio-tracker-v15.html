@@ -1873,8 +1873,8 @@
                 if (!sheetUrl) { showWarnToast('⚠️ 請先填入 Google Sheet CSV 連結'); return; }
                 if (!sheetUrl.includes('docs.google.com')) { showWarnToast('⚠️ URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結'); return; }
 
-                // 同時發出：① 股價 CSV ② 即時匯率，不互相等待
-                const ratePromise = fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()).catch(() => null);
+                // 同時發出：① 股價 CSV ② 即時匯率（手動更新 → 強制重新抓取，清快取）
+                const fxPromise = _fetchFxRates(true);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
