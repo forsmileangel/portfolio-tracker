@@ -684,6 +684,27 @@
         let holdings = [];
         let history = [];
         let currency = 'TWD';
+        let _allExpanded = true;
+
+        function toggleAllHoldings() {
+            _allExpanded = !_allExpanded;
+            document.querySelectorAll('[id^="holding-body-"]').forEach(el => {
+                el.style.display = _allExpanded ? 'block' : 'none';
+            });
+            document.querySelectorAll('[id^="holding-chevron-"]').forEach(el => {
+                el.textContent = _allExpanded ? '▲' : '▶';
+            });
+            const btn = document.getElementById('toggle-all-btn');
+            if (btn) btn.textContent = _allExpanded ? '收合全部 ▲' : '展開全部 ▼';
+        }
+        function toggleHolding(id) {
+            const body = document.getElementById('holding-body-' + id);
+            const chevron = document.getElementById('holding-chevron-' + id);
+            if (!body) return;
+            const isVisible = body.style.display !== 'none';
+            body.style.display = isVisible ? 'none' : 'block';
+            if (chevron) chevron.textContent = isVisible ? '▶' : '▲';
+        }
         let exchangeRates = { USD_TWD: 31.5, HKD_TWD: 4.05 };
 
         // ── 匯率快取（localStorage, 1hr TTL，大幅減少 open.er-api 用量）──
