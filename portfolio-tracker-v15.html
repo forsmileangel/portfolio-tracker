@@ -3984,13 +3984,13 @@
                     else prices[cols[0]] = val;
                 });
 
-                // 更新匯率
-                const rateData = await ratePromise;
+                // 更新匯率（Sheet 指定 > 快取/即時 API）
+                const fx = await fxPromise;
                 if (sheetRates.USD_TWD) exchangeRates.USD_TWD = sheetRates.USD_TWD;
                 if (sheetRates.HKD_TWD) exchangeRates.HKD_TWD = sheetRates.HKD_TWD;
-                if (!sheetRates.USD_TWD && rateData?.rates?.TWD && rateData?.rates?.HKD) {
-                    exchangeRates.USD_TWD = parseFloat(rateData.rates.TWD.toFixed(4));
-                    exchangeRates.HKD_TWD = parseFloat((rateData.rates.TWD / rateData.rates.HKD).toFixed(4));
+                if (!sheetRates.USD_TWD && fx) {
+                    exchangeRates.USD_TWD = fx.USD_TWD;
+                    exchangeRates.HKD_TWD = fx.HKD_TWD;
                 }
                 syncRateInputs();
 
