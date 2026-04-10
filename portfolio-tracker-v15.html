@@ -1277,79 +1277,137 @@
                 </tr></tfoot>`;
         }
 
+        // ── v15.022 差異更新輔助 ──
+        function _cardFingerprint(h) {
+            // 把所有會影響卡片顯示的欄位壓成一個字串
+            return [
+                h.symbol, h.market, h.name||'', h.persist?1:0,
+                h.quantity, h.costPrice, h.currentPrice,
+                h.percentage?.toFixed(4)||0,
+                h.valueTotalUSD?.toFixed(4)||0, h.costTotalUSD?.toFixed(4)||0,
+                h.dayChangePct??'', h.dayPnlUSD?.toFixed(4)||0, h.dayPnlTWD?.toFixed(4)||0,
+                currency
+            ].join('|');
+        }
+
+        function _buildCardHTML(h, i, isExpanded) {
+            const pnl = h.valueTotalUSD - h.costTotalUSD;
+            const isProfit = pnl >= 0;
+            const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+            const pnlPct = h.costTotalUSD > 0 ? pnl/h.costTotalUSD*100 : 0;
+            const dayInfo = (function() {
+                if (h.dayChangePct == null) return null;
+                const cp = h.dayChangePct >= 0;
+                const col = cp ? '#10b981' : '#ef4444';
+                const bgc = cp ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+                const dp = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
+                const dpStr = currency==='USD'
+                    ? (dp>=0?'+':'-')+'$'+Math.abs(dp).toLocaleString('en-US',{minimumFractionDigits:2})
+                    : (dp>=0?'+':'-')+'NT$'+Math.abs(Math.round(dp)).toLocaleString('en-US');
+                return { cp, col, bgc, dpStr };
+            })();
+            return `
+            <div class="holding-row" id="hcard-${h.id}" style="animation-delay:${i*0.05}s; border-left-color:${h.persist ? '#10b981' : '#3b82f6'};">
+                <div class="holding-header" onclick="toggleHolding(${h.id})">
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; flex:1;">
+                        <span class="market-badge">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.market}</span>
+                        <span class="mono" style="color:#f1f5f9;font-size:1rem;font-weight:600;">${h.symbol}</span>
+                        <span style="padding:0.2rem 0.4rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:0.72rem;font-weight:600;color:#60a5fa;">${h.percentage.toFixed(2)}%</span>
+                        ${h.name ? '<span style="color:#94a3b8;font-size:0.8rem;">'+h.name+'</span>' : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.6rem; flex-shrink:0;">
+                        <span class="mono" style="font-size:0.88rem;font-weight:600;color:${isProfit?'#10b981':'#ef4444'};">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span>
+                        ${dayInfo ? '<span class="mono" style="font-size:0.82rem;color:'+dayInfo.col+';">'+dayInfo.dpStr+'</span>' : ''}
+                        <span id="holding-chevron-${h.id}" style="color:#64748b;font-size:0.8rem;margin-left:0.25rem;">${isExpanded?'▲':'▶'}</span>
+                    </div>
+                </div>
+                <div class="holding-body" id="holding-body-${h.id}" style="display:${isExpanded?'block':'none'};">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                        <div style="flex:1; min-width:200px;">
+                            <label title="打勾後下次開啟網頁此持倉仍保留" style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none;padding:0.25rem 0.6rem;background:${h.persist ? 'rgba(16,185,129,0.12)' : 'rgba(100,116,139,0.1)'};border:1px solid ${h.persist ? 'rgba(16,185,129,0.4)' : 'rgba(100,116,139,0.25)'};border-radius:6px;">
+                                <input type="checkbox" ${h.persist ? 'checked' : ''} onchange="togglePersist(${h.id}, this.checked)" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;">
+                                <span style="font-size:0.8rem;font-weight:600;color:${h.persist ? '#10b981' : '#64748b'};">${h.persist ? '✓ 下次保留' : '下次不保留'}</span>
+                            </label>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.4rem;">
+                                <span style="color:#64748b;font-size:0.85rem;">持有</span>
+                                <input type="number" step="0.01" value="${h.quantity}" onchange="updateQuantity(${h.id}, this.value)" style="width:100px;padding:0.25rem 0.5rem;font-size:0.85rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:4px;color:#e2e8f0;">
+                                <span style="color:#64748b;font-size:0.85rem;">股</span>
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:250px;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.9rem;">
+                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本價</div><input type="number" step="0.01" value="${h.costPrice}" onchange="updateCostPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:6px;color:#e2e8f0;"></div>
+                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">現價</div><input type="number" step="0.01" value="${h.currentPrice}" onchange="updateCurrentPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:#e2e8f0;"></div>
+                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本總額</div><div class="mono">${priceCcy}${h.costTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
+                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">市值</div><div class="mono">${priceCcy}${h.valueTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <div style="text-align:right;">
+                                <div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">總損益</div>
+                                <div class="mono" style="font-size:1.1rem;font-weight:600;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':'-'}${priceCcy}${Math.abs(pnl).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>
+                                <div class="mono" style="font-size:0.95rem;margin-top:0.15rem;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span></div>
+                                ${dayInfo ? '<div style="margin-top:0.4rem;padding-top:0.35rem;border-top:1px solid rgba(255,255,255,0.08);">'
+                                    + '<div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">今日損益</div>'
+                                    + '<div class="mono" style="font-size:0.9rem;color:'+dayInfo.col+';">'
+                                    + '<span style="padding:0.15rem 0.4rem;border-radius:4px;background:'+dayInfo.bgc+';">'+(dayInfo.cp?'+':'')+h.dayChangePct.toFixed(2)+'%</span>'
+                                    + '&nbsp;'+dayInfo.dpStr+'</div></div>' : ''}
+                            </div>
+                            <button onclick="deleteHolding(${h.id})" class="btn-delete" title="刪除">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
         function renderHoldingsDetail(stats) {
             const container = document.getElementById('holdings-list');
-            container.innerHTML = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD).map((h, i) => {
-                const pnl = h.valueTotalUSD - h.costTotalUSD;
-                const isProfit = pnl >= 0;
-                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
-                const pnlPct = h.costTotalUSD > 0 ? pnl/h.costTotalUSD*100 : 0;
-                const dayInfo = (function() {
-                    if (h.dayChangePct == null) return '';
-                    const cp = h.dayChangePct >= 0;
-                    const col = cp ? '#10b981' : '#ef4444';
-                    const bgc = cp ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
-                    const dp = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
-                    const dpStr = currency==='USD'
-                        ? (dp>=0?'+':'-')+'$'+Math.abs(dp).toLocaleString('en-US',{minimumFractionDigits:2})
-                        : (dp>=0?'+':'-')+'NT$'+Math.abs(Math.round(dp)).toLocaleString('en-US');
-                    return { cp, col, bgc, dpStr };
-                })();
-                return `
-                <div class="holding-row" style="animation-delay:${i*0.05}s; border-left-color:${h.persist ? '#10b981' : '#3b82f6'};">
-                    <!-- 永遠顯示的標題列 -->
-                    <div class="holding-header" onclick="toggleHolding(${h.id})">
-                        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; flex:1;">
-                            <span class="market-badge">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.market}</span>
-                            <span class="mono" style="color:#f1f5f9;font-size:1rem;font-weight:600;">${h.symbol}</span>
-                            <span style="padding:0.2rem 0.4rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:0.72rem;font-weight:600;color:#60a5fa;">${h.percentage.toFixed(2)}%</span>
-                            ${h.name ? '<span style="color:#94a3b8;font-size:0.8rem;">'+h.name+'</span>' : ''}
-                        </div>
-                        <div style="display:flex; align-items:center; gap:0.6rem; flex-shrink:0;">
-                            <span class="mono" style="font-size:0.88rem;font-weight:600;color:${isProfit?'#10b981':'#ef4444'};">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span>
-                            ${dayInfo ? '<span class="mono" style="font-size:0.82rem;color:'+dayInfo.col+';">'+dayInfo.dpStr+'</span>' : ''}
-                            <span id="holding-chevron-${h.id}" style="color:#64748b;font-size:0.8rem;margin-left:0.25rem;">${_allExpanded?'▲':'▶'}</span>
-                        </div>
-                    </div>
-                    <!-- 可展開/收合的明細區 -->
-                    <div class="holding-body" id="holding-body-${h.id}" style="display:${_allExpanded?'block':'none'};">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
-                            <div style="flex:1; min-width:200px;">
-                                <label title="打勾後下次開啟網頁此持倉仍保留" style="display:inline-flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none;padding:0.25rem 0.6rem;background:${h.persist ? 'rgba(16,185,129,0.12)' : 'rgba(100,116,139,0.1)'};border:1px solid ${h.persist ? 'rgba(16,185,129,0.4)' : 'rgba(100,116,139,0.25)'};border-radius:6px;">
-                                    <input type="checkbox" ${h.persist ? 'checked' : ''} onchange="togglePersist(${h.id}, this.checked)" style="width:16px;height:16px;accent-color:#10b981;cursor:pointer;">
-                                    <span style="font-size:0.8rem;font-weight:600;color:${h.persist ? '#10b981' : '#64748b'};">${h.persist ? '✓ 下次保留' : '下次不保留'}</span>
-                                </label>
-                                <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.4rem;">
-                                    <span style="color:#64748b;font-size:0.85rem;">持有</span>
-                                    <input type="number" step="0.01" value="${h.quantity}" onchange="updateQuantity(${h.id}, this.value)" style="width:100px;padding:0.25rem 0.5rem;font-size:0.85rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:4px;color:#e2e8f0;">
-                                    <span style="color:#64748b;font-size:0.85rem;">股</span>
-                                </div>
-                            </div>
-                            <div style="flex:1; min-width:250px;">
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.9rem;">
-                                    <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本價</div><input type="number" step="0.01" value="${h.costPrice}" onchange="updateCostPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:6px;color:#e2e8f0;"></div>
-                                    <div><div style="color:#94a3b8;margin-bottom:0.25rem;">現價</div><input type="number" step="0.01" value="${h.currentPrice}" onchange="updateCurrentPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:#e2e8f0;"></div>
-                                    <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本總額</div><div class="mono">${priceCcy}${h.costTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
-                                    <div><div style="color:#94a3b8;margin-bottom:0.25rem;">市值</div><div class="mono">${priceCcy}${h.valueTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
-                                </div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:1rem;">
-                                <div style="text-align:right;">
-                                    <div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">總損益</div>
-                                    <div class="mono" style="font-size:1.1rem;font-weight:600;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':'-'}${priceCcy}${Math.abs(pnl).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>
-                                    <div class="mono" style="font-size:0.95rem;margin-top:0.15rem;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span></div>
-                                    ${dayInfo ? '<div style="margin-top:0.4rem;padding-top:0.35rem;border-top:1px solid rgba(255,255,255,0.08);">'
-                                        + '<div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">今日損益</div>'
-                                        + '<div class="mono" style="font-size:0.9rem;color:'+dayInfo.col+';">'
-                                        + '<span style="padding:0.15rem 0.4rem;border-radius:4px;background:'+dayInfo.bgc+';">'+(dayInfo.cp?'+':'')+h.dayChangePct.toFixed(2)+'%</span>'
-                                        + '&nbsp;'+dayInfo.dpStr+'</div></div>' : ''}
-                                </div>
-                                <button onclick="deleteHolding(${h.id})" class="btn-delete" title="刪除">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            const sorted = stats.holdingsWithStats.sort((a,b) => b.valueTotalUSD - a.valueTotalUSD);
+            const newIds = new Set(sorted.map(h => h.id));
+
+            // 移除已不存在的卡片
+            Object.keys(_cardCache).forEach(id => {
+                if (!newIds.has(Number(id))) {
+                    const el = document.getElementById('hcard-' + id);
+                    if (el) el.remove();
+                    delete _cardCache[id];
+                    delete _cardExpanded[id];
+                }
+            });
+
+            // 新增或更新卡片（依排序順序插入/移動）
+            sorted.forEach((h, i) => {
+                const fp = _cardFingerprint(h);
+                const existing = document.getElementById('hcard-' + h.id);
+                const isExpanded = _cardExpanded[h.id] ?? _allExpanded;
+
+                if (!existing) {
+                    // 新卡片：建立並插入到正確位置
+                    _cardExpanded[h.id] = isExpanded;
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = _buildCardHTML(h, i, isExpanded).trim();
+                    const newEl = tmp.firstChild;
+                    const ref = container.children[i] || null;
+                    container.insertBefore(newEl, ref);
+                    _cardCache[h.id] = fp;
+                } else {
+                    // 已存在：檢查是否需要更新內容
+                    if (_cardCache[h.id] !== fp) {
+                        const expanded = document.getElementById('holding-body-' + h.id)?.style.display !== 'none';
+                        _cardExpanded[h.id] = expanded;
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = _buildCardHTML(h, i, expanded).trim();
+                        existing.replaceWith(tmp.firstChild);
+                        _cardCache[h.id] = fp;
+                    }
+                    // 確保順序正確（排序改變時移動卡片）
+                    const ref = container.children[i];
+                    if (ref && ref.id !== 'hcard-' + h.id) {
+                        container.insertBefore(document.getElementById('hcard-' + h.id), ref);
+                    }
+                }
+            });
+
             document.getElementById('holdings-count').textContent = holdings.length;
             syncPersistAllCheckbox();
         }
