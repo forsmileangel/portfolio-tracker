@@ -4218,8 +4218,16 @@
                 } catch(_) {}
             }
 
-            // 存入快取（1小時 TTL）
+            // 存入本地快取（1小時 TTL）
             _saveMacroCache(results, macroNews);
+
+            // 回寫全域快取
+            try {
+                const gc = await _loadGlobalCache();
+                gc.macro = { results, news: macroNews, fetched_at: Date.now() };
+                _globalCacheDirty = true;
+                _pushGlobalCache();
+            } catch(_) {}
 
             renderMacroTab(results, macroNews);
             _macroLoaded = true;
