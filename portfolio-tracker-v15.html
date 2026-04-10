@@ -951,6 +951,13 @@
             _syncUndoRedoBtns();
             renderAll();
         }
+        function redoAction() {
+            if (_redoStack.length === 0) return;
+            history.push(JSON.parse(JSON.stringify(holdings)));
+            holdings = _redoStack.pop();
+            _syncUndoRedoBtns();
+            renderAll();
+        }
         function setCurrency(c) {
             currency = c;
             const usdBtn = document.getElementById('currency-usd');
