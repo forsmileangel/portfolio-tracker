@@ -1912,17 +1912,14 @@
                 });
 
                 // 套用匯率：Sheet 指定 > 即時 API > 維持現值
-                const rateData = await ratePromise;
+                const fx = await fxPromise;
                 let rateUpdated = false;
                 if (sheetRates.USD_TWD) { exchangeRates.USD_TWD = sheetRates.USD_TWD; rateUpdated = true; }
                 if (sheetRates.HKD_TWD) { exchangeRates.HKD_TWD = sheetRates.HKD_TWD; rateUpdated = true; }
-                if (!rateUpdated && rateData && rateData.rates) {
-                    const twd = rateData.rates['TWD'], hkd = rateData.rates['HKD'];
-                    if (twd && hkd) {
-                        exchangeRates.USD_TWD = parseFloat(twd.toFixed(4));
-                        exchangeRates.HKD_TWD = parseFloat((twd / hkd).toFixed(4));
-                        rateUpdated = true;
-                    }
+                if (!rateUpdated && fx) {
+                    exchangeRates.USD_TWD = fx.USD_TWD;
+                    exchangeRates.HKD_TWD = fx.HKD_TWD;
+                    rateUpdated = true;
                 }
                 if (rateUpdated) {
                     syncRateInputs();
