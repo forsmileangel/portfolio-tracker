@@ -26,8 +26,13 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 請求攔截：全部網路優先，失敗才用快取（確保資料最新）
+// 請求攔截：只快取本機靜態資源，外部 API 直接走網路不快取
+const CACHE_ONLY_SAME_ORIGIN = true;
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  // 外部請求（Google Sheet、Yahoo Finance、匯率 API 等）→ 完全不攔截，讓瀏覽器直接處理
+  if (url.origin !== self.location.origin) return;
+  // 本機靜態資源：網路優先，失敗才用快取
   event.respondWith(
     fetch(event.request)
       .then(res => {
