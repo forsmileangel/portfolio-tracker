@@ -2292,22 +2292,13 @@
                 const fxPromise = _fetchFxRates(true);
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-                let res;
-                try {
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(sheetUrl);
-                    res = await fetch(proxyUrl, { signal: controller.signal });
-                } catch(fetchErr) {
-                    clearTimeout(timeoutId);
-                    if (fetchErr.name === 'AbortError') {
-                        showWarnToast('⏱ 請求逾時（10秒）\n請確認 Google Sheet 連結是否正確');
-                    } else {
-                        showWarnToast(`❌ 網路請求失敗：${fetchErr.message}`);
-                    }
+                const timeoutId = setTimeout(() => controller.abort(), 25000);
+                const res = await _fetchSheetCSV(sheetUrl, controller.signal);
+                clearTimeout(timeoutId);
+                if (!res) {
+                    showWarnToast('⏱ 無法取得報價 CSV，三個 proxy 均失敗\n請確認 Google Sheet 已發布為 CSV 格式');
                     return;
                 }
-                clearTimeout(timeoutId);
-                if (!res.ok) throw new Error(`伺服器回傳 HTTP ${res.status}`);
                 const csvText = await res.text();
 
                 if (csvText.trim().startsWith('<')) {
