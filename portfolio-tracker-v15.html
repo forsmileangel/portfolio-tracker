@@ -2271,7 +2271,7 @@
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
                 let res;
                 try {
-                    const proxyUrl = 'https://syncsymbols.forsmileangel.workers.dev/fetch-csv?url=' + encodeURIComponent(sheetUrl);
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(sheetUrl);
                     res = await fetch(proxyUrl, { signal: controller.signal });
                 } catch(fetchErr) {
                     clearTimeout(timeoutId);
