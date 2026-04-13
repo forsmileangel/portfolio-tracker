@@ -4500,8 +4500,7 @@
                 // 匯率：快取 1hr 內不打 API（按需更新策略）
                 const fxPromise = _fetchFxRates(false);
                 const controller  = new AbortController();
-                const tid = setTimeout(() => controller.abort(), 10000);
-                let res;
+                const tid = setTimeout(() => controller.abort(), 25000);
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
                 if (!res) return;
