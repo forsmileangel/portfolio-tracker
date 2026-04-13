@@ -4502,13 +4502,9 @@
                 const controller  = new AbortController();
                 const tid = setTimeout(() => controller.abort(), 10000);
                 let res;
-                try {
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(sheetUrl);
-                    res = await fetch(proxyUrl, { signal: controller.signal });
-                }
-                catch(e) { clearTimeout(tid); return; }
+                const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
-                if (!res.ok) return;
+                if (!res) return;
                 const csvText = await res.text();
                 if (csvText.trim().startsWith('<')) return;
 
