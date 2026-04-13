@@ -2255,6 +2255,29 @@
             URL.revokeObjectURL(url);
         }
 
+        // ── Sheet CSV fetch（多 proxy fallback，解決 CORS）──
+        const _SHEET_PROXIES = [
+            u => 'https://api.allorigins.win/raw?url='          + encodeURIComponent(u),
+            u => 'https://api.codetabs.com/v1/proxy?quest='     + encodeURIComponent(u),
+            u => 'https://corsproxy.io/?'                       + encodeURIComponent(u),
+        ];
+        async function _fetchSheetCSV(sheetUrl, signal) {
+            for (const mkProxy of _SHEET_PROXIES) {
+                const ctrl = new AbortController();
+                const tid  = setTimeout(() => ctrl.abort(), 7000);
+                // 若外部 signal 已 abort，立即停止
+                signal?.addEventListener('abort', () => ctrl.abort());
+                try {
+                    const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal });
+                    clearTimeout(tid);
+                    if (res.ok) return res;
+                } catch(_) {
+                    clearTimeout(tid);
+                }
+            }
+            return null; // 全部失敗
+        }
+
         async function refreshAllData() {
             const btn = document.getElementById('refresh-btn');
             const text = document.getElementById('refresh-text');
