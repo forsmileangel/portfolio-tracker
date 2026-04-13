@@ -42,6 +42,7 @@
   v15.024 - sw.js 改為 no-op：移除所有快取與 fetch 攔截，排除 SW 干擾報價更新
   v15.025 - 報價 CSV 改透過 Cloudflare Worker proxy 抓取，解決桌面瀏覽器 CORS 問題
   v15.026 - 改用 allorigins.win proxy 抓取報價 CSV（Worker 被 Google 401 擋）
+  v15.027 - 報價 CSV 改為三個 proxy 依序 fallback（allorigins / codetabs / corsproxy）
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
