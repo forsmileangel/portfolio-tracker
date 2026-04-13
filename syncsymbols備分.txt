@@ -1,0 +1,59 @@
+export default {
+    async fetch(request, env) {
+      // CORS headers
+      const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      };
+
+      if (request.method === 'OPTIONS') {
+        return new Response(null, { headers: corsHeaders });
+      }
+
+      const url = new URL(request.url);
+
+      if (url.pathname === '/update-symbols' && request.method === 'POST') {
+        try {
+          const symbols = await request.json();
+          const token = env.GITHUB_TOKEN;
+
+          if (!token) {
+            return Response.json({ error: 'token not configured' }, { status: 500, headers: corsHeaders });
+          }
+
+          const apiUrl = 'https://api.github.com/repos/forsmileangel/portfolio-tracker/contents/data/symbols.json';
+          const headers = {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'portfolio-tracker-worker',
+          };
+
+          // 取得目前檔案 SHA
+          const getResp = await fetch(apiUrl, { headers });
+          const current = await getResp.json();
+          const sha = current.sha;
+
+          // 更新檔案
+          const content = btoa(unescape(encodeURIComponent(JSON.stringify(symbols, null, 2))));
+          const putResp = await fetch(apiUrl, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ message: 'update symbols', content, sha }),
+          });
+
+          if (putResp.ok) {
+            return Response.json({ ok: true }, { headers: corsHeaders });
+          } else {
+            const err = await putResp.json();
+            return Response.json({ error: err.message }, { status: 500, headers: corsHeaders });
+          }
+        } catch (e) {
+          return Response.json({ error: e.message }, { status: 500, headers: corsHeaders });
+        }
+      }
+
+      return new Response('Portfolio Tracker Worker', { headers: corsHeaders });
+    }
+  };
