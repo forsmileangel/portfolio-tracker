@@ -2409,12 +2409,25 @@
             }
         }
 
+        // 從 prices map 查找持倉對應報價（支援 .TW 後綴有無的彈性匹配）
+        function _lookupPrice(prices, h) {
+            if (prices[h.symbol] != null) return prices[h.symbol];
+            // 台股：持倉存 "00675L" 但 Sheet 寫 "00675L.TW"（或反之）
+            if (h.market === 'TW') {
+                const withTW    = h.symbol + '.TW';
+                const withoutTW = h.symbol.replace(/\.TW$/i, '');
+                if (prices[withTW]    != null) return prices[withTW];
+                if (prices[withoutTW] != null) return prices[withoutTW];
+            }
+            return null;
+        }
+
         // 直接套用股價（不跳確認視窗）
         function directApplyPrices(prices) {
             saveHistory();
             let updated = 0;
             holdings.forEach(h => {
-                const newP = prices[h.symbol];
+                const newP = _lookupPrice(prices, h);
                 if (newP != null && !isNaN(newP) && newP > 0) {
                     h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
                     updated++;
