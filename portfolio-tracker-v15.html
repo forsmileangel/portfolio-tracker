@@ -1295,7 +1295,7 @@
                     dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:'+(dpp?'#10b981':'#ef4444')+';">'+dpStr+'</td>';
                 }
 
-                return `<tr style="background:${bg};">
+                return `<tr data-symbol="${h.symbol}" style="background:${bg};">
                     <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#64748b;">${h.name||''}</small></td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;color:#94a3b8;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
