@@ -194,6 +194,10 @@
         #holdings-table thead th:nth-child(1),
         #holdings-table tbody td:nth-child(1),
         #holdings-table tfoot td:nth-child(1) { min-width:110px; max-width:110px; width:110px; }
+        /* 持倉一覽 hover highlight */
+        #holdings-table tbody tr { transition: background 0.15s; }
+        #holdings-table tbody tr:hover { background: rgba(56,139,253,0.13) !important; }
+        #holdings-table tbody tr:hover td:nth-child(1) { background: rgba(56,139,253,0.13) !important; }
         /* 新聞 & 總經 Tab 樣式 */
         .news-item:hover { border-color: rgba(56,139,253,0.5) !important; background: linear-gradient(135deg,rgba(20,40,70,0.8) 0%,rgba(15,30,55,0.9) 100%) !important; }
         .macro-card { background:rgba(15,30,60,0.5); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.75rem; transition: all 0.2s; }
