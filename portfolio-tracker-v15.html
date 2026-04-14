@@ -1823,10 +1823,17 @@
 
                 saveHistory();
                 holdings = saved.holdings;
+                holdings.forEach(h => h.persist = true); // 從雲端拉取一律標記保留
                 if (saved.currency)      currency = saved.currency;
                 if (saved.exchangeRates) {
                     exchangeRates = saved.exchangeRates;
                     syncRateInputs();
+                }
+                // 還原 Google Sheet CSV 連結
+                if (saved.sheet_url) {
+                    const sheetEl = document.getElementById('sheet-url');
+                    if (sheetEl) sheetEl.value = saved.sheet_url;
+                    saveSheetUrlSetting();
                 }
 
                 // 還原現金部位
