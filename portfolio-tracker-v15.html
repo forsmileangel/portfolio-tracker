@@ -1574,7 +1574,7 @@
             if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
                 pieData.push({ name: '加密倉位', value: (cryptoTWD / grandTotal) * 100, isCrypto: true });
             if (showMoxaInPie   && moxaTWD    > 0 && grandTotal > 0)
-                pieData.push({ name: 'MOXA股票', value: (moxaTWD   / grandTotal) * 100, isMoxa:   true });
+                pieData.push({ name: '未上市股票', value: (moxaTWD   / grandTotal) * 100, isMoxa:   true });
 
             // 強制 100%
             const total = pieData.reduce((s, d) => s + d.value, 0);
