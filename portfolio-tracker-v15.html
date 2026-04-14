@@ -1466,6 +1466,40 @@
             syncPersistAllCheckbox();
         }
 
+        function _shouldRenderPie(stats) {
+            // 首次渲染
+            if (!_pieSnapshot) return true;
+            // 每 30 分鐘強制更新
+            if (Date.now() - _lastPieRenderTime > 30 * 60 * 1000) return true;
+            // 持倉數量變化
+            if (stats.holdingsWithStats.length !== _pieSnapshot.count) return true;
+            // 幣別切換
+            if (currency !== _pieSnapshot.currency) return true;
+            // 現金/加密/MOXA 金額或勾選狀態變化
+            const cashNow    = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
+            const cryptoNow  = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            const moxaNow    = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
+            const cbCash     = document.getElementById('cash-pie-cb')?.checked   ?? false;
+            const cbCrypto   = document.getElementById('crypto-pie-cb')?.checked ?? false;
+            const cbMoxa     = document.getElementById('moxa-pie-cb')?.checked   ?? false;
+            if (cashNow   !== _pieSnapshot.cash   || cryptoNow !== _pieSnapshot.crypto ||
+                moxaNow   !== _pieSnapshot.moxa   || cbCash    !== _pieSnapshot.cbCash ||
+                cbCrypto  !== _pieSnapshot.cbCrypto || cbMoxa  !== _pieSnapshot.cbMoxa) return true;
+            // 任何持倉佔總資產比例變化超過 0.5%
+            const effectiveCash   = cbCash   ? cashNow   : 0;
+            const effectiveCrypto = cbCrypto ? cryptoNow : 0;
+            const effectiveMoxa   = cbMoxa   ? moxaNow   : 0;
+            const grandTotal = stats.totalValueTWD + effectiveCash + effectiveCrypto + effectiveMoxa;
+            if (grandTotal <= 0) return true;
+            for (const h of stats.holdingsWithStats) {
+                const ratio = h.valueTWD / grandTotal;
+                const prev  = _pieSnapshot.ratios[h.id];
+                if (prev == null) return true;
+                if (Math.abs(ratio - prev) > 0.005) return true; // 佔比差距超過 0.5%
+            }
+            return false;
+        }
+
         function renderPie(stats) {
             const pieSection    = document.getElementById('pie-section');
             const cashTWD       = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
