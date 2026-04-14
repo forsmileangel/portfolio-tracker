@@ -4595,7 +4595,7 @@
                 // 靜默更新股價（不存入 undo 歷史）
                 let updated = 0;
                 holdings.forEach(h => {
-                    const np = prices[h.symbol];
+                    const np = _lookupPrice(prices, h);
                     if (np != null && !isNaN(np) && np > 0) { h.currentPrice = parseFloat(np); updated++; }
                 });
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
