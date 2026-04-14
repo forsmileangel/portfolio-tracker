@@ -721,6 +721,7 @@
         let history = [];
         let currency = 'TWD';
         let _allExpanded = false; // 預設收合
+        let _holdingsHidden = false; // 持倉明細整體顯示狀態
         let _tableSort = { by: 'value', dir: 'desc' }; // 持倉一覽排序狀態
         let _cardCache = {}; // 差異更新：{ [id]: fingerprint }
         let _cardExpanded = {}; // 差異更新：per-card 展開狀態
