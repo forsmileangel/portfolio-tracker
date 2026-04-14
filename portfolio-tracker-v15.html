@@ -2321,7 +2321,7 @@
                 // 若外部 signal 已 abort，立即停止
                 signal?.addEventListener('abort', () => ctrl.abort());
                 try {
-                    const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal });
+                    const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
                     clearTimeout(tid);
                     if (res.ok) return res;
                 } catch(_) {
