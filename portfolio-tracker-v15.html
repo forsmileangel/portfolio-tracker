@@ -520,6 +520,10 @@
                 <input id="sheet-url" type="text" placeholder="貼上 Google Sheet CSV 連結 或 任何可公開存取的 CSV 網址"
                     onchange="saveSheetUrlSetting()"
                     style="flex:1; min-width:200px; padding:0.55rem 0.75rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.85rem;">
+                <button onclick="fillDefaultSheetUrl()" title="填入原始共享報價 CSV 連結"
+                    style="padding:0.5rem 0.75rem; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; font-size:0.8rem; font-weight:600; white-space:nowrap; text-transform:none; letter-spacing:0;">
+                    📋 原始報價 CSV
+                </button>
                 <button onclick="clearSheetUrl()" title="清除路徑"
                     style="padding:0.5rem 0.75rem; background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; font-size:0.8rem; font-weight:600; white-space:nowrap; text-transform:none; letter-spacing:0;">
                     ✕ 清除
