@@ -2392,7 +2392,7 @@
                     return;
                 }
 
-                const matchCount = holdings.filter(h => prices[h.symbol] != null).length;
+                const matchCount = holdings.filter(h => _lookupPrice(prices, h) != null).length;
                 if (matchCount === 0) {
                     const sheetSymbols = Object.keys(prices).slice(0, 3).join(', ');
                     const holdingSymbols = holdings.slice(0, 3).map(h => h.symbol).join(', ');
