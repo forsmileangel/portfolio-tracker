@@ -1340,6 +1340,13 @@
                     <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${currency==='USD'?fmtPnl(stats.totalPnL,'USD'):fmtPnl(stats.totalPnLTWD,'TWD')}</td>
                     <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%</td>
                 </tr></tfoot>`;
+            _applyHoldingRowSelection();
+        }
+
+        function _applyHoldingRowSelection() {
+            document.querySelectorAll('#holdings-table tbody tr').forEach(r => {
+                r.classList.toggle('hrow-selected', r.dataset.symbol === _selectedHoldingSymbol);
+            });
         }
 
         // ── v15.022 差異更新輔助 ──
