@@ -1616,6 +1616,25 @@
                 </div>`;
             }).join('');
             document.getElementById('pie-legend').innerHTML = legendHTML;
+
+            // 更新圓餅快照
+            const _cbCash   = document.getElementById('cash-pie-cb')?.checked   ?? false;
+            const _cbCrypto = document.getElementById('crypto-pie-cb')?.checked ?? false;
+            const _cbMoxa   = document.getElementById('moxa-pie-cb')?.checked   ?? false;
+            const _effCash   = _cbCash   ? cashTWD   : 0;
+            const _effCrypto = _cbCrypto ? cryptoTWD : 0;
+            const _effMoxa   = _cbMoxa   ? moxaTWD   : 0;
+            const _grand = stats.totalValueTWD + _effCash + _effCrypto + _effMoxa;
+            _pieSnapshot = {
+                count:    stats.holdingsWithStats.length,
+                currency,
+                cash:     cashTWD, crypto: cryptoTWD, moxa: moxaTWD,
+                cbCash:   _cbCash, cbCrypto: _cbCrypto, cbMoxa: _cbMoxa,
+                ratios:   Object.fromEntries(
+                    stats.holdingsWithStats.map(h => [h.id, _grand > 0 ? h.valueTWD / _grand : 0])
+                )
+            };
+            _lastPieRenderTime = Date.now();
         }
 
         function renderAll() {
