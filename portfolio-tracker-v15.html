@@ -739,6 +739,19 @@
         let _fxDirection = 'to_twd';   // 'to_twd' = 各幣→TWD；'from_twd' = TWD→各幣
         let _fxLastData  = null;        // 快取最後一次 fx 資料供切換方向時重繪
 
+        function toggleHoldingsVisible() {
+            _holdingsHidden = !_holdingsHidden;
+            const list = document.getElementById('holdings-list');
+            const visBtn = document.getElementById('toggle-visible-btn');
+            const allBtn = document.getElementById('toggle-all-btn');
+            if (list) list.style.display = _holdingsHidden ? 'none' : '';
+            if (visBtn) visBtn.textContent = _holdingsHidden ? '▼ 顯示持倉' : '▲ 隱藏';
+            if (allBtn) {
+                allBtn.style.opacity = _holdingsHidden ? '0.35' : '1';
+                allBtn.style.pointerEvents = _holdingsHidden ? 'none' : '';
+            }
+        }
+
         function toggleAllHoldings() {
             _allExpanded = !_allExpanded;
             document.querySelectorAll('[id^="holding-body-"]').forEach(el => {
