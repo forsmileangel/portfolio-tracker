@@ -1650,9 +1650,9 @@
             const legendHTML = pieData.map((d, i) => {
                 const color = pieColors[i];
                 const subLabel = d.isCash
-                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0})} TWD)</span>`
+                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${pv(cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0}) + ' TWD')})</span>`
                     : d.isCrypto && _usdtTWD > 0
-                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(≈${(cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0})} USDT)</span>`
+                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${pv('≈' + (cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0}) + ' USDT')})</span>`
                     : '';
                 return `
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${color};">
