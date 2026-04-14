@@ -915,7 +915,8 @@
         let chartInstance = null;
         let _pieSnapshot = null;      // 上次圓餅渲染時的快照
         let _lastPieRenderTime = 0;   // 上次圓餅渲染的時間戳
-        let _selectedHoldingSymbol = null; // 持倉一覽點選鎖定行
+        let _selectedHoldingSymbol = null;  // 持倉一覽點選鎖定行
+        let _selectedAnalysisSymbol = null; // 基本面/技術面點選鎖定行
         let currentDeleteId = null;
 
         const IMPORT_DATA = { "holdings": [] }; // v13+: 預設空白，自行匯入
