@@ -3511,7 +3511,8 @@
                 const d      = allResults[r.query];
                 const symTd  = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
                     (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') + '</td>';
-                const rowStyle = 'style="border-bottom:1px solid rgba(255,255,255,0.05);"';
+                const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
+
 
                 if (d?._pending) {
                     const msg = '⏳ 資料同步中，待下次 Actions 更新';
