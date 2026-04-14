@@ -1918,6 +1918,12 @@
             if (status && !url) status.textContent = '';
         }
 
+        const _DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQnBPPnq7jgMZ3oZ8UVaxe77InNipxW-ItNAoqxQrAgnKfLNqX1P4xxOLMqKGjKWTRIN-VZ4SkgKFBt/pub?gid=0&single=true&output=csv';
+        function fillDefaultSheetUrl() {
+            const el = document.getElementById('sheet-url');
+            if (el) { el.value = _DEFAULT_SHEET_URL; saveSheetUrlSetting(); }
+        }
+
         function clearSheetUrl() {
             const el = document.getElementById('sheet-url');
             if (el) el.value = '';
