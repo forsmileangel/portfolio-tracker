@@ -1520,6 +1520,8 @@
             if (stats.holdingsWithStats.length !== _pieSnapshot.count) return true;
             // 幣別切換
             if (currency !== _pieSnapshot.currency) return true;
+            // 隱私模式切換
+            if (_privacyMode !== _pieSnapshot.privacyMode) return true;
             // 現金/加密/MOXA 金額或勾選狀態變化
             const cashNow    = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
             const cryptoNow  = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
