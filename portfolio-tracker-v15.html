@@ -43,10 +43,10 @@
   v15.025 - 報價 CSV 改透過 Cloudflare Worker proxy 抓取，解決桌面瀏覽器 CORS 問題
   v15.026 - 改用 allorigins.win proxy 抓取報價 CSV（Worker 被 Google 401 擋）
   v15.027 - 報價 CSV 改為三個 proxy 依序 fallback（allorigins / codetabs / corsproxy）
-  v15.031 - 持倉明細新增「▲ 隱藏 / ▼ 顯示持倉」按鈕，可整體收合隱藏卡片區塊
-  v15.031 - 持倉一覽新增隱藏按鈕；持倉明細預設隱藏；Gist 同步新增 sheet_url 欄位，拉取時自動還原並標記 persist=true
-  v15.031 - 報價 CSV 比對新增 .TW 後綴彈性匹配，解決台股格式不一致導致更新被忽略的問題
-  v15.031 - _fetchSheetCSV 加入 cache: 'no-store'，防止瀏覽器/Proxy 快取舊版 CSV
+  v15.032 - 持倉明細新增「▲ 隱藏 / ▼ 顯示持倉」按鈕，可整體收合隱藏卡片區塊
+  v15.032 - 持倉一覽新增隱藏按鈕；持倉明細預設隱藏；Gist 同步新增 sheet_url 欄位，拉取時自動還原並標記 persist=true
+  v15.032 - 報價 CSV 比對新增 .TW 後綴彈性匹配，解決台股格式不一致導致更新被忽略的問題
+  v15.032 - _fetchSheetCSV 加入 cache: 'no-store'，防止瀏覽器/Proxy 快取舊版 CSV
   v15.032 - 新增「📋 原始報價 CSV」按鈕，一鍵填入預設共享報價連結
 -->
 <!DOCTYPE html>
@@ -272,7 +272,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.031</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.032</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
                 <h1 id="main-title" style="color:#60a5fa; font-size:2.5rem; font-weight:900; margin:0 0 0.25rem 0; text-transform:uppercase; letter-spacing:3px; text-shadow:0 0 20px rgba(56,139,253,0.5); background:linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #93c5fd 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-size:200% auto; animation:shimmer 3s linear infinite;">Portfolio Tracker</h1>
