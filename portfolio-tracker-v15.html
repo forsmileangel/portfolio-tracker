@@ -888,6 +888,8 @@
         let tradeType = 'buy';
         let priceReviewData = null;
         let chartInstance = null;
+        let _pieSnapshot = null;      // 上次圓餅渲染時的快照
+        let _lastPieRenderTime = 0;   // 上次圓餅渲染的時間戳
         let currentDeleteId = null;
 
         const IMPORT_DATA = { "holdings": [] }; // v13+: 預設空白，自行匯入
