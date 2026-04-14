@@ -3729,6 +3729,18 @@
         }
         window.onload = init;
 
+        // 持倉一覽 row 點選鎖定
+        document.addEventListener('click', function(e) {
+            const tr = e.target.closest('#holdings-table tbody tr');
+            if (tr) {
+                const sym = tr.dataset.symbol;
+                _selectedHoldingSymbol = (_selectedHoldingSymbol === sym) ? null : sym;
+                _applyHoldingRowSelection();
+            } else if (!e.target.closest('#holdings-table')) {
+                if (_selectedHoldingSymbol) { _selectedHoldingSymbol = null; _applyHoldingRowSelection(); }
+            }
+        });
+
         // ==================== 每分鐘自動更新報價 ====================
         let _autoRefreshTimer = null;
         let _countdownTimer   = null;
