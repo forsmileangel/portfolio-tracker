@@ -463,6 +463,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
                 <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0;">持倉明細 (<span id="holdings-count">0</span>)</h2>
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    <button id="toggle-visible-btn" onclick="toggleHoldingsVisible()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">▲ 隱藏</button>
                     <button id="toggle-all-btn" onclick="toggleAllHoldings()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">展開全部 ▼</button>
                     <label id="persist-all-label" title="打勾後所有持倉下次開啟仍保留" style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;user-select:none;padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;">
                         <input type="checkbox" id="persist-all-checkbox" onchange="toggleAllPersist(this.checked)" style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">
