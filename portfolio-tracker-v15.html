@@ -1563,8 +1563,8 @@
             const stockScale = (grandTotal > 0 && stats.totalValueTWD > 0) ? stats.totalValueTWD / grandTotal : 1;
             const adjHoldings = stats.holdingsWithStats.map(h => ({ name: h.symbol, value: h.percentage * stockScale }));
 
-            let pieData = adjHoldings.filter(d => d.value >= 1);
-            let others  = adjHoldings.filter(d => d.value < 1).reduce((sum, d) => sum + d.value, 0);
+            let pieData = adjHoldings.filter(d => d.value >= 0.5);
+            let others  = adjHoldings.filter(d => d.value < 0.5).reduce((sum, d) => sum + d.value, 0);
             if (others > 0) pieData.push({ name: '其他', value: others });
 
             const cashColor   = '#22c55e';
