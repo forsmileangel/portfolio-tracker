@@ -1642,7 +1642,7 @@
             renderStats(stats);
             renderTable(stats);
             renderHoldingsDetail(stats);
-            renderPie(stats);
+            if (_shouldRenderPie(stats)) renderPie(stats);
             document.getElementById('table-section').style.display = holdings.length > 0 ? 'block' : 'none';
             document.getElementById('rate-usd-twd').textContent = exchangeRates.USD_TWD.toFixed(2);
             document.getElementById('rate-hkd-twd').textContent = exchangeRates.HKD_TWD.toFixed(4);
