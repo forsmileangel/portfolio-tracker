@@ -1365,6 +1365,14 @@
             });
         }
 
+        function _applyAnalysisRowSelection() {
+            ['#tab-pane-2 table tbody tr', '#tab-pane-3 table tbody tr'].forEach(sel => {
+                document.querySelectorAll(sel).forEach(r => {
+                    r.classList.toggle('hrow-selected', r.dataset.symbol === _selectedAnalysisSymbol);
+                });
+            });
+        }
+
         // ── v15.022 差異更新輔助 ──
         function _cardFingerprint(h) {
             // 把所有會影響卡片顯示的欄位壓成一個字串
