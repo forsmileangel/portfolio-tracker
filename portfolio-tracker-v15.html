@@ -3755,15 +3755,21 @@
         }
         window.onload = init;
 
-        // 持倉一覽 row 點選鎖定
+        // 持倉一覽 / 基本面 / 技術面 row 點選鎖定
         document.addEventListener('click', function(e) {
-            const tr = e.target.closest('#holdings-table tbody tr');
-            if (tr) {
-                const sym = tr.dataset.symbol;
+            const holdingsTr = e.target.closest('#holdings-table tbody tr');
+            const analysisTr = e.target.closest('#tab-pane-2 table tbody tr, #tab-pane-3 table tbody tr');
+            if (holdingsTr) {
+                const sym = holdingsTr.dataset.symbol;
                 _selectedHoldingSymbol = (_selectedHoldingSymbol === sym) ? null : sym;
                 _applyHoldingRowSelection();
-            } else if (!e.target.closest('#holdings-table')) {
+            } else if (analysisTr) {
+                const sym = analysisTr.dataset.symbol;
+                _selectedAnalysisSymbol = (_selectedAnalysisSymbol === sym) ? null : sym;
+                _applyAnalysisRowSelection();
+            } else {
                 if (_selectedHoldingSymbol) { _selectedHoldingSymbol = null; _applyHoldingRowSelection(); }
+                if (_selectedAnalysisSymbol) { _selectedAnalysisSymbol = null; _applyAnalysisRowSelection(); }
             }
         });
 
