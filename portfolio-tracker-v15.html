@@ -1583,6 +1583,20 @@
             document.getElementById('table-section').style.display = holdings.length > 0 ? 'block' : 'none';
             document.getElementById('rate-usd-twd').textContent = exchangeRates.USD_TWD.toFixed(2);
             document.getElementById('rate-hkd-twd').textContent = exchangeRates.HKD_TWD.toFixed(4);
+            // 重新套用隱藏狀態（渲染後 DOM 可能被重建）
+            const wrapper = document.getElementById('table-body-wrapper');
+            const tableBtn = document.getElementById('toggle-table-btn');
+            if (wrapper) wrapper.style.display = _tableHidden ? 'none' : '';
+            if (tableBtn) tableBtn.textContent = _tableHidden ? '▼ 顯示' : '▲ 隱藏';
+            const list = document.getElementById('holdings-list');
+            const visBtn = document.getElementById('toggle-visible-btn');
+            const allBtn = document.getElementById('toggle-all-btn');
+            if (list) list.style.display = _holdingsHidden ? 'none' : '';
+            if (visBtn) visBtn.textContent = _holdingsHidden ? '▼ 顯示持倉' : '▲ 隱藏';
+            if (allBtn) {
+                allBtn.style.opacity = _holdingsHidden ? '0.35' : '1';
+                allBtn.style.pointerEvents = _holdingsHidden ? 'none' : '';
+            }
             // v15.022：防抖儲存，500ms 內多次 renderAll 只寫一次 localStorage
             clearTimeout(_saveStorageTimer);
             _saveStorageTimer = setTimeout(saveToStorage, 500);
