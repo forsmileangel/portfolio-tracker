@@ -57,6 +57,7 @@
   v15.039 - 修正基本面/技術面表頭凍結：wrapper 改 overflow-y:auto + max-height:65vh，解決 overflow-x:auto 破壞 sticky 的問題
   v15.040 - manifest orientation 改 any，手機/平板支援自由旋轉；修正總資產列隱私模式 bug（數字未遮蔽）
   v15.041 - 啟動時自動靜默拉取 Gist（有 token 即執行，成功顯示 ☁️ toast，失敗靜默 fallback 本地資料）
+  v15.042 - 基本面快取韌性強化：TTL 延長 4→8hr；fundamentals.json 失敗設 null 可重試；重抓失敗保留舊快取不清空
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
