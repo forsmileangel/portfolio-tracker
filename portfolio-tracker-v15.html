@@ -3797,6 +3797,8 @@
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
             }
             console.log('%c✅ Portfolio Tracker v15 已啟動', 'color:#10b981; font-size:14px;');
+            // 啟動時靜默從 Gist 拉取最新庫存（有 token 才執行，失敗不報錯）
+            _gistSilentPull();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
