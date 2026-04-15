@@ -3489,8 +3489,8 @@
 
             } else if (fundFresh && !techFresh) {
                 // ── 技術面過期 → 只重抓 KD/MACD/RSI + prevClose ──
+                // 基本面資料仍有效，不清空 fundTbody，只更新技術面 loading 狀態
                 if (!silent) {
-                    fundTbody.innerHTML = rows.map(r => loadingRow(r, 15, '⏳ 更新技術面...')).join('');
                     techTbody.innerHTML = rows.map(r => loadingRow(r, 10, '⏳ 更新技術面...')).join('').replace(/arow-/g, 'trow-');
                 }
                 for (let i = 0; i < uniqueQueries.length; i++) {
