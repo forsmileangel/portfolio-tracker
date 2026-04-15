@@ -3044,7 +3044,7 @@
                                            .replace(/:\s*-Infinity/g, ': null');
                         window._fundJsonCache = JSON.parse(cleaned);
                     } else {
-                        window._fundJsonCache = {};
+                        window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
                     }
                 }
                 const f = window._fundJsonCache?.data?.[symbol];
