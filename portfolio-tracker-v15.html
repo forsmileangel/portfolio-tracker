@@ -3389,31 +3389,35 @@
             location.reload();
         }
 
-        // 頁面載入時顯示後端狀態 / fundamentals.json 更新時間
-        (function() {
-            const saved = localStorage.getItem('backend_url');
-            const el = document.getElementById('backend-status');
-            if (!el) return;
-            if (saved) {
-                el.textContent = '✓ ' + saved.replace('https://', '');
-            } else if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                el.textContent = '（本機）';
-            } else {
-                // GitHub Pages：嘗試讀取 fundamentals.json 更新時間
-                fetch('./data/fundamentals.json')
-                    .then(r => r.ok ? r.json() : null)
-                    .then(j => {
-                        if (j && j.generated) {
-                            const d = new Date(j.generated);
-                            const ts = d.toLocaleString('zh-TW', {timeZone:'Asia/Taipei', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
-                            el.textContent = '基本面資料：' + ts + ' 更新';
-                            el.style.color = '#10b981';
-                        } else {
-                            el.textContent = '⚠ 未設定後端';
-                        }
-                    })
-                    .catch(() => { el.textContent = '⚠ 未設定後端'; });
+        // 頁面載入時顯示基本面 & 技術面各自的最後更新時間
+        const _fmtTs = ts => new Date(ts).toLocaleString('zh-TW', {
+            timeZone:'Asia/Taipei', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'
+        });
+        function _updateSourceTimes(fundTs, techTs) {
+            const fundEl = document.getElementById('fund-source-time');
+            const techEl = document.getElementById('tech-source-time');
+            if (fundEl && fundTs) {
+                fundEl.textContent = '基本面：' + _fmtTs(fundTs) + ' 更新';
+                fundEl.style.color = '#10b981';
             }
+            if (techEl && techTs) {
+                techEl.textContent = '｜ 技術面：' + _fmtTs(techTs) + ' 更新';
+                techEl.style.color = '#60a5fa';
+            }
+        }
+        (function() {
+            // 基本面：讀 fundamentals.json 的 generated 時間
+            fetch('./data/fundamentals.json')
+                .then(r => r.ok ? r.json() : null)
+                .then(j => {
+                    if (j?.generated) _updateSourceTimes(j.generated, null);
+                })
+                .catch(() => {});
+            // 技術面：讀 localStorage 的 tech_ts
+            try {
+                const raw = JSON.parse(localStorage.getItem('pf_analysis_v7') || '{}');
+                if (raw.tech_ts) _updateSourceTimes(null, raw.tech_ts);
+            } catch(_) {}
         })();
 
         // ==================== Analysis Cache (localStorage, 基本面4hr / 技術面1hr TTL) ====================
