@@ -3791,7 +3791,9 @@
             loadFont();              // 還原字型設定
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
             renderAll();
-            if (hadSaved) {
+            // 有 Gist 憑證時跳過本地 toast（auto-pull 成功後會顯示雲端 toast）
+            const _hasGistCreds = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+            if (hadSaved && !_hasGistCreds) {
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
             }
             console.log('%c✅ Portfolio Tracker v15 已啟動', 'color:#10b981; font-size:14px;');
