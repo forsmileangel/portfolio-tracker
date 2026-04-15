@@ -3381,10 +3381,10 @@
             const trimmed = url.trim().replace(/\/$/, '');
             if (trimmed === '') {
                 localStorage.removeItem('backend_url');
-                document.getElementById('backend-status').textContent = '（本機模式）';
+                document.getElementById('fund-source-time').textContent = '（本機模式）';
             } else {
                 localStorage.setItem('backend_url', trimmed);
-                document.getElementById('backend-status').textContent = '✓ ' + trimmed.replace('https://', '');
+                document.getElementById('fund-source-time').textContent = '✓ 後端已設定';
             }
             location.reload();
         }
