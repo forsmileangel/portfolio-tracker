@@ -3562,10 +3562,15 @@
                 fundTbody.innerHTML = rows.map(r => loadingRow(r, 15, '⏳ 查詢中...')).join('');
                 techTbody.innerHTML = rows.map(r => loadingRow(r, 10, '⏳ 查詢中...')).join('').replace(/arow-/g, 'trow-');
 
-                const cache = forceRefresh ? {} : _loadCache();
-                allResults = { ...cache };
-                const toFetch = uniqueQueries.filter(s => !allResults[s]);
+                // 過期時先用舊資料初始化（stale fallback），重抓成功才覆蓋
+                const staleData = _loadCacheRaw().data || {};
+                const freshCache = forceRefresh ? {} : _loadCache();
+                allResults = { ...staleData, ...freshCache };
+                const toFetch = forceRefresh
+                    ? uniqueQueries
+                    : uniqueQueries.filter(s => !freshCache[s]);
 
+                let fetchSuccessCount = 0;
                 for (let i = 0; i < toFetch.length; i++) {
                     const sym = toFetch[i];
                     const prog = '⏳ 查詢中（' + (i+1) + '/' + toFetch.length + '）...';
@@ -3577,12 +3582,17 @@
                     });
                     try {
                         allResults[sym] = await fetchSymbolDataFromYahoo(sym);
+                        fetchSuccessCount++;
                     } catch(e) {
-                        allResults[sym] = { _error: e.message };
+                        // 失敗時保留 staleData（不覆蓋），只記 log
+                        if (!staleData[sym]) allResults[sym] = { _error: e.message };
+                        console.warn(`[分析] ${sym} 抓取失敗，保留舊快取：`, e.message);
                     }
                     if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 200));
                 }
-                _saveCache(allResults);
+                // 至少有一筆成功才更新時間戳，否則僅展示舊資料不刷新 TTL
+                if (fetchSuccessCount > 0) _saveCache(allResults);
+                else _saveTechCache(allResults); // 只更新顯示，不重置 fund_ts
 
                 // ── 偵測未在 fundamentals.json 中的新標的（GitHub Pages 模式）──
                 if (!_isLocal && !BACKEND_URL && window._fundJsonCache?.data) {
