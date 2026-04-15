@@ -3591,9 +3591,8 @@
                     }
                     if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 200));
                 }
-                // 至少有一筆成功才更新時間戳，否則僅展示舊資料不刷新 TTL
+                // 至少有一筆成功才更新時間戳；全部失敗時只渲染舊資料，不動 localStorage
                 if (fetchSuccessCount > 0) _saveCache(allResults);
-                else _saveTechCache(allResults); // 只更新顯示，不重置 fund_ts
 
                 // ── 偵測未在 fundamentals.json 中的新標的（GitHub Pages 模式）──
                 if (!_isLocal && !BACKEND_URL && window._fundJsonCache?.data) {
