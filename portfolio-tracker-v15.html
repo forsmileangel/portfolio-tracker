@@ -4523,7 +4523,7 @@
                         </div>
                         <!-- 右：近90天分析師動態（新聞形式） -->
                         <div>
-                            <div style="color:#60a5fa;font-size:0.76rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">🏦 近90天分析師動態</div>
+                            <div style="color:#60a5fa;font-size:0.76rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;"><i class="ic">◆</i> 近90天分析師動態</div>
                             ${analystNews.length > 0 ? analystNews.map(n => {
                                 const dt = new Date((n.providerPublishTime||0)*1000).toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit'});
                                 return `<div onclick="window.open('${n.link||'#'}','_blank','noopener')"
