@@ -2181,6 +2181,11 @@
                     const cb = document.getElementById('moxa-pie-cb');
                     if (cb) cb.checked = !!saved.moxa_pie_cb;
                 }
+                if (Array.isArray(saved.watchlist)) {
+                    watchlist = saved.watchlist;
+                    saveWatchlist();
+                    renderWatchlist();
+                }
 
                 _storageReady = true;
                 saveToStorage();
