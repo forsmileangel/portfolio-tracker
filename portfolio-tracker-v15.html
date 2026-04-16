@@ -3724,7 +3724,8 @@
                 const rowId  = r.holding.replace(/[^a-zA-Z0-9]/g,'_');
                 const d      = allResults[r.query];
                 const symTd  = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
-                    (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') + '</td>';
+                    (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
+                    (r.isWatchlist ? '<br><small style="color:#64748b;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
                 const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
 
 
