@@ -2240,6 +2240,11 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
+                // 還原已實現損益紀錄
+                if (Array.isArray(saved.tradeHistory)) {
+                    tradeHistory = saved.tradeHistory;
+                    saveTradeHistory();
+                }
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
