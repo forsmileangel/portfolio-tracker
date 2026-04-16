@@ -2337,6 +2337,10 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
+                if (Array.isArray(saved.tradeHistory)) {
+                    tradeHistory = saved.tradeHistory;
+                    saveTradeHistory();
+                }
 
                 _storageReady = true;
                 saveToStorage();
