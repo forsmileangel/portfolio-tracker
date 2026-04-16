@@ -4728,8 +4728,9 @@
             let macroNews = [];
             try {
                 if (statusEl) statusEl.textContent = '抓取標的相關新聞...';
-                const uniqueSyms = holdings.length > 0
-                    ? [...new Set(holdings.map(h => getQuerySymbol(h.symbol)))].slice(0, 6)
+                const _newsTargets = _allAnalysisTargets();
+                const uniqueSyms = _newsTargets.length > 0
+                    ? [...new Set(_newsTargets.map(h => getQuerySymbol(h.symbol)))].slice(0, 6)
                     : [];
                 const cutoff = Date.now()/1000 - 7*24*3600;
                 const seenUuids = new Set();
