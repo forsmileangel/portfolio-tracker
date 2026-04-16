@@ -4568,7 +4568,7 @@
                 if (cached) {
                     renderMacroTab(cached.results, cached.news);
                     _macroLoaded = true;
-                    if (btn) { btn.textContent = '🔄 更新總經數據'; btn.disabled = false; }
+                    if (btn) { btn.textContent = '↻ 更新總經數據'; btn.disabled = false; }
                     if (statusEl) {
                         const t = new Date(cached.ts).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
                         statusEl.textContent = `快取 ${t}（1hr 後自動更新）`;
@@ -4583,7 +4583,7 @@
                         _saveMacroCache(gcM.results, gcM.news);
                         renderMacroTab(gcM.results, gcM.news);
                         _macroLoaded = true;
-                        if (btn) { btn.textContent = '🔄 更新總經數據'; btn.disabled = false; }
+                        if (btn) { btn.textContent = '↻ 更新總經數據'; btn.disabled = false; }
                         if (statusEl) {
                             const t = new Date(gcM.fetched_at).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
                             statusEl.textContent = `全域快取 ${t}（1hr 後自動更新）`;
@@ -4709,7 +4709,7 @@
 
             renderMacroTab(results, macroNews);
             _macroLoaded = true;
-            if (btn) { btn.textContent = '🔄 更新總經數據'; btn.disabled = false; }
+            if (btn) { btn.textContent = '↻ 更新總經數據'; btn.disabled = false; }
             if (statusEl) statusEl.textContent = '更新於 ' + new Date().toLocaleTimeString('zh-TW');
         }
 
