@@ -73,6 +73,11 @@
 - `saveToStorage()` 只能透過 `_debouncedSave` 在 renderAll 內呼叫（500ms 防抖）
 - 直接 DOM 操作（toggleHolding、_renderFxTable）不呼叫 renderAll
 
+## Notion 寫作規則
+- 建立或更新 Notion 頁面時，**不在標題文字裡放 emoji**
+- 改用 Notion 頁面的 `icon` 欄位設定圖示（API `icon` 參數）
+- 目的：避免圖示重複顯示（sidebar 同時顯示 icon 欄位 + 標題內 emoji）
+
 ## Git 設定
 - Auto-commit hook 已設定：修改檔案後自動 `git add → commit → push`
 - 不需要手動 commit，Claude Code 每次存檔會自動觸發
