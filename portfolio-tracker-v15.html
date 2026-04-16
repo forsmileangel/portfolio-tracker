@@ -1938,6 +1938,7 @@
             setGistStatus('⏳ 推送中...', '#60a5fa');
             const payload = JSON.stringify({
                 holdings,
+                watchlist,
                 currency,
                 exchangeRates,
                 sheet_url:    document.getElementById('sheet-url')?.value?.trim() || '',
