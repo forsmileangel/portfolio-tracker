@@ -518,6 +518,34 @@
             <div id="holdings-list"></div>
         </div>
 
+        <!-- 觀察清單 -->
+        <div class="glass-card" style="padding:2rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.9rem;flex-wrap:wrap;gap:0.75rem;">
+                <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="ic" style="font-size:0.88rem;">◎</i>
+                    觀察清單 (<span id="watchlist-count">0</span>)
+                </h2>
+                <button id="watchlist-toggle-btn" onclick="toggleWatchlistVisible()" style="padding:0.38rem 0.8rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">▼ 顯示</button>
+            </div>
+            <div id="watchlist-body" style="display:none;">
+                <!-- 輸入列 -->
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.85rem;flex-wrap:wrap;">
+                    <input id="watchlist-symbol-input" type="text" placeholder="代號，如 AAPL"
+                        onkeydown="if(event.key==='Enter')addToWatchlist()"
+                        style="flex:1;min-width:120px;padding:0.5rem 0.75rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#e2e8f0;font-size:0.88rem;text-transform:uppercase;outline:none;transition:border-color 0.2s;"
+                        onfocus="this.style.borderColor='rgba(96,165,250,0.55)'" onblur="this.style.borderColor='rgba(56,139,253,0.25)'">
+                    <select id="watchlist-market-select" style="padding:0.5rem 0.65rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.85rem;outline:none;cursor:pointer;">
+                        <option value="US">美股</option>
+                        <option value="TW">台股</option>
+                        <option value="HK">港股</option>
+                    </select>
+                    <button onclick="addToWatchlist()" style="padding:0.5rem 1rem;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;text-transform:none;letter-spacing:0;">+ 新增</button>
+                </div>
+                <!-- 清單 -->
+                <div id="watchlist-list"></div>
+            </div>
+        </div>
+
         <!-- GitHub Gist 跨裝置同步 -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
