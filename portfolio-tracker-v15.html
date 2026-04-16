@@ -2460,38 +2460,85 @@
 
         function addHolding() {
             let symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
-            const quantity = parseFloat(document.getElementById('form-quantity').value);
+            const quantity  = parseFloat(document.getElementById('form-quantity').value);
             const costPrice = parseFloat(document.getElementById('form-cost').value);
-            const market = document.getElementById('form-market').value;
+            const market    = document.getElementById('form-market').value;
             // 自動補後綴：港股不帶 .HK 時補上
             if (market === 'HK' && !symbol.endsWith('.HK')) symbol = symbol + '.HK';
             const isBuy = tradeType === 'buy';
             if (!symbol || !quantity) return alert('請填寫所有必要欄位');
-            if (isBuy && !costPrice) return alert('請填寫買入價格');
+            if (!costPrice) return alert(isBuy ? '請填寫買入價格' : '請填寫賣出價格');
             saveHistory();
             const existingIndex = holdings.findIndex(h => h.symbol === symbol);
-            if (!isBuy) {
-                if (existingIndex === -1) return alert('找不到持倉，無法賣出');
-                const existing = holdings[existingIndex];
-                const remain = existing.quantity - quantity;
-                if (remain < 0) return alert('賣出數量超過持有股數');
-                if (remain <= 0.000001) holdings.splice(existingIndex, 1);
-                else holdings[existingIndex].quantity = remain;
-            } else {
+
+            if (isBuy) {
+                // ── 買入：新增批次 (lot) ──
+                const newLot = { qty: quantity, cost: costPrice, date: new Date().toISOString() };
                 if (existingIndex !== -1) {
                     const existing = holdings[existingIndex];
-                    const totalQty = existing.quantity + quantity;
-                    const newAvg = (existing.costPrice * existing.quantity + costPrice * quantity) / totalQty;
-                    holdings[existingIndex].quantity = totalQty;
-                    holdings[existingIndex].costPrice = parseFloat(newAvg.toFixed(4));
+                    _ensureLots(existing);
+                    existing.lots.push(newLot);
+                    // 從 lots 重算 quantity & 加權平均成本
+                    existing.quantity  = existing.lots.reduce((s, l) => s + l.qty, 0);
+                    existing.costPrice = parseFloat((existing.lots.reduce((s, l) => s + l.qty * l.cost, 0) / existing.quantity).toFixed(4));
                 } else {
-                    holdings.push({ id: Date.now(), symbol, market, name: '', quantity, costPrice, currentPrice: costPrice, addedDate: new Date().toISOString(), persist: false });
+                    holdings.push({
+                        id: Date.now(), symbol, market, name: '',
+                        quantity, costPrice,
+                        currentPrice: costPrice,
+                        addedDate: new Date().toISOString(),
+                        persist: false,
+                        lots: [newLot]
+                    });
                 }
+            } else {
+                // ── 賣出：FIFO 消耗 lots，計算已實現損益 ──
+                if (existingIndex === -1) return alert('找不到持倉，無法賣出');
+                const existing = holdings[existingIndex];
+                _ensureLots(existing);
+                const totalHeld = existing.lots.reduce((s, l) => s + l.qty, 0);
+                if (quantity > totalHeld + 0.000001) return alert('賣出數量超過持有股數');
+
+                let remaining = quantity;
+                let totalRealizedPL = 0;
+                const lotsConsumed = [];
+                for (let i = 0; i < existing.lots.length && remaining > 0.000001; i++) {
+                    const lot    = existing.lots[i];
+                    const consume = Math.min(lot.qty, remaining);
+                    const realPL  = (costPrice - lot.cost) * consume;
+                    totalRealizedPL += realPL;
+                    lotsConsumed.push({ qty: consume, cost: lot.cost, date: lot.date });
+                    lot.qty   -= consume;
+                    remaining -= consume;
+                }
+                // 清除已耗盡的 lot
+                existing.lots = existing.lots.filter(l => l.qty > 0.000001);
+
+                if (existing.lots.length === 0) {
+                    holdings.splice(existingIndex, 1);
+                } else {
+                    existing.quantity  = existing.lots.reduce((s, l) => s + l.qty, 0);
+                    existing.costPrice = parseFloat((existing.lots.reduce((s, l) => s + l.qty * l.cost, 0) / existing.quantity).toFixed(4));
+                }
+
+                // 記錄到 tradeHistory
+                tradeHistory.push({
+                    id: Date.now(),
+                    symbol, market,
+                    type: 'sell',
+                    qty: quantity,
+                    price: costPrice,
+                    date: new Date().toISOString(),
+                    realizedPL: parseFloat(totalRealizedPL.toFixed(4)),
+                    lotsConsumed
+                });
+                saveTradeHistory();
             }
-            alert(isBuy ? `✅ 已處理 ${symbol}` : `✅ 已賣出 ${symbol}`);
-            document.getElementById('form-symbol').value = '';
+
+            alert(isBuy ? `✅ 已買入 ${symbol}` : `✅ 已賣出 ${symbol}，已實現損益 ${tradeHistory[tradeHistory.length-1]?.realizedPL >= 0 ? '+' : ''}${tradeHistory[tradeHistory.length-1]?.realizedPL?.toFixed(2) ?? ''}`);
+            document.getElementById('form-symbol').value  = '';
             document.getElementById('form-quantity').value = '';
-            document.getElementById('form-cost').value = '';
+            document.getElementById('form-cost').value    = '';
             renderAll();
         }
 
