@@ -4140,6 +4140,8 @@
             loadCrypto();            // 還原加密倉位設定
             loadMoxa();              // 還原 MOXA 股票設定
             loadWatchlist();         // 還原觀察清單
+            loadTradeHistory();      // 還原已實現損益紀錄
+            holdings.forEach(_ensureLots); // 舊資料向下相容：補齊 lots 欄位
             loadPrivacy();           // 還原隱私模式設定
             loadFont();              // 還原字型設定
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
