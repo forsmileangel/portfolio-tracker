@@ -2184,7 +2184,7 @@
 
                 saveHistory();
                 holdings = saved.holdings;
-                holdings.forEach(h => h.persist = true); // 從雲端拉取一律標記保留
+                holdings.forEach(h => { h.persist = true; _ensureLots(h); }); // 從雲端拉取一律標記保留，並補齊 lots
                 if (saved.currency)      currency = saved.currency;
                 if (saved.exchangeRates) {
                     exchangeRates = saved.exchangeRates;
