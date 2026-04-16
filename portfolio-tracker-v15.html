@@ -2542,8 +2542,20 @@
             renderAll();
         }
 
-        function updateQuantity(id, newQty) { const parsed = parseFloat(newQty); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) h.quantity = parsed; renderAll(); }
-        function updateCostPrice(id, newCost) { const parsed = parseFloat(newCost); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) h.costPrice = parsed; renderAll(); }
+        function updateQuantity(id, newQty) {
+            const parsed = parseFloat(newQty); if (isNaN(parsed)) return;
+            saveHistory();
+            const h = holdings.find(item => item.id === id);
+            if (h) { h.quantity = parsed; _resetLots(h); }
+            renderAll();
+        }
+        function updateCostPrice(id, newCost) {
+            const parsed = parseFloat(newCost); if (isNaN(parsed)) return;
+            saveHistory();
+            const h = holdings.find(item => item.id === id);
+            if (h) { h.costPrice = parsed; _resetLots(h); }
+            renderAll();
+        }
         function updateCurrentPrice(id, newPrice) { const parsed = parseFloat(newPrice); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) h.currentPrice = parsed; renderAll(); }
         function deleteHolding(id) {
             currentDeleteId = id;
