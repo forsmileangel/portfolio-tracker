@@ -4170,7 +4170,7 @@
             const statusEl = document.getElementById('earnings-status');
             if (btn) { btn.textContent = '載入中...'; btn.disabled = true; }
 
-            const symbols = [...new Set(holdings.map(h => getQuerySymbol(h.symbol)))];
+            const symbols = [...new Set(_allAnalysisTargets().map(h => getQuerySymbol(h.symbol)))];
             const cache = forceRefresh ? {} : _loadQsCache();
             const allQs = { ...cache };
 
