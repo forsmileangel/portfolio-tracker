@@ -775,6 +775,8 @@
         let _cardCache = {}; // 差異更新：{ [id]: fingerprint }
         let _cardExpanded = {}; // 差異更新：per-card 展開狀態
         let _saveStorageTimer = null; // 防抖計時器
+        let watchlist = []; // 觀察清單
+        let _watchlistHidden = true; // 觀察清單預設隱藏
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
