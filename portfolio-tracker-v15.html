@@ -2709,7 +2709,7 @@
                 return;
             }
             const toTwd = _fxDirection === 'to_twd';
-            if (title) title.textContent = toTwd ? '💱 各幣 → TWD' : '💱 TWD → 各幣';
+            if (title) title.innerHTML = toTwd ? '<i class="ic">⇄</i> 各幣 → TWD' : '<i class="ic">⇄</i> TWD → 各幣';
             body.innerHTML = FX_TABLE_CURRENCIES.map(({ code, name, dec }) => {
                 const rate = extra[code];
                 if (rate == null || rate === 0) return '';
