@@ -3953,7 +3953,7 @@
                     <button id="sync-symbols-btn" onclick="_syncSymbols(${JSON.stringify(merged).replace(/"/g,'&quot;')})"
                         style="flex:1;padding:0.45rem 0.8rem;background:linear-gradient(135deg,#60a5fa,#3b82f6);
                                color:#060d1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;min-width:140px;">
-                        ✅ 一鍵更新清單</button>
+                        ↻ 一鍵更新清單</button>
                     <button onclick="document.getElementById('missing-fund-notice')?.remove()"
                         style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#94a3b8;
                                border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
@@ -3986,11 +3986,11 @@
                     showImportToast('✅ 清單已更新', 2500);
                 } else {
                     showImportToast('❌ 更新失敗：' + (result.error || '未知錯誤'), 4000);
-                    if (btn) { btn.disabled = false; btn.textContent = '✅ 一鍵更新清單'; }
+                    if (btn) { btn.disabled = false; btn.textContent = '↻ 一鍵更新清單'; }
                 }
             } catch(e) {
                 showImportToast('❌ 連線失敗，請確認後端設定', 4000);
-                if (btn) { btn.disabled = false; btn.textContent = '✅ 一鍵更新清單'; }
+                if (btn) { btn.disabled = false; btn.textContent = '↻ 一鍵更新清單'; }
             }
         }
 
