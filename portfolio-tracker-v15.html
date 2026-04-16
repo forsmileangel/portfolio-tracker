@@ -1506,6 +1506,22 @@
                         </div>
                     </div>
                 </div>
+                ${(h.lots && h.lots.length > 0) ? `
+                <div style="margin:0.5rem 0.75rem 0.65rem 1rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.07);">
+                    <div style="color:#64748b; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; margin-bottom:0.35rem;">成本批次（FIFO 順序）</div>
+                    ${h.lots.map((lot, li) => {
+                        const d  = new Date(lot.date);
+                        const ds = isNaN(d) ? '' : d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
+                        const lotTotal = (lot.qty * lot.cost).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+                        return `<div style="display:flex;gap:0.65rem;align-items:center;font-size:0.77rem;padding:0.18rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                            <span style="color:#475569;min-width:78px;">${ds}</span>
+                            <span style="color:#e2e8f0;">${parseFloat(lot.qty.toFixed(4)).toLocaleString('en-US',{maximumFractionDigits:4})} 股</span>
+                            <span style="color:#64748b;">@</span>
+                            <span style="color:#60a5fa;">${priceCcy}${parseFloat(lot.cost.toFixed(4))}</span>
+                            <span style="color:#475569;margin-left:auto;">成本 ${priceCcy}${lotTotal}</span>
+                        </div>`;
+                    }).join('')}
+                </div>` : ''}
             </div>`;
         }
 
