@@ -2088,6 +2088,13 @@
                     if (cb) cb.checked = !!saved.moxa_pie_cb;
                 }
 
+                // 還原觀察清單
+                if (Array.isArray(saved.watchlist)) {
+                    watchlist = saved.watchlist;
+                    saveWatchlist();
+                    renderWatchlist();
+                }
+
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
                 _storageReady = true;
