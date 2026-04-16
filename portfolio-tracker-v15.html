@@ -1809,6 +1809,69 @@
             if (cb) cb.checked = (localStorage.getItem(PT_CASH_PIE_KEY) === '1');
         }
 
+        // ==================== 觀察清單 ====================
+        function saveWatchlist() {
+            localStorage.setItem(PT_WATCHLIST_KEY, JSON.stringify(watchlist));
+        }
+        function loadWatchlist() {
+            try { watchlist = JSON.parse(localStorage.getItem(PT_WATCHLIST_KEY)) || []; } catch(_) { watchlist = []; }
+            renderWatchlist();
+        }
+        function toggleWatchlistVisible() {
+            _watchlistHidden = !_watchlistHidden;
+            const body = document.getElementById('watchlist-body');
+            const btn  = document.getElementById('watchlist-toggle-btn');
+            if (body) body.style.display = _watchlistHidden ? 'none' : '';
+            if (btn)  btn.textContent = _watchlistHidden ? '▼ 顯示' : '▲ 隱藏';
+        }
+        function addToWatchlist() {
+            const inp = document.getElementById('watchlist-symbol-input');
+            const sym = (inp?.value || '').trim().toUpperCase();
+            const market = document.getElementById('watchlist-market-select')?.value || 'US';
+            if (!sym) return;
+            if (watchlist.some(w => w.symbol === sym)) {
+                inp.style.borderColor = '#ef4444';
+                setTimeout(() => { inp.style.borderColor = ''; }, 1500);
+                return;
+            }
+            watchlist.push({ symbol: sym, market });
+            inp.value = '';
+            saveWatchlist();
+            renderWatchlist();
+        }
+        function removeFromWatchlist(sym) {
+            watchlist = watchlist.filter(w => w.symbol !== sym);
+            saveWatchlist();
+            renderWatchlist();
+        }
+        function renderWatchlist() {
+            const countEl = document.getElementById('watchlist-count');
+            if (countEl) countEl.textContent = watchlist.length;
+            const list = document.getElementById('watchlist-list');
+            if (!list) return;
+            if (watchlist.length === 0) {
+                list.innerHTML = '<div style="color:#475569;font-size:0.82rem;text-align:center;padding:1.2rem 0;letter-spacing:0.03em;">尚無觀察標的 — 在上方輸入代號後點「新增」</div>';
+                return;
+            }
+            list.innerHTML = watchlist.map(w => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.45rem 0.75rem;background:rgba(15,30,60,0.45);border:1px solid rgba(56,139,253,0.14);border-radius:8px;margin-bottom:0.3rem;transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(96,165,250,0.3)'" onmouseout="this.style.borderColor='rgba(56,139,253,0.14)'">
+                    <div style="display:flex;align-items:center;gap:0.55rem;">
+                        <i class="ic" style="color:#60a5fa;">◎</i>
+                        <span style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${w.symbol}</span>
+                        <span style="color:#64748b;font-size:0.72rem;padding:0.1rem 0.38rem;background:rgba(56,139,253,0.1);border:1px solid rgba(56,139,253,0.18);border-radius:4px;">${w.market}</span>
+                    </div>
+                    <button onclick="removeFromWatchlist('${w.symbol}')" title="移除" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;padding:0.18rem 0.48rem;font-size:0.78rem;cursor:pointer;line-height:1.4;text-transform:none;letter-spacing:0;">✕</button>
+                </div>`).join('');
+        }
+        // 合併持倉 + 觀察清單（供分析管線使用）
+        function _allAnalysisTargets() {
+            const holdingSyms = new Set(holdings.map(h => h.symbol));
+            const extras = watchlist
+                .filter(w => !holdingSyms.has(w.symbol))
+                .map(w => ({ symbol: w.symbol, market: w.market || 'US', currentPrice: 0, quantity: 0, _isWatchlist: true }));
+            return [...holdings, ...extras];
+        }
+
         // ==================== v13 LocalStorage 持久化 ====================
         const PT_STORAGE_KEY = 'pt_v13p_state';
 
