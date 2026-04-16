@@ -4462,7 +4462,7 @@
                 if (!qs) return '';
                 if (qs._error) return `
                     <div style="background:rgba(15,30,60,0.5);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:0.7rem 1rem;margin-bottom:0.5rem;">
-                        <span style="color:#60a5fa;font-weight:700;">${h.symbol}</span>${proxyLabel}
+                        <span style="color:#60a5fa;font-weight:700;">${h.symbol}</span>${proxyLabel}${watchlistLabel}
                         <span style="color:#ef4444;font-size:0.8rem;margin-left:0.75rem;">❌ ${qs._error}</span>
                     </div>`;
 
