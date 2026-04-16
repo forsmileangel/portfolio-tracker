@@ -3053,6 +3053,10 @@
             if (n === 5) {
                 loadMacro(false);
             }
+            // 切換到已實現損益 Tab：即時渲染（資料在 tradeHistory，無需 API）
+            if (n === 6) {
+                renderRealizedTab();
+            }
         }
 
         // ==================== Leveraged ETF → Underlying Map ====================
