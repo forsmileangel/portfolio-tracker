@@ -4797,7 +4797,7 @@
 
             if (signals.length === 0) return '';
             return `<div style="background:rgba(15,30,60,0.5);border:1px solid rgba(56,139,253,0.25);border-radius:12px;padding:1rem 1.1rem;margin-top:0.75rem;">
-                <div style="color:#60a5fa;font-size:0.85rem;font-weight:700;margin-bottom:0.65rem;">📊 總體環境分析摘要</div>
+                <div style="color:#60a5fa;font-size:0.85rem;font-weight:700;margin-bottom:0.65rem;"><i class="ic">◈</i> 總體環境分析摘要</div>
                 ${signals.map(s=>`<div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.45rem;">
                     <span style="flex-shrink:0;">${s.t==='positive'?'✅':s.t==='negative'?'⚠️':'ℹ️'}</span>
                     <span style="color:${s.t==='positive'?'#6ee7b7':s.t==='negative'?'#fca5a5':'#94a3b8'};font-size:0.85rem;line-height:1.55;">${s.msg}</span>
