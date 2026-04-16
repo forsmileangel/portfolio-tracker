@@ -3565,10 +3565,11 @@
             const fundTbody = document.getElementById('fund-tbody');
             const techTbody = document.getElementById('tech-tbody');
 
-            const rows = holdings.map(h => ({
-                holding: h.symbol,
-                query:   getQuerySymbol(h.symbol),
-                isProxy: !!LEVERAGED_MAP[h.symbol]
+            const rows = _allAnalysisTargets().map(h => ({
+                holding:      h.symbol,
+                query:        getQuerySymbol(h.symbol),
+                isProxy:      !!LEVERAGED_MAP[h.symbol],
+                isWatchlist:  !!h._isWatchlist
             }));
 
             // 共用 loading 渲染函數（隱藏查詢標的欄）
