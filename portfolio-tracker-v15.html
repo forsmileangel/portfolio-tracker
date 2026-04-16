@@ -703,7 +703,7 @@
                 ondragleave="this.style.borderColor='rgba(59,130,246,0.4)'; this.style.background='rgba(15,30,60,0.4)';"
                 ondrop="handleCsvDrop(event)"
                 style="display:block; border:2px dashed rgba(59,130,246,0.4); border-radius:14px; padding:2rem; text-align:center; cursor:pointer; background:rgba(15,30,60,0.4); transition:all 0.2s; margin-bottom:1rem; flex-shrink:0;">
-                <div style="font-size:2.5rem; margin-bottom:0.5rem;">📁</div>
+                <div style="width:56px;height:56px;border-radius:14px;background:rgba(96,165,250,0.1);border:1.5px solid rgba(96,165,250,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-size:1.5rem;color:#60a5fa;">↑</div>
                 <div style="color:#e2e8f0; font-weight:600; margin-bottom:0.25rem;">拖曳 CSV 到這裡，或點擊選擇檔案</div>
                 <div style="color:#64748b; font-size:0.82rem;">支援「匯出持倉數據」產生的 CSV</div>
                 <input id="csv-file-input" type="file" accept=".csv,text/csv" class="csv-file-input-hidden" onchange="handleCsvFile(this.files[0])">
