@@ -2315,7 +2315,7 @@
             const nonePersist = holdings.every(h => !h.persist);
             cb.checked = allPersist;
             cb.indeterminate = !allPersist && !nonePersist;
-            txt.textContent = '💾 下次開啟仍保留';
+            txt.innerHTML = '<i class="ic">◻</i> 下次開啟仍保留';
             txt.style.color = allPersist ? '#10b981' : nonePersist ? '#64748b' : '#3b82f6';
         }
         function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; currentDeleteId = null; }
