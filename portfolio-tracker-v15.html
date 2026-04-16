@@ -802,6 +802,8 @@
         let _saveStorageTimer = null; // 防抖計時器
         let watchlist = []; // 觀察清單
         let _watchlistHidden = true; // 觀察清單預設隱藏
+        let tradeHistory = []; // 已實現損益紀錄
+        let _realizedExpanded = {}; // 已實現損益 per-symbol 展開狀態
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
