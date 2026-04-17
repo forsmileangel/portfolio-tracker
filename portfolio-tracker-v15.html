@@ -2771,13 +2771,23 @@
         function parseCsvPreview(csvText) {
             // 移除 BOM
             csvText = csvText.replace(/^﻿/, '');
-            const lines = csvText.trim().split(/\r?\n|\r/).filter(l => l.trim());
+
+            // ── 分離 [TradeHistory] 區段 ──
+            let holdingsPart = csvText;
+            let tradeHistoryPart = '';
+            const thIdx = csvText.indexOf('[TradeHistory]');
+            if (thIdx >= 0) {
+                holdingsPart = csvText.substring(0, thIdx);
+                tradeHistoryPart = csvText.substring(thIdx + '[TradeHistory]'.length);
+            }
+
+            // ── 解析持倉 ──
+            const lines = holdingsPart.trim().split(/\r?\n|\r/).filter(l => l.trim());
             if (lines.length < 2) {
                 showCsvError('CSV 內容為空或只有標題行');
                 return;
             }
 
-            // 自動偵測標題行並跳過
             const firstLine = lines[0].replace(/"/g, '').toLowerCase();
             const hasHeader = firstLine.includes('symbol') || firstLine.includes('market') || firstLine.includes('quantity');
             const dataLines = hasHeader ? lines.slice(1) : lines;
@@ -2798,10 +2808,30 @@
                 if (isNaN(quantity) || quantity <= 0) { errors.push(`第${i+2}行 ${symbol}：股數無效`); return; }
                 if (isNaN(costPrice) || costPrice <= 0) { errors.push(`第${i+2}行 ${symbol}：成本價無效`); return; }
 
-                rows.push({ id: Date.now() + i, symbol, market, name, quantity, costPrice, currentPrice, addedDate, persist: false });
+                const h = { id: Date.now() + i, symbol, market, name, quantity, costPrice, currentPrice, addedDate, persist: false };
+                // 還原 lots（第 8 欄，JSON）
+                if (cols[7]) { try { const l = JSON.parse(cols[7]); if (Array.isArray(l) && l.length) h.lots = l; } catch(_) {} }
+                rows.push(h);
             });
 
+            // ── 解析已實現損益 ──
+            const importedTrades = [];
+            if (tradeHistoryPart.trim()) {
+                const tLines = tradeHistoryPart.trim().split(/\r?\n|\r/).filter(l => l.trim());
+                const tFirst = (tLines[0] || '').replace(/"/g, '').toLowerCase();
+                const tHasHeader = tFirst.includes('symbol') || tFirst.includes('qty') || tFirst.includes('price');
+                const tDataLines = tHasHeader ? tLines.slice(1) : tLines;
+                tDataLines.forEach(line => {
+                    const c = parseCSVLine(line);
+                    if (!c[0]) return;
+                    let lc = [];
+                    if (c[6]) { try { lc = JSON.parse(c[6]); } catch(_) {} }
+                    importedTrades.push({ symbol: c[0], market: c[1]||'US', qty: parseFloat(c[2])||0, price: parseFloat(c[3])||0, date: c[4]||'', realizedPL: parseFloat(c[5])||0, lotsConsumed: lc });
+                });
+            }
+
             pendingCsvRows = rows;
+            pendingCsvTrades = importedTrades;
             if (rows.length > 0) {
                 // 自動匯入，不需要按確認鍵
                 confirmCsvImport();
