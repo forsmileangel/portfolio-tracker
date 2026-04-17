@@ -2258,8 +2258,8 @@
         async function gistPush() {
             const token = document.getElementById('gist-token')?.value?.trim();
             const gistId = document.getElementById('gist-id')?.value?.trim();
-            if (!token) { setGistStatus('❌ 請先填入 GitHub Token', '#ef4444'); return; }
-            if (holdings.length === 0) { setGistStatus('❌ 目前無持倉可推送', '#ef4444'); return; }
+            if (!token) { setGistStatus('❌ 請先填入 GitHub Token', '#ef4444'); showWarnToast('❌ 請先在設定填入 GitHub Token'); return; }
+            if (holdings.length === 0 && deposits.length === 0) { setGistStatus('❌ 目前無資料可推送', '#ef4444'); showWarnToast('❌ 目前無持倉或存款資料可推送'); return; }
 
             setGistStatus('⏳ 推送中...', '#60a5fa');
             const payload = JSON.stringify({
