@@ -171,7 +171,7 @@
         #pieCanvas { max-width: 100%; height: 400px; }
         .csv-file-input-hidden { position:fixed !important; top:-9999px !important; left:-9999px !important; width:1px !important; height:1px !important; opacity:0 !important; overflow:hidden !important; padding:0 !important; border:none !important; }
         /* ── Tab System ── */
-        .tab-btn { background:rgba(8,16,32,0.7); color:#64748b; border:1.5px solid rgba(56,139,253,0.12); border-radius:12px 12px 0 0; padding:0.65rem 2rem; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.25s; letter-spacing:1px; text-transform:none; }
+        .tab-btn { background:rgba(8,16,32,0.7); color:#7e93a6; border:1.5px solid rgba(56,139,253,0.12); border-radius:12px 12px 0 0; padding:0.65rem 2rem; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.25s; letter-spacing:1px; text-transform:none; }
         .tab-btn.active { background:linear-gradient(135deg,rgba(30,58,110,0.45) 0%,rgba(18,38,80,0.35) 100%); color:#93c5fd; border-color:rgba(56,139,253,0.4); border-bottom-color:transparent; }
         .tab-pane { display:none; }
         .tab-pane.active { display:block; }
@@ -379,7 +379,7 @@
             </div>
             <button onclick="fetchLiveRates(this)" style="padding:0.4rem 0.9rem; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.35); border-radius:8px; font-weight:600; font-size:0.82rem; text-transform:none; letter-spacing:0;">↻ 抓即時匯率</button>
             <button onclick="showFxTable(event)" style="padding:0.4rem 0.75rem; background:rgba(96,165,250,0.12); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); border-radius:8px; font-weight:600; font-size:0.82rem; text-transform:none; letter-spacing:0;">≡ 匯率表</button>
-            <span id="rate-source" style="color:#64748b; font-size:0.78rem;"></span>
+            <span id="rate-source" style="color:#7e93a6; font-size:0.78rem;"></span>
         </div>
         <!-- 匯率表彈出視窗 -->
         <div id="fx-table-popup" onclick="hideFxTable()" style="display:none; position:fixed; inset:0; z-index:8888; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
@@ -388,7 +388,7 @@
                     <span id="fx-table-title" style="color:#60a5fa; font-size:1rem; font-weight:700;"><i class="ic">⇄</i> 各幣 → TWD</span>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         <button id="fx-dir-btn" onclick="toggleFxDirection()" style="padding:0.25rem 0.6rem; background:rgba(96,165,250,0.12); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer; text-transform:none; letter-spacing:0;">⇄ 反向</button>
-                        <button onclick="hideFxTable()" style="background:none; border:none; color:#64748b; font-size:1.2rem; cursor:pointer; padding:0; line-height:1;">✕</button>
+                        <button onclick="hideFxTable()" style="background:none; border:none; color:#7e93a6; font-size:1.2rem; cursor:pointer; padding:0; line-height:1;">✕</button>
                     </div>
                 </div>
                 <div id="fx-table-body" style="display:flex; flex-direction:column; gap:0.45rem;"></div>
@@ -404,7 +404,7 @@
             <button onclick="manualPriceReview()" style="flex:1; min-width:140px; padding:0.75rem 1.5rem; background:rgba(56,139,253,0.1); color:#60a5fa; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-weight:600;">✎ 手動輸入報價</button>
         </div>
         <!-- 自動更新狀態列 -->
-        <div id="auto-refresh-status" style="display:none; text-align:right; font-size:0.75rem; color:#64748b; margin-bottom:1.5rem; padding-right:0.25rem;">
+        <div id="auto-refresh-status" style="display:none; text-align:right; font-size:0.75rem; color:#7e93a6; margin-bottom:1.5rem; padding-right:0.25rem;">
             ↻ 每分鐘自動更新 ｜ 最後更新：<span id="auto-refresh-time" style="color:#10b981; font-weight:600;">--:--:--</span>
             ｜ 下次更新：<span id="auto-refresh-countdown" style="color:#60a5fa; font-weight:600;">60</span>s
         </div>
@@ -415,19 +415,19 @@
             <div id="total-assets-bar" style="margin-bottom:1.25rem; padding:0.5rem 0.9rem; background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.2); border-radius:8px; display:none; align-items:center; gap:0.4rem; flex-wrap:wrap;">
                 <span style="color:#22c55e;font-size:0.82rem;font-weight:700;"><i class="ic">◈</i> 總資產</span>
                 <span style="color:#607585;font-size:0.76rem;">(TWD)</span>
-                <span style="color:#64748b;font-size:0.78rem;">　庫存</span>
+                <span style="color:#7e93a6;font-size:0.78rem;">　庫存</span>
                 <span id="ta-stock" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
-                <span style="color:#64748b;font-size:0.78rem;">＋ 現金</span>
+                <span style="color:#7e93a6;font-size:0.78rem;">＋ 現金</span>
                 <span id="ta-cash" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
                 <span id="ta-crypto-wrap" style="display:none; align-items:center; gap:0.4rem;">
-                    <span style="color:#64748b;font-size:0.78rem;">＋ 加密</span>
+                    <span style="color:#7e93a6;font-size:0.78rem;">＋ 加密</span>
                     <span id="ta-crypto" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
                 </span>
                 <span id="ta-moxa-wrap" style="display:none; align-items:center; gap:0.4rem;">
-                    <span style="color:#64748b;font-size:0.78rem;">＋ 未上市</span>
+                    <span style="color:#7e93a6;font-size:0.78rem;">＋ 未上市</span>
                     <span id="ta-moxa" class="mono" style="color:#f1f5f9;font-size:0.85rem;font-weight:700;"></span>
                 </span>
-                <span style="color:#64748b;font-size:0.78rem;">＝</span>
+                <span style="color:#7e93a6;font-size:0.78rem;">＝</span>
                 <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
             </div>
             <!-- 標題列 + 輸入欄 -->
@@ -441,7 +441,7 @@
                     <span onclick="switchTab(7)" style="color:#3b82f6;font-size:0.72rem;cursor:pointer;white-space:nowrap;" title="前往存款頁籤">→ 存款</span>
                     <label id="cash-pie-label" title="勾選後圓餅圖會納入現金部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
                         <input type="checkbox" id="cash-pie-cb" onchange="saveCash(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
-                        <span id="cash-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含現金</span>
+                        <span id="cash-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含現金</span>
                     </label>
                     <!-- 加密列 -->
                     <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">加密（TWD）</span>
@@ -450,7 +450,7 @@
                     <span id="crypto-usdt-hint" class="pv-hint" style="color:#607585; font-size:0.75rem; white-space:nowrap;"></span>
                     <label id="crypto-pie-label" title="勾選後圓餅圖會納入加密倉位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
                         <input type="checkbox" id="crypto-pie-cb" onchange="saveCrypto(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
-                        <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含加密</span>
+                        <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含加密</span>
                     </label>
                     <!-- MOXA 列 -->
                     <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">未上市股票（TWD）</span>
@@ -459,7 +459,7 @@
                     <span></span>
                     <label id="moxa-pie-label" title="勾選後圓餅圖會納入未上市股票部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
                         <input type="checkbox" id="moxa-pie-cb" onchange="saveMoxa(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
-                        <span id="moxa-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含未上市</span>
+                        <span id="moxa-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含未上市</span>
                     </label>
                 </div>
             </div>
@@ -477,7 +477,7 @@
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.5rem;">
                 <div style="display:flex; gap:0; border-radius:12px; overflow:hidden; border:2px solid rgba(148,163,184,0.15); width:fit-content;">
                     <button onclick="setTradeType('buy')" id="buy-btn" style="padding:0.6rem 2rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 買入</button>
-                    <button onclick="setTradeType('sell')" id="sell-btn" style="padding:0.6rem 2rem; background:rgba(15,30,60,0.6); color:#64748b; font-weight:700; font-size:1rem;">▼ 賣出</button>
+                    <button onclick="setTradeType('sell')" id="sell-btn" style="padding:0.6rem 2rem; background:rgba(15,30,60,0.6); color:#7e93a6; font-weight:700; font-size:1rem;">▼ 賣出</button>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
                     <button onclick="undoLastAction()" title="還原上一步" style="padding:0.45rem 0.75rem; background:rgba(56,139,253,0.1); color:#60a5fa; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0; cursor:pointer;">↩ 上一步 <span id="undo-count">(0)</span></button>
@@ -485,7 +485,7 @@
                     <button onclick="gistPush()" title="上傳庫存至雲端" style="padding:0.45rem 0.75rem; background:rgba(56,139,253,0.1); color:#60a5fa; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0; cursor:pointer;">⬆ 上傳庫存</button>
                 </div>
             </div>
-            <p id="trade-hint" style="color:#64748b; font-size:0.85rem; margin-bottom:1.5rem; margin-top:-0.5rem;">買入時若代碼已存在將自動加倉並重算加權平均成本</p>
+            <p id="trade-hint" style="color:#7e93a6; font-size:0.85rem; margin-bottom:1.5rem; margin-top:-0.5rem;">買入時若代碼已存在將自動加倉並重算加權平均成本</p>
             <div id="trade-form-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
                 <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">市場</label><select id="form-market" onchange="onMarketChange(this.value)"><option value="US">🇺🇸 美股</option><option value="TW">🇹🇼 台股</option><option value="HK">🇭🇰 港股</option></select></div>
                 <div><label style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">股票代碼 *</label><input id="form-symbol" type="text" placeholder="例: AAPL, 2330, 0700" style="text-transform:uppercase;" oninput="onSymbolInput(this.value)"></div>
@@ -501,7 +501,7 @@
                 <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0;"><i class="ic">≡</i> 持倉一覽</h2>
                 <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
                     <button id="toggle-table-btn" onclick="toggleTableVisible()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">▲ 隱藏</button>
-                    <div style="display:flex; gap:1rem; font-size:0.8rem; color:#64748b;"><span>USD/TWD <strong id="rate-usd-twd" style="color:#60a5fa;">31.50</strong></span><span>HKD/TWD <strong id="rate-hkd-twd" style="color:#60a5fa;">4.0500</strong></span></div>
+                    <div style="display:flex; gap:1rem; font-size:0.8rem; color:#7e93a6;"><span>USD/TWD <strong id="rate-usd-twd" style="color:#60a5fa;">31.50</strong></span><span>HKD/TWD <strong id="rate-hkd-twd" style="color:#60a5fa;">4.0500</strong></span></div>
                 </div>
             </div>
             <div id="table-body-wrapper" style="overflow-x:auto; overflow-y:auto; max-height:65vh;"><table id="holdings-table" style="width:100%; border-collapse:collapse; font-size:0.9rem;"></table></div>
@@ -516,7 +516,7 @@
                     <button id="toggle-all-btn" onclick="toggleAllHoldings()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">展開全部 ▼</button>
                     <label id="persist-all-label" title="打勾後所有持倉下次開啟仍保留" style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;user-select:none;padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;">
                         <input type="checkbox" id="persist-all-checkbox" onchange="toggleAllPersist(this.checked)" style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">
-                        <span id="persist-all-text" style="font-size:0.85rem;font-weight:600;color:#64748b;"><i class="ic">◻</i> 下次開啟仍保留</span>
+                        <span id="persist-all-text" style="font-size:0.85rem;font-weight:600;color:#7e93a6;"><i class="ic">◻</i> 下次開啟仍保留</span>
                     </label>
                 </div>
             </div>
@@ -580,7 +580,7 @@
                 <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; user-select:none;">
                     <input type="checkbox" id="sheet-url-remember" onchange="saveSheetUrlSetting()"
                         style="width:15px; height:15px; accent-color:#3b82f6; cursor:pointer;">
-                    <span id="sheet-url-remember-label" style="font-size:0.8rem; color:#64748b;">下次開啟記住此路徑</span>
+                    <span id="sheet-url-remember-label" style="font-size:0.8rem; color:#7e93a6;">下次開啟記住此路徑</span>
                 </label>
             </div>
             <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
@@ -609,9 +609,9 @@
                 <button onclick="setBackendUrl()" id="backend-btn" style="padding:0.7rem 1rem; background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.35); border-radius:10px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0;">⚙ 後端設定</button>
                 <button onclick="forceUpdatePWA()" style="padding:0.7rem 1rem; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.35); border-radius:10px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0;">↻ 強制更新PWA</button>
                 <button onclick="runDiagnostics()" style="padding:0.7rem 1rem; background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.35); border-radius:10px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0;">⊙ 連線診斷</button>
-                <span id="fund-source-time" style="font-size:0.78rem; color:#64748b;"></span>
-                <span id="tech-source-time" style="font-size:0.78rem; color:#64748b;"></span>
-                <span style="color:#64748b; font-size:0.78rem; margin-left:0.5rem;">槓桿 ETF 自動查詢原型股票</span>
+                <span id="fund-source-time" style="font-size:0.78rem; color:#7e93a6;"></span>
+                <span id="tech-source-time" style="font-size:0.78rem; color:#7e93a6;"></span>
+                <span style="color:#7e93a6; font-size:0.78rem; margin-left:0.5rem;">槓桿 ETF 自動查詢原型股票</span>
             </div>
         </div>
 
@@ -645,7 +645,7 @@
                             </tr>
                         </thead>
                         <tbody id="fund-tbody">
-                            <tr><td colspan="16" style="text-align:center; padding:3rem; color:#64748b;">點擊「更新分析數據」開始載入</td></tr>
+                            <tr><td colspan="16" style="text-align:center; padding:3rem; color:#7e93a6;">點擊「更新分析數據」開始載入</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -674,7 +674,7 @@
                             </tr>
                         </thead>
                         <tbody id="tech-tbody">
-                            <tr><td colspan="11" style="text-align:center; padding:3rem; color:#64748b;">點擊「更新分析數據」開始載入</td></tr>
+                            <tr><td colspan="11" style="text-align:center; padding:3rem; color:#7e93a6;">點擊「更新分析數據」開始載入</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -688,14 +688,14 @@
                     <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0;"><i class="ic">▣</i> 近期財報分析 &amp; 券商評級</h2>
                     <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
                         <button onclick="loadEarningsAnalysis(true)" id="earnings-btn" style="padding:0.6rem 1.2rem; background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%); color:#fff; font-weight:700; border-radius:10px; font-size:0.88rem; text-transform:none; letter-spacing:0;">↻ 載入分析</button>
-                        <span id="earnings-status" style="font-size:0.78rem; color:#64748b;"></span>
+                        <span id="earnings-status" style="font-size:0.78rem; color:#7e93a6;"></span>
                     </div>
                 </div>
-                <div style="margin-bottom:0.75rem; padding:0.6rem 1rem; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:8px; font-size:0.8rem; color:#64748b;">
+                <div style="margin-bottom:0.75rem; padding:0.6rem 1rem; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:8px; font-size:0.8rem; color:#7e93a6;">
                     ※ 顯示各持倉標的近4季EPS財報（預估 vs 實際 / 驚喜幅度）、毛利率、營益率、券商評級共識、近30天評級異動及目標股價。
                 </div>
                 <div id="earnings-list">
-                    <div style="text-align:center; padding:3rem; color:#64748b;">點擊「載入分析」開始抓取</div>
+                    <div style="text-align:center; padding:3rem; color:#7e93a6;">點擊「載入分析」開始抓取</div>
                 </div>
             </div>
         </div><!-- /tab-pane-4 -->
@@ -707,17 +707,17 @@
                     <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0;"><i class="ic">◎</i> 過去7天總體經濟數據</h2>
                     <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
                         <button onclick="loadMacro(true)" id="macro-btn" style="padding:0.6rem 1.2rem; background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%); color:#fff; font-weight:700; border-radius:10px; font-size:0.88rem; text-transform:none; letter-spacing:0;">↻ 更新總經數據</button>
-                        <span id="macro-status" style="font-size:0.78rem; color:#64748b;"></span>
+                        <span id="macro-status" style="font-size:0.78rem; color:#7e93a6;"></span>
                     </div>
                 </div>
                 <div id="macro-perf">
-                    <div style="text-align:center; padding:3rem; color:#64748b;">點擊「更新總經數據」開始載入</div>
+                    <div style="text-align:center; padding:3rem; color:#7e93a6;">點擊「更新總經數據」開始載入</div>
                 </div>
             </div>
             <div class="glass-card" style="padding:1.5rem 2rem;">
                 <h3 style="color:#f1f5f9; font-size:1rem; font-weight:600; margin:0 0 0.75rem 0;"><i class="ic">◆</i> 近期標的相關新聞</h3>
                 <div id="macro-news">
-                    <div style="text-align:center; padding:2rem; color:#64748b;">載入中...</div>
+                    <div style="text-align:center; padding:2rem; color:#7e93a6;">載入中...</div>
                 </div>
             </div>
         </div><!-- /tab-pane-5 -->
@@ -726,7 +726,7 @@
         <div id="tab-pane-6" class="tab-pane" style="padding-top:1rem;">
             <div class="glass-card" style="padding:2.5rem 2rem; text-align:center; margin-top:0.5rem;">
                 <div style="font-size:2.2rem; color:#1e3a5f; margin-bottom:0.75rem;">◈</div>
-                <div style="color:#64748b; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
+                <div style="color:#7e93a6; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
                 <div style="color:#607585; font-size:0.82rem; margin-top:0.35rem;">完成賣出交易後將自動記錄於此</div>
             </div>
         </div><!-- /tab-pane-6 -->
@@ -750,7 +750,7 @@
                 style="display:block; border:2px dashed rgba(59,130,246,0.4); border-radius:14px; padding:2rem; text-align:center; cursor:pointer; background:rgba(15,30,60,0.4); transition:all 0.2s; margin-bottom:1rem; flex-shrink:0;">
                 <div style="width:56px;height:56px;border-radius:14px;background:rgba(96,165,250,0.1);border:1.5px solid rgba(96,165,250,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;font-size:1.5rem;color:#60a5fa;">↑</div>
                 <div style="color:#e2e8f0; font-weight:600; margin-bottom:0.25rem;">拖曳 CSV 到這裡，或點擊選擇檔案</div>
-                <div style="color:#64748b; font-size:0.82rem;">支援「匯出持倉數據」產生的 CSV（含已實現損益紀錄）</div>
+                <div style="color:#7e93a6; font-size:0.82rem;">支援「匯出持倉數據」產生的 CSV（含已實現損益紀錄）</div>
                 <input id="csv-file-input" type="file" accept=".csv,text/csv" class="csv-file-input-hidden" onchange="handleCsvFile(this.files[0])">
             </label>
             <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.82rem; color:#94a3b8; flex-shrink:0;">
@@ -1296,7 +1296,7 @@
                         <span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總投入</span>
                     </div>
                     <div class="mono stat-amount" style="color:#60a5fa;">${pv(currency==='USD' ? fmtAmt(stats.totalCost,'USD') : fmtAmt(stats.totalCostTWD,'TWD'))}</div>
-                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalCostTWD,'TWD') : fmtAmt(stats.totalCost,'USD'))}</div>
+                    <div class="mono stat-amount-sub" style="color:#7e93a6;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalCostTWD,'TWD') : fmtAmt(stats.totalCost,'USD'))}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
@@ -1304,7 +1304,7 @@
                         <span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">總市值</span>
                     </div>
                     <div class="mono stat-amount" style="color:#3b82f6;">${pv(currency==='USD' ? fmtAmt(stats.totalValue,'USD') : fmtAmt(stats.totalValueTWD,'TWD'))}</div>
-                    <div class="mono stat-amount-sub" style="color:#64748b;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalValueTWD,'TWD') : fmtAmt(stats.totalValue,'USD'))}</div>
+                    <div class="mono stat-amount-sub" style="color:#7e93a6;margin-top:0.4rem;">${pv(currency==='USD' ? fmtAmt(stats.totalValueTWD,'TWD') : fmtAmt(stats.totalValue,'USD'))}</div>
                 </div>
                 <div class="stat-card">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:nowrap;">
@@ -1357,7 +1357,7 @@
                 const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
 
                 // 昨日漲跌
-                let prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#64748b;">-</td>';
+                let prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
                 if (h.prevDayChangePct != null) {
                     const pp = h.prevDayChangePct >= 0;
                     prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
@@ -1365,8 +1365,8 @@
                         + (pp?'+':'') + h.prevDayChangePct.toFixed(2) + '%</span></td>';
                 }
                 // 當日漲跌幅 & 當日損益
-                let dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#64748b;">-</td>';
-                let dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#64748b;">-</td>';
+                let dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
+                let dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
                 if (h.dayChangePct != null) {
                     const cp = h.dayChangePct >= 0;
                     dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
@@ -1379,7 +1379,7 @@
                 }
 
                 return `<tr data-symbol="${h.symbol}" style="background:${bg};">
-                    <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#64748b;">${h.name||''}</small></td>
+                    <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#7e93a6;">${h.name||''}</small></td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;color:#94a3b8;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
@@ -1482,7 +1482,7 @@
                     <div style="display:flex; align-items:center; gap:0.6rem; flex-shrink:0;">
                         <span class="mono" style="font-size:0.88rem;font-weight:600;color:${isProfit?'#10b981':'#ef4444'};">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span>
                         ${dayInfo ? '<span class="mono" style="font-size:0.82rem;color:'+dayInfo.col+';">'+dayInfo.dpStr+'</span>' : ''}
-                        <span id="holding-chevron-${h.id}" style="color:#64748b;font-size:0.8rem;margin-left:0.25rem;">${isExpanded?'▲':'▶'}</span>
+                        <span id="holding-chevron-${h.id}" style="color:#7e93a6;font-size:0.8rem;margin-left:0.25rem;">${isExpanded?'▲':'▶'}</span>
                     </div>
                 </div>
                 <div class="holding-body" id="holding-body-${h.id}" style="display:${isExpanded?'block':'none'};">
@@ -1493,9 +1493,9 @@
                                 <span style="font-size:0.8rem;font-weight:600;color:${h.persist ? '#10b981' : '#64748b'};">${h.persist ? '✓ 下次保留' : '下次不保留'}</span>
                             </label>
                             <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.4rem;">
-                                <span style="color:#64748b;font-size:0.85rem;">持有</span>
+                                <span style="color:#7e93a6;font-size:0.85rem;">持有</span>
                                 <input type="number" step="0.01" value="${h.quantity}" onchange="updateQuantity(${h.id}, this.value)" style="width:100px;padding:0.25rem 0.5rem;font-size:0.85rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:4px;color:#e2e8f0;">
-                                <span style="color:#64748b;font-size:0.85rem;">股</span>
+                                <span style="color:#7e93a6;font-size:0.85rem;">股</span>
                             </div>
                         </div>
                         <div style="flex:1; min-width:250px;">
@@ -1508,11 +1508,11 @@
                         </div>
                         <div style="display:flex; align-items:center; gap:1rem;">
                             <div style="text-align:right;">
-                                <div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">總損益</div>
+                                <div style="color:#7e93a6;font-size:0.78rem;margin-bottom:0.15rem;">總損益</div>
                                 <div class="mono" style="font-size:1.1rem;font-weight:600;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':'-'}${priceCcy}${Math.abs(pnl).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>
                                 <div class="mono" style="font-size:0.95rem;margin-top:0.15rem;"><span class="${isProfit?'profit':'loss'}">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span></div>
                                 ${dayInfo ? '<div style="margin-top:0.4rem;padding-top:0.35rem;border-top:1px solid rgba(255,255,255,0.08);">'
-                                    + '<div style="color:#64748b;font-size:0.78rem;margin-bottom:0.15rem;">今日損益</div>'
+                                    + '<div style="color:#7e93a6;font-size:0.78rem;margin-bottom:0.15rem;">今日損益</div>'
                                     + '<div class="mono" style="font-size:0.9rem;color:'+dayInfo.col+';">'
                                     + '<span style="padding:0.15rem 0.4rem;border-radius:4px;background:'+dayInfo.bgc+';">'+(dayInfo.cp?'+':'')+h.dayChangePct.toFixed(2)+'%</span>'
                                     + '&nbsp;'+dayInfo.dpStr+'</div></div>' : ''}
@@ -1523,7 +1523,7 @@
                 </div>
                 ${(h.lots && h.lots.length > 0) ? `
                 <div style="margin:0.5rem 0.75rem 0.65rem 1rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.07);">
-                    <div style="color:#64748b; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; margin-bottom:0.35rem;">成本批次（FIFO 順序）</div>
+                    <div style="color:#7e93a6; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; margin-bottom:0.35rem;">成本批次（FIFO 順序）</div>
                     ${h.lots.map((lot, li) => {
                         const d  = new Date(lot.date);
                         const ds = isNaN(d) ? '' : d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
@@ -1531,7 +1531,7 @@
                         return `<div style="display:flex;gap:0.65rem;align-items:center;font-size:0.77rem;padding:0.18rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
                             <span style="color:#607585;min-width:78px;">${ds}</span>
                             <span style="color:#e2e8f0;">${parseFloat(lot.qty.toFixed(4)).toLocaleString('en-US',{maximumFractionDigits:4})} 股</span>
-                            <span style="color:#64748b;">@</span>
+                            <span style="color:#7e93a6;">@</span>
                             <span style="color:#60a5fa;">${priceCcy}${parseFloat(lot.cost.toFixed(4))}</span>
                             <span style="color:#607585;margin-left:auto;">成本 ${priceCcy}${lotTotal}</span>
                         </div>`;
@@ -1945,7 +1945,7 @@
                     <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem 1rem;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                         <div>
                             <div style="color:#e2e8f0;font-weight:600;font-size:0.9rem;">${d.bank}</div>
-                            <div style="color:#64748b;font-size:0.75rem;">${d.currency}</div>
+                            <div style="color:#7e93a6;font-size:0.75rem;">${d.currency}</div>
                         </div>
                         <div class="mono" style="color:#f1f5f9;font-size:0.92rem;text-align:right;">${pv(fmtAmt(d.amount, d.currency))}</div>
                         <div style="text-align:right;">${d.currency !== 'TWD' ? `<span class="mono" style="color:#607585;font-size:0.78rem;">${pv('≈ NT$' + fmtN(twdVal))}</span>` : ''}</div>
@@ -1954,7 +1954,7 @@
                 }).join('');
             const totalRow = deposits.length > 0 ? `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0 0;margin-top:0.15rem;border-top:1px solid rgba(255,255,255,0.08);">
-                    <span style="color:#64748b;font-size:0.82rem;">合計（TWD）</span>
+                    <span style="color:#7e93a6;font-size:0.82rem;">合計（TWD）</span>
                     <span class="mono" style="color:#60a5fa;font-size:1rem;font-weight:700;">${pv('NT$ ' + fmtN(totalTWD))}</span>
                 </div>` : '';
             pane.innerHTML = `
@@ -1967,7 +1967,7 @@
                             <button onclick="gistPush()" style="padding:0.32rem 0.7rem;background:rgba(56,139,253,0.1);border:1px solid rgba(56,139,253,0.3);border-radius:8px;color:#60a5fa;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">⬆ 上傳雲端</button>
                         </div>
                     </div>
-                    <div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">存款合計（約合 TWD）</div>
+                    <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">存款合計（約合 TWD）</div>
                     <div class="mono" style="font-size:1.9rem;font-weight:800;color:#60a5fa;line-height:1;">${pv('NT$ ' + fmtN(totalTWD))}</div>
                     <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">此金額自動連動至持倉管理的現金欄位</div>
                 </div>
@@ -2031,7 +2031,7 @@
                     <div style="display:flex;align-items:center;gap:0.55rem;">
                         <i class="ic" style="color:#60a5fa;">◎</i>
                         <span style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${w.symbol}</span>
-                        <span style="color:#64748b;font-size:0.72rem;padding:0.1rem 0.38rem;background:rgba(56,139,253,0.1);border:1px solid rgba(56,139,253,0.18);border-radius:4px;">${w.market}</span>
+                        <span style="color:#7e93a6;font-size:0.72rem;padding:0.1rem 0.38rem;background:rgba(56,139,253,0.1);border:1px solid rgba(56,139,253,0.18);border-radius:4px;">${w.market}</span>
                     </div>
                     <button onclick="removeFromWatchlist('${w.symbol}')" title="移除" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;padding:0.18rem 0.48rem;font-size:0.78rem;cursor:pointer;line-height:1.4;text-transform:none;letter-spacing:0;">✕</button>
                 </div>`).join('');
@@ -2091,7 +2091,7 @@
             if (tradeHistory.length === 0) {
                 pane.innerHTML = `<div class="glass-card" style="padding:2.5rem 2rem; text-align:center; margin-top:0.5rem;">
                     <div style="font-size:2.2rem; color:#1e3a5f; margin-bottom:0.75rem;">◈</div>
-                    <div style="color:#64748b; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
+                    <div style="color:#7e93a6; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
                     <div style="color:#607585; font-size:0.82rem; margin-top:0.35rem;">完成賣出交易後將自動記錄於此</div>
                 </div>`;
                 return;
@@ -2128,7 +2128,7 @@
             const ccyBtnClr = showTWD ? '#10b981' : '#60a5fa';
             const ccyBtnBdr = showTWD ? 'rgba(16,185,129,0.35)' : 'rgba(56,139,253,0.25)';
             const inpStyle  = 'width:118px;padding:0.32rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;';
-            const lblStyle  = 'color:#64748b;font-size:0.75rem;white-space:nowrap;';
+            const lblStyle  = 'color:#7e93a6;font-size:0.75rem;white-space:nowrap;';
             const summaryHtml = `
             <div class="glass-card" style="padding:1.25rem 1.5rem; margin-bottom:1rem;">
                 <!-- 標題列 -->
@@ -2142,12 +2142,12 @@
                 <!-- 累計損益（標題正下方） -->
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
-                        <div style="color:#64748b; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
+                        <div style="color:#7e93a6; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
                         <div class="mono" style="font-size:1.9rem; font-weight:800; color:${totColor}; line-height:1;">${pv(`${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}`)}</div>
                     </div>
-                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totUS)}$${fmt2(totUS)}`)}</div></div>` : ''}
-                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totTW)}NT$${fmt2(totTW)}`)}</div></div>` : ''}
-                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totHK)}HK$${fmt2(totHK)}`)}</div></div>` : ''}
+                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totUS)}$${fmt2(totUS)}`)}</div></div>` : ''}
+                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totTW)}NT$${fmt2(totTW)}`)}</div></div>` : ''}
+                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totHK)}HK$${fmt2(totHK)}`)}</div></div>` : ''}
                 </div>
                 <!-- 篩選列：桌機一行，手機自動換兩行 -->
                 <div style="display:flex; gap:0.5rem 0.75rem; align-items:center; flex-wrap:wrap;">
@@ -2170,7 +2170,7 @@
                             <option value="5y">過去 5 年</option>
                         </select>
                         <button onclick="_toggleRealizedCcy()" style="padding:0.32rem 0.65rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:7px;color:${ccyBtnClr};font-size:0.78rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
-                        <span style="color:#64748b;font-size:0.78rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
+                        <span style="color:#7e93a6;font-size:0.78rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
                     </div>
                 </div>
             </div>`;
@@ -2191,7 +2191,7 @@
                     const tP  = tPL >= 0;
                     const lotsDesc = (t.lotsConsumed||[]).map(l => `${parseFloat(l.qty.toFixed(4))}@${nativeCcy}${parseFloat(l.cost.toFixed(4))}`).join(' + ') || '-';
                     return `<div style="display:grid;grid-template-columns:90px 1fr 1fr 1fr auto;gap:0.35rem 0.65rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.79rem;">
-                        <span style="color:#64748b;">${ds}</span>
+                        <span style="color:#7e93a6;">${ds}</span>
                         <span style="color:#e2e8f0;">賣 ${parseFloat(t.qty.toFixed(4)).toLocaleString('en-US',{maximumFractionDigits:4})} 股</span>
                         <span style="color:#60a5fa;">${nativeCcy}${parseFloat(t.price.toFixed(4))} / 股</span>
                         <span style="color:#607585;font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${lotsDesc}">${lotsDesc}</span>
@@ -2204,11 +2204,11 @@
                         <div style="display:flex;align-items:center;gap:0.6rem;">
                             <span class="market-badge">${flag} ${s.market}</span>
                             <span class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:700;">${s.symbol}</span>
-                            <span style="color:#64748b;font-size:0.76rem;">${s.trades.length} 筆</span>
+                            <span style="color:#7e93a6;font-size:0.76rem;">${s.trades.length} 筆</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:0.75rem;">
                             <span class="mono" style="font-weight:700;font-size:0.98rem;color:${color};">${pv(`${fmtSign(dispPL)}${dispCcy}${fmt2(dispPL)}`)}</span>
-                            <span style="color:#64748b;font-size:0.78rem;">${expd?'▲':'▶'}</span>
+                            <span style="color:#7e93a6;font-size:0.78rem;">${expd?'▲':'▶'}</span>
                         </div>
                     </div>
                     ${expd ? `<div style="padding:0.4rem 1.25rem 0.85rem;border-top:1px solid rgba(255,255,255,0.06);background:rgba(6,13,26,0.35);">
@@ -3254,7 +3254,7 @@
             const timeEl = document.getElementById('fx-table-time');
             const title  = document.getElementById('fx-table-title');
             if (!extra || Object.keys(extra).length === 0) {
-                body.innerHTML = '<div style="color:#64748b;font-size:0.85rem;">尚無資料，請先按「抓即時匯率」</div>';
+                body.innerHTML = '<div style="color:#7e93a6;font-size:0.85rem;">尚無資料，請先按「抓即時匯率」</div>';
                 return;
             }
             const toTwd = _fxDirection === 'to_twd';
@@ -3266,7 +3266,7 @@
                 const digitsR = toTwd ? (dec > 4 ? 4 : dec) : (value < 0.01 ? 6 : value < 1 ? 4 : 2);
                 const display = value.toFixed(digitsR);
                 const left    = toTwd ? `1 ${code} <span style="color:#607585;font-size:0.78rem;">(${name})</span>` : `1 TWD`;
-                const right   = toTwd ? `${display} <span style="color:#64748b;font-size:0.76rem;">TWD</span>` : `${display} <span style="color:#64748b;font-size:0.76rem;">${code}</span>`;
+                const right   = toTwd ? `${display} <span style="color:#7e93a6;font-size:0.76rem;">TWD</span>` : `${display} <span style="color:#7e93a6;font-size:0.76rem;">${code}</span>`;
                 return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                     <span style="color:#94a3b8;font-size:0.85rem;white-space:nowrap;">${left}</span>
                     <span class="mono" style="color:#f1f5f9;font-weight:600;font-size:0.9rem;">${right}</span>
@@ -3294,7 +3294,7 @@
                 _fxLastData = { extra: cached.extra, ts: cached.ts, fromCache: true };
                 _renderFxTable(cached.extra, cached.ts, true);
             } else {
-                document.getElementById('fx-table-body').innerHTML = '<div style="color:#64748b;font-size:0.85rem;">載入中...</div>';
+                document.getElementById('fx-table-body').innerHTML = '<div style="color:#7e93a6;font-size:0.85rem;">載入中...</div>';
             }
 
             // 背景靜默更新（快取未過期時直接回傳，不打 API）
@@ -3418,7 +3418,7 @@
             if (!kd) return '<span class="kd-neu">-</span>';
             const label = kd.crossUp ? '▲ 黃金交叉' : kd.crossDown ? '▼ 死亡交叉' : (parseFloat(kd.k) > parseFloat(kd.d) ? 'K>D' : 'K<D');
             const cls   = kd.crossUp ? 'kd-up' : kd.crossDown ? 'kd-down' : 'kd-neu';
-            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#64748b;font-size:0.75rem;">K:' + kd.k + ' D:' + kd.d + '</small>';
+            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#7e93a6;font-size:0.75rem;">K:' + kd.k + ' D:' + kd.d + '</small>';
         }
 
         // ==================== MACD Calculation (12/26/9 EMA) ====================
@@ -3451,7 +3451,7 @@
             if (!m) return '<span class="kd-neu">-</span>';
             const label = m.crossUp ? '▲ 黃金交叉' : m.crossDown ? '▼ 死亡交叉' : (m.above ? 'MACD>0' : 'MACD<0');
             const cls   = m.crossUp ? 'kd-up' : m.crossDown ? 'kd-down' : 'kd-neu';
-            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#64748b;font-size:0.75rem;">M:' + m.macd + ' S:' + m.signal + '</small>';
+            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#7e93a6;font-size:0.75rem;">M:' + m.macd + ' S:' + m.signal + '</small>';
         }
 
         // ==================== RSI Calculation (14-period) ====================
@@ -3478,7 +3478,7 @@
             if (!r) return '<span class="rsi-neu">-</span>';
             const cls   = r.overbought ? 'rsi-ob' : r.oversold ? 'rsi-os' : 'rsi-neu';
             const label = r.overbought ? '⚠ 超買' : r.oversold ? '⚡ 超賣' : '中性';
-            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#64748b;font-size:0.75rem;">RSI:' + r.rsi + '</small>';
+            return '<span class="' + cls + '">' + label + '</span><br><small style="color:#7e93a6;font-size:0.75rem;">RSI:' + r.rsi + '</small>';
         }
 
         // ==================== 技術面綜合評價 ====================
@@ -3518,7 +3518,7 @@
         function techSummaryBadge(d) {
             const score = calcTechScore(d);
             const s = score.toFixed(1);
-            const small = '<br><small style="color:#64748b;font-size:0.72rem;">分數:' + s + '</small>';
+            const small = '<br><small style="color:#7e93a6;font-size:0.72rem;">分數:' + s + '</small>';
             if (score >= 10) return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(16,185,129,0.2);color:#10b981;font-weight:700;">⬆ 強烈買進</span>' + small;
             if (score >= 4)  return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(16,185,129,0.1);color:#6ee7b7;font-weight:700;">↑ 建議買進</span>' + small;
             if (score >= -4) return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(100,116,139,0.15);color:#94a3b8;font-weight:700;">→ 中性觀望</span>' + small;
@@ -4038,8 +4038,8 @@
                 '<tr id="arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_') + '" style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
                 '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
                     (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
-                    (r.isWatchlist ? '<br><small style="color:#64748b;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>' +
-                '<td colspan="' + colspan + '" style="text-align:center; color:#64748b; font-size:0.82rem; padding:0.5rem;">' + msg + '</td></tr>';
+                    (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>' +
+                '<td colspan="' + colspan + '" style="text-align:center; color:#7e93a6; font-size:0.82rem; padding:0.5rem;">' + msg + '</td></tr>';
 
             // ── 判斷快取狀態（基本面4hr / 技術面1hr）──
             const fundFresh = !forceRefresh && _isFundFresh();
@@ -4179,7 +4179,7 @@
                 if (k == null) return '<span class="kd-neu">-</span>';
                 const up = cross==='golden', dn = cross==='death';
                 const lbl = up ? '▲ 黃金交叉' : dn ? '▼ 死亡交叉' : (parseFloat(k)>parseFloat(dv) ? 'K>D' : 'K<D');
-                return '<span class="'+(up?'kd-up':dn?'kd-down':'kd-neu')+'">'+ lbl +'</span><br><small style="color:#64748b;font-size:0.75rem;">K:'+parseFloat(k).toFixed(1)+' D:'+parseFloat(dv).toFixed(1)+'</small>';
+                return '<span class="'+(up?'kd-up':dn?'kd-down':'kd-neu')+'">'+ lbl +'</span><br><small style="color:#7e93a6;font-size:0.75rem;">K:'+parseFloat(k).toFixed(1)+' D:'+parseFloat(dv).toFixed(1)+'</small>';
             };
             const fundRowsHtml = [], techRowsHtml = [];
             rows.forEach(r => {
@@ -4187,14 +4187,14 @@
                 const d      = allResults[r.query];
                 const symTd  = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
                     (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
-                    (r.isWatchlist ? '<br><small style="color:#64748b;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
+                    (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
                 const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
 
 
                 if (d?._pending) {
                     const msg = '⏳ 資料同步中，待下次 Actions 更新';
-                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="15" style="color:#64748b;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
-                    techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#64748b;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
+                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="15" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
+                    techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
                     return;
                 }
                 if (!d || d._error) {
@@ -4523,7 +4523,7 @@
                                border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
                         略過</button>
                 </div>
-                <div style="color:#64748b;font-size:0.78rem;">更新後基本面資料將於下次排程自動補齊。</div>`;
+                <div style="color:#7e93a6;font-size:0.78rem;">更新後基本面資料將於下次排程自動補齊。</div>`;
             // 移除舊的通知
             document.getElementById('missing-fund-notice')?.remove();
             document.body.appendChild(notice);
@@ -4922,7 +4922,7 @@
                 const isProxy = !!LEVERAGED_MAP[h.symbol];
                 const isWatchlist = !!h._isWatchlist;
                 const proxyLabel = isProxy ? `<span style="color:#3b82f6;font-size:0.74rem;font-weight:600;"> (查詢: ${sym})</span>` : '';
-                const watchlistLabel = isWatchlist ? `<span style="color:#64748b;font-size:0.72rem;margin-left:0.4rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.35rem;border-radius:4px;border:1px solid rgba(56,139,253,0.15);">觀察中</span>` : '';
+                const watchlistLabel = isWatchlist ? `<span style="color:#7e93a6;font-size:0.72rem;margin-left:0.4rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.35rem;border-radius:4px;border:1px solid rgba(56,139,253,0.15);">觀察中</span>` : '';
 
                 if (!qs) return '';
                 if (qs._error) return `
@@ -4993,7 +4993,7 @@
                 // EPS 預估行（curQ / nextQ / curY / nextY）
                 const epsRow = (fnd.eps_cur_q != null || fnd.eps_next_q != null || fnd.eps_cur_y != null || fnd.eps_next_y != null) ? `
                     <div style="margin-top:0.5rem;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.06);">
-                        <div style="color:#64748b;font-size:0.72rem;margin-bottom:0.3rem;">EPS 預估</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.3rem;">EPS 預估</div>
                         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                             ${fnd.eps_ttm    != null ? `<span style="font-size:0.76rem;color:#e2e8f0;">TTM <b style="color:#60a5fa;">${fmtV(fnd.eps_ttm)}</b></span>` : ''}
                             ${fnd.eps_cur_q  != null ? `<span style="font-size:0.76rem;color:#e2e8f0;">本季 <b style="color:#60a5fa;">${fmtV(fnd.eps_cur_q)}</b></span>` : ''}
@@ -5028,8 +5028,8 @@
                                     title="${isProxy?sym+'昨收':'目前股價'} $${fmtTgt(refPrice)}"></div>
                             </div>
                             <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
-                                <span style="color:#64748b;font-size:0.69rem;">低 $${fmtTgt(tgtLow)}${upsideLow!=null?' ('+( parseFloat(upsideLow)>=0?'+':'')+upsideLow+'%)':''}</span>
-                                <span style="color:#64748b;font-size:0.69rem;">高 $${fmtTgt(tgtHigh)}${upsideHigh!=null?' ('+(parseFloat(upsideHigh)>=0?'+':'')+upsideHigh+'%)':''}</span>
+                                <span style="color:#7e93a6;font-size:0.69rem;">低 $${fmtTgt(tgtLow)}${upsideLow!=null?' ('+( parseFloat(upsideLow)>=0?'+':'')+upsideLow+'%)':''}</span>
+                                <span style="color:#7e93a6;font-size:0.69rem;">高 $${fmtTgt(tgtHigh)}${upsideHigh!=null?' ('+(parseFloat(upsideHigh)>=0?'+':'')+upsideHigh+'%)':''}</span>
                             </div>
                         </div>`;
                     }
@@ -5044,7 +5044,7 @@
                         <!-- 主要數字行 -->
                         <div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;">
                             <span style="font-size:1.15rem;font-weight:800;color:#60a5fa;letter-spacing:-0.5px;">$${fmtTgt(tgtMean)}</span>
-                            ${tgtMed != null && Math.abs(tgtMed - tgtMean) > 0.5 ? `<span style="color:#64748b;font-size:0.74rem;">中位 $${fmtTgt(tgtMed)}</span>` : ''}
+                            ${tgtMed != null && Math.abs(tgtMed - tgtMean) > 0.5 ? `<span style="color:#7e93a6;font-size:0.74rem;">中位 $${fmtTgt(tgtMed)}</span>` : ''}
                             <span style="padding:0.12rem 0.4rem;border-radius:5px;background:${upsideColor}20;
                                 color:${upsideColor};font-size:0.82rem;font-weight:700;white-space:nowrap;">
                                 ${upside!=null?(parseFloat(upside)>=0?'↑ +':'↓ ')+upside+'%':'—'}
@@ -5077,13 +5077,13 @@
                             <div style="color:#60a5fa;font-size:0.76rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;"><i class="ic">≡</i> 近4季 EPS</div>
                             ${eh.length > 0 ? `<table style="width:100%;border-collapse:collapse;">
                                 <thead><tr style="border-bottom:1px solid rgba(56,139,253,0.15);">
-                                    <th style="padding:0.2rem 0.45rem;text-align:left;color:#64748b;font-size:0.74rem;font-weight:600;">季度</th>
-                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#64748b;font-size:0.74rem;font-weight:600;">預估</th>
-                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#64748b;font-size:0.74rem;font-weight:600;">實際</th>
-                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#64748b;font-size:0.74rem;font-weight:600;">驚喜</th>
+                                    <th style="padding:0.2rem 0.45rem;text-align:left;color:#7e93a6;font-size:0.74rem;font-weight:600;">季度</th>
+                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#7e93a6;font-size:0.74rem;font-weight:600;">預估</th>
+                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#7e93a6;font-size:0.74rem;font-weight:600;">實際</th>
+                                    <th style="padding:0.2rem 0.45rem;text-align:right;color:#7e93a6;font-size:0.74rem;font-weight:600;">驚喜</th>
                                 </tr></thead>
                                 <tbody>${earningsRows}</tbody>
-                            </table>` : '<div style="color:#64748b;font-size:0.8rem;padding:0.5rem 0;">暫無季度 EPS 歷史（資料更新中）</div>'}
+                            </table>` : '<div style="color:#7e93a6;font-size:0.8rem;padding:0.5rem 0;">暫無季度 EPS 歷史（資料更新中）</div>'}
                             ${marginPills ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem;">${marginPills}</div>` : ''}
                             ${epsRow}
                         </div>
@@ -5095,17 +5095,17 @@
                                 return `<div onclick="window.open('${n.link||'#'}','_blank','noopener')"
                                     style="margin-bottom:0.45rem;cursor:pointer;padding:0.3rem 0.4rem;border-radius:5px;border-left:2px solid rgba(56,139,253,0.35);background:rgba(255,255,255,0.02);transition:background 0.15s;"
                                     onmouseover="this.style.background='rgba(56,139,253,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
-                                    <div style="color:#64748b;font-size:0.72rem;margin-bottom:0.1rem;">${dt} · ${n.publisher||''}</div>
+                                    <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.1rem;">${dt} · ${n.publisher||''}</div>
                                     <div style="color:#e2e8f0;font-size:0.76rem;line-height:1.35;">${n.titleZh||n.title}</div>
                                     ${n.titleZh&&n.titleZh!==n.title?`<div style="color:#607585;font-size:0.7rem;margin-top:0.1rem;">${n.title}</div>`:''}
                                 </div>`;
-                            }).join('') : '<div style="color:#64748b;font-size:0.8rem;padding:0.5rem 0;">近90天無分析師評級相關新聞</div>'}
+                            }).join('') : '<div style="color:#7e93a6;font-size:0.8rem;padding:0.5rem 0;">近90天無分析師評級相關新聞</div>'}
                         </div>
                     </div>
                 </div>`;
             }).filter(Boolean).join('');
 
-            container.innerHTML = html || '<div style="text-align:center;padding:3rem;color:#64748b;">無法取得分析數據</div>';
+            container.innerHTML = html || '<div style="text-align:center;padding:3rem;color:#7e93a6;">無法取得分析數據</div>';
         }
 
         // ==================== Tab 5：總體經濟 ====================
@@ -5160,7 +5160,7 @@
             }
 
             if (btn) { btn.textContent = '載入中...'; btn.disabled = true; }
-            if (perfDiv) perfDiv.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;">⏳ 抓取總經數據中...</div>';
+            if (perfDiv) perfDiv.innerHTML = '<div style="text-align:center;padding:2rem;color:#7e93a6;">⏳ 抓取總經數據中...</div>';
 
             const results = [];
             for (let i = 0; i < MACRO_SYMBOLS.length; i++) {
@@ -5287,7 +5287,7 @@
             if (perfDiv) {
                 const cats = [...new Set(data.map(d => d.cat))];
                 const pctCell = (v, label) => {
-                    if (v == null) return `<span style="color:#64748b;font-size:0.76rem;">${label}:-</span>`;
+                    if (v == null) return `<span style="color:#7e93a6;font-size:0.76rem;">${label}:-</span>`;
                     const pos = v >= 0;
                     const col = pos ? '#10b981' : '#ef4444';
                     const bg  = pos ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
@@ -5311,7 +5311,7 @@
 
             if (newsDiv) {
                 if (news.length === 0) {
-                    newsDiv.innerHTML = '<div style="color:#64748b;text-align:center;padding:1.5rem;">暫無最新標的相關新聞</div>';
+                    newsDiv.innerHTML = '<div style="color:#7e93a6;text-align:center;padding:1.5rem;">暫無最新標的相關新聞</div>';
                 } else {
                     newsDiv.innerHTML = news.map(item => {
                         const dt = new Date(item.providerPublishTime*1000);
@@ -5322,7 +5322,7 @@
                                    border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:0.4rem;cursor:pointer;transition:all 0.2s;"
                             onmouseover="this.style.borderColor='rgba(59,130,246,0.4)'"
                             onmouseout="this.style.borderColor='rgba(59,130,246,0.15)'">
-                            <div style="color:#64748b;font-size:0.74rem;margin-bottom:0.2rem;">
+                            <div style="color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">
                                 ${item._sym ? `<span style="background:rgba(56,139,253,0.15);color:#60a5fa;border-radius:3px;padding:0.05rem 0.3rem;font-size:0.7rem;font-weight:700;margin-right:0.3rem;">${item._sym}</span>` : ''}${item.publisher||''} · ${dtStr}
                             </div>
                             <div style="color:#e2e8f0;font-size:0.85rem;">${item.titleZh || item.title}</div>
