@@ -2091,7 +2091,7 @@
                             <span style="color:#64748b;font-size:0.76rem;">${s.trades.length} 筆</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:0.75rem;">
-                            <span class="mono" style="font-weight:700;font-size:0.98rem;color:${color};">${fmtSign(dispPL)}${dispCcy}${fmt2(dispPL)}</span>
+                            <span class="mono" style="font-weight:700;font-size:0.98rem;color:${color};">${pv(`${fmtSign(dispPL)}${dispCcy}${fmt2(dispPL)}`)}</span>
                             <span style="color:#64748b;font-size:0.78rem;">${expd?'▲':'▶'}</span>
                         </div>
                     </div>
