@@ -2393,10 +2393,9 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
-                if (Array.isArray(saved.tradeHistory)) {
-                    tradeHistory = saved.tradeHistory;
-                    saveTradeHistory();
-                }
+                // 還原已實現損益紀錄（永遠以雲端為準，無資料則清空）
+                tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
+                saveTradeHistory();
 
                 _storageReady = true;
                 saveToStorage();
