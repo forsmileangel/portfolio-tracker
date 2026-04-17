@@ -2067,7 +2067,48 @@
             }, 0);
         }
 
-        // 每日首次開啟時自動記錄市值快照（當日已有就跳過）
+        // 靜默推送 Gist（從 localStorage 讀憑證，無 UI 反饋，無 Token 則略過）
+        async function _gistSilentPush() {
+            const token  = localStorage.getItem(GIST_TOKEN_KEY);
+            const gistId = localStorage.getItem(GIST_ID_KEY);
+            if (!token || !gistId) return; // 未設定憑證，只存 localStorage
+            try {
+                const payload = JSON.stringify({
+                    holdings,
+                    watchlist,
+                    tradeHistory,
+                    currency,
+                    exchangeRates,
+                    sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
+                    deposits,
+                    cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
+                    crypto_twd:    parseFloat(document.getElementById('crypto-twd-input')?.value) || 0,
+                    crypto_pie_cb: document.getElementById('crypto-pie-cb')?.checked || false,
+                    moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
+                    moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false,
+                    marketSnapshots,
+                    pushedAt: new Date().toISOString()
+                }, null, 2);
+                await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        description: 'Portfolio Tracker 持倉同步',
+                        public: false,
+                        files: { [GIST_FILENAME]: { content: payload } }
+                    })
+                });
+                console.log('[Snapshot] 快照已靜默同步至 Gist');
+            } catch(e) {
+                console.warn('[Snapshot] 靜默推送失敗：', e.message);
+            }
+        }
+
+        // 每日首次開啟時自動記錄市值快照，有新快照則靜默推送 Gist
         function recordSnapshot() {
             const today = new Date().toISOString().slice(0, 10);
             if (marketSnapshots.some(s => s.date === today)) return;
@@ -2076,6 +2117,7 @@
             marketSnapshots.push({ date: today, stockTWD });
             marketSnapshots.sort((a, b) => a.date.localeCompare(b.date));
             saveSnapshots();
+            _gistSilentPush(); // 有新快照才推，每日最多一次
         }
 
         // 依 mode 將快照分組，回傳 [{ key, first, last }] 降冪（快照為主）
