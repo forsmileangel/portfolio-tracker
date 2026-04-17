@@ -2126,7 +2126,10 @@
                 <!-- 標題列 -->
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.9rem;">
                     <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0;"><i class="ic">◈</i> 已實現損益紀錄</h2>
-                    <button onclick="clearTradeHistory()" style="padding:0.32rem 0.7rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
+                    <div style="display:flex;gap:0.45rem;align-items:center;">
+                        ${_pvBtnHtml()}
+                        <button onclick="clearTradeHistory()" style="padding:0.32rem 0.7rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
+                    </div>
                 </div>
                 <!-- 累計損益（標題正下方） -->
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
