@@ -2031,7 +2031,7 @@
                     ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
                 </div>
                 <!-- 篩選列（單行：開始日期 結束日期 快捷 幣別 筆數） -->
-                <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:wrap;">
+                <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:nowrap; overflow-x:auto;">
                     <span style="${lblStyle}">開始</span>
                     <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="${inpStyle}">
                     <span style="${lblStyle}">結束</span>
