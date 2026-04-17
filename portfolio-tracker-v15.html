@@ -5580,6 +5580,7 @@
                 });
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
                     renderAll();
+                    recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
                     const el = document.getElementById('auto-refresh-time');
                     if (el) el.textContent = now;
