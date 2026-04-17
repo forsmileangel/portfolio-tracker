@@ -2027,11 +2027,11 @@
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
                         <div style="color:#64748b; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
-                        <div class="mono" style="font-size:1.9rem; font-weight:800; color:${totColor}; line-height:1;">${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}</div>
+                        <div class="mono" style="font-size:1.9rem; font-weight:800; color:${totColor}; line-height:1;">${pv(`${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}`)}</div>
                     </div>
-                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${fmtSign(totUS)}$${fmt2(totUS)}</div></div>` : ''}
-                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
-                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
+                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totUS)}$${fmt2(totUS)}`)}</div></div>` : ''}
+                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totTW)}NT$${fmt2(totTW)}`)}</div></div>` : ''}
+                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totHK)}HK$${fmt2(totHK)}`)}</div></div>` : ''}
                 </div>
                 <!-- 篩選列：桌機一行，手機自動換兩行 -->
                 <div style="display:flex; gap:0.5rem 0.75rem; align-items:center; flex-wrap:wrap;">
