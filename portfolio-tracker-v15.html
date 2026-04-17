@@ -1952,6 +1952,8 @@
             else if (val === '1m')  { from = new Date(today); from.setMonth(from.getMonth()-1); }
             else if (val === '3m')  { from = new Date(today); from.setMonth(from.getMonth()-3); }
             else if (val === '1y')  { from = new Date(today); from.setFullYear(from.getFullYear()-1); }
+            else if (val === '3y')  { from = new Date(today); from.setFullYear(from.getFullYear()-3); }
+            else if (val === '5y')  { from = new Date(today); from.setFullYear(from.getFullYear()-5); }
             else { _realizedDateFrom = ''; _realizedDateTo = ''; renderRealizedTab(); return; }
             _realizedDateFrom = from.toISOString().slice(0,10);
             _realizedDateTo   = today.toISOString().slice(0,10);
