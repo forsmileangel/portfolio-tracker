@@ -2324,8 +2324,9 @@
                 saveGistSettings(token, newId);
 
                 const t = new Date().toLocaleTimeString('zh-TW');
-                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉（${t}）`, '#10b981');
-                showImportToast('✅ 持倉已推送至 GitHub Gist', 2500);
+                const depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
+                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉${depNote}（${t}）`, '#10b981');
+                showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）`, 2500);
 
             } catch(e) {
                 setGistStatus(`❌ 推送失敗：${e.message}`, '#ef4444');
