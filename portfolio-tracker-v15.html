@@ -2874,9 +2874,14 @@
             const n = pendingCsvRows.length;
             holdings = pendingCsvRows;
             pendingCsvRows = [];
+            // 還原已實現損益
+            const tn = pendingCsvTrades.length;
+            if (tn > 0) { tradeHistory = pendingCsvTrades; saveTradeHistory(); }
+            pendingCsvTrades = [];
             hideImportModal();
             renderAll();
-            showImportToast(`✅ 已匯入 ${n} 筆持倉，正在自動更新報價與分析數據…`);
+            const msg = tn > 0 ? `✅ 已匯入 ${n} 筆持倉 + ${tn} 筆已實現損益，正在自動更新…` : `✅ 已匯入 ${n} 筆持倉，正在自動更新報價與分析數據…`;
+            showImportToast(msg);
             // 自動串接：報價 → 分析數據
             autoRefreshAfterImport();
         }
