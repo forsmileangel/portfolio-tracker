@@ -1160,6 +1160,8 @@
             document.body.classList.toggle('privacy-active', _privacyMode);
             _updatePrivacyBtn();
             renderAll();
+            renderRealizedTab();
+            renderDepositsTab();
         }
         function _updatePrivacyBtn() {
             const title = _privacyMode ? '隱私模式開啟 — 點擊顯示金額' : '點擊隱藏敏感金額';
