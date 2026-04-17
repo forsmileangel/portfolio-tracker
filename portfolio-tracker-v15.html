@@ -1960,7 +1960,10 @@
                 <div style="margin-bottom:1rem;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
                         <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▦</i> 存款管理</h2>
-                        ${_pvBtnHtml()}
+                        <div style="display:flex;gap:0.45rem;align-items:center;">
+                            ${_pvBtnHtml()}
+                            <button onclick="gistPush()" style="padding:0.32rem 0.7rem;background:rgba(56,139,253,0.1);border:1px solid rgba(56,139,253,0.3);border-radius:8px;color:#60a5fa;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">⬆ 上傳雲端</button>
+                        </div>
                     </div>
                     <div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">存款合計（約合 TWD）</div>
                     <div class="mono" style="font-size:1.9rem;font-weight:800;color:#60a5fa;line-height:1;">${pv('NT$ ' + fmtN(totalTWD))}</div>
