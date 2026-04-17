@@ -825,6 +825,8 @@
         let _realizedCurrency = 'native'; // 'native' = 原幣, 'TWD' = 全部轉台幣
         let _realizedDateFrom = ''; // 篩選起始日
         let _realizedDateTo   = ''; // 篩選截止日
+        let marketSnapshots = []; // [{ date: 'YYYY-MM-DD', stockTWD: number }] 月度市值快照
+        let _returnMode = 'year'; // 'month' | 'quarter' | 'year'
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
