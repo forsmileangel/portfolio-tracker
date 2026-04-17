@@ -1185,25 +1185,25 @@
         "symbol": "^IXIC",
         "name": "Nasdaq",
         "cat": "股市",
-        "price": 24102.703125,
-        "chg1d": 0.36094071974419417,
-        "chg7d": 5.60976096096569
+        "price": 24102.69921875,
+        "chg1d": 0.3609244545592208,
+        "chg7d": 5.609743845120773
       },
       {
         "symbol": "^SOX",
         "name": "費城半導體",
         "cat": "股市",
-        "price": 9329.345703125,
-        "chg1d": 0.9747032908562945,
-        "chg7d": 7.363061173091405
+        "price": 9329.349609375,
+        "chg1d": 0.9747455695377027,
+        "chg7d": 7.36310612661452
       },
       {
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 17.940000534057617,
-        "chg1d": -1.2658202601573136,
-        "chg7d": -7.9527924846744185
+        "price": 17.899999618530273,
+        "chg1d": -0.2229705369930469,
+        "chg7d": -6.916276418961287
       },
       {
         "symbol": "^TNX",
@@ -1217,42 +1217,73 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 98.26399993896484,
-        "chg1d": 0.044796088082764716,
-        "chg7d": -0.5626388965557707
+        "price": 98.09400177001953,
+        "chg1d": -0.12828288446104721,
+        "chg7d": -0.5636084614895006
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4815.39990234375,
-        "chg1d": 0.6269068544366976,
-        "chg7d": 0.48411389519876147
+        "price": 4815.2001953125,
+        "chg1d": 0.62273359754437,
+        "chg7d": 1.1193072946055886
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 89.88999938964844,
-        "chg1d": -5.069176183333645,
-        "chg7d": -8.15367644118339
+        "price": 87.9000015258789,
+        "chg1d": -7.170768550490815,
+        "chg7d": -8.977941592983138
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 74856.40625,
-        "chg1d": 0.06861582968235153,
-        "chg7d": 2.572463543153118
+        "price": 75510.0078125,
+        "chg1d": 0.47620072326207474,
+        "chg7d": 3.468065213067364
       }
     ],
     "news": [
       {
+        "uuid": "58eca16c-93ad-3190-96b8-229b00d03616",
+        "title": "Myseum.AI Accepted into Advanced Micro Devices AI Developer Program",
+        "publisher": "GlobeNewswire",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/myseum-ai-accepted-advanced-micro-113000408.html",
+        "providerPublishTime": 1776425400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/KezpRc0S3L9yIDRKRYAH_Q--~B/aD0xMTcwO3c9MjUzMjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/5f44648df041ca64ce41fa774137ef56",
+              "width": 2532,
+              "height": 1170,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/eVd_VppanU_iKjZIQO5H6Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/globenewswire.com/5f44648df041ca64ce41fa774137ef56",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "MYSE",
+          "MYSEW"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Myseum.AI獲得Advanced Micro Devices AI開發人員計劃的錄取"
+      },
+      {
         "uuid": "de0d09c2-e120-3a06-b712-ed53b63caeb8",
-        "title": "Dow Jones Futures: Stock Market Rally Won't Back Down, AMD Breaks Out; Netflix Dives Late",
+        "title": "Dow Jones Futures Rise, Oil Prices Fall On Trump's Iran Comments; Netflix Dives",
         "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/de0d09c2-e120-3a06-b712-ed53b63caeb8/dow-jones-futures%3A-stock.html",
-        "providerPublishTime": 1776395481,
+        "link": "https://finance.yahoo.com/m/de0d09c2-e120-3a06-b712-ed53b63caeb8/dow-jones-futures-rise%2C-oil.html",
+        "providerPublishTime": 1776424386,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -1274,24 +1305,24 @@
           "NVDA",
           "TSM",
           "VIK",
-          "AA",
           "CL=F",
+          "AA",
           "AMD",
-          "^DJI",
           "^GSPC",
+          "^DJI",
           "CAT",
           "^IXIC",
           "ALB"
         ],
         "_sym": "AMD",
-        "titleZh": "道瓊期貨：股市反彈不會退縮， AMD突破； Netflix潛水時間較晚"
+        "titleZh": "道瓊斯期貨上漲，特朗普的伊朗評論導致油價下跌； Netflix潛水"
       },
       {
-        "uuid": "65fe4ad7-73e8-3ef4-85ae-04ce8dd64294",
-        "title": "Does AMD's UALink Bet Reveal a Deeper Shift in Its AI Data Center Strategy (AMD)?",
+        "uuid": "cb027ff2-99ee-3db0-84b4-49fbb0cfdba7",
+        "title": "AMD Deepens AI Push With France Deal And Wayve Auto Bet",
         "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/does-amds-ualink-bet-reveal-030852600.html",
-        "providerPublishTime": 1776395332,
+        "link": "https://finance.yahoo.com/markets/stocks/articles/amd-deepens-ai-push-france-110725932.html",
+        "providerPublishTime": 1776424045,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -1310,28 +1341,29 @@
           ]
         },
         "relatedTickers": [
-          "AMD"
+          "AMD",
+          "QCOM"
         ],
         "_sym": "AMD",
-        "titleZh": "AMD的UALink賭注是否揭示了其AI數據中心戰略（ AMD ）的更深刻轉變？"
+        "titleZh": "AMD透過法國優惠和Wayve自動投注深化AI推送"
       },
       {
-        "uuid": "0badf61a-8b55-3cdc-ac4b-a5f2d0cda310",
-        "title": "Stock Market Today, April 16: Advanced Micro Devices Surges on AI Demand Momentum",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/0badf61a-8b55-3cdc-ac4b-a5f2d0cda310/stock-market-today%2C-april-16%3A.html",
-        "providerPublishTime": 1776376376,
+        "uuid": "c160a0b0-b426-3f6b-82b7-f0311d1fb7c6",
+        "title": "Goldman Sachs resets Broadcom stock forecast",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/c160a0b0-b426-3f6b-82b7-f0311d1fb7c6/goldman-sachs-resets-broadcom.html",
+        "providerPublishTime": 1776423780,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TbvIcBbHbVOVPEGL5Fxqwg--~B/aD0yMDA7dz0yMDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/f811de91517d5bb93682a1b7d5f7f677",
-              "width": 200,
-              "height": 200,
+              "url": "https://s.yimg.com/uu/api/res/1.2/4yK7vj1HgDi.WtFde3GO8Q--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/e45836599ec6e967dfcd5adb26020f7e",
+              "width": 1200,
+              "height": 675,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1rqXteFGoZFrpdNWnp09qg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f811de91517d5bb93682a1b7d5f7f677",
+              "url": "https://s.yimg.com/uu/api/res/1.2/d68IkwQCzbvjlDZYrkGLKg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/e45836599ec6e967dfcd5adb26020f7e",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1339,15 +1371,207 @@
           ]
         },
         "relatedTickers": [
-          "AMD",
+          "AVGO",
           "^GSPC",
-          "INTC",
-          "^IXIC",
+          "META",
+          "GOOG",
+          "ANTH.PVT"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "高盛重置博通股票預測"
+      },
+      {
+        "uuid": "3a7c065f-ac50-37a6-b40a-3f5d1d727d88",
+        "title": "Social Buzz: Wallstreetbets Stocks Mixed Pre-Bell Friday; Netflix to Fall, Microsoft to Gain",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/social-buzz-wallstreetbets-stocks-mixed-103429029.html",
+        "providerPublishTime": 1776422069,
+        "type": "STORY",
+        "relatedTickers": [
+          "MSFT",
+          "NFLX",
+          "RKLB",
+          "AMD",
           "TSM",
-          "NVDA"
+          "NVDA",
+          "DTE",
+          "BIRD"
         ],
         "_sym": "AMD",
-        "titleZh": "4月16日今日股市：人工智能需求動能激增的先進微型設備"
+        "titleZh": "社交嗡嗡聲： Wallstreetbets股票預計週五上市； Netflix下跌，微軟獲利"
+      },
+      {
+        "uuid": "c6822e6f-baf6-3774-bfbb-3555a6aa7b88",
+        "title": "These Stocks Are Today’s Movers: Netflix, AMD, Alcoa, Madison Air, NiSource, and More",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/c6822e6f-baf6-3774-bfbb-3555a6aa7b88/these-stocks-are-today%E2%80%99s.html",
+        "providerPublishTime": 1776420180,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/TwowdZ4w2tsrx4mF6OsOkQ--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/448fa49060e57238aed65d6f21c5ada3",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Vp4o1luY_29wM4JGT0LelA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/448fa49060e57238aed65d6f21c5ada3",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NFLX",
+          "AMD",
+          "NI",
+          "AA",
+          "MAIR",
+          "ALI=F"
+        ],
+        "_sym": "AMD",
+        "titleZh": "這些股票是當今的推動者： Netflix、AMD、Alcoa、Madison Air、NiSource等"
+      },
+      {
+        "uuid": "50f262e2-e2b0-4fe0-b56c-fae46827c8cd",
+        "title": "The rally in tech stocks is widening beyond semiconductors and into software",
+        "publisher": "Yahoo Finance",
+        "link": "https://finance.yahoo.com/news/the-rally-in-tech-stocks-is-widening-beyond-semiconductors-and-into-software-100008649.html",
+        "providerPublishTime": 1776420008,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/yZzbLubyjJe7Uy4t2LNQrA--~B/aD0yMDAwO3c9MzAwMDthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/os/creatr-uploaded-images/2026-04/251e6cf0-380c-11f1-adfc-9d3d6abfcba6",
+              "width": 3000,
+              "height": 2000,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/9_WU_Wx76LuhPwFMvfQMOQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://s.yimg.com/os/creatr-uploaded-images/2026-04/251e6cf0-380c-11f1-adfc-9d3d6abfcba6",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MSFT",
+          "TEAM",
+          "NET",
+          "DDOG",
+          "HUBS",
+          "ORCL",
+          "RNG",
+          "SPY",
+          "SOXX",
+          "AMD",
+          "MU",
+          "IGV",
+          "AVGO",
+          "XLK",
+          "MRVL",
+          "SNOW",
+          "APP"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "科技股的反彈正在擴大到半導體和軟件之外"
+      },
+      {
+        "uuid": "9fdecf46-e1d2-3d28-a645-2d4bacad621d",
+        "title": "The Zacks Analyst Blog Highlights NVIDIA, Broadcom and Micron Technology",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/zacks-analyst-blog-highlights-nvidia-091800728.html",
+        "providerPublishTime": 1776417480,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/lv_a1skadLkD_8Y_tVroyg--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/85320b90c630fb7081a3b9c4f3fef810",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7UovOKsK7z0gmpZQYsVuOg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/85320b90c630fb7081a3b9c4f3fef810",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "AVGO",
+          "MU"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "Zacks分析部落格重點介紹NVIDIA、Broadcom和Micron技術"
+      },
+      {
+        "uuid": "c02d184e-0b59-3790-b2fc-c7d54a841c08",
+        "title": "Think AMD, Broadcom, or Alphabet Is Nvidia's Biggest Competitor for AI Data Center Space? Think Again...",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/c02d184e-0b59-3790-b2fc-c7d54a841c08/think-amd%2C-broadcom%2C-or.html",
+        "providerPublishTime": 1776414360,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VtAbApSXXfAkMmGs51pwLw--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a1ede64fbc086c0aedbbae6ca828a392",
+              "width": 1400,
+              "height": 933,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/zFT7XNX7i3hN_SI8MpQlRQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a1ede64fbc086c0aedbbae6ca828a392",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "GOOG",
+          "AMD",
+          "AVGO",
+          "INTC"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "您認為AMD、Broadcom或Alphabet是Nvidia AI資料中心空間的最大競爭對手嗎？再想想..."
+      },
+      {
+        "uuid": "0b61b7a7-62f8-3e28-8f8e-5d6091c7d28f",
+        "title": "BlueBird 7 Launch Tests AST SpaceMobile Technology And Investor Expectations",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/bluebird-7-launch-tests-ast-070424363.html",
+        "providerPublishTime": 1776409464,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZNIgIyed.oyZqDcrY_yApg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_J5edd25Ac_GIAkIzOf.ag--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "ASTS",
+          "ASTSW"
+        ],
+        "_sym": "ASTS",
+        "titleZh": "BlueBird 7發射測試AST SpaceMobile技術和投資者期望"
       },
       {
         "uuid": "0c095b64-c3e0-3b0e-8711-45c0b931dbca",
@@ -1380,7 +1604,7 @@
           "INTC",
           "AVGO"
         ],
-        "_sym": "AMD",
+        "_sym": "AVGO",
         "titleZh": "NVIDIA股票有史以來最長的連勝紀錄剛剛結束。接下來會發生什麼。"
       },
       {
@@ -1427,70 +1651,6 @@
         "titleZh": "Ast Spacemobile與Iridium Communications ：收入增長與穩定性的比較"
       },
       {
-        "uuid": "768646e3-5861-3ef9-a59a-0c7f0095eb98",
-        "title": "AMD, Onsemi, Semtech Latest Chip Stocks To Break Out",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/768646e3-5861-3ef9-a59a-0c7f0095eb98/amd%2C-onsemi%2C-semtech-latest.html",
-        "providerPublishTime": 1776373736,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/RDmjmidp3OW1idGyOIerjw--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/2c490a2b397072a210ee326dedaf0d7b",
-              "width": 1000,
-              "height": 563,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/FDTexnaugXzn3VrSPtbMNg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/2c490a2b397072a210ee326dedaf0d7b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ON",
-          "AMD",
-          "SMTC"
-        ],
-        "_sym": "AMD",
-        "titleZh": "AMD、Onsemi、Semtech最新芯片股即將爆發"
-      },
-      {
-        "uuid": "584cb527-30d9-3648-b2ff-8764c27b1741",
-        "title": "Stocks Climb to New Records With Investors Piling Back Into Tech",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/584cb527-30d9-3648-b2ff-8764c27b1741/stocks-climb-to-new-records.html",
-        "providerPublishTime": 1776372240,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fM2rped5rVfnjla.PKnoFA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/d14c320ed6260b915fceb21b41ad2f98",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/p2kswcE98XsrEjOa2SeBBw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/d14c320ed6260b915fceb21b41ad2f98",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^GSPC",
-          "^DJI",
-          "^IXIC",
-          "^SOX",
-          "AVGO"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "股市攀升至新紀錄，投資者重返科技行業"
-      },
-      {
         "uuid": "ddc03d9c-de85-3953-aa51-3d1bce43f5c1",
         "title": "AST SpaceMobile Announces BlueBird 7 Launch Date of Sunday, April 19, Invites Retail Investors to Attend Live Launch Event at Cape Canaveral",
         "publisher": "Business Wire",
@@ -1519,98 +1679,6 @@
         ],
         "_sym": "ASTS",
         "titleZh": "AST SpaceMobile宣布BlueBird 7發布日期為4月19日星期日，邀請零售投資者參加在卡納維拉爾角舉行的現場發布活動"
-      },
-      {
-        "uuid": "359bcbe2-ad24-3c51-9476-e1c5db5fb577",
-        "title": "Nvidia Stock Is Having a Great April (Just Not for a Chip Maker)",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/359bcbe2-ad24-3c51-9476-e1c5db5fb577/nvidia-stock-is-having-a.html",
-        "providerPublishTime": 1776367245,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Fwf5HL4GsEGPbDfR3MJBPg--~B/aD02MzA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
-              "width": 1200,
-              "height": 630,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/zIJaagDuCJitt1Cvcwyc7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "INTC",
-          "AVGO",
-          "^IXIC"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "NVIDIA股票正迎來美好的四月（不適合晶片製造商）"
-      },
-      {
-        "uuid": "e111c891-116e-3a5b-85a5-eb4cbd4c7fed",
-        "title": "Broadcom Stock Is on an 8-Day Winning Streak. What’s Driving It Higher.",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/e111c891-116e-3a5b-85a5-eb4cbd4c7fed/broadcom-stock-is-on-an-8-day.html",
-        "providerPublishTime": 1776367200,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ccu7VDvbRtdnAmY.7Drl3g--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/902a000156bb9070274129a42f95fc4f",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4Eufs4x_i6RxZqfwQzHKEQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/902a000156bb9070274129a42f95fc4f",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AVGO",
-          "UBS"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "Broadcom股票連續8天連勝。是什麼推動它更高。"
-      },
-      {
-        "uuid": "5a8956c2-86ba-3a3b-b563-452810b5f5bd",
-        "title": "Broadcom (AVGO) Is Up 13.1% After Expanded Meta AI Chip Partnership - What's Changed",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/broadcom-avgo-13-1-expanded-190347442.html",
-        "providerPublishTime": 1776366227,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/q7CEgJDIR38z7SHlrATgRA--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/dfc5c49a1ab838a9c236bef742ffecf1",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Li2FbprcZyz2DyuRz5g7iQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/dfc5c49a1ab838a9c236bef742ffecf1",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AVGO",
-          "META"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "Broadcom （ AVGO ）在擴大Meta AI芯片合作夥伴關係後上漲13.1 ％ -發生了什麼變化"
       },
       {
         "uuid": "8e26dd67-0287-38da-b066-51bd3cc1da69",
@@ -1643,41 +1711,6 @@
         ],
         "_sym": "ASTS",
         "titleZh": "市場沒有看到AST SpaceMobile的行動即將到來。這2隻股票值得關注。"
-      },
-      {
-        "uuid": "095e5e55-81b3-3c55-b5fc-27177d4b0b2a",
-        "title": "3 Lessons From Amazon’s Blockbuster Deal to Buy Globalstar",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/095e5e55-81b3-3c55-b5fc-27177d4b0b2a/3-lessons-from-amazon%E2%80%99s.html",
-        "providerPublishTime": 1776276660,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/tLNTSB6S7psdV5y1IWskxA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/fd86b8142bb7964ae9b549060570ae79",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/C06DQ4InIkECdJAOHKQHxw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/fd86b8142bb7964ae9b549060570ae79",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMZN",
-          "SPAX.PVT",
-          "SATS",
-          "ASTS",
-          "ASTSW",
-          "IRDM",
-          "GSAT"
-        ],
-        "_sym": "ASTS",
-        "titleZh": "購買Globalstar的亞馬遜大片交易的3個教訓"
       },
       {
         "uuid": "838e5186-d2d8-3858-8f5a-a8e2372d74c3",
@@ -1784,6 +1817,6 @@
         "titleZh": "您現在應該囤積哪種加密貨幣，比特幣還是以太坊？"
       }
     ],
-    "fetched_at": 1776397053345
+    "fetched_at": 1776425951870
   }
 }
