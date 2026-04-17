@@ -1174,6 +1174,10 @@
             document.body.classList.toggle('privacy-active', _privacyMode);
             _updatePrivacyBtn();
         }
+        function _pvBtnHtml() {
+            const slash = _privacyMode ? 'block' : 'none';
+            return `<button onclick="togglePrivacy()" class="pv-toggle-btn" title="${_privacyMode?'隱私模式開啟 — 點擊顯示金額':'點擊隱藏敏感金額'}" style="padding:0.32rem 0.65rem;background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#f1f5f9;text-transform:none;letter-spacing:0;"><span style="position:relative;display:inline-block;font-size:0.95rem;line-height:1;color:#93c5fd;">◉<span class="pv-slash-icon" style="display:${slash};position:absolute;left:-2px;right:-2px;top:48%;border-top:2.5px solid #f1f5f9;transform:rotate(-30deg);pointer-events:none;"></span></span><span style="font-size:0.75rem;">隱私</span></button>`;
+        }
 
         // ==================== 字型切換 ====================
         const PT_FONT_KEY = 'pt_font';
