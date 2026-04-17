@@ -2382,7 +2382,8 @@
                     </div>` : ''}
                 </div>`;
             }).join('');
-            pane.innerHTML = summaryHtml + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsHtml);
+            pane.innerHTML = summaryHtml + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsHtml) + '<div id="return-analysis-section"></div>';
+            renderReturnAnalysis();
         }
 
         // 合併持倉 + 觀察清單（供分析管線使用）
