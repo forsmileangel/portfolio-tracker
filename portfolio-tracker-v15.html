@@ -2007,43 +2007,44 @@
             const totColor = totTWD >= 0 ? '#10b981' : '#ef4444';
             const fmt2 = (n) => Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const fmtSign = (n) => n >= 0 ? '+' : '-';
-            // ── 篩選列＋總計卡片 ──
+            // ── 總計卡片（標題 → 累計 → 篩選列）──
             const ccyBtnBg  = showTWD ? 'rgba(16,185,129,0.15)' : 'rgba(30,58,110,0.2)';
             const ccyBtnClr = showTWD ? '#10b981' : '#60a5fa';
             const ccyBtnBdr = showTWD ? 'rgba(16,185,129,0.35)' : 'rgba(56,139,253,0.25)';
+            const inpStyle  = 'width:118px;padding:0.32rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;';
+            const lblStyle  = 'color:#64748b;font-size:0.75rem;white-space:nowrap;';
             const summaryHtml = `
-            <div class="glass-card" style="padding:1.5rem 2rem; margin-bottom:1rem;">
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+            <div class="glass-card" style="padding:1.25rem 1.5rem; margin-bottom:1rem;">
+                <!-- 標題列 -->
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.9rem;">
                     <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0;"><i class="ic">◈</i> 已實現損益紀錄</h2>
-                    <button onclick="clearTradeHistory()" style="padding:0.38rem 0.8rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.78rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
+                    <button onclick="clearTradeHistory()" style="padding:0.32rem 0.7rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
                 </div>
-                <!-- 篩選列 -->
-                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="padding:0.38rem 0.55rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.8rem;outline:none;cursor:pointer;">
+                <!-- 累計損益（標題正下方） -->
+                <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <div style="color:#64748b; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
+                        <div class="mono" style="font-size:1.9rem; font-weight:800; color:${totColor}; line-height:1;">${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}</div>
+                    </div>
+                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${fmtSign(totUS)}$${fmt2(totUS)}</div></div>` : ''}
+                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
+                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
+                </div>
+                <!-- 篩選列（單行：開始日期 結束日期 快捷 幣別 筆數） -->
+                <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:wrap;">
+                    <span style="${lblStyle}">開始</span>
+                    <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="${inpStyle}">
+                    <span style="${lblStyle}">結束</span>
+                    <input id="realized-to" type="date" value="${_realizedDateTo}" onchange="_setRealizedDateRange()" style="${inpStyle}">
+                    <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="padding:0.32rem 0.45rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;cursor:pointer;">
                         <option value="">全部</option>
-                        <option value="7d" ${_realizedDateFrom && _realizedDateTo ? '' : ''}>過去 7 天</option>
-                        <option value="1m">過去 1 個月</option>
+                        <option value="7d">過去 7 天</option>
+                        <option value="1m">過去 1 月</option>
                         <option value="3m">過去 1 季</option>
                         <option value="1y">過去 1 年</option>
                     </select>
-                    <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="padding:0.35rem 0.5rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.78rem;outline:none;" title="起始日">
-                    <span style="color:#475569;font-size:0.8rem;">~</span>
-                    <input id="realized-to" type="date" value="${_realizedDateTo}" onchange="_setRealizedDateRange()" style="padding:0.35rem 0.5rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.78rem;outline:none;" title="截止日">
-                    <button onclick="_toggleRealizedCcy()" style="padding:0.38rem 0.7rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:8px;color:${ccyBtnClr};font-size:0.8rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;margin-left:auto;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
-                    <div style="text-align:right;">
-                        <div style="color:#64748b;font-size:0.7rem;">筆數</div>
-                        <div style="color:#94a3b8;font-size:0.92rem;font-weight:700;">${filtered.length}</div>
-                    </div>
-                </div>
-                <!-- 累計 -->
-                <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end;">
-                    <div>
-                        <div style="color:#64748b; font-size:0.73rem; margin-bottom:0.3rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
-                        <div class="mono" style="font-size:2rem; font-weight:800; color:${totColor};">${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}</div>
-                    </div>
-                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">美股 USD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${fmtSign(totUS)}$${fmt2(totUS)}</div></div>` : ''}
-                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">台股 TWD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
-                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">港股 HKD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
+                    <button onclick="_toggleRealizedCcy()" style="padding:0.32rem 0.65rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:7px;color:${ccyBtnClr};font-size:0.78rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
+                    <span style="color:#64748b;font-size:0.78rem;margin-left:0.2rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
                 </div>
             </div>`;
             // ── 標的卡片 ──
