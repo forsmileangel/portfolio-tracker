@@ -1624,7 +1624,7 @@
 
         function renderPie(stats) {
             const pieSection    = document.getElementById('pie-section');
-            const cashTWD       = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
+            const cashTWD       = _depositsTWD();
             const cryptoTWD     = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
             const moxaTWD       = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
             const showCashInPie   = document.getElementById('cash-pie-cb')?.checked   ?? false;
