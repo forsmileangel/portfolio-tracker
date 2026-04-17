@@ -1648,6 +1648,8 @@
                 const taTotal      = document.getElementById('ta-total');
                 if (taStock)  taStock.innerHTML  = pv(fmtTWD(stockTWD));
                 if (taCash)   taCash.innerHTML   = pv(fmtTWD(cashTWD));
+                const cashDisp = document.getElementById('cash-twd-display');
+                if (cashDisp) cashDisp.textContent = Math.round(cashTWD).toLocaleString('en-US');
                 if (taCrypto) taCrypto.innerHTML = pv(fmtTWD(cryptoTWD));
                 if (taCryptoWrap) taCryptoWrap.style.display = cryptoTWD > 0 ? 'inline-flex' : 'none';
                 if (taMoxa)   taMoxa.innerHTML   = pv(fmtTWD(moxaTWD));
