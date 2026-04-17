@@ -434,11 +434,10 @@
                 <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
                 <!-- Grid 4欄：標籤 | 輸入框 | 提示/空白 | 打勾 → 三列完全對齊 -->
                 <div style="display:grid; grid-template-columns:max-content 120px 80px auto; column-gap:0.5rem; row-gap:0.45rem; align-items:center;">
-                    <!-- 現金列 -->
+                    <!-- 現金列（從存款頁籤自動計算） -->
                     <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
-                    <input type="number" id="cash-twd-input" min="0" placeholder="0" onchange="saveCash(); renderAll();" class="pv-field"
-                        style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box;">
-                    <span></span>
+                    <span id="cash-twd-display" class="mono pv-field" style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.3); border:1px solid rgba(148,163,184,0.1); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box; display:inline-block; min-height:1.8rem;">0</span>
+                    <span onclick="switchTab(7)" style="color:#3b82f6;font-size:0.72rem;cursor:pointer;white-space:nowrap;" title="前往存款頁籤">→ 存款</span>
                     <label id="cash-pie-label" title="勾選後圓餅圖會納入現金部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
                         <input type="checkbox" id="cash-pie-cb" onchange="saveCash(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
                         <span id="cash-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">含現金</span>
