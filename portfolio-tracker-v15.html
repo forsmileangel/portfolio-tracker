@@ -178,10 +178,10 @@
         /* indicator badges */
         .kd-up   { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(16,185,129,0.2); color:#10b981; font-weight:700; font-size:0.8rem; }
         .kd-down { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(239,68,68,0.15); color:#ef4444; font-weight:700; font-size:0.8rem; }
-        .kd-neu  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#94a3b8; font-weight:700; font-size:0.8rem; }
+        .kd-neu  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#a8bdd0; font-weight:700; font-size:0.8rem; }
         .rsi-ob  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(239,68,68,0.2); color:#ef4444; font-weight:700; font-size:0.8rem; }
         .rsi-os  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(59,130,246,0.2); color:#60a5fa; font-weight:700; font-size:0.8rem; }
-        .rsi-neu { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#94a3b8; font-weight:700; font-size:0.8rem; }
+        .rsi-neu { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#a8bdd0; font-weight:700; font-size:0.8rem; }
         /* ── Unified Icon Badge ── */
         .ic { display:inline-flex; align-items:center; justify-content:center; width:1.25em; height:1.25em; border-radius:4px; font-size:0.82em; font-style:normal; font-weight:700; vertical-align:-0.12em; line-height:1; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.1); color:inherit; }
 
@@ -344,7 +344,7 @@
             <div style="display:inline-flex;align-items:center;background:rgba(15,30,60,0.5);border:1px solid rgba(100,116,139,0.3);border-radius:8px;overflow:hidden;">
                 <button onclick="adjustFontSize(-1)" title="縮小字體"
                     style="padding:0.3rem 0.55rem;background:none;border:none;border-right:1px solid rgba(100,116,139,0.2);color:#f1f5f9;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A-</button>
-                <span id="font-size-label" style="font-size:0.72rem;color:#94a3b8;padding:0 0.45rem;min-width:2.8em;text-align:center;">16px</span>
+                <span id="font-size-label" style="font-size:0.72rem;color:#a8bdd0;padding:0 0.45rem;min-width:2.8em;text-align:center;">16px</span>
                 <button onclick="adjustFontSize(1)" title="放大字體"
                     style="padding:0.3rem 0.55rem;background:none;border:none;border-left:1px solid rgba(100,116,139,0.2);color:#f1f5f9;font-weight:800;font-size:0.78rem;cursor:pointer;line-height:1;">A+</button>
             </div>
@@ -370,11 +370,11 @@
         <div style="display:flex; gap:0.75rem; margin-bottom:1rem; align-items:center; flex-wrap:wrap;">
             <label style="color:#60a5fa; font-size:0.85rem; font-weight:600; white-space:nowrap;"><i class="ic">⇄</i> 匯率設定：</label>
             <div style="display:flex; align-items:center; gap:0.4rem;">
-                <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">USD/TWD</span>
+                <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">USD/TWD</span>
                 <input id="input-usd-twd" type="number" step="0.01" value="31.50" style="width:90px; padding:0.4rem 0.5rem; font-size:0.85rem;" onchange="applyManualRates()">
             </div>
             <div style="display:flex; align-items:center; gap:0.4rem;">
-                <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">HKD/TWD</span>
+                <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">HKD/TWD</span>
                 <input id="input-hkd-twd" type="number" step="0.001" value="4.050" style="width:90px; padding:0.4rem 0.5rem; font-size:0.85rem;" onchange="applyManualRates()">
             </div>
             <button onclick="fetchLiveRates(this)" style="padding:0.4rem 0.9rem; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.35); border-radius:8px; font-weight:600; font-size:0.82rem; text-transform:none; letter-spacing:0;">↻ 抓即時匯率</button>
@@ -436,7 +436,7 @@
                 <!-- Grid 4欄：標籤 | 輸入框 | 提示/空白 | 打勾 → 三列完全對齊 -->
                 <div style="display:grid; grid-template-columns:max-content 120px 80px auto; column-gap:0.5rem; row-gap:0.45rem; align-items:center;">
                     <!-- 現金列（從存款頁籤自動計算） -->
-                    <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
+                    <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
                     <span id="cash-twd-display" class="mono pv-field" style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.3); border:1px solid rgba(148,163,184,0.1); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box; display:inline-block; min-height:1.8rem;">0</span>
                     <span onclick="switchTab(7)" style="color:#3b82f6;font-size:0.72rem;cursor:pointer;white-space:nowrap;" title="前往存款頁籤">→ 存款</span>
                     <label id="cash-pie-label" title="勾選後圓餅圖會納入現金部位" style="display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;user-select:none;padding:0.2rem 0.55rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;">
@@ -444,7 +444,7 @@
                         <span id="cash-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含現金</span>
                     </label>
                     <!-- 加密列 -->
-                    <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">加密（TWD）</span>
+                    <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">加密（TWD）</span>
                     <input type="number" id="crypto-twd-input" min="0" placeholder="0" onchange="saveCrypto(); renderAll();" class="pv-field"
                         style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box;">
                     <span id="crypto-usdt-hint" class="pv-hint" style="color:#607585; font-size:0.75rem; white-space:nowrap;"></span>
@@ -453,7 +453,7 @@
                         <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含加密</span>
                     </label>
                     <!-- MOXA 列 -->
-                    <span style="color:#94a3b8; font-size:0.85rem; white-space:nowrap;">未上市股票（TWD）</span>
+                    <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">未上市股票（TWD）</span>
                     <input type="number" id="moxa-twd-input" min="0" placeholder="0" onchange="saveMoxa(); renderAll();" class="pv-field"
                         style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.5); border:1px solid rgba(148,163,184,0.2); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box;">
                     <span></span>
@@ -536,7 +536,7 @@
                         onkeydown="if(event.key==='Enter')addToWatchlist()"
                         style="flex:1;min-width:120px;padding:0.5rem 0.75rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#e2e8f0;font-size:0.88rem;text-transform:uppercase;outline:none;transition:border-color 0.2s;"
                         onfocus="this.style.borderColor='rgba(96,165,250,0.55)'" onblur="this.style.borderColor='rgba(56,139,253,0.25)'">
-                    <select id="watchlist-market-select" style="padding:0.5rem 0.65rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.85rem;outline:none;cursor:pointer;">
+                    <select id="watchlist-market-select" style="padding:0.5rem 0.65rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#a8bdd0;font-size:0.85rem;outline:none;cursor:pointer;">
                         <option value="US">美股</option>
                         <option value="TW">台股</option>
                         <option value="HK">港股</option>
@@ -741,7 +741,7 @@
         <div class="glass-card" style="padding:2rem; max-width:720px; width:100%; max-height:90vh; display:flex; flex-direction:column;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
                 <h3 style="color:#60a5fa; font-size:1.3rem; margin:0;"><i class="ic">↑</i> 匯入持倉 CSV</h3>
-                <button onclick="hideImportModal()" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; padding:0; line-height:1; cursor:pointer;">✕</button>
+                <button onclick="hideImportModal()" style="background:none; border:none; color:#a8bdd0; font-size:1.5rem; padding:0; line-height:1; cursor:pointer;">✕</button>
             </div>
             <label for="csv-file-input" id="csv-drop-zone"
                 ondragover="event.preventDefault(); this.style.borderColor='#60a5fa'; this.style.background='rgba(56,139,253,0.08)';"
@@ -753,7 +753,7 @@
                 <div style="color:#7e93a6; font-size:0.82rem;">支援「匯出持倉數據」產生的 CSV（含已實現損益紀錄）</div>
                 <input id="csv-file-input" type="file" accept=".csv,text/csv" class="csv-file-input-hidden" onchange="handleCsvFile(this.files[0])">
             </label>
-            <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.82rem; color:#94a3b8; flex-shrink:0;">
+            <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.82rem; color:#a8bdd0; flex-shrink:0;">
                 <span style="color:#93c5fd; font-weight:600;">CSV 欄位順序（第一行為標題）：</span><br>
                 <code style="color:#60a5fa;">Symbol, Market, Name, Quantity, Cost Price, Current Price</code><br>
                 <code style="color:#e2e8f0; font-size:0.78rem;">NVDL, US, GraniteShares 2x NVDA, 750, 42.40, 74.17</code>
@@ -795,7 +795,7 @@
     <div id="review-modal" onclick="if(event.target===this)hideReviewModal()" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); display:none; align-items:center; justify-content:center; z-index:2000; padding:1rem;">
         <div class="glass-card" style="padding:2rem; max-width:700px; width:100%; max-height:85vh; overflow:hidden; display:flex; flex-direction:column;">
             <h3 style="color:#60a5fa; font-size:1.3rem; margin-bottom:0.5rem;"><i class="ic">≡</i> 股價更新審核</h3>
-            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">點擊「新價格」欄位可直接修改</p>
+            <p style="color:#a8bdd0; font-size:0.85rem; margin-bottom:1rem;">點擊「新價格」欄位可直接修改</p>
             <div style="flex:1; overflow-y:auto; margin-bottom:1rem;">
                 <table id="review-table" style="width:100%; border-collapse:collapse; font-size:0.85rem;"></table>
             </div>
@@ -1381,7 +1381,7 @@
                 return `<tr data-symbol="${h.symbol}" style="background:${bg};">
                     <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#7e93a6;">${h.name||''}</small></td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;color:#94a3b8;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                    <td style="padding:0.55rem 0.75rem;text-align:right;color:#a8bdd0;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                     <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                     ${prevDayChgCell}
                     ${dayChgCell}
@@ -1407,7 +1407,7 @@
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#94a3b8;">昨日漲跌</th>
+                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#a8bdd0;">昨日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日漲跌</th>
                     <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日損益</th>
                     ${thBtn('value','市值 ('+currency+')')}
@@ -1477,7 +1477,7 @@
                         <span class="market-badge">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.market}</span>
                         <span class="mono" style="color:#f1f5f9;font-size:1rem;font-weight:600;">${h.symbol}</span>
                         <span style="padding:0.2rem 0.4rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:0.72rem;font-weight:600;color:#60a5fa;">${h.percentage.toFixed(2)}%</span>
-                        ${h.name ? '<span style="color:#94a3b8;font-size:0.8rem;">'+h.name+'</span>' : ''}
+                        ${h.name ? '<span style="color:#a8bdd0;font-size:0.8rem;">'+h.name+'</span>' : ''}
                     </div>
                     <div style="display:flex; align-items:center; gap:0.6rem; flex-shrink:0;">
                         <span class="mono" style="font-size:0.88rem;font-weight:600;color:${isProfit?'#10b981':'#ef4444'};">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span>
@@ -1500,10 +1500,10 @@
                         </div>
                         <div style="flex:1; min-width:250px;">
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.9rem;">
-                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本價</div><input type="number" step="0.01" value="${h.costPrice}" onchange="updateCostPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:6px;color:#e2e8f0;"></div>
-                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">現價</div><input type="number" step="0.01" value="${h.currentPrice}" onchange="updateCurrentPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:#e2e8f0;"></div>
-                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">成本總額</div><div class="mono">${priceCcy}${h.costTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
-                                <div><div style="color:#94a3b8;margin-bottom:0.25rem;">市值</div><div class="mono">${priceCcy}${h.valueTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
+                                <div><div style="color:#a8bdd0;margin-bottom:0.25rem;">成本價</div><input type="number" step="0.01" value="${h.costPrice}" onchange="updateCostPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:6px;color:#e2e8f0;"></div>
+                                <div><div style="color:#a8bdd0;margin-bottom:0.25rem;">現價</div><input type="number" step="0.01" value="${h.currentPrice}" onchange="updateCurrentPrice(${h.id}, this.value)" style="width:120px;padding:0.5rem;font-size:0.9rem;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:#e2e8f0;"></div>
+                                <div><div style="color:#a8bdd0;margin-bottom:0.25rem;">成本總額</div><div class="mono">${priceCcy}${h.costTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
+                                <div><div style="color:#a8bdd0;margin-bottom:0.25rem;">市值</div><div class="mono">${priceCcy}${h.valueTotalUSD.toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>
                             </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:1rem;">
@@ -1732,9 +1732,9 @@
             const legendHTML = pieData.map((d, i) => {
                 const color = pieColors[i];
                 const subLabel = d.isCash
-                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${pv(cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0}) + ' TWD')})</span>`
+                    ? `<span style="color:#a8bdd0;font-size:0.75rem;margin-left:0.25rem;">(${pv(cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0}) + ' TWD')})</span>`
                     : d.isCrypto && _usdtTWD > 0
-                    ? `<span style="color:#94a3b8;font-size:0.75rem;margin-left:0.25rem;">(${pv('≈' + (cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0}) + ' USDT')})</span>`
+                    ? `<span style="color:#a8bdd0;font-size:0.75rem;margin-left:0.25rem;">(${pv('≈' + (cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0}) + ' USDT')})</span>`
                     : '';
                 return `
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${color};">
@@ -1973,7 +1973,7 @@
                 </div>
                 <div style="display:flex;gap:0.45rem;align-items:center;flex-wrap:wrap;padding:0.85rem 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.5rem;">
                     <input id="dep-bank-input" type="text" placeholder="銀行 / 帳戶名稱" onkeydown="if(event.key==='Enter')addDeposit()" style="flex:1;min-width:110px;padding:0.38rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
-                    <select id="dep-currency-select" style="padding:0.38rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.8rem;outline:none;cursor:pointer;">${currencyOptions}</select>
+                    <select id="dep-currency-select" style="padding:0.38rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#a8bdd0;font-size:0.8rem;outline:none;cursor:pointer;">${currencyOptions}</select>
                     <input id="dep-amount-input" type="number" min="0" placeholder="金額" onkeydown="if(event.key==='Enter')addDeposit()" style="width:110px;padding:0.38rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
                     <button onclick="addDeposit()" style="padding:0.38rem 0.9rem;background:rgba(56,139,253,0.15);border:1.5px solid rgba(56,139,253,0.35);border-radius:7px;color:#60a5fa;font-size:0.82rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;white-space:nowrap;">+ 新增</button>
                 </div>
@@ -2127,7 +2127,7 @@
             const ccyBtnBg  = showTWD ? 'rgba(16,185,129,0.15)' : 'rgba(30,58,110,0.2)';
             const ccyBtnClr = showTWD ? '#10b981' : '#60a5fa';
             const ccyBtnBdr = showTWD ? 'rgba(16,185,129,0.35)' : 'rgba(56,139,253,0.25)';
-            const inpStyle  = 'width:118px;padding:0.32rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;';
+            const inpStyle  = 'width:118px;padding:0.32rem 0.4rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#a8bdd0;font-size:0.75rem;outline:none;';
             const lblStyle  = 'color:#7e93a6;font-size:0.75rem;white-space:nowrap;';
             const summaryHtml = `
             <div class="glass-card" style="padding:1.25rem 1.5rem; margin-bottom:1rem;">
@@ -2160,7 +2160,7 @@
                     </div>
                     <!-- 第二群：快捷＋幣別＋筆數 -->
                     <div style="display:flex; gap:0.4rem; align-items:center; flex-shrink:0;">
-                        <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="width:auto;padding:0.32rem 0.45rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;cursor:pointer;">
+                        <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="width:auto;padding:0.32rem 0.45rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#a8bdd0;font-size:0.75rem;outline:none;cursor:pointer;">
                             <option value="">全部</option>
                             <option value="7d">過去 7 天</option>
                             <option value="1m">過去 1 月</option>
@@ -2170,7 +2170,7 @@
                             <option value="5y">過去 5 年</option>
                         </select>
                         <button onclick="_toggleRealizedCcy()" style="padding:0.32rem 0.65rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:7px;color:${ccyBtnClr};font-size:0.78rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
-                        <span style="color:#7e93a6;font-size:0.78rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
+                        <span style="color:#7e93a6;font-size:0.78rem;">交易 <span style="color:#a8bdd0;font-weight:700;">${filtered.length}</span> 筆</span>
                     </div>
                 </div>
             </div>`;
@@ -2961,10 +2961,10 @@
             tbody.innerHTML = rows.map(r => `
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                     <td style="padding:0.35rem 0.5rem; font-weight:600; color:#f1f5f9;">${r.symbol}</td>
-                    <td style="padding:0.35rem 0.5rem; text-align:center; color:#94a3b8;">${r.market==='TW'?'🇹🇼':r.market==='HK'?'🇭🇰':'🇺🇸'}</td>
-                    <td style="padding:0.35rem 0.5rem; color:#94a3b8; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.name||'-'}</td>
+                    <td style="padding:0.35rem 0.5rem; text-align:center; color:#a8bdd0;">${r.market==='TW'?'🇹🇼':r.market==='HK'?'🇭🇰':'🇺🇸'}</td>
+                    <td style="padding:0.35rem 0.5rem; color:#a8bdd0; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.name||'-'}</td>
                     <td style="padding:0.35rem 0.5rem; text-align:right; color:#e2e8f0;">${r.quantity.toLocaleString()}</td>
-                    <td style="padding:0.35rem 0.5rem; text-align:right; color:#94a3b8;">${r.costPrice}</td>
+                    <td style="padding:0.35rem 0.5rem; text-align:right; color:#a8bdd0;">${r.costPrice}</td>
                     <td style="padding:0.35rem 0.5rem; text-align:right; color:#60a5fa;">${r.currentPrice}</td>
                 </tr>`).join('');
 
@@ -3221,7 +3221,7 @@
                     return `<tr>
                         <td onclick="toggleReviewAccept('${symbol}')" style="padding:0.5rem;text-align:center;cursor:pointer;"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #10b981;${checked ? 'background:#10b981' : ''};margin:auto;">${priceReviewData.accepted[symbol]?'✓':''}</div></td>
                         <td style="padding:0.5rem;font-weight:600;cursor:pointer;" onclick="toggleReviewAccept('${symbol}')">${symbol}</td>
-                        <td style="padding:0.5rem;text-align:right;color:#94a3b8;">${info.oldPrice}</td>
+                        <td style="padding:0.5rem;text-align:right;color:#a8bdd0;">${info.oldPrice}</td>
                         <td style="padding:0.5rem;text-align:right;"><input type="number" value="${info.newPrice}" onchange="updateReviewPrice('${symbol}', this.value)" style="width:100px;text-align:right;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:5px;color:#e2e8f0;"></td>
                         <td style="padding:0.5rem;text-align:right;color:#10b981;font-weight:600;">${info.diff}%</td>
                     </tr>`;
@@ -3268,7 +3268,7 @@
                 const left    = toTwd ? `1 ${code} <span style="color:#607585;font-size:0.78rem;">(${name})</span>` : `1 TWD`;
                 const right   = toTwd ? `${display} <span style="color:#7e93a6;font-size:0.76rem;">TWD</span>` : `${display} <span style="color:#7e93a6;font-size:0.76rem;">${code}</span>`;
                 return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <span style="color:#94a3b8;font-size:0.85rem;white-space:nowrap;">${left}</span>
+                    <span style="color:#a8bdd0;font-size:0.85rem;white-space:nowrap;">${left}</span>
                     <span class="mono" style="color:#f1f5f9;font-weight:600;font-size:0.9rem;">${right}</span>
                 </div>`;
             }).join('');
@@ -3521,7 +3521,7 @@
             const small = '<br><small style="color:#7e93a6;font-size:0.72rem;">分數:' + s + '</small>';
             if (score >= 10) return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(16,185,129,0.2);color:#10b981;font-weight:700;">⬆ 強烈買進</span>' + small;
             if (score >= 4)  return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(16,185,129,0.1);color:#6ee7b7;font-weight:700;">↑ 建議買進</span>' + small;
-            if (score >= -4) return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(100,116,139,0.15);color:#94a3b8;font-weight:700;">→ 中性觀望</span>' + small;
+            if (score >= -4) return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(100,116,139,0.15);color:#a8bdd0;font-weight:700;">→ 中性觀望</span>' + small;
             if (score >= -10)return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(251,146,60,0.15);color:#fb923c;font-weight:700;">↓ 建議賣出</span>' + small;
             return '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:rgba(239,68,68,0.18);color:#ef4444;font-weight:700;">⬇ 強烈賣出</span>' + small;
         }
@@ -4519,7 +4519,7 @@
                                color:#060d1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;min-width:140px;">
                         ↻ 一鍵更新清單</button>
                     <button onclick="document.getElementById('missing-fund-notice')?.remove()"
-                        style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#94a3b8;
+                        style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#a8bdd0;
                                border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
                         略過</button>
                 </div>
@@ -4962,7 +4962,7 @@
                     const actual = e.epsActual?.raw, est = e.epsEstimate?.raw, surp = e.surprisePercent?.raw;
                     const beat = surp != null ? surp > 0 : null;
                     return `<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:0.28rem 0.45rem;color:#94a3b8;font-size:0.78rem;">${e.quarter?.fmt||'-'}</td>
+                        <td style="padding:0.28rem 0.45rem;color:#a8bdd0;font-size:0.78rem;">${e.quarter?.fmt||'-'}</td>
                         <td style="padding:0.28rem 0.45rem;text-align:right;color:#e2e8f0;font-size:0.8rem;">${est != null ? est.toFixed(2) : '-'}</td>
                         <td style="padding:0.28rem 0.45rem;text-align:right;font-weight:700;font-size:0.8rem;color:${beat===true?'#10b981':beat===false?'#ef4444':'#e2e8f0'};">${actual != null ? actual.toFixed(2) : '-'}</td>
                         <td style="padding:0.28rem 0.45rem;text-align:right;font-size:0.78rem;">${surp!=null?`<span style="padding:0.08rem 0.3rem;border-radius:4px;background:${beat?'rgba(16,185,129,0.12)':'rgba(239,68,68,0.12)'};color:${beat?'#10b981':'#ef4444'};">${beat?'+':''}${(surp*100).toFixed(1)}%</span>`:'-'}</td>
@@ -4984,9 +4984,9 @@
                 const valuationPills = [
                     fnd.pe  != null ? `<span title="本益比(TTM)" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(30,58,110,0.2);color:#60a5fa;font-size:0.74rem;cursor:default;">PE ${fmtV(fnd.pe)}</span>` : '',
                     fnd.fpe != null ? `<span title="預期本益比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(30,58,110,0.2);color:#3b82f6;font-size:0.74rem;cursor:default;">FPE ${fmtV(fnd.fpe)}</span>` : '',
-                    fnd.ps  != null ? `<span title="股價營收比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#94a3b8;font-size:0.74rem;cursor:default;">PS ${fmtV(fnd.ps)}</span>` : '',
-                    fnd.pb  != null ? `<span title="股價淨值比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#94a3b8;font-size:0.74rem;cursor:default;">PB ${fmtV(fnd.pb)}</span>` : '',
-                    fnd.peg != null ? `<span title="本益成長比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#94a3b8;font-size:0.74rem;cursor:default;">PEG ${fmtV(fnd.peg)}</span>` : '',
+                    fnd.ps  != null ? `<span title="股價營收比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#a8bdd0;font-size:0.74rem;cursor:default;">PS ${fmtV(fnd.ps)}</span>` : '',
+                    fnd.pb  != null ? `<span title="股價淨值比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#a8bdd0;font-size:0.74rem;cursor:default;">PB ${fmtV(fnd.pb)}</span>` : '',
+                    fnd.peg != null ? `<span title="本益成長比" style="padding:0.1rem 0.4rem;border-radius:4px;background:rgba(148,163,184,0.08);color:#a8bdd0;font-size:0.74rem;cursor:default;">PEG ${fmtV(fnd.peg)}</span>` : '',
                     fnd.rev_fwd != null ? `<span title="預期營收成長" style="padding:0.1rem 0.4rem;border-radius:4px;background:${fnd.rev_fwd>=0?'rgba(16,185,129,0.08)':'rgba(239,68,68,0.08)'};color:${fnd.rev_fwd>=0?'#10b981':'#ef4444'};font-size:0.74rem;cursor:default;">預期營收 ${fmtP(fnd.rev_fwd)}</span>` : '',
                 ].filter(Boolean).join('');
 
@@ -5038,7 +5038,7 @@
                         background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.2);
                         border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:0.65rem;">
                         <!-- 標題行 -->
-                        <div style="color:#94a3b8;font-size:0.72rem;font-weight:600;margin-bottom:0.35rem;">
+                        <div style="color:#a8bdd0;font-size:0.72rem;font-weight:600;margin-bottom:0.35rem;">
                             <i class="ic">◎</i> 券商平均目標價${isProxy?`<span style="color:#3b82f6;font-weight:400;font-size:0.69rem;"> · ${sym} 原型</span>`:''}
                         </div>
                         <!-- 主要數字行 -->
@@ -5300,7 +5300,7 @@
                         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.5rem;">
                         ${items.map(item => `
                             <div class="macro-card">
-                                <div style="color:#94a3b8;font-size:0.75rem;margin-bottom:0.2rem;">${item.name}</div>
+                                <div style="color:#a8bdd0;font-size:0.75rem;margin-bottom:0.2rem;">${item.name}</div>
                                 <div style="color:#f1f5f9;font-size:1.1rem;font-weight:700;margin-bottom:0.3rem;">${item.price != null ? item.price.toFixed(2) : '-'}</div>
                                 <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">${pctCell(item.chg1d,'今日')}${pctCell(item.chg7d,'7天')}</div>
                             </div>`).join('')}
