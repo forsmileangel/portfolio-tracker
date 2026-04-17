@@ -1945,6 +1945,30 @@
             saveTradeHistory();
             renderRealizedTab();
         }
+        function _setRealizedPreset(val) {
+            const today = new Date();
+            let from = '';
+            if (val === '7d')  { from = new Date(today - 7*86400000); }
+            else if (val === '1m')  { from = new Date(today); from.setMonth(from.getMonth()-1); }
+            else if (val === '3m')  { from = new Date(today); from.setMonth(from.getMonth()-3); }
+            else if (val === '1y')  { from = new Date(today); from.setFullYear(from.getFullYear()-1); }
+            else { _realizedDateFrom = ''; _realizedDateTo = ''; renderRealizedTab(); return; }
+            _realizedDateFrom = from.toISOString().slice(0,10);
+            _realizedDateTo   = today.toISOString().slice(0,10);
+            renderRealizedTab();
+        }
+        function _setRealizedDateRange() {
+            _realizedDateFrom = document.getElementById('realized-from')?.value || '';
+            _realizedDateTo   = document.getElementById('realized-to')?.value   || '';
+            // 重設下拉選單
+            const sel = document.getElementById('realized-preset');
+            if (sel) sel.value = '';
+            renderRealizedTab();
+        }
+        function _toggleRealizedCcy() {
+            _realizedCurrency = _realizedCurrency === 'native' ? 'TWD' : 'native';
+            renderRealizedTab();
+        }
         function renderRealizedTab() {
             const pane = document.getElementById('tab-pane-6');
             if (!pane) return;
@@ -1956,14 +1980,23 @@
                 </div>`;
                 return;
             }
+            // ── 日期篩選 ──
+            const fromTs = _realizedDateFrom ? new Date(_realizedDateFrom + 'T00:00:00').getTime() : 0;
+            const toTs   = _realizedDateTo   ? new Date(_realizedDateTo   + 'T23:59:59').getTime() : Infinity;
+            const filtered = tradeHistory.filter(t => {
+                const ts = new Date(t.date).getTime();
+                return ts >= fromTs && ts <= toTs;
+            });
+            const showTWD = _realizedCurrency === 'TWD';
+            const _fxRate = (market) => market === 'TW' ? 1 : market === 'HK' ? exchangeRates.HKD_TWD : exchangeRates.USD_TWD;
             // ── 彙整：依標的分組 ──
             const bySymbol = {};
-            [...tradeHistory].reverse().forEach(t => {
+            [...filtered].reverse().forEach(t => {
                 if (!bySymbol[t.symbol]) bySymbol[t.symbol] = { symbol: t.symbol, market: t.market || 'US', trades: [], totalPL: 0 };
                 bySymbol[t.symbol].trades.push(t);
                 bySymbol[t.symbol].totalPL += t.realizedPL;
             });
-            // ── 加總（各幣） ──
+            // ── 加總 ──
             let totUS = 0, totTW = 0, totHK = 0;
             Object.values(bySymbol).forEach(s => {
                 if (s.market === 'TW') totTW += s.totalPL;
@@ -1974,45 +2007,67 @@
             const totColor = totTWD >= 0 ? '#10b981' : '#ef4444';
             const fmt2 = (n) => Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const fmtSign = (n) => n >= 0 ? '+' : '-';
-            // ── 總計卡片 ──
+            // ── 篩選列＋總計卡片 ──
+            const ccyBtnBg  = showTWD ? 'rgba(16,185,129,0.15)' : 'rgba(30,58,110,0.2)';
+            const ccyBtnClr = showTWD ? '#10b981' : '#60a5fa';
+            const ccyBtnBdr = showTWD ? 'rgba(16,185,129,0.35)' : 'rgba(56,139,253,0.25)';
             const summaryHtml = `
             <div class="glass-card" style="padding:1.5rem 2rem; margin-bottom:1rem;">
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.25rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
                     <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0;"><i class="ic">◈</i> 已實現損益紀錄</h2>
                     <button onclick="clearTradeHistory()" style="padding:0.38rem 0.8rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.78rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
                 </div>
+                <!-- 篩選列 -->
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="padding:0.38rem 0.55rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.8rem;outline:none;cursor:pointer;">
+                        <option value="">全部</option>
+                        <option value="7d" ${_realizedDateFrom && _realizedDateTo ? '' : ''}>過去 7 天</option>
+                        <option value="1m">過去 1 個月</option>
+                        <option value="3m">過去 1 季</option>
+                        <option value="1y">過去 1 年</option>
+                    </select>
+                    <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="padding:0.35rem 0.5rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.78rem;outline:none;" title="起始日">
+                    <span style="color:#475569;font-size:0.8rem;">~</span>
+                    <input id="realized-to" type="date" value="${_realizedDateTo}" onchange="_setRealizedDateRange()" style="padding:0.35rem 0.5rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.25);border-radius:8px;color:#94a3b8;font-size:0.78rem;outline:none;" title="截止日">
+                    <button onclick="_toggleRealizedCcy()" style="padding:0.38rem 0.7rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:8px;color:${ccyBtnClr};font-size:0.8rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;margin-left:auto;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
+                    <div style="text-align:right;">
+                        <div style="color:#64748b;font-size:0.7rem;">筆數</div>
+                        <div style="color:#94a3b8;font-size:0.92rem;font-weight:700;">${filtered.length}</div>
+                    </div>
+                </div>
+                <!-- 累計 -->
                 <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end;">
                     <div>
-                        <div style="color:#64748b; font-size:0.73rem; margin-bottom:0.3rem; letter-spacing:0.04em;">累計已實現（約合 TWD）</div>
+                        <div style="color:#64748b; font-size:0.73rem; margin-bottom:0.3rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
                         <div class="mono" style="font-size:2rem; font-weight:800; color:${totColor};">${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}</div>
                     </div>
-                    ${totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">美股 USD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${fmtSign(totUS)}$${fmt2(totUS)}</div></div>` : ''}
-                    ${totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">台股 TWD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
-                    ${totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">港股 HKD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
-                    <div style="margin-left:auto; text-align:right;">
-                        <div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">交易筆數</div>
-                        <div style="color:#94a3b8;font-size:1rem;font-weight:700;">${tradeHistory.length}</div>
-                    </div>
+                    ${!showTWD && totUS !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">美股 USD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${fmtSign(totUS)}$${fmt2(totUS)}</div></div>` : ''}
+                    ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">台股 TWD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
+                    ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.72rem;margin-bottom:0.2rem;">港股 HKD</div><div class="mono" style="font-size:0.95rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
                 </div>
             </div>`;
             // ── 標的卡片 ──
             const symbolsHtml = Object.values(bySymbol).map(s => {
-                const ccy    = s.market === 'TW' ? 'NT$' : s.market === 'HK' ? 'HK$' : '$';
-                const isPos  = s.totalPL >= 0;
-                const color  = isPos ? '#10b981' : '#ef4444';
-                const flag   = s.market === 'TW' ? '🇹🇼' : s.market === 'HK' ? '🇭🇰' : '🇺🇸';
-                const expd   = _realizedExpanded[s.symbol] || false;
+                const nativeCcy = s.market === 'TW' ? 'NT$' : s.market === 'HK' ? 'HK$' : '$';
+                const dispCcy   = showTWD ? 'NT$' : nativeCcy;
+                const fx        = showTWD ? _fxRate(s.market) : 1;
+                const dispPL    = s.totalPL * fx;
+                const isPos     = dispPL >= 0;
+                const color     = isPos ? '#10b981' : '#ef4444';
+                const flag      = s.market === 'TW' ? '🇹🇼' : s.market === 'HK' ? '🇭🇰' : '🇺🇸';
+                const expd      = _realizedExpanded[s.symbol] || false;
                 const tradesHtml = s.trades.map(t => {
                     const d  = new Date(t.date);
                     const ds = isNaN(d) ? t.date : d.toLocaleDateString('zh-TW', {year:'numeric',month:'2-digit',day:'2-digit'});
-                    const tP = t.realizedPL >= 0;
-                    const lotsDesc = (t.lotsConsumed||[]).map(l => `${parseFloat(l.qty.toFixed(4))}@${ccy}${parseFloat(l.cost.toFixed(4))}`).join(' + ') || '-';
+                    const tPL = t.realizedPL * fx;
+                    const tP  = tPL >= 0;
+                    const lotsDesc = (t.lotsConsumed||[]).map(l => `${parseFloat(l.qty.toFixed(4))}@${nativeCcy}${parseFloat(l.cost.toFixed(4))}`).join(' + ') || '-';
                     return `<div style="display:grid;grid-template-columns:90px 1fr 1fr 1fr auto;gap:0.35rem 0.65rem;align-items:center;padding:0.42rem 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.79rem;">
                         <span style="color:#64748b;">${ds}</span>
                         <span style="color:#e2e8f0;">賣 ${parseFloat(t.qty.toFixed(4)).toLocaleString('en-US',{maximumFractionDigits:4})} 股</span>
-                        <span style="color:#60a5fa;">${ccy}${parseFloat(t.price.toFixed(4))} / 股</span>
+                        <span style="color:#60a5fa;">${nativeCcy}${parseFloat(t.price.toFixed(4))} / 股</span>
                         <span style="color:#475569;font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${lotsDesc}">${lotsDesc}</span>
-                        <span class="mono" style="font-weight:700;color:${tP?'#10b981':'#ef4444'};text-align:right;">${fmtSign(t.realizedPL)}${ccy}${fmt2(t.realizedPL)}</span>
+                        <span class="mono" style="font-weight:700;color:${tP?'#10b981':'#ef4444'};text-align:right;">${fmtSign(tPL)}${dispCcy}${fmt2(tPL)}</span>
                     </div>`;
                 }).join('');
                 return `
@@ -2024,7 +2079,7 @@
                             <span style="color:#64748b;font-size:0.76rem;">${s.trades.length} 筆</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:0.75rem;">
-                            <span class="mono" style="font-weight:700;font-size:0.98rem;color:${color};">${fmtSign(s.totalPL)}${ccy}${fmt2(s.totalPL)}</span>
+                            <span class="mono" style="font-weight:700;font-size:0.98rem;color:${color};">${fmtSign(dispPL)}${dispCcy}${fmt2(dispPL)}</span>
                             <span style="color:#64748b;font-size:0.78rem;">${expd?'▲':'▶'}</span>
                         </div>
                     </div>
@@ -2036,7 +2091,7 @@
                     </div>` : ''}
                 </div>`;
             }).join('');
-            pane.innerHTML = summaryHtml + symbolsHtml;
+            pane.innerHTML = summaryHtml + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#475569;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsHtml);
         }
 
         // 合併持倉 + 觀察清單（供分析管線使用）
