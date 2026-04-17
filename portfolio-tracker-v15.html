@@ -2368,13 +2368,9 @@
                     saveSheetUrlSetting();
                 }
 
-                // 還原現金部位
-                if (saved.cash_twd != null) {
-                    const v = saved.cash_twd || 0;
-                    if (v > 0) localStorage.setItem(PT_CASH_KEY, v); else localStorage.removeItem(PT_CASH_KEY);
-                    const el = document.getElementById('cash-twd-input');
-                    if (el) el.value = v > 0 ? v : '';
-                }
+                // 還原存款資料
+                deposits = Array.isArray(saved.deposits) ? saved.deposits : [];
+                saveDeposits();
                 if (saved.cash_pie_cb != null) {
                     localStorage.setItem(PT_CASH_PIE_KEY, saved.cash_pie_cb ? '1' : '0');
                     const cb = document.getElementById('cash-pie-cb');
