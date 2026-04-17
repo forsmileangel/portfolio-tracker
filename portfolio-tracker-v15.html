@@ -2892,9 +2892,22 @@
         }
 
         function exportHoldings() {
-            if (holdings.length === 0) return alert('尚無持倉');
-            const rows = [['Symbol','Market','Name','Quantity','Cost Price','Current Price','Added Date'], ...holdings.map(h => [h.symbol, h.market, h.name||'', h.quantity, h.costPrice, h.currentPrice, h.addedDate||''])];
-            const csv = rows.map(r => r.join('\t')).join('\n');
+            if (holdings.length === 0 && tradeHistory.length === 0) return alert('尚無持倉或交易紀錄');
+            // ── Holdings ──
+            const hRows = [['Symbol','Market','Name','Quantity','Cost Price','Current Price','Added Date','Lots']];
+            holdings.forEach(h => {
+                hRows.push([h.symbol, h.market, h.name||'', h.quantity, h.costPrice, h.currentPrice, h.addedDate||'', JSON.stringify(h.lots||[])]);
+            });
+            let csv = hRows.map(r => r.join('\t')).join('\n');
+            // ── TradeHistory（已實現損益）──
+            if (tradeHistory.length > 0) {
+                csv += '\n\n[TradeHistory]\n';
+                const tRows = [['Symbol','Market','Qty','Price','Date','RealizedPL','LotsConsumed']];
+                tradeHistory.forEach(t => {
+                    tRows.push([t.symbol, t.market||'US', t.qty, t.price, t.date, t.realizedPL, JSON.stringify(t.lotsConsumed||[])]);
+                });
+                csv += tRows.map(r => r.join('\t')).join('\n');
+            }
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
