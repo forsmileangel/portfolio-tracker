@@ -2045,6 +2045,166 @@
         function loadTradeHistory() {
             try { tradeHistory = JSON.parse(localStorage.getItem(PT_TRADE_HISTORY_KEY)) || []; } catch(_) { tradeHistory = []; }
         }
+        // ==================== 市值快照 & 期間報酬率 ====================
+        const PT_SNAPSHOTS_KEY = 'pt_snapshots';
+
+        function saveSnapshots() {
+            try { localStorage.setItem(PT_SNAPSHOTS_KEY, JSON.stringify(marketSnapshots)); } catch(_) {}
+        }
+        function loadSnapshots() {
+            try { marketSnapshots = JSON.parse(localStorage.getItem(PT_SNAPSHOTS_KEY)) || []; } catch(_) { marketSnapshots = []; }
+        }
+
+        // 計算目前所有股票持倉的台幣市值（不含加密/MOXA/現金）
+        function _currentStockValueTWD() {
+            return holdings.reduce((sum, h) => {
+                let v = (h.currentPrice || 0) * (h.quantity || 0);
+                if (h.market === 'US') v *= exchangeRates.USD_TWD;
+                else if (h.market === 'HK') v *= exchangeRates.HKD_TWD;
+                return sum + v;
+            }, 0);
+        }
+
+        // 每月首次開啟時自動記錄市值快照（同月已有就跳過）
+        function recordSnapshot() {
+            const today = new Date().toISOString().slice(0, 10);
+            const ym = today.slice(0, 7);
+            if (marketSnapshots.some(s => s.date.slice(0, 7) === ym)) return;
+            const stockTWD = _currentStockValueTWD();
+            if (stockTWD <= 0) return;
+            marketSnapshots.push({ date: today, stockTWD });
+            marketSnapshots.sort((a, b) => a.date.localeCompare(b.date));
+            saveSnapshots();
+        }
+
+        // 取得某期間起始月份（YYYY-MM）最近的快照市值（≤ 起始日第一天）
+        function _snapshotAtStart(periodStartYm) {
+            const boundary = periodStartYm + '-01';
+            const candidates = marketSnapshots.filter(s => s.date <= boundary);
+            if (!candidates.length) return null;
+            return candidates[candidates.length - 1].stockTWD;
+        }
+
+        // 將 period key 轉為起始 YYYY-MM
+        function _periodStartYm(key, mode) {
+            if (mode === 'month') return key;
+            if (mode === 'quarter') {
+                const [yr, q] = key.split('-Q');
+                return yr + '-' + String((parseInt(q) - 1) * 3 + 1).padStart(2, '0');
+            }
+            return key + '-01'; // year → YYYY-01
+        }
+
+        // 依 mode 分組 tradeHistory，回傳 [{ periodKey, trades }] 降冪排列
+        function _groupByPeriod(mode) {
+            const groups = {};
+            tradeHistory.forEach(t => {
+                const d = (t.date || '').slice(0, 10);
+                if (!d) return;
+                let key;
+                if (mode === 'month') {
+                    key = d.slice(0, 7);
+                } else if (mode === 'quarter') {
+                    const q = Math.ceil(parseInt(d.slice(5, 7)) / 3);
+                    key = d.slice(0, 4) + '-Q' + q;
+                } else {
+                    key = d.slice(0, 4);
+                }
+                if (!groups[key]) groups[key] = { periodKey: key, trades: [] };
+                groups[key].trades.push(t);
+            });
+            return Object.values(groups).sort((a, b) => b.periodKey.localeCompare(a.periodKey));
+        }
+
+        function renderReturnAnalysis() {
+            const container = document.getElementById('return-analysis-section');
+            if (!container) return;
+
+            const fmtPct = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%';
+            const fmtAmt = (n) => {
+                const sign = n >= 0 ? '+' : '-';
+                return sign + 'NT$' + Math.abs(Math.round(n)).toLocaleString('en-US');
+            };
+            const clr = (n) => n >= 0 ? '#10b981' : '#ef4444';
+
+            const modeBtnStyle = (m) => {
+                const active = _returnMode === m;
+                return `padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid ${active ? 'rgba(96,165,250,0.5)' : 'rgba(56,139,253,0.2)'};background:${active ? 'rgba(56,139,253,0.15)' : 'transparent'};color:${active ? '#60a5fa' : '#7e93a6'};`;
+            };
+
+            const groups = _groupByPeriod(_returnMode);
+            let rowsHtml = '';
+            if (!groups.length) {
+                rowsHtml = `<tr><td colspan="5" style="text-align:center;color:#607585;padding:1.5rem 0;font-size:0.85rem;">尚無交易紀錄可分析</td></tr>`;
+            } else {
+                groups.forEach(g => {
+                    let realizedTWD = 0, costBasis = 0;
+                    g.trades.forEach(t => {
+                        const fx = t.market === 'TW' ? 1 : t.market === 'HK' ? exchangeRates.HKD_TWD : exchangeRates.USD_TWD;
+                        realizedTWD += (t.realizedPL || 0) * fx;
+                        (t.lotsConsumed || []).forEach(l => {
+                            costBasis += (l.qty || 0) * (l.cost || 0) * fx;
+                        });
+                    });
+                    const startYm = _periodStartYm(g.periodKey, _returnMode);
+                    const startVal = _snapshotAtStart(startYm);
+                    const realizedPct = costBasis > 0 ? realizedTWD / costBasis : null;
+                    const totalPct    = startVal  > 0 ? realizedTWD / startVal  : null;
+
+                    rowsHtml += `
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <td style="padding:0.55rem 0.75rem;color:#e2e8f0;font-weight:600;font-size:0.85rem;">${g.periodKey}</td>
+                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
+                            ${startVal != null ? `<span style="color:#a8bdd0;font-size:0.82rem;">${pv('NT$' + Math.round(startVal).toLocaleString('en-US'))}</span>` : '<span style="color:#607585">—</span>'}
+                        </td>
+                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
+                            <span style="color:${clr(realizedTWD)};font-weight:700;font-size:0.85rem;">${pv(fmtAmt(realizedTWD))}</span>
+                        </td>
+                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
+                            ${realizedPct != null ? `<span style="color:${clr(realizedPct)};font-weight:700;font-size:0.85rem;">${pv(fmtPct(realizedPct))}</span>` : '<span style="color:#607585">—</span>'}
+                        </td>
+                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
+                            ${totalPct != null ? `<span style="color:${clr(totalPct)};font-weight:700;font-size:0.85rem;">${pv(fmtPct(totalPct))}</span>` : '<span style="color:#607585;font-size:0.73rem;">需期初快照</span>'}
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            const snCount = marketSnapshots.length;
+            const snNote  = snCount === 0
+                ? '每月開啟時將自動記錄期初市值，累積後可計算總報酬率'
+                : `已累積 ${snCount} 個月市值快照`;
+
+            container.innerHTML = `
+            <div class="glass-card" style="margin-top:0.75rem;">
+                <div style="padding:1rem 1.25rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <span style="color:#f1f5f9;font-weight:600;font-size:0.9rem;margin-right:0.6rem;">◈ 期間報酬率</span>
+                        <span style="color:#607585;font-size:0.73rem;">${snNote}</span>
+                    </div>
+                    <div style="display:flex;gap:0.35rem;">
+                        <button onclick="_returnMode='month';renderReturnAnalysis();" style="${modeBtnStyle('month')}">月</button>
+                        <button onclick="_returnMode='quarter';renderReturnAnalysis();" style="${modeBtnStyle('quarter')}">季</button>
+                        <button onclick="_returnMode='year';renderReturnAnalysis();" style="${modeBtnStyle('year')}">年</button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:left;white-space:nowrap;">期間</th>
+                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">期初股票市值</th>
+                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">已實現損益</th>
+                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">已實現報酬率</th>
+                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">總報酬率<span style="color:#475569;font-size:0.67rem;margin-left:0.2rem;">（實現/期初）</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
         // 確保 holding 有 lots 欄位（舊資料向下相容）
         function _ensureLots(h) {
             if (!h.lots || !Array.isArray(h.lots) || h.lots.length === 0) {
