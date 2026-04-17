@@ -1162,13 +1162,12 @@
             renderAll();
         }
         function _updatePrivacyBtn() {
-            const slash = document.getElementById('privacy-slash');
-            const btn   = document.getElementById('privacy-btn');
-            if (!slash || !btn) return;
-            slash.style.display = _privacyMode ? 'block' : 'none';
-            slash.style.borderTopColor = '#f1f5f9';
-            btn.title = _privacyMode ? '隱私模式開啟 — 點擊顯示金額' : '點擊隱藏敏感金額';
-            btn.style.borderColor = 'rgba(100,116,139,0.3)';
+            const title = _privacyMode ? '隱私模式開啟 — 點擊顯示金額' : '點擊隱藏敏感金額';
+            document.querySelectorAll('.pv-toggle-btn').forEach(btn => {
+                btn.title = title;
+                const slash = btn.querySelector('.pv-slash-icon');
+                if (slash) slash.style.display = _privacyMode ? 'block' : 'none';
+            });
         }
         function loadPrivacy() {
             _privacyMode = localStorage.getItem(PT_PRIVACY_KEY) === '1';
