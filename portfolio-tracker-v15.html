@@ -4565,6 +4565,7 @@
                             : `✓ 即時匯率（${new Date().toLocaleTimeString('zh-TW')}）`;
                     }
                     renderAll();
+                    recordSnapshot(); // 每月首次開啟，自動記錄市值快照
                 }
             })();
             // 啟動時抓取 USDT/TWD 匯率（CoinGecko）
