@@ -1790,9 +1790,11 @@
             _saveStorageTimer = setTimeout(saveToStorage, 500);
         }
 
-        // ==================== 現金 ====================
-        const PT_CASH_KEY     = 'pt_v13_cash';
+        // ==================== 現金 / 存款 ====================
+        const PT_CASH_KEY       = 'pt_v13_cash';      // 保留向下相容（已棄用，改由存款計算）
         const PT_CASH_PIE_KEY   = 'pt_cash_pie_cb';
+        const PT_DEPOSITS_KEY   = 'pt_deposits';
+        let deposits = [];
         const PT_CRYPTO_KEY     = 'pt_crypto_twd';
         const PT_CRYPTO_PIE_KEY = 'pt_crypto_pie_cb';
         const PT_MOXA_KEY       = 'pt_moxa_twd';
