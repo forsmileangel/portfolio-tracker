@@ -2030,21 +2030,27 @@
                     ${!showTWD && totTW !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${fmtSign(totTW)}NT$${fmt2(totTW)}</div></div>` : ''}
                     ${!showTWD && totHK !== 0 ? `<div><div style="color:#64748b;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${fmtSign(totHK)}HK$${fmt2(totHK)}</div></div>` : ''}
                 </div>
-                <!-- 篩選列（單行：開始日期 結束日期 快捷 幣別 筆數） -->
-                <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:nowrap; overflow-x:auto;">
-                    <span style="${lblStyle}">開始</span>
-                    <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="${inpStyle}">
-                    <span style="${lblStyle}">結束</span>
-                    <input id="realized-to" type="date" value="${_realizedDateTo}" onchange="_setRealizedDateRange()" style="${inpStyle}">
-                    <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="width:auto;padding:0.32rem 0.45rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;cursor:pointer;flex-shrink:0;">
-                        <option value="">全部</option>
-                        <option value="7d">過去 7 天</option>
-                        <option value="1m">過去 1 月</option>
-                        <option value="3m">過去 1 季</option>
-                        <option value="1y">過去 1 年</option>
-                    </select>
-                    <button onclick="_toggleRealizedCcy()" style="padding:0.32rem 0.65rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:7px;color:${ccyBtnClr};font-size:0.78rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
-                    <span style="color:#64748b;font-size:0.78rem;margin-left:0.2rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
+                <!-- 篩選列：桌機一行，手機自動換兩行 -->
+                <div style="display:flex; gap:0.5rem 0.75rem; align-items:center; flex-wrap:wrap;">
+                    <!-- 第一群：日期區間 -->
+                    <div style="display:flex; gap:0.4rem; align-items:center; flex-shrink:0;">
+                        <span style="${lblStyle}">開始</span>
+                        <input id="realized-from" type="date" value="${_realizedDateFrom}" onchange="_setRealizedDateRange()" style="${inpStyle}">
+                        <span style="${lblStyle}">結束</span>
+                        <input id="realized-to" type="date" value="${_realizedDateTo}" onchange="_setRealizedDateRange()" style="${inpStyle}">
+                    </div>
+                    <!-- 第二群：快捷＋幣別＋筆數 -->
+                    <div style="display:flex; gap:0.4rem; align-items:center; flex-shrink:0;">
+                        <select id="realized-preset" onchange="_setRealizedPreset(this.value)" style="width:auto;padding:0.32rem 0.45rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#94a3b8;font-size:0.75rem;outline:none;cursor:pointer;">
+                            <option value="">全部</option>
+                            <option value="7d">過去 7 天</option>
+                            <option value="1m">過去 1 月</option>
+                            <option value="3m">過去 1 季</option>
+                            <option value="1y">過去 1 年</option>
+                        </select>
+                        <button onclick="_toggleRealizedCcy()" style="padding:0.32rem 0.65rem;background:${ccyBtnBg};border:1.5px solid ${ccyBtnBdr};border-radius:7px;color:${ccyBtnClr};font-size:0.78rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;">${showTWD ? 'NT$ 台幣' : '原幣'}</button>
+                        <span style="color:#64748b;font-size:0.78rem;">交易 <span style="color:#94a3b8;font-weight:700;">${filtered.length}</span> 筆</span>
+                    </div>
                 </div>
             </div>`;
             // ── 標的卡片 ──
