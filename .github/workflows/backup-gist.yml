@@ -2,7 +2,7 @@ name: Backup Gist to SQLite
 
 on:
   schedule:
-    - cron: '30 16 * * *'           # UTC 16:30 = 台灣 00:30（每天凌晨）
+    - cron: '30 20 * * *'           # UTC 20:30 = 台灣 04:30（每天凌晨）
   workflow_dispatch:                 # 允許手動觸發
 
 jobs:
