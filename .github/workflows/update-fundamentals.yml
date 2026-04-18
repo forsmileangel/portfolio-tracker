@@ -24,7 +24,12 @@ jobs:
         run: pip install yfinance>=0.2.40 pandas lxml pytz
 
       - name: Fetch fundamentals
-        run: python data/update_fund.py
+        run: |
+          for i in 1 2 3; do
+            python data/update_fund.py && break
+            echo "Attempt $i failed, retrying in 60s..."
+            sleep 60
+          done
 
       - name: Commit & push updated data
         run: |
