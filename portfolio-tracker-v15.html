@@ -2752,7 +2752,8 @@
                 _storageReady = true;
                 saveToStorage();
                 renderAll();
-                showImportToast(`☁️ 已從雲端載入最新庫存 ${holdings.length} 筆`, 3000);
+                const _depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
+                showImportToast(`☁️ 已從雲端載入 ${holdings.length} 筆庫存${_depNote}`, 3000);
 
             } catch(e) {
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
