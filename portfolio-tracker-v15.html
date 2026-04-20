@@ -2705,9 +2705,11 @@
                     if (sheetEl) sheetEl.value = saved.sheet_url;
                     saveSheetUrlSetting();
                 }
-                // 還原存款資料
-                deposits = Array.isArray(saved.deposits) ? saved.deposits : [];
-                saveDeposits();
+                // 還原存款資料（靜默拉取：僅當 Gist 有存款時才覆蓋，避免空資料蓋掉本地）
+                if (Array.isArray(saved.deposits) && saved.deposits.length > 0) {
+                    deposits = saved.deposits;
+                    saveDeposits();
+                }
                 if (saved.cash_pie_cb != null) {
                     localStorage.setItem(PT_CASH_PIE_KEY, saved.cash_pie_cb ? '1' : '0');
                     const cb = document.getElementById('cash-pie-cb');
