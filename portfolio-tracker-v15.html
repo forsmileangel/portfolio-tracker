@@ -1954,15 +1954,17 @@
                 ? `<div style="text-align:center;padding:1.5rem;color:#607585;font-size:0.88rem;">尚無存款紀錄，請在上方新增</div>`
                 : deposits.map(d => {
                     const twdVal = _depositToTWD(d);
-                    const twdStr = d.currency !== 'TWD' ? `<span style="color:#607585;font-size:0.78rem;">≈ NT$${fmtN(twdVal)}</span>` : '';
+                    const rawAmt = d.currency === 'TWD' ? Math.round(d.amount) : d.amount;
                     return `
-                    <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem 1rem;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem 0.75rem;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                         <div>
                             <div style="color:#e2e8f0;font-weight:600;font-size:0.9rem;">${d.bank}</div>
                             <div style="color:#7e93a6;font-size:0.75rem;">${d.currency}</div>
                         </div>
-                        <div class="mono" style="color:#f1f5f9;font-size:0.92rem;text-align:right;">${pv(fmtAmt(d.amount, d.currency))}</div>
-                        <div style="text-align:right;">${d.currency !== 'TWD' ? `<span class="mono" style="color:#607585;font-size:0.78rem;">${pv('≈ NT$' + fmtN(twdVal))}</span>` : ''}</div>
+                        <input type="number" class="mono" value="${rawAmt}"
+                            onchange="updateDepositAmount(${d.id}, this.value)"
+                            style="width:110px;text-align:right;padding:0.28rem 0.5rem;background:rgba(6,13,26,0.85);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#f1f5f9;font-size:0.88rem;outline:none;">
+                        <div style="text-align:right;min-width:60px;">${d.currency !== 'TWD' ? `<span class="mono" style="color:#607585;font-size:0.78rem;">≈ NT$${fmtN(twdVal)}</span>` : ''}</div>
                         <button onclick="removeDeposit(${d.id})" style="padding:0.25rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">×</button>
                     </div>`;
                 }).join('');
