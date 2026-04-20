@@ -1930,6 +1930,16 @@
             renderDepositsTab();
             renderAll();
         }
+        function updateDepositAmount(id, val) {
+            const amt = parseFloat(val);
+            if (isNaN(amt) || amt < 0) return;
+            const dep = deposits.find(d => d.id === id);
+            if (!dep) return;
+            dep.amount = amt;
+            saveDeposits();
+            renderDepositsTab();
+            renderAll();
+        }
         function renderDepositsTab() {
             const pane = document.getElementById('tab-pane-7');
             if (!pane) return;
