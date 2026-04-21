@@ -64,7 +64,7 @@
   v15.046 - 已實現損益 Tab：FIFO 批次成本、幣別切換（原幣/TWD）、日期篩選（含過去3/5年）、響應式篩選列（桌機單行/手機兩行）；Gist 拉取強制同步 tradeHistory；CSV 匯出含 Lots＋TradeHistory 區段，匯入自動還原
   v15.047 - 期間報酬率分析：月/季/年切換；已實現報酬率（已實現損益/成本）＋總報酬率（已實現損益/期初市值）；每月自動記錄月度市值快照；Gist 同步快照資料
   v15.048 - 快照改為每日記錄（當日第一次開啟）；期間漲跌幅改為期末-期初/期初（含未實現）；表格欄位改為：期初市值、期末市值、漲跌幅、已實現損益；新快照自動靜默推送 Gist（有 Token 才推，失敗靜默）
-  v15.049 - 存款金額可直接編輯（點擊數字修改，onchange 自動儲存）；修正靜默拉取覆蓋本地存款 bug（Gist 無存款時不再清空本地資料）
+  v15.050 - 存款金額可直接編輯（點擊數字修改，onchange 自動儲存）；修正靜默拉取覆蓋本地存款 bug（Gist 無存款時不再清空本地資料）
   v15.050 - 修正靜默拉取（page load auto-pull）覆蓋本地已實現損益紀錄及存款 bug：改為「本地有資料時不蓋」，只有本地空資料才從 Gist 拉入；手動拉取維持全覆蓋
 -->
 <!DOCTYPE html>
@@ -315,7 +315,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.049</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.050</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
                 <h1 id="main-title" style="color:#60a5fa; font-size:2.5rem; font-weight:900; margin:0 0 0.25rem 0; text-transform:uppercase; letter-spacing:3px; text-shadow:0 0 20px rgba(56,139,253,0.5); background:linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #93c5fd 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-size:200% auto; animation:shimmer 3s linear infinite;">Portfolio Tracker</h1>
