@@ -2990,6 +2990,7 @@
                     lotsConsumed
                 });
                 saveTradeHistory();
+                _markLocalModified(); _scheduleAutoPush();
             }
 
             alert(isBuy ? `✅ 已買入 ${symbol}` : `✅ 已賣出 ${symbol}，已實現損益 ${tradeHistory[tradeHistory.length-1]?.realizedPL >= 0 ? '+' : ''}${tradeHistory[tradeHistory.length-1]?.realizedPL?.toFixed(2) ?? ''}`);
