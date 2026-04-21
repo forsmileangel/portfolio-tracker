@@ -2727,10 +2727,19 @@
                     if (sheetEl) sheetEl.value = saved.sheet_url;
                     saveSheetUrlSetting();
                 }
-                // 還原存款資料（靜默拉取：本地無存款時才從 Gist 拉入，避免舊雲端資料蓋掉本地新資料）
-                if (Array.isArray(saved.deposits) && saved.deposits.length > 0 && deposits.length === 0) {
-                    deposits = saved.deposits;
-                    saveDeposits();
+                // ── 時間戳比較：若本地有未推送的修改（比 Gist 更新），跳過存款/已實現損益覆蓋 ──
+                const _localModTs = localStorage.getItem(PT_LOCAL_MODIFY_TS) || '';
+                const _gistPushedAt = saved.pushedAt || '';
+                const _gistIsNewer = !_localModTs || _gistPushedAt >= _localModTs;
+
+                // 還原存款資料
+                if (Array.isArray(saved.deposits) && saved.deposits.length > 0) {
+                    if (_gistIsNewer || deposits.length === 0) {
+                        deposits = saved.deposits;
+                        saveDeposits();
+                    } else {
+                        console.log('[Auto-pull] 本地存款較新，跳過 Gist 覆蓋');
+                    }
                 }
                 if (saved.cash_pie_cb != null) {
                     localStorage.setItem(PT_CASH_PIE_KEY, saved.cash_pie_cb ? '1' : '0');
@@ -2764,10 +2773,14 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
-                // 還原已實現損益紀錄（靜默拉取：本地無紀錄時才從 Gist 拉入，避免舊雲端資料蓋掉本地新資料）
-                if (Array.isArray(saved.tradeHistory) && saved.tradeHistory.length > 0 && tradeHistory.length === 0) {
-                    tradeHistory = saved.tradeHistory;
-                    saveTradeHistory();
+                // 還原已實現損益紀錄
+                if (Array.isArray(saved.tradeHistory) && saved.tradeHistory.length > 0) {
+                    if (_gistIsNewer || tradeHistory.length === 0) {
+                        tradeHistory = saved.tradeHistory;
+                        saveTradeHistory();
+                    } else {
+                        console.log('[Auto-pull] 本地已實現損益較新，跳過 Gist 覆蓋');
+                    }
                 }
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
