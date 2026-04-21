@@ -2081,6 +2081,21 @@
             }, 0);
         }
 
+        // ── 本地修改時間戳 & 自動推送（防止靜默拉取覆蓋未推送的本地修改）──
+        const PT_LOCAL_MODIFY_TS = 'pt_local_modify_ts';
+        let _autoPushTimer = null;
+        function _markLocalModified() {
+            localStorage.setItem(PT_LOCAL_MODIFY_TS, new Date().toISOString());
+        }
+        function _scheduleAutoPush() {
+            if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) return;
+            clearTimeout(_autoPushTimer);
+            _autoPushTimer = setTimeout(() => {
+                _gistSilentPush();
+                console.log('[AutoPush] 本地修改已自動同步至 Gist');
+            }, 2000);
+        }
+
         // 靜默推送 Gist（從 localStorage 讀憑證，無 UI 反饋，無 Token 則略過）
         async function _gistSilentPush() {
             const token  = localStorage.getItem(GIST_TOKEN_KEY);
