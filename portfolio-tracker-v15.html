@@ -2744,9 +2744,11 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
-                // 還原已實現損益紀錄（永遠以雲端為準，無資料則清空）
-                tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
-                saveTradeHistory();
+                // 還原已實現損益紀錄（靜默拉取：本地無紀錄時才從 Gist 拉入，避免舊雲端資料蓋掉本地新資料）
+                if (Array.isArray(saved.tradeHistory) && saved.tradeHistory.length > 0 && tradeHistory.length === 0) {
+                    tradeHistory = saved.tradeHistory;
+                    saveTradeHistory();
+                }
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
 
