@@ -1921,6 +1921,7 @@
             if (isNaN(amount) || amount <= 0) return;
             deposits.push({ id: Date.now(), bank, currency, amount });
             saveDeposits();
+            _markLocalModified(); _scheduleAutoPush();
             document.getElementById('dep-bank-input').value = '';
             document.getElementById('dep-amount-input').value = '';
             renderDepositsTab();
@@ -1929,6 +1930,7 @@
         function removeDeposit(id) {
             deposits = deposits.filter(d => d.id !== id);
             saveDeposits();
+            _markLocalModified(); _scheduleAutoPush();
             renderDepositsTab();
             renderAll();
         }
@@ -1939,6 +1941,7 @@
             if (!dep) return;
             dep.amount = amt;
             saveDeposits();
+            _markLocalModified(); _scheduleAutoPush();
             renderDepositsTab();
             renderAll();
         }
