@@ -2707,8 +2707,8 @@
                     if (sheetEl) sheetEl.value = saved.sheet_url;
                     saveSheetUrlSetting();
                 }
-                // 還原存款資料（靜默拉取：僅當 Gist 有存款時才覆蓋，避免空資料蓋掉本地）
-                if (Array.isArray(saved.deposits) && saved.deposits.length > 0) {
+                // 還原存款資料（靜默拉取：本地無存款時才從 Gist 拉入，避免舊雲端資料蓋掉本地新資料）
+                if (Array.isArray(saved.deposits) && saved.deposits.length > 0 && deposits.length === 0) {
                     deposits = saved.deposits;
                     saveDeposits();
                 }
