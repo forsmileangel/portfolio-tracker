@@ -4074,8 +4074,9 @@
             let prevPrevClose = fund?.prev_prev_close ?? null;
             const dailyTs3   = dailyData?.chart?.result?.[0]?.timestamp ?? [];
             const lastDailyTs = dailyTs3[dailyTs3.length - 1];
-            const todayET3    = new Date().toLocaleDateString('en-US', {timeZone:'America/New_York'});
-            const barET3      = lastDailyTs ? new Date(lastDailyTs*1000).toLocaleDateString('en-US',{timeZone:'America/New_York'}) : '';
+            const _tz3 = _exchangeTz(symbol);
+            const todayET3    = new Date().toLocaleDateString('en-US', {timeZone:_tz3});
+            const barET3      = lastDailyTs ? new Date(lastDailyTs*1000).toLocaleDateString('en-US',{timeZone:_tz3}) : '';
             const marketOpenedToday = (todayET3 === barET3);
             const valid3 = Array.isArray(dailyC) ? dailyC.filter(c => c != null) : [];
             if (marketOpenedToday) {
