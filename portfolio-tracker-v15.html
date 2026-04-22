@@ -2707,17 +2707,24 @@
                     headers: {
                         'Authorization': `token ${token}`,
                         'Accept': 'application/vnd.github.v3+json'
-                    }
+                    },
+                    cache: 'no-store'
                 });
                 if (!res.ok) return; // 靜默失敗
 
-                const data   = await res.json();
-                const rawUrl = data.files?.[GIST_FILENAME]?.raw_url;
-                if (!rawUrl) return;
+                const data     = await res.json();
+                const gistFile = data.files?.[GIST_FILENAME];
+                if (!gistFile) return;
 
-                const fileRes = await fetch(rawUrl);
-                if (!fileRes.ok) return;
-                const saved = await fileRes.json();
+                // 優先用 API 回應內嵌的 content（避免 raw_url CDN 快取），truncated 時才 fallback
+                let saved;
+                if (gistFile.content && !gistFile.truncated) {
+                    saved = JSON.parse(gistFile.content);
+                } else {
+                    const fileRes = await fetch(gistFile.raw_url, { cache: 'no-store' });
+                    if (!fileRes.ok) return;
+                    saved = await fileRes.json();
+                }
 
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0) return;
 
