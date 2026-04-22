@@ -4389,7 +4389,7 @@
                             ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
                         const _pcls = _praw.filter(c => c != null).map(c => c * _pscale);
                         const _plast = _pts[_pts.length - 1];
-                        const _ptz = _psym.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York';
+                        const _ptz = _exchangeTz(_psym);
                         const _ptd = new Date().toLocaleDateString('en-US', {timeZone: _ptz});
                         const _pbd = _plast ? new Date(_plast * 1000).toLocaleDateString('en-US', {timeZone: _ptz}) : '';
                         const _popened = (_ptd === _pbd);
