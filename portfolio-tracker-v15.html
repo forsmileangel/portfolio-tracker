@@ -67,6 +67,7 @@
   v15.050 - 存款金額可直接編輯（點擊數字修改，onchange 自動儲存）；修正靜默拉取覆蓋本地存款 bug（Gist 無存款時不再清空本地資料）
   v15.050 - Gist 同步穩定化：存款/已實現損益修改後自動推送 Gist（2s debounce）；靜默拉取加入時間戳比較（本地較新則跳過覆蓋）；徹底修復「重新開頁面資料被舊 Gist 蓋掉」問題
   v15.051 - Gist 拉取改用 API 內嵌 content（不再二次 fetch raw_url），徹底消除 GitHub CDN 快取導致拉到舊資料的問題；所有 Gist fetch 加入 cache:'no-store'
+  v15.052 - 修正 Yahoo chart API 無資料時誤設 marketOpenedToday=false 導致今日漲跌顯示「-」的 bug
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
