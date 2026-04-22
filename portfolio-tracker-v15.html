@@ -4126,7 +4126,7 @@
             const kdCross  = kd => kd ? (kd.crossUp ? 'golden' : kd.crossDown ? 'death' : 'none') : 'none';
             const weeklyC  = weeklyQ.close, dailyC = dailyQ.close, hourlyC = hourlyQ.close;
             // prevClose & marketOpenedToday
-            // 港股（.HK）用 Asia/Hong_Kong 時區判斷今日是否開盤，其餘用 America/New_York
+            // 用 _exchangeTz() 依標的市場選擇正確時區判斷今日是否開盤
             const dailyTs  = dailyData?.chart?.result?.[0]?.timestamp ?? [];
             const lastTs   = dailyTs[dailyTs.length - 1];
             const _tz      = _exchangeTz(symbol);
