@@ -4541,8 +4541,9 @@
                             const ch = qd?.chart?.result?.[0];
                             const tss = ch?.timestamp ?? [];
                             const closes = (ch?.indicators?.quote?.[0]?.close ?? []).filter(v => v != null);
+                            if (tss.length === 0 || closes.length === 0) continue; // chart API 無資料，跳過此標的（不設 marketOpenedToday）
                             const todayET = new Date().toLocaleDateString('en-US', {timeZone: 'America/New_York'});
-                            const barET = tss.length ? new Date(tss[tss.length - 1] * 1000).toLocaleDateString('en-US', {timeZone: 'America/New_York'}) : '';
+                            const barET = new Date(tss[tss.length - 1] * 1000).toLocaleDateString('en-US', {timeZone: 'America/New_York'});
                             const opened = (todayET === barET);
                             _tmpMarketOpened[holding] = opened;
                             const adjCl = closes.slice();
