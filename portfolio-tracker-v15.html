@@ -4594,7 +4594,7 @@
                                 ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
                             const closes = rawCloses.filter(c => c != null).map(c => c * _ccyScale);
                             const lastTs   = ts[ts.length - 1];
-                            const _tz = r.holding.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York';
+                            const _tz = _exchangeTz(r.holding);
                             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
                             const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
                             const todayOpened = (todayET === barET);
