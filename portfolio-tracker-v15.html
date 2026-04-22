@@ -3835,6 +3835,13 @@
         // 記住上次成功的 proxy 索引（頁面週期內有效），避免每次都從第一個重試
         let _yfProxyIdx = 0;
 
+        // 根據標的代碼回傳對應交易所時區（用於判斷「今天有沒有開盤」）
+        function _exchangeTz(symbol) {
+            if (symbol.endsWith('.TW')) return 'Asia/Taipei';
+            if (symbol.endsWith('.HK')) return 'Asia/Hong_Kong';
+            return 'America/New_York';
+        }
+
         async function yfFetch(url) {
             const errors = [];
             const n = YF_PROXIES.length;
