@@ -4129,7 +4129,7 @@
             // 港股（.HK）用 Asia/Hong_Kong 時區判斷今日是否開盤，其餘用 America/New_York
             const dailyTs  = dailyData?.chart?.result?.[0]?.timestamp ?? [];
             const lastTs   = dailyTs[dailyTs.length - 1];
-            const _tz      = symbol.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York';
+            const _tz      = _exchangeTz(symbol);
             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
             const barET    = lastTs ? new Date(lastTs*1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
             const opened   = (todayET === barET);
