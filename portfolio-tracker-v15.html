@@ -2594,7 +2594,8 @@
                     headers: {
                         'Authorization': `token ${token}`,
                         'Accept': 'application/vnd.github.v3+json'
-                    }
+                    },
+                    cache: 'no-store'
                 });
 
                 if (!res.ok) {
@@ -2603,12 +2604,18 @@
                 }
 
                 const data    = await res.json();
-                const rawUrl  = data.files?.[GIST_FILENAME]?.raw_url;
-                if (!rawUrl) throw new Error(`找不到 ${GIST_FILENAME} 檔案`);
+                const gistFile = data.files?.[GIST_FILENAME];
+                if (!gistFile) throw new Error(`找不到 ${GIST_FILENAME} 檔案`);
 
-                const fileRes = await fetch(rawUrl);
-                if (!fileRes.ok) throw new Error('讀取檔案失敗');
-                const saved = await fileRes.json();
+                // 優先用 API 回應內嵌的 content（避免 raw_url CDN 快取），truncated 時才 fallback
+                let saved;
+                if (gistFile.content && !gistFile.truncated) {
+                    saved = JSON.parse(gistFile.content);
+                } else {
+                    const fileRes = await fetch(gistFile.raw_url, { cache: 'no-store' });
+                    if (!fileRes.ok) throw new Error('讀取檔案失敗');
+                    saved = await fileRes.json();
+                }
 
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0)
                     throw new Error('雲端資料為空');
