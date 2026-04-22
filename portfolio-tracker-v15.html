@@ -3928,8 +3928,9 @@
                                 const tss = ch?.timestamp ?? [];
                                 const c   = (ch?.indicators?.quote?.[0]?.close ?? []).filter(v => v != null);
                                 if (tss.length === 0 || c.length === 0) throw new Error('no chart data');
-                                const todayET = new Date().toLocaleDateString('en-US', {timeZone:'America/New_York'});
-                                const barET   = new Date(tss[tss.length-1]*1000).toLocaleDateString('en-US',{timeZone:'America/New_York'});
+                                const _tz0 = _exchangeTz(symbol);
+                                const todayET = new Date().toLocaleDateString('en-US', {timeZone:_tz0});
+                                const barET   = new Date(tss[tss.length-1]*1000).toLocaleDateString('en-US',{timeZone:_tz0});
                                 marketOpenedToday = (todayET === barET);
                                 // 去除 Yahoo 在未開盤時附加的幻影重複 bar（closes[-1]=closes[-2] 完全相等）
                                 const adjC = c.slice();
