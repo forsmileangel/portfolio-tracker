@@ -2089,19 +2089,72 @@
         }
 
         // ── 本地修改時間戳 & 自動推送（防止靜默拉取覆蓋未推送的本地修改）──
-        const PT_LOCAL_MODIFY_TS = 'pt_local_modify_ts';
-        let _autoPushTimer = null;
+        const PT_LOCAL_MODIFY_TS    = 'pt_local_modify_ts';
+        const PT_PENDING_PUSH_COUNT = 'pt_pending_push_count';
+        const MAX_PUSH_RETRY = 5;
+        let _autoPushTimer  = null;
+        let _retryTimer     = null;
+        let _pushRetryCount = 0;
+
+        function _updatePendingPushIndicator() {
+            const count = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
+            const el = document.getElementById('pending-push-indicator');
+            if (!el) return;
+            if (count > 0) {
+                const cEl = document.getElementById('pending-push-count');
+                if (cEl) cEl.textContent = count;
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function _retryPushNow() {
+            _pushRetryCount = 0;
+            clearTimeout(_retryTimer);
+            _gistSilentPush();
+        }
+
         function _markLocalModified() {
             localStorage.setItem(PT_LOCAL_MODIFY_TS, new Date().toISOString());
+            // 只有在 Gist 已設定時才累計 pending
+            if (localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
+                const curr = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, String(curr + 1));
+                _updatePendingPushIndicator();
+            }
         }
         function _scheduleAutoPush() {
             if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) return;
             clearTimeout(_autoPushTimer);
+            clearTimeout(_retryTimer);        // 新改動取代尚未執行的 retry
+            _pushRetryCount = 0;               // 重置退避計數
             _autoPushTimer = setTimeout(() => {
                 _gistSilentPush();
                 console.log('[AutoPush] 本地修改已自動同步至 Gist');
             }, 2000);
         }
+
+        function _scheduleRetry() {
+            if (_pushRetryCount >= MAX_PUSH_RETRY) {
+                console.warn('[AutoPush] 已達最大重試次數，等 online 事件或頁面重整或點擊 UI 提示再試');
+                return;
+            }
+            const delay = Math.min(1000 * Math.pow(2, _pushRetryCount), 30000);
+            _pushRetryCount++;
+            clearTimeout(_retryTimer);
+            console.warn(`[AutoPush] 將在 ${delay}ms 後重試（第 ${_pushRetryCount}/${MAX_PUSH_RETRY} 次）`);
+            _retryTimer = setTimeout(_gistSilentPush, delay);
+        }
+
+        // 網路恢復時自動重試
+        window.addEventListener('online', () => {
+            if (parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10) > 0) {
+                _pushRetryCount = 0;
+                console.log('[AutoPush] 偵測到網路恢復，立即重試推送');
+                _gistSilentPush();
+            }
+        });
 
         // 靜默推送 Gist（從 localStorage 讀憑證，無 UI 反饋，無 Token 則略過）
         async function _gistSilentPush() {
@@ -2125,7 +2178,7 @@
                     marketSnapshots,
                     pushedAt: new Date().toISOString()
                 }, null, 2);
-                await fetch(`https://api.github.com/gists/${gistId}`, {
+                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `token ${token}`,
@@ -2138,9 +2191,16 @@
                         files: { [GIST_FILENAME]: { content: payload } }
                     })
                 });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                // 推送成功：清除 pending 計數、重置退避
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                _pushRetryCount = 0;
+                clearTimeout(_retryTimer);
+                _updatePendingPushIndicator();
                 console.log('[Snapshot] 快照已靜默同步至 Gist');
             } catch(e) {
                 console.warn('[Snapshot] 靜默推送失敗：', e.message);
+                _scheduleRetry();
             }
         }
 
