@@ -69,6 +69,7 @@
   v15.051 - Gist 拉取改用 API 內嵌 content（不再二次 fetch raw_url），徹底消除 GitHub CDN 快取導致拉到舊資料的問題；所有 Gist fetch 加入 cache:'no-store'
   v15.052 - 修正 Yahoo chart API 無資料時誤設 marketOpenedToday=false 導致今日漲跌顯示「-」的 bug
   v15.053 - 台股/港股時區修正：新增 _exchangeTz() 統一依標的市場選時區（.TW→Asia/Taipei, .HK→Asia/Hong_Kong），修正台股收盤後今日漲跌誤移到昨日漲跌的 bug
+  v15.054 - Gist 自動推送強化：失敗時指數退避重試（1s→2s→4s→8s→16s，最多 5 次）；網路恢復（online 事件）自動重推；左上角 ⚠ 警示顯示未同步筆數、點擊立即重試；推送成功才清 pending 計數（斷電/關瀏覽器都不會丟資料）
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
