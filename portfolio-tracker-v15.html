@@ -2804,6 +2804,14 @@
 
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0) return;
 
+                // Schema 版本檢查：雲端比本機新時靜默拒絕，並以 toast 提醒更新
+                const _savedSchema = saved.schema_version || 1;
+                if (_savedSchema > PT_SCHEMA_VERSION) {
+                    console.warn(`[AutoPull] Gist schema v${_savedSchema} > 本機 v${PT_SCHEMA_VERSION}，跳過拉取`);
+                    showWarnToast(`雲端資料是較新版本（v${_savedSchema}）產生，請更新 PWA 後再同步`);
+                    return;
+                }
+
                 saveHistory();
                 holdings = saved.holdings;
                 holdings.forEach(h => h.persist = true);
