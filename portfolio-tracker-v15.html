@@ -2688,6 +2688,14 @@
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0)
                     throw new Error('雲端資料為空');
 
+                // Schema 版本檢查：雲端比本機新時直接拒絕拉取，避免破壞性覆蓋
+                const _savedSchema = saved.schema_version || 1;
+                if (_savedSchema > PT_SCHEMA_VERSION) {
+                    setGistStatus(`❌ Gist schema v${_savedSchema} 高於本機 v${PT_SCHEMA_VERSION}，請先更新 PWA`, '#ef4444');
+                    showWarnToast(`❌ 雲端資料是較新版本（v${_savedSchema}）產生，請先更新 PWA 後再拉取`);
+                    return;
+                }
+
                 saveHistory();
                 holdings = saved.holdings;
                 holdings.forEach(h => { h.persist = true; _ensureLots(h); }); // 從雲端拉取一律標記保留，並補齊 lots
