@@ -362,6 +362,7 @@ for sym in symbols:
             'eps_next_y':       safe_float(info.get('epsForward')),
             'gross_margin':        gross_margin,
             'operating_margin':    operating_margin,
+            'next_earnings_date':  next_earnings_date,
             'target_mean_price':   target_mean_price,
             'target_low_price':    target_low_price,
             'target_high_price':   target_high_price,
