@@ -2090,6 +2090,7 @@
         }
 
         // ── 本地修改時間戳 & 自動推送（防止靜默拉取覆蓋未推送的本地修改）──
+        const PT_SCHEMA_VERSION     = 1;   // Gist payload schema 版本號，每次欄位重命名或移除時 +1
         const PT_LOCAL_MODIFY_TS    = 'pt_local_modify_ts';
         const PT_PENDING_PUSH_COUNT = 'pt_pending_push_count';
         const MAX_PUSH_RETRY = 5;
