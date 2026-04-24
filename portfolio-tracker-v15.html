@@ -1114,6 +1114,7 @@
             _redoStack.push(JSON.parse(JSON.stringify(holdings)));
             holdings = history.pop();
             _syncUndoRedoBtns();
+            _markLocalModified(); _scheduleAutoPush();
             renderAll();
         }
         function redoAction() {
@@ -1121,6 +1122,7 @@
             history.push(JSON.parse(JSON.stringify(holdings)));
             holdings = _redoStack.pop();
             _syncUndoRedoBtns();
+            _markLocalModified(); _scheduleAutoPush();
             renderAll();
         }
         function setCurrency(c) {
