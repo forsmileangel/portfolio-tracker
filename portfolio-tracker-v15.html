@@ -2165,6 +2165,7 @@
             if (!token || !gistId) return; // 未設定憑證，只存 localStorage
             try {
                 const payload = JSON.stringify({
+                    schema_version: PT_SCHEMA_VERSION,
                     holdings,
                     watchlist,
                     tradeHistory,
