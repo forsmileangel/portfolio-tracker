@@ -3157,6 +3157,7 @@
                 }
             } catch(_) {}
             hideConfirmModal();
+            _markLocalModified(); _scheduleAutoPush();
             renderAll();
         }
 
