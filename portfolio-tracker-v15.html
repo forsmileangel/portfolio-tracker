@@ -1974,10 +1974,11 @@
                             <div style="color:#e2e8f0;font-weight:600;font-size:0.9rem;">${d.bank}</div>
                             <div style="color:#7e93a6;font-size:0.75rem;">${d.currency}</div>
                         </div>
-                        <input type="number" class="mono" value="${rawAmt}"
+                        <input type="number" class="mono pv-field"
+                            value="${rawAmt}"
                             onchange="updateDepositAmount(${d.id}, this.value)"
                             style="width:110px;text-align:right;padding:0.28rem 0.5rem;background:rgba(6,13,26,0.85);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#f1f5f9;font-size:0.88rem;outline:none;">
-                        <div style="text-align:right;min-width:60px;">${d.currency !== 'TWD' ? `<span class="mono" style="color:#607585;font-size:0.78rem;">≈ NT$${fmtN(twdVal)}</span>` : ''}</div>
+                        <div style="text-align:right;min-width:60px;">${d.currency !== 'TWD' ? `<span class="mono" style="color:#607585;font-size:0.78rem;">${pv('≈ NT$' + fmtN(twdVal))}</span>` : ''}</div>
                         <button onclick="removeDeposit(${d.id})" style="padding:0.25rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">×</button>
                     </div>`;
                 }).join('');
