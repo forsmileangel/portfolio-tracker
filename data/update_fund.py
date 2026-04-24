@@ -219,6 +219,35 @@ for sym in symbols:
         except Exception as e:
             print(f'    earnings_dates error: {e}', flush=True)
 
+        # ── 下次財報日期 ──────────────────────────────────────────────
+        next_earnings_date = None
+        try:
+            cal = t.calendar
+            ed_val = None
+            if cal is not None:
+                if isinstance(cal, dict):
+                    ed_val = cal.get('Earnings Date')
+                else:
+                    # DataFrame: row index 'Earnings Date'
+                    try:
+                        if 'Earnings Date' in cal.index:
+                            ed_val = cal.loc['Earnings Date']
+                    except Exception:
+                        pass
+            if ed_val is not None:
+                # 可能是單一日期、list（區間）、或 pd.Series
+                if isinstance(ed_val, (list, tuple, pd.Series)):
+                    candidates = [d for d in ed_val if d is not None and (not isinstance(d, float) or d == d)]
+                    ed_val = min(candidates) if candidates else None
+                if ed_val is not None:
+                    if hasattr(ed_val, 'strftime'):
+                        next_earnings_date = ed_val.strftime('%Y-%m-%d')
+                    else:
+                        s = str(ed_val)[:10]
+                        next_earnings_date = s if len(s) == 10 and s[4] == '-' else None
+        except Exception as e:
+            print(f'    next_earnings_date error: {e}', flush=True)
+
         # ── 毛利率 / 營益率 ──────────────────────────────────────────
         gross_margin     = safe_float(info.get('grossMargins'))
         operating_margin = safe_float(info.get('operatingMargins'))
