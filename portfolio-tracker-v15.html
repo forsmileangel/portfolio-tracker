@@ -4557,6 +4557,24 @@
             const fmtp = v => (v != null && !isNaN(v)) ? (parseFloat(v)*100).toFixed(1) + '%' : '-';
             const tr   = (v, a) => '<td style="padding:0.5rem 0.6rem; text-align:' + (a||'right') + '; color:#e2e8f0;">' + v + '</td>';
             const trc  = v => '<td style="padding:0.5rem 0.6rem; text-align:center;">' + v + '</td>';
+            const buildNextEarningsTd = (dateStr) => {
+                if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) {
+                    return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#607585;">-</td>';
+                }
+                // 以「本地日期 00:00」為基準計算剩餘天數，避免時區漂移
+                const today = new Date(); today.setHours(0,0,0,0);
+                const [y,m,dd] = dateStr.substring(0,10).split('-').map(n => parseInt(n, 10));
+                const target = new Date(y, (m||1)-1, dd||1);
+                const days = Math.round((target - today) / 86400000);
+                let color, label;
+                if (days < 0)        { color = '#607585'; label = `${Math.abs(days)} 天前`; }
+                else if (days === 0) { color = '#ef4444'; label = '今日'; }
+                else if (days <= 7)  { color = '#ef4444'; label = `剩 ${days} 天`; }
+                else if (days <= 14) { color = '#fbbf24'; label = `剩 ${days} 天`; }
+                else if (days <= 30) { color = '#e2e8f0'; label = `剩 ${days} 天`; }
+                else                 { color = '#607585'; label = `剩 ${days} 天`; }
+                return `<td style="padding:0.5rem 0.6rem; text-align:center; line-height:1.35;"><div style="color:#e2e8f0; font-weight:600;">${dateStr}</div><div style="color:${color}; font-size:0.76rem; margin-top:0.1rem;">${label}</div></td>`;
+            };
             const buildKD = (k, dv, cross) => {
                 if (k == null) return '<span class="kd-neu">-</span>';
                 const up = cross==='golden', dn = cross==='death';
