@@ -2578,6 +2578,7 @@
 
             setGistStatus('⏳ 推送中...', '#60a5fa');
             const payload = JSON.stringify({
+                schema_version: PT_SCHEMA_VERSION,
                 holdings,
                 watchlist,
                 tradeHistory,
