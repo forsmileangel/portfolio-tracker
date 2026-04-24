@@ -73,6 +73,7 @@
   v15.055 - Gist schema 版本號：payload 加入 schema_version（目前 v1）；拉取時檢查雲端版本，若高於本機（未來 PWA 未更新時）直接拒絕拉取並提示更新，避免破壞性覆蓋；向下相容舊 Gist（無 schema_version 視為 v1）
   v15.056 - Auto-push 遺漏補齊 + UI 清理 + 隱私修正：買入/Undo/Redo/刪除持倉四處缺漏的 _markLocalModified() 補上，現在所有改動都會觸發 2s debounce 自動推送；移除買賣區「⬆ 上傳庫存」與存款頁「⬆ 上傳雲端」兩個冗餘按鈕（auto-push 已覆蓋）；存款頁各銀行金額輸入框與 TWD 換算新增隱私遮罩（原本只有總額有遮）
   v15.057 - 基本面表格新增「下次財報」欄：update_fund.py 抓 yfinance t.calendar 的 Earnings Date 寫入 fundamentals.json（next_earnings_date 欄位）；前端基本面表格首欄之後顯示日期 + 剩餘天數，顏色分級（今日/≤7天紅、≤14天橙、≤30天正常、>30天灰）
+  v15.058 - 同步一致性補強：新增 _markAndAutoPush() 統一 helper；持倉明細 inline 編輯（股數/成本價/現價）、單筆/全部保留勾選、CSV 匯入完成後都會標記本地修改並觸發 2s debounce 自動推送 Gist
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -322,7 +323,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.057</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.058</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1116,7 +1117,7 @@
             _redoStack.push(JSON.parse(JSON.stringify(holdings)));
             holdings = history.pop();
             _syncUndoRedoBtns();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderAll();
         }
         function redoAction() {
@@ -1124,7 +1125,7 @@
             history.push(JSON.parse(JSON.stringify(holdings)));
             holdings = _redoStack.pop();
             _syncUndoRedoBtns();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderAll();
         }
         function setCurrency(c) {
@@ -1931,7 +1932,7 @@
             if (isNaN(amount) || amount <= 0) return;
             deposits.push({ id: Date.now(), bank, currency, amount });
             saveDeposits();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             document.getElementById('dep-bank-input').value = '';
             document.getElementById('dep-amount-input').value = '';
             renderDepositsTab();
@@ -1940,7 +1941,7 @@
         function removeDeposit(id) {
             deposits = deposits.filter(d => d.id !== id);
             saveDeposits();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderDepositsTab();
             renderAll();
         }
@@ -1951,7 +1952,7 @@
             if (!dep) return;
             dep.amount = amt;
             saveDeposits();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderDepositsTab();
             renderAll();
         }
@@ -2130,6 +2131,10 @@
                 localStorage.setItem(PT_PENDING_PUSH_COUNT, String(curr + 1));
                 _updatePendingPushIndicator();
             }
+        }
+        function _markAndAutoPush() {
+            _markLocalModified();
+            _scheduleAutoPush();
         }
         function _scheduleAutoPush() {
             if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) return;
@@ -2369,7 +2374,7 @@
             if (!confirm('確定清除所有已實現損益紀錄？此操作無法復原。')) return;
             tradeHistory = [];
             saveTradeHistory();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderRealizedTab();
         }
         function _setRealizedPreset(val) {
@@ -3110,7 +3115,7 @@
             }
 
             // 買入 / 賣出都觸發 auto-push（v15.056 修正：原本只有賣出觸發）
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             alert(isBuy ? `✅ 已買入 ${symbol}` : `✅ 已賣出 ${symbol}，已實現損益 ${tradeHistory[tradeHistory.length-1]?.realizedPL >= 0 ? '+' : ''}${tradeHistory[tradeHistory.length-1]?.realizedPL?.toFixed(2) ?? ''}`);
             document.getElementById('form-symbol').value  = '';
             document.getElementById('form-quantity').value = '';
@@ -3122,17 +3127,17 @@
             const parsed = parseFloat(newQty); if (isNaN(parsed)) return;
             saveHistory();
             const h = holdings.find(item => item.id === id);
-            if (h) { h.quantity = parsed; _resetLots(h); }
+            if (h) { h.quantity = parsed; _resetLots(h); _markAndAutoPush(); }
             renderAll();
         }
         function updateCostPrice(id, newCost) {
             const parsed = parseFloat(newCost); if (isNaN(parsed)) return;
             saveHistory();
             const h = holdings.find(item => item.id === id);
-            if (h) { h.costPrice = parsed; _resetLots(h); }
+            if (h) { h.costPrice = parsed; _resetLots(h); _markAndAutoPush(); }
             renderAll();
         }
-        function updateCurrentPrice(id, newPrice) { const parsed = parseFloat(newPrice); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) h.currentPrice = parsed; renderAll(); }
+        function updateCurrentPrice(id, newPrice) { const parsed = parseFloat(newPrice); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) { h.currentPrice = parsed; _markAndAutoPush(); } renderAll(); }
         function deleteHolding(id) {
             currentDeleteId = id;
             const h = holdings.find(item => item.id === id);
@@ -3159,7 +3164,7 @@
                 }
             } catch(_) {}
             hideConfirmModal();
-            _markLocalModified(); _scheduleAutoPush();
+            _markAndAutoPush();
             renderAll();
         }
 
@@ -3169,6 +3174,7 @@
             if (!h) return;
             h.persist = checked;
             saveToStorage();
+            _markAndAutoPush();
             renderAll();
             showImportToast(checked ? '✅ 已設定保留，下次開啟仍在' : 'ℹ️ 已取消保留，關閉後消失', 2000);
         }
@@ -3176,6 +3182,7 @@
         function toggleAllPersist(checked) {
             holdings.forEach(h => h.persist = checked);
             saveToStorage();
+            _markAndAutoPush();
             renderAll();
             showImportToast(checked ? '✅ 已設定全部保留' : 'ℹ️ 已取消全部保留', 2000);
         }
@@ -3362,6 +3369,7 @@
             if (tn > 0) { tradeHistory = pendingCsvTrades; saveTradeHistory(); }
             pendingCsvTrades = [];
             hideImportModal();
+            _markAndAutoPush();
             renderAll();
             const msg = tn > 0 ? `✅ 已匯入 ${n} 筆持倉 + ${tn} 筆已實現損益，正在自動更新…` : `✅ 已匯入 ${n} 筆持倉，正在自動更新報價與分析數據…`;
             showImportToast(msg);
