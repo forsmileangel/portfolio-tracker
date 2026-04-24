@@ -4575,19 +4575,20 @@
 
                 if (d?._pending) {
                     const msg = '⏳ 資料同步中，待下次 Actions 更新';
-                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="15" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
+                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
                     techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
                     return;
                 }
                 if (!d || d._error) {
                     const errMsg = '❌ ' + (d?._error||'無數據').split('\n')[0];
-                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="15" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`);
+                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`);
                     techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`);
                     return;
                 }
 
                 // 基本面行
                 fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}` +
+                    buildNextEarningsTd(d.next_earnings_date) +
                     tr(fmt(d.pe)) + tr(fmt(d.hist_avg_pe)) + tr(fmt(d.fpe)) +
                     tr(fmt(d.peg)) + tr(fmt(d.ps)) + tr(fmt(d.pb)) +
                     tr(fmtp(d.rev_yoy)) + tr(fmtp(d.rev_fwd)) +
