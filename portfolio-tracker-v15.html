@@ -74,6 +74,7 @@
   v15.056 - Auto-push 遺漏補齊 + UI 清理 + 隱私修正：買入/Undo/Redo/刪除持倉四處缺漏的 _markLocalModified() 補上，現在所有改動都會觸發 2s debounce 自動推送；移除買賣區「⬆ 上傳庫存」與存款頁「⬆ 上傳雲端」兩個冗餘按鈕（auto-push 已覆蓋）；存款頁各銀行金額輸入框與 TWD 換算新增隱私遮罩（原本只有總額有遮）
   v15.057 - 基本面表格新增「下次財報」欄：update_fund.py 抓 yfinance t.calendar 的 Earnings Date 寫入 fundamentals.json（next_earnings_date 欄位）；前端基本面表格首欄之後顯示日期 + 剩餘天數，顏色分級（今日/≤7天紅、≤14天橙、≤30天正常、>30天灰）
   v15.058 - 同步一致性補強：新增 _markAndAutoPush() 統一 helper；持倉明細 inline 編輯（股數/成本價/現價）、單筆/全部保留勾選、CSV 匯入完成後都會標記本地修改並觸發 2s debounce 自動推送 Gist
+  v15.059 - stale push 防覆蓋：新增裝置 ID、Gist revision 基準、dirty domains 與 sync_meta（schema 維持 v1 方便回滾）；手動/自動推送前先比對雲端 revision，若本機不是基於最新版則拒絕上傳並保留 pending；庫存/存款顯示本機與雲端時間戳
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -323,7 +324,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.058</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.059</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -522,7 +523,10 @@
         <!-- Holdings Detail -->
         <div class="glass-card" style="padding:2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-                <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0;">持倉明細 (<span id="holdings-count">0</span>)</h2>
+                <div>
+                    <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0;">持倉明細 (<span id="holdings-count">0</span>)</h2>
+                    <div id="holdings-sync-time" style="color:#607585;font-size:0.72rem;margin-top:0.25rem;"></div>
+                </div>
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                     <button id="toggle-visible-btn" onclick="toggleHoldingsVisible()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">▲ 隱藏</button>
                     <button id="toggle-all-btn" onclick="toggleAllHoldings()" style="padding:0.4rem 0.85rem;background:rgba(30,58,110,0.2);border:1.5px solid rgba(56,139,253,0.25);border-radius:10px;color:#60a5fa;font-size:0.82rem;font-weight:600;cursor:pointer;text-transform:none;">展開全部 ▼</button>
@@ -1117,7 +1121,7 @@
             _redoStack.push(JSON.parse(JSON.stringify(holdings)));
             holdings = history.pop();
             _syncUndoRedoBtns();
-            _markAndAutoPush();
+            _markAndAutoPush(['holdings']);
             renderAll();
         }
         function redoAction() {
@@ -1125,7 +1129,7 @@
             history.push(JSON.parse(JSON.stringify(holdings)));
             holdings = _redoStack.pop();
             _syncUndoRedoBtns();
-            _markAndAutoPush();
+            _markAndAutoPush(['holdings']);
             renderAll();
         }
         function setCurrency(c) {
@@ -1808,6 +1812,7 @@
                 allBtn.style.opacity = _holdingsHidden ? '0.35' : '1';
                 allBtn.style.pointerEvents = _holdingsHidden ? 'none' : '';
             }
+            _updateSyncTimeLabels();
             // v15.022：防抖儲存，500ms 內多次 renderAll 只寫一次 localStorage
             clearTimeout(_saveStorageTimer);
             _saveStorageTimer = setTimeout(saveToStorage, 500);
@@ -1932,7 +1937,7 @@
             if (isNaN(amount) || amount <= 0) return;
             deposits.push({ id: Date.now(), bank, currency, amount });
             saveDeposits();
-            _markAndAutoPush();
+            _markAndAutoPush(['deposits']);
             document.getElementById('dep-bank-input').value = '';
             document.getElementById('dep-amount-input').value = '';
             renderDepositsTab();
@@ -1941,7 +1946,7 @@
         function removeDeposit(id) {
             deposits = deposits.filter(d => d.id !== id);
             saveDeposits();
-            _markAndAutoPush();
+            _markAndAutoPush(['deposits']);
             renderDepositsTab();
             renderAll();
         }
@@ -1952,7 +1957,7 @@
             if (!dep) return;
             dep.amount = amt;
             saveDeposits();
-            _markAndAutoPush();
+            _markAndAutoPush(['deposits']);
             renderDepositsTab();
             renderAll();
         }
@@ -2002,6 +2007,7 @@
                     <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">存款合計（約合 TWD）</div>
                     <div class="mono" style="font-size:1.9rem;font-weight:800;color:#60a5fa;line-height:1;">${pv('NT$ ' + fmtN(totalTWD))}</div>
                     <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">此金額自動連動至持倉管理的現金欄位</div>
+                    <div id="deposits-sync-time" style="color:#607585;font-size:0.72rem;margin-top:0.25rem;">${_syncTimeText('deposits')}</div>
                 </div>
                 <div style="display:flex;gap:0.45rem;align-items:center;flex-wrap:wrap;padding:0.85rem 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.5rem;">
                     <input id="dep-bank-input" type="text" placeholder="銀行 / 帳戶名稱" onkeydown="if(event.key==='Enter')addDeposit()" style="flex:1;min-width:110px;padding:0.38rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
@@ -2099,10 +2105,184 @@
         const PT_SCHEMA_VERSION     = 1;   // Gist payload schema 版本號，每次欄位重命名或移除時 +1
         const PT_LOCAL_MODIFY_TS    = 'pt_local_modify_ts';
         const PT_PENDING_PUSH_COUNT = 'pt_pending_push_count';
+        const PT_DEVICE_ID          = 'pt_device_id';
+        const PT_LAST_CLOUD_REV     = 'pt_last_cloud_revision';
+        const PT_LAST_CLOUD_TS      = 'pt_last_cloud_updated_at';
+        const PT_DIRTY_DOMAINS      = 'pt_dirty_domains';
+        const PT_DOMAIN_UPDATED_AT  = 'pt_domain_updated_at';
         const MAX_PUSH_RETRY = 5;
         let _autoPushTimer  = null;
         let _retryTimer     = null;
         let _pushRetryCount = 0;
+
+        function _readJsonStorage(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch(_) {
+                return fallback;
+            }
+        }
+
+        function _getDeviceId() {
+            let id = localStorage.getItem(PT_DEVICE_ID);
+            if (!id) {
+                const c = window.crypto || window.msCrypto;
+                id = (c?.randomUUID?.() || ('dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)));
+                localStorage.setItem(PT_DEVICE_ID, id);
+            }
+            return id;
+        }
+
+        function _getDirtyDomains() {
+            const list = _readJsonStorage(PT_DIRTY_DOMAINS, []);
+            const pending = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
+            return list.length === 0 && pending > 0 ? ['general'] : list;
+        }
+
+        function _setDirtyDomains(domains) {
+            const list = [...new Set((domains || []).filter(Boolean))];
+            if (list.length) localStorage.setItem(PT_DIRTY_DOMAINS, JSON.stringify(list));
+            else localStorage.removeItem(PT_DIRTY_DOMAINS);
+        }
+
+        function _markDomainsModified(domains, ts) {
+            const list = Array.isArray(domains) && domains.length ? domains : ['general'];
+            const updated = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
+            list.forEach(d => updated[d] = ts);
+            localStorage.setItem(PT_DOMAIN_UPDATED_AT, JSON.stringify(updated));
+            _setDirtyDomains([..._getDirtyDomains(), ...list]);
+        }
+
+        function _clearDirtyDomains() {
+            localStorage.removeItem(PT_DIRTY_DOMAINS);
+        }
+
+        function _domainUpdatedAt(domain) {
+            return _readJsonStorage(PT_DOMAIN_UPDATED_AT, {})[domain] || '';
+        }
+
+        function _fmtSyncTs(ts) {
+            if (!ts) return '尚無紀錄';
+            const d = new Date(ts);
+            if (isNaN(d)) return '尚無紀錄';
+            return d.toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        }
+
+        function _syncTimeText(domain) {
+            const localTs = _domainUpdatedAt(domain);
+            const cloudTs = localStorage.getItem(PT_LAST_CLOUD_TS) || '';
+            const dirty = _getDirtyDomains().includes(domain);
+            const localPart = localTs ? `本機 ${_fmtSyncTs(localTs)}` : '本機尚無修改';
+            const cloudPart = cloudTs ? `雲端 ${_fmtSyncTs(cloudTs)}` : '雲端尚未確認';
+            return `${dirty ? '未同步 · ' : ''}${localPart} ｜ ${cloudPart}`;
+        }
+
+        function _updateSyncTimeLabels() {
+            const h = document.getElementById('holdings-sync-time');
+            if (h) {
+                h.textContent = _syncTimeText('holdings');
+                h.style.color = _getDirtyDomains().includes('holdings') ? '#fbbf24' : '#607585';
+            }
+            const d = document.getElementById('deposits-sync-time');
+            if (d) {
+                d.textContent = _syncTimeText('deposits');
+                d.style.color = _getDirtyDomains().includes('deposits') ? '#fbbf24' : '#607585';
+            }
+        }
+
+        function _gistRevision(data) {
+            return data?.history?.[0]?.version || data?.updated_at || '';
+        }
+
+        function _rememberCloudState(data) {
+            const rev = _gistRevision(data);
+            if (rev) localStorage.setItem(PT_LAST_CLOUD_REV, rev);
+            if (data?.updated_at) localStorage.setItem(PT_LAST_CLOUD_TS, data.updated_at);
+            _updateSyncTimeLabels();
+        }
+
+        function _applyCloudDomainTimes(saved, fallbackTs) {
+            const updated = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
+            const domains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'general'];
+            const appliedAt = saved?.sync_meta?.pushedAt || saved?.pushedAt || fallbackTs;
+            domains.forEach(d => {
+                const ts = saved?.sync_meta?.domains?.[d]?.updatedAt || appliedAt;
+                if (ts) updated[d] = ts;
+            });
+            localStorage.setItem(PT_DOMAIN_UPDATED_AT, JSON.stringify(updated));
+            if (appliedAt) localStorage.setItem(PT_LOCAL_MODIFY_TS, appliedAt);
+        }
+
+        function _buildSyncMeta(pushedAt, domains) {
+            const domainUpdatedAt = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
+            const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'general'];
+            const domainMeta = {};
+            allDomains.forEach(d => domainMeta[d] = { updatedAt: domainUpdatedAt[d] || null });
+            return {
+                metadata_version: 1,
+                pushedAt,
+                pushedByDeviceId: _getDeviceId(),
+                baseCloudRevision: localStorage.getItem(PT_LAST_CLOUD_REV) || '',
+                baseCloudUpdatedAt: localStorage.getItem(PT_LAST_CLOUD_TS) || '',
+                dirtyDomains: domains || _getDirtyDomains(),
+                domains: domainMeta
+            };
+        }
+
+        async function _fetchGistState(token, gistId) {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                cache: 'no-store'
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP ${res.status}`);
+            }
+            const data = await res.json();
+            const gistFile = data.files?.[GIST_FILENAME];
+            let saved = null;
+            if (gistFile) {
+                if (gistFile.content && !gistFile.truncated) {
+                    saved = JSON.parse(gistFile.content);
+                } else {
+                    const fileRes = await fetch(gistFile.raw_url, { cache: 'no-store' });
+                    if (!fileRes.ok) throw new Error('讀取檔案失敗');
+                    saved = await fileRes.json();
+                }
+            }
+            return { data, saved, cloudRevision: _gistRevision(data), cloudUpdatedAt: data.updated_at || saved?.pushedAt || '' };
+        }
+
+        function _cloudChangedSinceBase(state) {
+            const base = localStorage.getItem(PT_LAST_CLOUD_REV) || '';
+            return !!(state?.cloudRevision && base && state.cloudRevision !== base);
+        }
+
+        function _showStaleReject(state) {
+            const msg = `雲端已有新版（${_fmtSyncTs(state?.cloudUpdatedAt)}），本機不是基於最新版，已拒絕上傳。請先拉取雲端最新版再修改。`;
+            setGistStatus(`❌ ${msg}`, '#ef4444');
+            showWarnToast(`❌ ${msg}`, 5000);
+        }
+
+        async function _preflightGistPush(token, gistId) {
+            if (!gistId) return true; // 首次建立 Gist
+            const state = await _fetchGistState(token, gistId);
+            const base = localStorage.getItem(PT_LAST_CLOUD_REV) || '';
+            if (!state.saved) return true; // 既有 Gist 但尚未建立 tracker 檔案
+            if (state.cloudRevision && !base) {
+                _showStaleReject(state);
+                return false;
+            }
+            if (_cloudChangedSinceBase(state)) {
+                _showStaleReject(state);
+                return false;
+            }
+            return true;
+        }
 
         function _updatePendingPushIndicator() {
             const count = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
@@ -2123,17 +2303,20 @@
             _gistSilentPush();
         }
 
-        function _markLocalModified() {
-            localStorage.setItem(PT_LOCAL_MODIFY_TS, new Date().toISOString());
+        function _markLocalModified(domains) {
+            const ts = new Date().toISOString();
+            localStorage.setItem(PT_LOCAL_MODIFY_TS, ts);
+            _markDomainsModified(domains, ts);
             // 只有在 Gist 已設定時才累計 pending
             if (localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
                 const curr = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
                 localStorage.setItem(PT_PENDING_PUSH_COUNT, String(curr + 1));
                 _updatePendingPushIndicator();
             }
+            _updateSyncTimeLabels();
         }
-        function _markAndAutoPush() {
-            _markLocalModified();
+        function _markAndAutoPush(domains) {
+            _markLocalModified(domains);
             _scheduleAutoPush();
         }
         function _scheduleAutoPush() {
@@ -2172,8 +2355,10 @@
         async function _gistSilentPush() {
             const token  = localStorage.getItem(GIST_TOKEN_KEY);
             const gistId = localStorage.getItem(GIST_ID_KEY);
-            if (!token || !gistId) return; // 未設定憑證，只存 localStorage
+            if (!token || !gistId) return false; // 未設定憑證，只存 localStorage
             try {
+                if (!(await _preflightGistPush(token, gistId))) return false;
+                const pushedAt = new Date().toISOString();
                 const payload = JSON.stringify({
                     schema_version: PT_SCHEMA_VERSION,
                     holdings,
@@ -2189,7 +2374,8 @@
                     moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                     moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false,
                     marketSnapshots,
-                    pushedAt: new Date().toISOString()
+                    pushedAt,
+                    sync_meta: _buildSyncMeta(pushedAt)
                 }, null, 2);
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
@@ -2205,15 +2391,21 @@
                     })
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json().catch(() => null);
+                _rememberCloudState(data);
                 // 推送成功：清除 pending 計數、重置退避
                 localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                _clearDirtyDomains();
                 _pushRetryCount = 0;
                 clearTimeout(_retryTimer);
                 _updatePendingPushIndicator();
+                _updateSyncTimeLabels();
                 console.log('[Snapshot] 快照已靜默同步至 Gist');
+                return true;
             } catch(e) {
                 console.warn('[Snapshot] 靜默推送失敗：', e.message);
                 _scheduleRetry();
+                return false;
             }
         }
 
@@ -2374,7 +2566,7 @@
             if (!confirm('確定清除所有已實現損益紀錄？此操作無法復原。')) return;
             tradeHistory = [];
             saveTradeHistory();
-            _markAndAutoPush();
+            _markAndAutoPush(['tradeHistory']);
             renderRealizedTab();
         }
         function _setRealizedPreset(val) {
@@ -2587,6 +2779,14 @@
             if (holdings.length === 0 && deposits.length === 0) { setGistStatus('❌ 目前無資料可推送', '#ef4444'); showWarnToast('❌ 目前無持倉或存款資料可推送'); return; }
 
             setGistStatus('⏳ 推送中...', '#60a5fa');
+            try {
+                if (!(await _preflightGistPush(token, gistId))) return;
+            } catch(e) {
+                setGistStatus(`❌ 推送前檢查失敗：${e.message}`, '#ef4444');
+                showWarnToast(`❌ 推送前檢查失敗：${e.message}`);
+                return;
+            }
+            const pushedAt = new Date().toISOString();
             const payload = JSON.stringify({
                 schema_version: PT_SCHEMA_VERSION,
                 holdings,
@@ -2602,7 +2802,8 @@
                 moxa_twd:     parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                 moxa_pie_cb:  document.getElementById('moxa-pie-cb')?.checked   || false,
                 marketSnapshots,
-                pushedAt: new Date().toISOString()
+                pushedAt,
+                sync_meta: _buildSyncMeta(pushedAt)
             }, null, 2);
 
             try {
@@ -2649,6 +2850,11 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, newId);
+                _rememberCloudState(data);
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                _clearDirtyDomains();
+                _updatePendingPushIndicator();
+                _updateSyncTimeLabels();
 
                 const t = new Date().toLocaleTimeString('zh-TW');
                 const depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
@@ -2668,32 +2874,9 @@
 
             setGistStatus('⏳ 從雲端拉取中...', '#60a5fa');
             try {
-                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    cache: 'no-store'
-                });
-
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.message || `HTTP ${res.status}`);
-                }
-
-                const data    = await res.json();
-                const gistFile = data.files?.[GIST_FILENAME];
-                if (!gistFile) throw new Error(`找不到 ${GIST_FILENAME} 檔案`);
-
-                // 優先用 API 回應內嵌的 content（避免 raw_url CDN 快取），truncated 時才 fallback
-                let saved;
-                if (gistFile.content && !gistFile.truncated) {
-                    saved = JSON.parse(gistFile.content);
-                } else {
-                    const fileRes = await fetch(gistFile.raw_url, { cache: 'no-store' });
-                    if (!fileRes.ok) throw new Error('讀取檔案失敗');
-                    saved = await fileRes.json();
-                }
+                const gistState = await _fetchGistState(token, gistId);
+                const saved = gistState.saved;
+                if (!saved) throw new Error(`找不到 ${GIST_FILENAME} 檔案`);
 
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0)
                     throw new Error('雲端資料為空');
@@ -2704,6 +2887,15 @@
                     setGistStatus(`❌ Gist schema v${_savedSchema} 高於本機 v${PT_SCHEMA_VERSION}，請先更新 PWA`, '#ef4444');
                     showWarnToast(`❌ 雲端資料是較新版本（v${_savedSchema}）產生，請先更新 PWA 後再拉取`);
                     return;
+                }
+
+                const dirtyDomains = _getDirtyDomains();
+                if (dirtyDomains.length > 0) {
+                    const ok = confirm(`本機有尚未上傳的修改（${dirtyDomains.join(', ')}）。拉取雲端資料會覆蓋本機未上傳修改，確定要繼續？`);
+                    if (!ok) {
+                        setGistStatus('已取消拉取：本機仍有未上傳修改', '#fbbf24');
+                        return;
+                    }
                 }
 
                 saveHistory();
@@ -2768,6 +2960,11 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
+                _applyCloudDomainTimes(saved, gistState.cloudUpdatedAt);
+                _rememberCloudState(gistState.data);
+                _clearDirtyDomains();
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                _updatePendingPushIndicator();
                 _storageReady = true;
                 saveToStorage();
                 renderAll();
@@ -2789,28 +2986,9 @@
             if (!token || !gistId) return; // 無憑證，跳過
 
             try {
-                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    cache: 'no-store'
-                });
-                if (!res.ok) return; // 靜默失敗
-
-                const data     = await res.json();
-                const gistFile = data.files?.[GIST_FILENAME];
-                if (!gistFile) return;
-
-                // 優先用 API 回應內嵌的 content（避免 raw_url CDN 快取），truncated 時才 fallback
-                let saved;
-                if (gistFile.content && !gistFile.truncated) {
-                    saved = JSON.parse(gistFile.content);
-                } else {
-                    const fileRes = await fetch(gistFile.raw_url, { cache: 'no-store' });
-                    if (!fileRes.ok) return;
-                    saved = await fileRes.json();
-                }
+                const gistState = await _fetchGistState(token, gistId);
+                const saved = gistState.saved;
+                if (!saved) return;
 
                 if (!Array.isArray(saved.holdings) || saved.holdings.length === 0) return;
 
@@ -2819,6 +2997,17 @@
                 if (_savedSchema > PT_SCHEMA_VERSION) {
                     console.warn(`[AutoPull] Gist schema v${_savedSchema} > 本機 v${PT_SCHEMA_VERSION}，跳過拉取`);
                     showWarnToast(`雲端資料是較新版本（v${_savedSchema}）產生，請更新 PWA 後再同步`);
+                    return;
+                }
+
+                const dirtyDomains = _getDirtyDomains();
+                if (dirtyDomains.length > 0) {
+                    if (!localStorage.getItem(PT_LAST_CLOUD_REV) || _cloudChangedSinceBase(gistState)) {
+                        showWarnToast(`❌ 雲端已有新版（${_fmtSyncTs(gistState.cloudUpdatedAt)}），本機也有未上傳修改，已停止自動同步以避免覆蓋。`, 5000);
+                        setGistStatus('❌ 同步衝突：請先手動處理雲端與本機差異', '#ef4444');
+                    } else {
+                        setGistStatus('本機有未上傳修改，已略過自動拉取', '#fbbf24');
+                    }
                     return;
                 }
 
@@ -2894,6 +3083,11 @@
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
 
                 _storageReady = true;
+                _applyCloudDomainTimes(saved, gistState.cloudUpdatedAt);
+                _rememberCloudState(gistState.data);
+                _clearDirtyDomains();
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                _updatePendingPushIndicator();
                 saveToStorage();
                 renderAll();
                 const _depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
@@ -3115,7 +3309,7 @@
             }
 
             // 買入 / 賣出都觸發 auto-push（v15.056 修正：原本只有賣出觸發）
-            _markAndAutoPush();
+            _markAndAutoPush(isBuy ? ['holdings'] : ['holdings', 'tradeHistory']);
             alert(isBuy ? `✅ 已買入 ${symbol}` : `✅ 已賣出 ${symbol}，已實現損益 ${tradeHistory[tradeHistory.length-1]?.realizedPL >= 0 ? '+' : ''}${tradeHistory[tradeHistory.length-1]?.realizedPL?.toFixed(2) ?? ''}`);
             document.getElementById('form-symbol').value  = '';
             document.getElementById('form-quantity').value = '';
@@ -3127,17 +3321,17 @@
             const parsed = parseFloat(newQty); if (isNaN(parsed)) return;
             saveHistory();
             const h = holdings.find(item => item.id === id);
-            if (h) { h.quantity = parsed; _resetLots(h); _markAndAutoPush(); }
+            if (h) { h.quantity = parsed; _resetLots(h); _markAndAutoPush(['holdings']); }
             renderAll();
         }
         function updateCostPrice(id, newCost) {
             const parsed = parseFloat(newCost); if (isNaN(parsed)) return;
             saveHistory();
             const h = holdings.find(item => item.id === id);
-            if (h) { h.costPrice = parsed; _resetLots(h); _markAndAutoPush(); }
+            if (h) { h.costPrice = parsed; _resetLots(h); _markAndAutoPush(['holdings']); }
             renderAll();
         }
-        function updateCurrentPrice(id, newPrice) { const parsed = parseFloat(newPrice); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) { h.currentPrice = parsed; _markAndAutoPush(); } renderAll(); }
+        function updateCurrentPrice(id, newPrice) { const parsed = parseFloat(newPrice); if (isNaN(parsed)) return; saveHistory(); const h = holdings.find(item => item.id === id); if (h) { h.currentPrice = parsed; _markAndAutoPush(['holdings']); } renderAll(); }
         function deleteHolding(id) {
             currentDeleteId = id;
             const h = holdings.find(item => item.id === id);
@@ -3164,7 +3358,7 @@
                 }
             } catch(_) {}
             hideConfirmModal();
-            _markAndAutoPush();
+            _markAndAutoPush(['holdings']);
             renderAll();
         }
 
@@ -3174,7 +3368,7 @@
             if (!h) return;
             h.persist = checked;
             saveToStorage();
-            _markAndAutoPush();
+            _markAndAutoPush(['holdings']);
             renderAll();
             showImportToast(checked ? '✅ 已設定保留，下次開啟仍在' : 'ℹ️ 已取消保留，關閉後消失', 2000);
         }
@@ -3182,7 +3376,7 @@
         function toggleAllPersist(checked) {
             holdings.forEach(h => h.persist = checked);
             saveToStorage();
-            _markAndAutoPush();
+            _markAndAutoPush(['holdings']);
             renderAll();
             showImportToast(checked ? '✅ 已設定全部保留' : 'ℹ️ 已取消全部保留', 2000);
         }
@@ -3369,7 +3563,7 @@
             if (tn > 0) { tradeHistory = pendingCsvTrades; saveTradeHistory(); }
             pendingCsvTrades = [];
             hideImportModal();
-            _markAndAutoPush();
+            _markAndAutoPush(tn > 0 ? ['holdings', 'tradeHistory'] : ['holdings']);
             renderAll();
             const msg = tn > 0 ? `✅ 已匯入 ${n} 筆持倉 + ${tn} 筆已實現損益，正在自動更新…` : `✅ 已匯入 ${n} 筆持倉，正在自動更新報價與分析數據…`;
             showImportToast(msg);
@@ -4802,10 +4996,11 @@
             if (_pendingOnBoot > 0 && localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
                 console.log(`[AutoPush] 偵測到 ${_pendingOnBoot} 筆未同步改動，優先重試推送`);
                 _pushRetryCount = 0;
-                _gistSilentPush();
+                _gistSilentPush().then(ok => { if (ok) _gistSilentPull(); });
+            } else {
+                // 啟動時靜默從 Gist 拉取最新庫存（有 token 才執行，失敗不報錯）
+                _gistSilentPull();
             }
-            // 啟動時靜默從 Gist 拉取最新庫存（有 token 才執行，失敗不報錯）
-            _gistSilentPull();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
