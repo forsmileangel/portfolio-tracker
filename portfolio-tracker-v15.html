@@ -4769,7 +4769,10 @@
             const fmtp = v => (v != null && !isNaN(v)) ? (parseFloat(v)*100).toFixed(1) + '%' : '-';
             const tr   = (v, a) => '<td style="padding:0.5rem 0.6rem; text-align:' + (a||'right') + '; color:#e2e8f0;">' + v + '</td>';
             const trc  = v => '<td style="padding:0.5rem 0.6rem; text-align:center;">' + v + '</td>';
-            const buildNextEarningsTd = (dateStr) => {
+            const buildNextEarningsTd = (dateStr, noEarnings, proxySymbol) => {
+                if (noEarnings === true) {
+                    return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#7e93a6; font-size:0.82rem;">近期無財報</td>';
+                }
                 if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) {
                     return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#607585;">-</td>';
                 }
@@ -4785,7 +4788,8 @@
                 else if (days <= 14) { color = '#fbbf24'; label = `剩 ${days} 天`; }
                 else if (days <= 30) { color = '#e2e8f0'; label = `剩 ${days} 天`; }
                 else                 { color = '#607585'; label = `剩 ${days} 天`; }
-                return `<td style="padding:0.5rem 0.6rem; text-align:center; line-height:1.35;"><div style="color:#e2e8f0; font-weight:600;">${dateStr}</div><div style="color:${color}; font-size:0.76rem; margin-top:0.1rem;">${label}</div></td>`;
+                const proxyHint = proxySymbol ? `<div style="color:#7e93a6; font-size:0.7rem; margin-top:0.05rem;">財報：${proxySymbol}</div>` : '';
+                return `<td style="padding:0.5rem 0.6rem; text-align:center; line-height:1.35;"><div style="color:#e2e8f0; font-weight:600;">${dateStr}</div><div style="color:${color}; font-size:0.76rem; margin-top:0.1rem;">${label}</div>${proxyHint}</td>`;
             };
             const buildKD = (k, dv, cross) => {
                 if (k == null) return '<span class="kd-neu">-</span>';
