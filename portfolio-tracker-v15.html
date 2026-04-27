@@ -4203,6 +4203,9 @@
                     eps_next_q = f.eps_next_q2 ?? null;
                     eps_cur_y  = f.eps_cur_y  ?? null;
                     eps_next_y = f.eps_next_y ?? null;
+                    const next_earnings_date    = f.next_earnings_date    ?? null;
+                    const no_earnings           = f.no_earnings           === true;
+                    const earnings_proxy_symbol = f.earnings_proxy_symbol ?? null;
 
                     // fundamentals.json 有此標的 → 直接返回，技術面若為 null 顯示 -
                     {
