@@ -75,6 +75,7 @@
   v15.057 - 基本面表格新增「下次財報」欄：update_fund.py 抓 yfinance t.calendar 的 Earnings Date 寫入 fundamentals.json（next_earnings_date 欄位）；前端基本面表格首欄之後顯示日期 + 剩餘天數，顏色分級（今日/≤7天紅、≤14天橙、≤30天正常、>30天灰）
   v15.058 - 同步一致性補強：新增 _markAndAutoPush() 統一 helper；持倉明細 inline 編輯（股數/成本價/現價）、單筆/全部保留勾選、CSV 匯入完成後都會標記本地修改並觸發 2s debounce 自動推送 Gist
   v15.059 - stale push 防覆蓋：新增裝置 ID、Gist revision 基準、dirty domains 與 sync_meta（schema 維持 v1 方便回滾）；手動/自動推送前先比對雲端 revision，若本機不是基於最新版則拒絕上傳並保留 pending；庫存/存款顯示本機與雲端時間戳
+  v15.060 - 下次財報日期顯示修復 + 槓桿/港股反推原型：前端 fetchSymbolDataFromYahoo() 補上 next_earnings_date / no_earnings / earnings_proxy_symbol 欄位解析與回傳；buildNextEarningsTd 加上「近期無財報」與「財報：原型」小字提示；_CACHE_KEY 從 v7 升至 v8 強制清除舊快取；後端 update_fund.py 新增 EARNINGS_PROXY（AAPX/MSTU/MSFU/NBIL/CCUP/AMDL/AVGX/TSLL/NVDL/GGLL/MUU/PLTU/SNXX/TSMX → 原型；7709/9747 → 海力士/三星）與 NO_EARNINGS_SYMBOLS（00675L/BTC-USD/SLV/SOXX）。嚴格設計約束：mapping 僅作用於 next_earnings_date 欄位，不影響 PE/EPS/技術面/報價/持倉計算（前端 LEVERAGED_MAP 不動）
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
