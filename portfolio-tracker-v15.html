@@ -4560,7 +4560,7 @@
                 .catch(() => {});
             // 技術面：讀 localStorage 的 tech_ts
             try {
-                const raw = JSON.parse(localStorage.getItem('pf_analysis_v7') || '{}');
+                const raw = JSON.parse(localStorage.getItem('pf_analysis_v8') || '{}');
                 if (raw.tech_ts) _updateSourceTimes(null, raw.tech_ts);
             } catch(_) {}
         })();
