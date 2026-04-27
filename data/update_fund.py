@@ -17,7 +17,62 @@ with open(os.path.join(ROOT, 'symbols.json'), encoding='utf-8') as f:
     symbols = json.load(f)
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# 「下次財報日期」反推原型公司的對應表
+# 嚴格設計約束：本 mapping 與 NO_EARNINGS_SYMBOLS 僅作用於 next_earnings_date
+# 這一個欄位，不影響 PE / FPE / EPS / margin / target / 技術面 / 報價 / 任何
+# 其他資料的抓取流程。槓桿 ETF 仍保有自己獨立的 yfinance 資料。
+# ──────────────────────────────────────────────────────────────────────────
+EARNINGS_PROXY = {
+    # 美股槓桿 / 反向 ETF → 原型公司
+    'AAPX': 'AAPL',   'BMNU': 'BMNR',   'MSFU': 'MSFT',
+    'MSTU': 'MSTR',   'NBIL': 'NBIS',   'CCUP': 'CRCL',
+    'AMDL': 'AMD',    'AVGX': 'AVGO',   'TSLL': 'TSLA',
+    'NVDL': 'NVDA',   'GGLL': 'GOOGL',  'MUU':  'MU',
+    'PLTU': 'PLTR',   'SNXX': 'SNDK',   'TSMX': 'TSM',
+    # 港股 → 韓股原型（symbols.json 可能存無/有 .HK 後綴，兩種皆映射）
+    '7709':    '000660.KS',  '7709.HK': '000660.KS',  # 海力士（SK Hynix）
+    '9747':    '005930.KS',  '9747.HK': '005930.KS',  # 三星電子
+}
+
+# 一籃子 ETF / 商品 / 加密 → 不該預期有單一公司財報日期
+NO_EARNINGS_SYMBOLS = {
+    '00675L', '00675L.TW',
+    'BTC-USD', 'SLV', 'SOXX',
+}
+
+
 # ── 工具函數 ──────────────────────────────────────────────────────────────
+def _extract_earnings_date(ticker):
+    """從 yfinance Ticker 擷取下次財報日期（YYYY-MM-DD 字串），失敗回 None。"""
+    try:
+        cal = ticker.calendar
+    except Exception:
+        return None
+    ed_val = None
+    if cal is not None:
+        if isinstance(cal, dict):
+            ed_val = cal.get('Earnings Date')
+        else:
+            try:
+                if 'Earnings Date' in cal.index:
+                    ed_val = cal.loc['Earnings Date']
+            except Exception:
+                pass
+    if ed_val is None:
+        return None
+    if isinstance(ed_val, (list, tuple, pd.Series)):
+        candidates = [d for d in ed_val if d is not None and (not isinstance(d, float) or d == d)]
+        ed_val = min(candidates) if candidates else None
+    if ed_val is None:
+        return None
+    if hasattr(ed_val, 'strftime'):
+        return ed_val.strftime('%Y-%m-%d')
+    s = str(ed_val)[:10]
+    return s if len(s) == 10 and s[4] == '-' else None
+
+
+
 def safe_float(v, decimals=4):
     """安全轉 float；NaN/None 回傳 None"""
     try:
