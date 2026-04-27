@@ -274,34 +274,29 @@ for sym in symbols:
         except Exception as e:
             print(f'    earnings_dates error: {e}', flush=True)
 
-        # ── 下次財報日期 ──────────────────────────────────────────────
+        # ── 下次財報日期（含 proxy fallback / no_earnings 標記）────────
+        # 此區塊唯一引用 EARNINGS_PROXY / NO_EARNINGS_SYMBOLS 的位置；
+        # 其他欄位（PE / EPS / margin / target / 技術面）一律抓 sym 自己的資料。
         next_earnings_date = None
-        try:
-            cal = t.calendar
-            ed_val = None
-            if cal is not None:
-                if isinstance(cal, dict):
-                    ed_val = cal.get('Earnings Date')
-                else:
-                    # DataFrame: row index 'Earnings Date'
-                    try:
-                        if 'Earnings Date' in cal.index:
-                            ed_val = cal.loc['Earnings Date']
-                    except Exception:
-                        pass
-            if ed_val is not None:
-                # 可能是單一日期、list（區間）、或 pd.Series
-                if isinstance(ed_val, (list, tuple, pd.Series)):
-                    candidates = [d for d in ed_val if d is not None and (not isinstance(d, float) or d == d)]
-                    ed_val = min(candidates) if candidates else None
-                if ed_val is not None:
-                    if hasattr(ed_val, 'strftime'):
-                        next_earnings_date = ed_val.strftime('%Y-%m-%d')
-                    else:
-                        s = str(ed_val)[:10]
-                        next_earnings_date = s if len(s) == 10 and s[4] == '-' else None
-        except Exception as e:
-            print(f'    next_earnings_date error: {e}', flush=True)
+        earnings_proxy_symbol = None
+        no_earnings = sym in NO_EARNINGS_SYMBOLS
+        if no_earnings:
+            print(f'    {sym}: marked as no_earnings (ETF/commodity/crypto)', flush=True)
+        else:
+            try:
+                next_earnings_date = _extract_earnings_date(t)
+            except Exception as e:
+                print(f'    next_earnings_date error: {e}', flush=True)
+            if next_earnings_date is None and sym in EARNINGS_PROXY:
+                proxy_sym = EARNINGS_PROXY[sym]
+                try:
+                    proxy_date = _extract_earnings_date(yf.Ticker(proxy_sym))
+                    if proxy_date:
+                        next_earnings_date = proxy_date
+                        earnings_proxy_symbol = proxy_sym
+                        print(f'    next_earnings_date proxied from {proxy_sym}: {proxy_date}', flush=True)
+                except Exception as e:
+                    print(f'    earnings proxy {proxy_sym} error: {e}', flush=True)
 
         # ── 毛利率 / 營益率 ──────────────────────────────────────────
         gross_margin     = safe_float(info.get('grossMargins'))
