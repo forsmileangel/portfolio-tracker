@@ -4822,7 +4822,7 @@
 
                 // 基本面行
                 fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}` +
-                    buildNextEarningsTd(d.next_earnings_date) +
+                    buildNextEarningsTd(d.next_earnings_date, d.no_earnings, d.earnings_proxy_symbol) +
                     tr(fmt(d.pe)) + tr(fmt(d.hist_avg_pe)) + tr(fmt(d.fpe)) +
                     tr(fmt(d.peg)) + tr(fmt(d.ps)) + tr(fmt(d.pb)) +
                     tr(fmtp(d.rev_yoy)) + tr(fmtp(d.rev_fwd)) +
