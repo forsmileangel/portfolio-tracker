@@ -4400,7 +4400,10 @@
                 daily_k:  dailyKD?.k  ?? null, daily_d:  dailyKD?.d  ?? null, daily_cross:  kdCross(dailyKD),
                 hourly_k: hourlyKD?.k ?? null, hourly_d: hourlyKD?.d ?? null, hourly_cross: kdCross(hourlyKD),
                 weekly_macd: weeklyMACD, daily_macd: dailyMACD, hourly_macd: hourlyMACD,
-                weekly_rsi:  weeklyRSI,  daily_rsi:  dailyRSI,  hourly_rsi:  hourlyRSI
+                weekly_rsi:  weeklyRSI,  daily_rsi:  dailyRSI,  hourly_rsi:  hourlyRSI,
+                next_earnings_date:    fund?.next_earnings_date    ?? null,
+                no_earnings:           fund?.no_earnings           === true,
+                earnings_proxy_symbol: fund?.earnings_proxy_symbol ?? null
             };
         }
 
