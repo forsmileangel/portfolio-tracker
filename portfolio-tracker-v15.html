@@ -2905,7 +2905,9 @@
 
                 if (!res.ok) {
                     const err = await res.json().catch(() => ({}));
-                    throw new Error(err.message || `HTTP ${res.status}`);
+                    const e = new Error(err.message || `HTTP ${res.status}`);
+                    e.status = res.status;   // v15.062：保留 HTTP status
+                    throw e;
                 }
 
                 const data = await res.json();
