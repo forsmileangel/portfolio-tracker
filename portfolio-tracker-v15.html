@@ -76,6 +76,7 @@
   v15.058 - 同步一致性補強：新增 _markAndAutoPush() 統一 helper；持倉明細 inline 編輯（股數/成本價/現價）、單筆/全部保留勾選、CSV 匯入完成後都會標記本地修改並觸發 2s debounce 自動推送 Gist
   v15.059 - stale push 防覆蓋：新增裝置 ID、Gist revision 基準、dirty domains 與 sync_meta（schema 維持 v1 方便回滾）；手動/自動推送前先比對雲端 revision，若本機不是基於最新版則拒絕上傳並保留 pending；庫存/存款顯示本機與雲端時間戳
   v15.060 - 下次財報日期顯示修復 + 槓桿/港股反推原型：前端 fetchSymbolDataFromYahoo() 補上 next_earnings_date / no_earnings / earnings_proxy_symbol 欄位解析與回傳；buildNextEarningsTd 加上「近期無財報」與「財報：原型」小字提示；_CACHE_KEY 從 v7 升至 v8 強制清除舊快取；後端 update_fund.py 新增 EARNINGS_PROXY（AAPX/MSTU/MSFU/NBIL/CCUP/AMDL/AVGX/TSLL/NVDL/GGLL/MUU/PLTU/SNXX/TSMX → 原型；7709/9747 → 海力士/三星）與 NO_EARNINGS_SYMBOLS（00675L/BTC-USD/SLV/SOXX）。嚴格設計約束：mapping 僅作用於 next_earnings_date 欄位，不影響 PE/EPS/技術面/報價/持倉計算（前端 LEVERAGED_MAP 不動）
+  v15.061 - 安全與救災可靠性批次：(1) 新增 .github/workflows/check-tokens.yml 每日 UTC 20:00 自動驗證 GIST_TOKEN/GIST_ID 仍有效且 portfolio-tracker-holdings.json 存在，失效時 workflow fail 觸發 GitHub 通知；(2) 新增 data/restore_from_sqlite.py CLI 工具（--list / --latest / --id / --date），從 SQLite 備份還原指定備份的 raw_json 為獨立檔案，不自動覆蓋 Gist；(3) Gist push 401/403 立即停止 retry 並 toast 提示 Token 失效（避免 5 次無意義重試）；(4) MAX_RETRY 達上限後 showWarnToast 提示使用者；(5) 新增 pt_last_push_error localStorage 紀錄最後一次同步錯誤；(6) 手機直向修正：持倉分布圖三勾選（含現金/含加密/含未上市）改用 .pie-input-grid CSS class，540px 以下提示欄與勾選獨立成行避免溢出右邊
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
