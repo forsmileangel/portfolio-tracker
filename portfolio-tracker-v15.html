@@ -473,8 +473,8 @@
             <!-- 標題列 + 輸入欄 -->
             <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.25rem;">
                 <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
-                <!-- Grid 4欄：標籤 | 輸入框 | 提示/空白 | 打勾 → 三列完全對齊 -->
-                <div style="display:grid; grid-template-columns:max-content 120px 80px auto; column-gap:0.5rem; row-gap:0.45rem; align-items:center;">
+                <!-- Grid 4欄：標籤 | 輸入框 | 提示/空白 | 打勾 → 三列完全對齊（v15.061 加 class 以套用 mobile media query） -->
+                <div class="pie-input-grid">
                     <!-- 現金列（從存款頁籤自動計算） -->
                     <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">現金（TWD）</span>
                     <span id="cash-twd-display" class="mono pv-field" style="width:100%; padding:0.3rem 0.55rem; background:rgba(15,23,42,0.3); border:1px solid rgba(148,163,184,0.1); border-radius:6px; color:#f1f5f9; font-size:0.85rem; box-sizing:border-box; display:inline-block; min-height:1.8rem;">0</span>
