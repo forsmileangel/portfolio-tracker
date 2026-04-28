@@ -2359,10 +2359,10 @@
             }, 2000);
         }
 
-        // v15.061：記錄最後一次推送錯誤至 localStorage，方便 debug 與未來錯誤日誌 UI 使用
+        // v15.061：記錄最後一次推送錯誤至 localStorage（v15.062 加入 err.status 優先判斷）
         function _recordPushError(err, statusOverride) {
             try {
-                let status = (statusOverride !== undefined) ? statusOverride : null;
+                let status = (statusOverride !== undefined) ? statusOverride : (err?.status ?? null);
                 if (status == null) {
                     const m = (err?.message || '').match(/HTTP\s+(\d+)/i);
                     status = m ? parseInt(m[1], 10) : null;
@@ -2375,8 +2375,14 @@
             } catch(_) {}
         }
         // v15.061：判斷錯誤是否為 401/403（Token 失效或權限不足）
+        // v15.062 修正：優先看 err.status；GitHub API 401 回 "Bad credentials" 不含 "HTTP 401"
         function _isAuthError(err) {
-            const m = (err?.message || '').match(/HTTP\s+(\d+)/i);
+            if (err?.status === 401 || err?.status === 403) return true;
+            const msg = (err?.message || '').toLowerCase();
+            if (msg.includes('bad credentials')) return true;
+            if (msg.includes('requires authentication')) return true;
+            if (msg.includes('must authenticate')) return true;
+            const m = msg.match(/http\s+(\d+)/);
             if (!m) return false;
             const code = parseInt(m[1], 10);
             return code === 401 || code === 403;
