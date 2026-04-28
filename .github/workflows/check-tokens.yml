@@ -1,0 +1,52 @@
+name: Check Tokens
+
+on:
+  schedule:
+    # UTC 20:00 = 台灣時間 04:00（早於 SQLite backup 的 20:30）
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-gist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Gist Token & portfolio file
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GIST_TOKEN:-}" ] || [ -z "${GIST_ID:-}" ]; then
+            echo "::error::GIST_TOKEN 或 GIST_ID 未設定（這兩個 secret 應與 backup-gist.yml 共用）"
+            exit 1
+          fi
+          STATUS=$(curl -sS -o response.json -w "%{http_code}" \
+            -H "Authorization: token ${GIST_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/gists/${GIST_ID}")
+          if [ "$STATUS" -eq 401 ] || [ "$STATUS" -eq 403 ]; then
+            echo "::error::Gist Token 失效或權限不足（HTTP $STATUS）— 請至 GitHub Settings → Developer settings → Tokens (classic) 重新產生具 gist scope 的 PAT，並更新本 repo 的 GIST_TOKEN secret"
+            cat response.json || true
+            exit 1
+          fi
+          if [ "$STATUS" -eq 404 ]; then
+            echo "::error::Gist 不存在或 Token 無權讀取（HTTP 404）— 請確認 GIST_ID 是否正確"
+            exit 1
+          fi
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Gist API 回傳非預期 HTTP $STATUS"
+            cat response.json || true
+            exit 1
+          fi
+          if ! python3 -c "
+          import json, sys
+          data = json.load(open('response.json', encoding='utf-8'))
+          files = data.get('files', {}) or {}
+          if 'portfolio-tracker-holdings.json' not in files:
+              print('::error::Gist 中找不到 portfolio-tracker-holdings.json — 該檔案應由 Portfolio Tracker 前端首次推送時建立', file=sys.stderr)
+              sys.exit(1)
+          print('已找到 portfolio-tracker-holdings.json')
+          "; then
+            exit 1
+          fi
+          echo "✅ Gist Token 有效，portfolio-tracker-holdings.json 存在"
