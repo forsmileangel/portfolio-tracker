@@ -2450,17 +2450,23 @@
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json().catch(() => null);
                 _rememberCloudState(data);
-                // 推送成功：清除 pending 計數、重置退避
+                // 推送成功：清除 pending 計數、重置退避、清除 last_error
                 localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
                 _clearDirtyDomains();
                 _pushRetryCount = 0;
                 clearTimeout(_retryTimer);
                 _updatePendingPushIndicator();
                 _updateSyncTimeLabels();
+                localStorage.removeItem('pt_last_push_error');
                 console.log('[Snapshot] 快照已靜默同步至 Gist');
                 return true;
             } catch(e) {
                 console.warn('[Snapshot] 靜默推送失敗：', e.message);
+                _recordPushError(e);
+                if (_isAuthError(e)) {
+                    _handleAuthFailure();
+                    return false;
+                }
                 _scheduleRetry();
                 return false;
             }
