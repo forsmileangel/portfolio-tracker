@@ -54,3 +54,67 @@ if (gistFile.content && !gistFile.truncated) {
 | S3 + CloudFront | S3 直接讀 | CloudFront URL |
 
 任何 `*.githubusercontent.com`、`cdn.*`、CloudFront 類 URL 都帶 CDN 快取，除非能接受分鐘級延遲，否則不要當主路徑。
+
+---
+
+## Gist API 錯誤處理規則（v15.061 / v15.062 起）
+
+### 必須保留 HTTP status
+
+任何呼叫 Gist API 的 fetch 失敗時，throw 的 Error 必須附帶 `e.status = res.status`，**不能只靠 message**。
+
+理由：GitHub Gist API 401 回的 response body 是 `{"message": "Bad credentials"}`，原本 `throw new Error(err.message || HTTP ${res.status})` 會優先使用 `err.message` → Error.message 變成 "Bad credentials" → 不含 "HTTP 401" → 用 message regex 抓不到。
+
+### 標準寫法
+
+```javascript
+if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const e = new Error(err.message || `HTTP ${res.status}`);
+    e.status = res.status;   // 保留 HTTP status 給 _isAuthError / _recordPushError
+    throw e;
+}
+```
+
+### Auth 判斷必須看 status 與關鍵字
+
+```javascript
+function _isAuthError(err) {
+    if (err?.status === 401 || err?.status === 403) return true;
+    const msg = (err?.message || '').toLowerCase();
+    if (msg.includes('bad credentials')) return true;
+    if (msg.includes('requires authentication')) return true;
+    if (msg.includes('must authenticate')) return true;
+    const m = msg.match(/http\s+(\d+)/);
+    if (!m) return false;
+    const code = parseInt(m[1], 10);
+    return code === 401 || code === 403;
+}
+```
+
+### 401/403 必須立即停止 retry
+
+當判定為 auth error 時：
+
+```javascript
+function _handleAuthFailure() {
+    _pushRetryCount = MAX_PUSH_RETRY;     // 強制停止 retry 計數
+    clearTimeout(_retryTimer);
+    showWarnToast('❌ Gist Token 失效或權限不足，請至設定重新填入 Token', 8000);
+}
+```
+
+**不可**繼續 `_scheduleRetry()`，5 次重試對 Token 失效完全無意義。
+
+### 所有 push 路徑都要記錄錯誤
+
+`_gistSilentPush()` 與手動 `gistPush()` 的 catch 區塊都必須：
+
+1. 呼叫 `_recordPushError(e)` 寫 `pt_last_push_error` localStorage
+2. 用 `_isAuthError(e)` 判斷是否 auth 失敗
+3. 若是 → `_handleAuthFailure()`；若否 → 顯示一般錯誤 toast
+4. 推送成功時記得 `localStorage.removeItem('pt_last_push_error')` 清除
+
+### Preflight 也要做這套處理
+
+`gistPush()` 的 preflight 區塊（`_preflightGistPush()` throw 時的 catch）也必須跑同樣流程。v15.061 漏了這段，由 v15.062 補上。
