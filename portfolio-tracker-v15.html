@@ -314,6 +314,31 @@
             .glass-card { padding: 0.5rem !important; }
             .stat-card { padding: 0.5rem !important; }
         }
+
+        /* 持倉分布圖：現金 / 加密 / 未上市 三列輸入 + 勾選 grid（v15.061：手機直向修復） */
+        .pie-input-grid {
+            display: grid;
+            grid-template-columns: max-content 120px 80px auto;
+            column-gap: 0.5rem;
+            row-gap: 0.45rem;
+            align-items: center;
+        }
+        @media (max-width: 540px) {
+            .pie-input-grid {
+                grid-template-columns: max-content 1fr;
+            }
+            /* 提示欄（每組第 3 個 child = 4n-1）獨立成行 */
+            .pie-input-grid > :nth-child(4n-1) {
+                grid-column: 1 / -1;
+                justify-self: start;
+                font-size: 0.72rem;
+            }
+            /* 勾選 label（每組第 4 個 child = 4n）獨立成行 */
+            .pie-input-grid > :nth-child(4n) {
+                grid-column: 1 / -1;
+                justify-self: start;
+            }
+        }
     </style>
 </head>
 <body>
