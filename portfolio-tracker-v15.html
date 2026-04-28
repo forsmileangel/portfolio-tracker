@@ -2857,8 +2857,14 @@
             try {
                 if (!(await _preflightGistPush(token, gistId))) return;
             } catch(e) {
+                // v15.062：preflight 失敗時也要記錄錯誤、判斷 401/403 後停止重試
+                _recordPushError(e);
                 setGistStatus(`❌ 推送前檢查失敗：${e.message}`, '#ef4444');
-                showWarnToast(`❌ 推送前檢查失敗：${e.message}`);
+                if (_isAuthError(e)) {
+                    _handleAuthFailure();
+                } else {
+                    showWarnToast(`❌ 推送前檢查失敗：${e.message}`);
+                }
                 return;
             }
             const pushedAt = new Date().toISOString();
