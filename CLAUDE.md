@@ -35,8 +35,10 @@
 詳細規則已模組化至 `.claude/rules/`：
 - `rendering.md`：差異更新架構（不可改回 innerHTML 全部重建）
 - `performance.md`：效能規則（防抖、onchange）
-- `gist-sync.md`：新增欄位時的同步 checklist
+- `gist-sync.md`：新增欄位時的同步 checklist + Gist API 錯誤處理（401/403、e.status、_isAuthError）
 - `notion.md`：Notion 寫作規則與頁面 ID
+- `storage-keys.md`：localStorage key 必須登記至 `STORAGE_KEYS` 物件，rename 需有 migration
+- `cache-strategy.md`：對外資料須有時間戳顯色、stale fallback、新增基本面欄位 5 步 checklist
 
 ## Git 設定
 - Auto-commit hook 已設定：修改檔案後自動 `git add → commit → push`
