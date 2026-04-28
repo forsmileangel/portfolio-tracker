@@ -966,6 +966,62 @@
             } catch(_) {}
         }
 
+        // ────────────────────────────────────────────────────────
+        // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
+        // 規則（詳見 .claude/rules/storage-keys.md）：
+        //   1. 任何新增的 localStorage key 必須在此處登記
+        //   2. key 字串值不可隨意 rename；rename 必須有 migration / rollback / 測試
+        //   3. 本版採保守路線：純新增此物件作為「已知 key 清單」，既有 PT_*_KEY 常數不動
+        // ────────────────────────────────────────────────────────
+        const STORAGE_KEYS = Object.freeze({
+            // 主要狀態
+            state:            'pt_v13p_state',
+            deposits:         'pt_deposits',
+            tradeHistory:     'pt_trade_history',
+            watchlist:        'pt_watchlist',
+            snapshots:        'pt_snapshots',
+            // 圓餅圖手動欄位
+            cashLegacy:       'pt_v13_cash',          // 已棄用，向下相容保留
+            cashPie:          'pt_cash_pie_cb',
+            crypto:           'pt_crypto_twd',
+            cryptoPie:        'pt_crypto_pie_cb',
+            moxa:             'pt_moxa_twd',
+            moxaPie:          'pt_moxa_pie_cb',
+            // UI 偏好
+            privacy:          'pt_privacy_mode',
+            font:             'pt_font',
+            fontSize:         'font_size',
+            // Gist 同步
+            gistToken:        'pt_gist_token_v15',
+            gistId:           'pt_gist_id_v15',
+            deviceId:         'pt_device_id',
+            lastCloudRev:     'pt_last_cloud_revision',
+            lastCloudTs:      'pt_last_cloud_updated_at',
+            dirtyDomains:     'pt_dirty_domains',
+            domainUpdatedAt:  'pt_domain_updated_at',
+            localModifyTs:    'pt_local_modify_ts',
+            pendingPushCount: 'pt_pending_push_count',
+            lastPushError:    'pt_last_push_error',
+            // 快取
+            fxCache:          'pt_fx_v1',
+            analysisCache:    'pf_analysis_v8',
+            qsCache:          'pf_qs_v5',
+            macroCache:       'pf_macro_v1',
+            // 後端
+            backendUrl:       'backend_url',
+        });
+
+        // ────────────────────────────────────────────────────────
+        // _freshnessColor — 依資料年齡決定顯示色（v15.063 起）
+        // 用於基本面 / 技術面 / 匯率 時間戳：新鮮灰藍、接近過期橘、已過期紅
+        // ────────────────────────────────────────────────────────
+        function _freshnessColor(ageMs, freshMaxMs, staleMs) {
+            if (ageMs == null || isNaN(ageMs)) return '#7e93a6';
+            if (ageMs <= freshMaxMs) return '#7e93a6';   // 灰藍：新鮮
+            if (ageMs <= staleMs)    return '#fbbf24';   // 橘：接近過期
+            return '#ef4444';                            // 紅：已過期 / 明顯 stale
+        }
+
         const PT_FX_CACHE_KEY = 'pt_fx_v1';
         const FX_TTL = 60 * 60 * 1000; // 1 小時
 
