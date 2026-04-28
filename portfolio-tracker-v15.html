@@ -2918,6 +2918,7 @@
                 _clearDirtyDomains();
                 _updatePendingPushIndicator();
                 _updateSyncTimeLabels();
+                localStorage.removeItem('pt_last_push_error');
 
                 const t = new Date().toLocaleTimeString('zh-TW');
                 const depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
@@ -2925,7 +2926,13 @@
                 showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）`, 2500);
 
             } catch(e) {
+                _recordPushError(e);
                 setGistStatus(`❌ 推送失敗：${e.message}`, '#ef4444');
+                if (_isAuthError(e)) {
+                    _handleAuthFailure();
+                } else {
+                    showWarnToast(`❌ 推送失敗：${e.message}`, 5000);
+                }
             }
         }
 
