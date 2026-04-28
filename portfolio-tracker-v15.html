@@ -3999,6 +3999,10 @@
             if (ts) {
                 const t = new Date(ts).toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
                 timeEl.textContent = fromCache ? `快取 ${t}（${_fxAgeStr(ts)}）` : `即時 ${t}`;
+                // v15.063：匯率快取年齡套色（TTL 1hr：<30min 新鮮、30-90min 接近過期、>90min 已過期）
+                timeEl.style.color = fromCache
+                    ? _freshnessColor(Date.now() - ts, 30*60*1000, 90*60*1000)
+                    : '#7e93a6';
             }
         }
 
