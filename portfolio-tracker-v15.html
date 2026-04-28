@@ -4699,13 +4699,18 @@
         function _updateSourceTimes(fundTs, techTs) {
             const fundEl = document.getElementById('fund-source-time');
             const techEl = document.getElementById('tech-source-time');
+            const now = Date.now();
+            // v15.063：依資料年齡套色（基本面 TTL 8hr：<6hr 新鮮、6-12hr 接近過期、>12hr 已過期）
             if (fundEl && fundTs) {
+                const age = now - new Date(fundTs).getTime();
                 fundEl.textContent = '基本面：' + _fmtTs(fundTs) + ' 更新';
-                fundEl.style.color = '#10b981';
+                fundEl.style.color = _freshnessColor(age, 6*60*60*1000, 12*60*60*1000);
             }
+            // 技術面 TTL 1hr：<45min 新鮮、45-90min 接近過期、>90min 已過期
             if (techEl && techTs) {
+                const age = now - new Date(techTs).getTime();
                 techEl.textContent = '｜ 技術面：' + _fmtTs(techTs) + ' 更新';
-                techEl.style.color = '#60a5fa';
+                techEl.style.color = _freshnessColor(age, 45*60*1000, 90*60*1000);
             }
         }
         (function() {
