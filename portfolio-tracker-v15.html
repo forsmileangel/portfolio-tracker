@@ -2357,9 +2357,39 @@
             }, 2000);
         }
 
+        // v15.061：記錄最後一次推送錯誤至 localStorage，方便 debug 與未來錯誤日誌 UI 使用
+        function _recordPushError(err, statusOverride) {
+            try {
+                let status = (statusOverride !== undefined) ? statusOverride : null;
+                if (status == null) {
+                    const m = (err?.message || '').match(/HTTP\s+(\d+)/i);
+                    status = m ? parseInt(m[1], 10) : null;
+                }
+                localStorage.setItem('pt_last_push_error', JSON.stringify({
+                    ts: new Date().toISOString(),
+                    status,
+                    message: err?.message || String(err)
+                }));
+            } catch(_) {}
+        }
+        // v15.061：判斷錯誤是否為 401/403（Token 失效或權限不足）
+        function _isAuthError(err) {
+            const m = (err?.message || '').match(/HTTP\s+(\d+)/i);
+            if (!m) return false;
+            const code = parseInt(m[1], 10);
+            return code === 401 || code === 403;
+        }
+        // v15.061：401/403 路徑共用處理 — 強制停止 retry + toast
+        function _handleAuthFailure() {
+            _pushRetryCount = MAX_PUSH_RETRY;
+            clearTimeout(_retryTimer);
+            showWarnToast('❌ Gist Token 失效或權限不足，請至設定重新填入 Token', 8000);
+        }
+
         function _scheduleRetry() {
             if (_pushRetryCount >= MAX_PUSH_RETRY) {
                 console.warn('[AutoPush] 已達最大重試次數，等 online 事件或頁面重整或點擊 UI 提示再試');
+                showWarnToast('⚠️ 同步失敗已達 5 次，請檢查網路或 Gist Token，可手動點擊左上角同步提示重試', 8000);
                 return;
             }
             const delay = Math.min(1000 * Math.pow(2, _pushRetryCount), 30000);
