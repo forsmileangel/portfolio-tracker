@@ -5185,6 +5185,10 @@
                         rateEl.textContent = fx.fromCache
                             ? `✓ 即時匯率（${t} · 快取 ${_fxAgeStr(fx.ts)}）`
                             : `✓ 即時匯率（${new Date().toLocaleTimeString('zh-TW')}）`;
+                        // v15.063：匯率快取年齡套色
+                        rateEl.style.color = fx.fromCache
+                            ? _freshnessColor(Date.now() - fx.ts, 30*60*1000, 90*60*1000)
+                            : '#7e93a6';
                     }
                     renderAll();
                     recordSnapshot(); // 每月首次開啟，自動記錄市值快照
