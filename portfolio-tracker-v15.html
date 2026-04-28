@@ -2449,7 +2449,11 @@
                         files: { [GIST_FILENAME]: { content: payload } }
                     })
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+                    const e = new Error(`HTTP ${res.status}`);
+                    e.status = res.status;   // v15.062：保留 HTTP status
+                    throw e;
+                }
                 const data = await res.json().catch(() => null);
                 _rememberCloudState(data);
                 // 推送成功：清除 pending 計數、重置退避、清除 last_error
