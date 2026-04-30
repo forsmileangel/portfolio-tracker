@@ -4393,16 +4393,26 @@
                 if (!window._fundJsonCache) {
                     // cache:'no-cache' → 強制驗證伺服器端是否有新版本（ETag/Last-Modified），
                     // 確保 GitHub Actions 每次推送的新 fundamentals.json 不被瀏覽器舊快取覆蓋
-                    const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
-                    if (r.ok) {
-                        // Python 的 JSON 序列化可能包含 NaN/Infinity（非標準 JSON），需先替換為 null
-                        const txt = await r.text();
-                        const cleaned = txt.replace(/:\s*NaN/g, ': null')
-                                           .replace(/:\s*Infinity/g, ': null')
-                                           .replace(/:\s*-Infinity/g, ': null');
-                        window._fundJsonCache = JSON.parse(cleaned);
-                    } else {
-                        window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
+                    try {
+                        const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
+                        if (r.ok) {
+                            // Python 的 JSON 序列化可能包含 NaN/Infinity（非標準 JSON），需先替換為 null
+                            const txt = await r.text();
+                            const cleaned = txt.replace(/:\s*NaN/g, ': null')
+                                               .replace(/:\s*Infinity/g, ': null')
+                                               .replace(/:\s*-Infinity/g, ': null');
+                            window._fundJsonCache = JSON.parse(cleaned);
+                        } else {
+                            window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
+                            // v15.064：記錄 HTTP 失敗
+                            const e = new Error('HTTP ' + r.status);
+                            e.status = r.status;
+                            _recordAppError('fundamentals_json_load', e);
+                        }
+                    } catch (fetchErr) {
+                        // v15.064：記錄 fetch / parse 例外
+                        window._fundJsonCache = null;
+                        _recordAppError('fundamentals_json_load', fetchErr);
                     }
                 }
                 const f = window._fundJsonCache?.data?.[symbol];
