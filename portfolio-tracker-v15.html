@@ -2444,6 +2444,7 @@
 
         // v15.064：統一應用錯誤紀錄（最多 50 筆，舊筆自動丟棄）
         // source: 'gist_push' / 'gist_pull' / 'csv_proxy_all_fail' / 'fundamentals_json_load' / 'render_health' 等
+        // v15.065：加入 60s 內同 source+message 去重（避免 31 個 symbol 同輪刷新洗版錯誤日誌）
         function _recordAppError(source, err, meta) {
             try {
                 const entry = {
@@ -2451,11 +2452,24 @@
                     source: String(source || 'unknown'),
                     status: (err?.status ?? null),
                     message: ((err?.message || String(err)) + '').slice(0, 500),
-                    meta: meta || null
+                    meta: meta || null,
+                    count: 1
                 };
                 let log = [];
                 try { log = JSON.parse(localStorage.getItem(STORAGE_KEYS.errorLog) || '[]'); } catch(_) {}
                 if (!Array.isArray(log)) log = [];
+                // v15.065：同 source + message 在 60s 內不新增，僅更新最後一筆的 ts 與 count
+                if (log.length > 0) {
+                    const last = log[log.length - 1];
+                    if (last && last.source === entry.source && last.message === entry.message
+                        && (Date.now() - new Date(last.ts).getTime()) < 60000) {
+                        last.ts = entry.ts;
+                        last.count = (last.count || 1) + 1;
+                        localStorage.setItem(STORAGE_KEYS.errorLog, JSON.stringify(log));
+                        _renderErrorLogCount();
+                        return;
+                    }
+                }
                 log.push(entry);
                 if (log.length > 50) log = log.slice(-50);
                 localStorage.setItem(STORAGE_KEYS.errorLog, JSON.stringify(log));
