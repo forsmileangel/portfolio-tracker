@@ -3214,6 +3214,7 @@
         }
 
         // ── 啟動時靜默自動拉取 Gist ──
+        // #region Gist Silent Pull
         async function _gistSilentPull() {
             const token  = localStorage.getItem(GIST_TOKEN_KEY);
             const gistId = localStorage.getItem(GIST_ID_KEY);
