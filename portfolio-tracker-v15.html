@@ -4406,6 +4406,10 @@
             throw new Error('所有代理均失敗（' + errors.join('；') + '）');
         }
 
+        // #endregion Gist Silent Pull
+        // #endregion Gist Sync
+
+        // #region Analysis Data (fundamentals.json + Yahoo chart)
         async function fetchSymbolDataFromYahoo(symbol) {
             const BASE1    = 'https://query1.finance.yahoo.com';
             const fundBase = BACKEND_URL || '';
