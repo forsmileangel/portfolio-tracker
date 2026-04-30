@@ -3854,6 +3854,7 @@
             u => 'https://corsproxy.io/?'                       + encodeURIComponent(u),
         ];
         async function _fetchSheetCSV(sheetUrl, signal) {
+            const lastErrors = [];
             for (const mkProxy of _SHEET_PROXIES) {
                 const ctrl = new AbortController();
                 const tid  = setTimeout(() => ctrl.abort(), 7000);
@@ -3863,10 +3864,16 @@
                     const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
                     clearTimeout(tid);
                     if (res.ok) return res;
-                } catch(_) {
+                    lastErrors.push(`HTTP ${res.status}`);
+                } catch(e) {
                     clearTimeout(tid);
+                    lastErrors.push(e?.message || 'fetch error');
                 }
             }
+            // v15.064：三 proxy 全滅時記錄錯誤日誌（包含每個 proxy 的失敗原因）
+            try {
+                _recordAppError('csv_proxy_all_fail', new Error('All CSV proxies failed'), { errors: lastErrors });
+            } catch(_) {}
             return null; // 全部失敗
         }
 
