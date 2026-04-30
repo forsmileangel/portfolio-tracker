@@ -3187,6 +3187,8 @@
 
             } catch(e) {
                 setGistStatus(`❌ 拉取失敗：${e.message}`, '#ef4444');
+                // v15.064：記錄到錯誤日誌
+                _recordAppError('gist_pull', e);
             }
         }
 
