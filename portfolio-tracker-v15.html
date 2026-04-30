@@ -620,6 +620,23 @@
             <div id="gist-status" style="margin-top:0.45rem; font-size:0.78rem; color:#607585;"></div>
         </div>
 
+        <!-- 錯誤日誌（v15.064） -->
+        <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;"><i class="ic">!</i> 錯誤日誌</label>
+                <span style="font-size:0.72rem; color:#607585;">最多保留 50 筆</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr auto; gap:0.5rem;">
+                <button onclick="toggleErrorLog()" style="padding:0.5rem; background:rgba(56,139,253,0.12); color:#e2e8f0; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">
+                    查看（<span id="error-log-count">0</span> 筆）
+                </button>
+                <button onclick="clearErrorLog()" style="padding:0.5rem 0.85rem; background:rgba(239,68,68,0.12); color:#e2e8f0; border:1px solid rgba(239,68,68,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">
+                    清除
+                </button>
+            </div>
+            <pre id="error-log-display" style="display:none; max-height:300px; overflow:auto; margin-top:0.6rem; padding:0.6rem; background:rgba(6,13,26,0.9); border:1px solid rgba(148,163,184,0.15); border-radius:6px; color:#a8bdd0; font-size:0.72rem; font-family:ui-monospace,monospace; white-space:pre-wrap; word-break:break-word;"></pre>
+        </div>
+
         <!-- 雲端 CSV 設定 -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
