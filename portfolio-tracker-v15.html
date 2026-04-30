@@ -2420,7 +2420,65 @@
             }, 2000);
         }
 
-        // v15.061：記錄最後一次推送錯誤至 localStorage（v15.062 加入 err.status 優先判斷）
+        // v15.064：統一應用錯誤紀錄（最多 50 筆，舊筆自動丟棄）
+        // source: 'gist_push' / 'gist_pull' / 'csv_proxy_all_fail' / 'fundamentals_json_load' / 'render_health' 等
+        function _recordAppError(source, err, meta) {
+            try {
+                const entry = {
+                    ts: new Date().toISOString(),
+                    source: String(source || 'unknown'),
+                    status: (err?.status ?? null),
+                    message: ((err?.message || String(err)) + '').slice(0, 500),
+                    meta: meta || null
+                };
+                let log = [];
+                try { log = JSON.parse(localStorage.getItem(STORAGE_KEYS.errorLog) || '[]'); } catch(_) {}
+                if (!Array.isArray(log)) log = [];
+                log.push(entry);
+                if (log.length > 50) log = log.slice(-50);
+                localStorage.setItem(STORAGE_KEYS.errorLog, JSON.stringify(log));
+                _renderErrorLogCount();
+            } catch(_) {}
+        }
+        function _renderErrorLogCount() {
+            const el = document.getElementById('error-log-count');
+            if (!el) return;
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem(STORAGE_KEYS.errorLog) || '[]'); } catch(_) {}
+            el.textContent = Array.isArray(log) ? log.length : 0;
+        }
+        function toggleErrorLog() {
+            const pre = document.getElementById('error-log-display');
+            if (!pre) return;
+            if (pre.style.display === 'none' || !pre.style.display) {
+                let log = [];
+                try { log = JSON.parse(localStorage.getItem(STORAGE_KEYS.errorLog) || '[]'); } catch(_) {}
+                if (!Array.isArray(log) || log.length === 0) {
+                    pre.textContent = '（目前沒有錯誤紀錄）';
+                } else {
+                    const lines = log.slice().reverse().map(e =>
+                        '[' + e.ts + '] ' + e.source +
+                        (e.status ? ' (HTTP ' + e.status + ')' : '') +
+                        '\n  ' + e.message +
+                        (e.meta ? '\n  meta: ' + JSON.stringify(e.meta) : '')
+                    );
+                    pre.textContent = lines.join('\n\n');
+                }
+                pre.style.display = 'block';
+            } else {
+                pre.style.display = 'none';
+            }
+        }
+        function clearErrorLog() {
+            if (!confirm('確認清除所有錯誤紀錄？')) return;
+            localStorage.removeItem(STORAGE_KEYS.errorLog);
+            _renderErrorLogCount();
+            const pre = document.getElementById('error-log-display');
+            if (pre) { pre.textContent = ''; pre.style.display = 'none'; }
+            if (typeof showImportToast === 'function') showImportToast('✅ 錯誤紀錄已清除', 1500);
+        }
+
+        // v15.061：記錄最後一次推送錯誤至 localStorage（v15.062 加入 err.status 優先判斷；v15.064 連動 _recordAppError）
         function _recordPushError(err, statusOverride) {
             try {
                 let status = (statusOverride !== undefined) ? statusOverride : (err?.status ?? null);
