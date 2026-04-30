@@ -9,3 +9,6 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# 本地排程 log（v15.065 起不追蹤；daily_pull.bat 仍會寫，但不再混入 commit）
+scripts/pull_log.txt
