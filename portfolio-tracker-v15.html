@@ -5307,15 +5307,19 @@
             fetchUsdtRate();
 
             // v15.064：Render warm-up；BACKEND_URL 已設定才打 /health（本機強制空白會跳過）。
-            // 失敗只寫 error log 不打擾使用者。60s timeout 避免 Render 冷啟動卡住其他流程。
+            // v15.065 修補：用 try/catch + AbortController 降級，避免 iOS Safari < 17.4 / 舊 Chrome
+            //   缺 AbortSignal.timeout API 時 sync throw 中斷後續啟動序列（startAutoRefresh 等）。
             (function _renderWarmUp() {
                 if (!BACKEND_URL) return;
-                fetch(BACKEND_URL + '/health', {
-                    cache: 'no-store',
-                    signal: AbortSignal.timeout(60000)
-                })
-                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); })
-                .catch(e => { try { _recordAppError('render_health', e); } catch(_) {} });
+                try {
+                    const ctrl = new AbortController();
+                    const tid = setTimeout(() => ctrl.abort(), 60000);
+                    fetch(BACKEND_URL + '/health', { cache: 'no-store', signal: ctrl.signal })
+                        .then(r => { clearTimeout(tid); if (!r.ok) throw new Error('HTTP ' + r.status); })
+                        .catch(e => { clearTimeout(tid); try { _recordAppError('render_health', e); } catch(_) {} });
+                } catch(e) {
+                    try { _recordAppError('render_health', e); } catch(_) {}
+                }
             })();
 
             // v15.064：頁面啟動時更新錯誤日誌計數
