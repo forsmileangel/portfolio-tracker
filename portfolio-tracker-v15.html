@@ -2495,6 +2495,7 @@
                     const lines = log.slice().reverse().map(e =>
                         '[' + e.ts + '] ' + e.source +
                         (e.status ? ' (HTTP ' + e.status + ')' : '') +
+                        (e.count > 1 ? ' × ' + e.count : '') +    // v15.065：去重後顯示重複次數
                         '\n  ' + e.message +
                         (e.meta ? '\n  meta: ' + JSON.stringify(e.meta) : '')
                     );
