@@ -145,7 +145,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path == '/proxy':
+        # v15.064：健康檢查端點，前端啟動後背景呼叫以 warm up Render（冷啟動 30-60s）
+        if parsed.path == '/health':
+            self._send_json({'ok': True, 'service': 'portfolio-tracker-backend'})
+        elif parsed.path == '/proxy':
             self._proxy(parsed)
         elif parsed.path == '/yfundamentals':
             self._fundamentals(parsed)
