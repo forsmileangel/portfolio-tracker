@@ -1472,7 +1472,7 @@
         //   - source = isToday ? 'live-close' : 'backfill'
         //   - fresh_after_close 必要條件：quote meta + analysis meta 兩個 marketDate 都 === target
         //   - backfill 必須兩個 meta 都齊；isToday 退一步可 pending_quote
-        //   - A1：snapshot 的 pnl 自己重算，isToday 用 prevClose、backfill 用 prevPrevClose；不讀 stats.todayPnlByMarket
+        //   - A1：snapshot 的 pnl 一律自己重算（isToday 用 prevClose、backfill 用 prevPrevClose），不依賴 stats 內既有的 by-market 累計值
         function _captureDailyPnlSnapshot(marketKey, stats) {
             try {
                 const session = _marketSession(marketKey, new Date());
