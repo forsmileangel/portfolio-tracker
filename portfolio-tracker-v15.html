@@ -1038,7 +1038,8 @@
             lastPushError:    'pt_last_push_error',
             errorLog:         'pt_error_log_v1',     // v15.064：應用錯誤日誌（最多 50 筆）
             dailyPnlSnapshots:'pt_daily_pnl_snapshots_v1',  // v15.069 起（v15.071 起會同步進 Gist）
-            marketQuoteMeta:  'pt_market_quote_meta_v1',    // v15.071：批次報價更新時間 / 來源（給 snapshot 新鮮度判斷）
+            marketQuoteMeta:  'pt_market_quote_meta_v1',    // v15.071/073：批次報價更新時間 + marketDate（v15.073 加）
+            marketAnalysisMeta:'pt_market_analysis_meta_v1', // v15.073：runAnalysis 完成後 prevClose/prevPrevClose 對齊的 marketDate
             // 快取
             fxCache:          'pt_fx_v1',
             analysisCache:    'pf_analysis_v8',
