@@ -1268,8 +1268,9 @@
             }
         }
 
-        // 嘗試擷取單一市場的當日損益快照（v15.070：current → previous 推進 + 重算 lastCompleteDate）
-        // 條件：(1) 市場時段 status === 'closed'  (2) 該市場今日尚無快照  (3) 該市場至少有一筆 prevClose 可用
+        // 嘗試擷取單一市場的當日損益快照（v15.071：加 quoteStatus / lastQuoteAt 新鮮度檢查）
+        // 條件：(1) market status === 'closed'  (2) 該市場至少一筆 prevClose 可用
+        // 新增：依 lastQuoteAt 標 fresh_after_close / pending_quote；同日 pending 可被 fresh 覆蓋
         function _captureDailyPnlSnapshot(marketKey, stats) {
             try {
                 const clock = _marketClock(marketKey);
@@ -1277,10 +1278,29 @@
                 const byMk = stats && stats.todayPnlByMarket && stats.todayPnlByMarket[marketKey];
                 if (!byMk || byMk.withData === 0) return;
 
+                const meta = _loadMarketQuoteMeta();
+                const lastQuoteAt = meta[marketKey] && meta[marketKey].lastQuoteAt || null;
+                const newStatus = _isQuoteFreshAfterClose(marketKey, clock) ? 'fresh_after_close' : 'pending_quote';
+
                 const snap = _loadDailyPnlSnapshots();
                 if (!snap.markets[marketKey]) snap.markets[marketKey] = { current: null, previous: null };
                 const slot = snap.markets[marketKey];
-                if (slot.current && slot.current.marketDate === clock.localDate) return;   // 今日已有
+
+                // 同日已有 snapshot：依 quoteStatus + lastQuoteAt 決定是否覆蓋
+                if (slot.current && slot.current.marketDate === clock.localDate) {
+                    const oldStatus = slot.current.quoteStatus || 'fresh_after_close';
+                    if (oldStatus === 'fresh_after_close' && newStatus === 'pending_quote') return;   // 不退化
+                    if (oldStatus === newStatus) {
+                        // 同 status：比較 lastQuoteAt，新時間沒進步就不覆蓋
+                        const oldQuoteAt = slot.current.lastQuoteAt;
+                        if (!lastQuoteAt) return;
+                        if (oldQuoteAt && new Date(lastQuoteAt) <= new Date(oldQuoteAt)) return;
+                    }
+                    // 其他情況（pending → fresh，或 lastQuoteAt 推進）允許覆蓋；不動 previous
+                } else if (slot.current) {
+                    // marketDate 不同 → 推進 current 為 previous
+                    slot.previous = slot.current;
+                }
 
                 const _holdingsRecord = (stats.holdingsWithStats || [])
                     .filter(h => _holdingMarketKey(h) === marketKey && h.prevClose != null)
@@ -1292,22 +1312,61 @@
                         prevPrevClose: h.prevPrevClose
                     }));
 
-                const newSnap = {
+                slot.current = {
                     marketDate: clock.localDate,
                     closedAt: new Date().toISOString(),
                     source: 'live-close',
                     pnlUSD: byMk.pnlUSD,
                     pnlTWD: byMk.pnlTWD,
-                    holdings: _holdingsRecord
+                    holdings: _holdingsRecord,
+                    quoteStatus: newStatus,
+                    lastQuoteAt: lastQuoteAt
                 };
-                // current 推進為 previous，新 snapshot 變 current
-                if (slot.current) slot.previous = slot.current;
-                slot.current = newSnap;
-                // 重新計算 lastCompleteDate
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
-                console.log(`[DailyPnL] Captured ${marketKey} snapshot for ${clock.localDate} (pnlTWD=${byMk.pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
+                // v15.071：snapshot 變動時 trigger Gist 同步（dailyPnlSnapshots dirty domain）
+                try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
+                console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${clock.localDate} (pnlTWD=${byMk.pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
+        }
+
+        // ────────────────────────────────────────────────────────
+        // v15.071：跨裝置 snapshot merge（三層優先序：fresh > lastQuoteAt > closedAt）
+        // ────────────────────────────────────────────────────────
+        function _snapPriority(s) {
+            if (!s) return -1;
+            const isFresh = (s.quoteStatus || 'fresh_after_close') === 'fresh_after_close';
+            const qt = s.lastQuoteAt ? new Date(s.lastQuoteAt).getTime() : 0;
+            const ct = s.closedAt ? new Date(s.closedAt).getTime() : 0;
+            // 排序 key：fresh(1bit) → lastQuoteAt → closedAt
+            // 用大數值編碼避免精度問題：fresh × 1e15 + qt + ct/1e6
+            return (isFresh ? 1e15 : 0) + qt + (ct / 1e6);
+        }
+        function _mergeDailyPnlSnapshots(local, remote) {
+            const out = _emptyDailyPnlSnapshots();
+            const _MK = ['TW', 'HK', 'US'];
+            for (const mk of _MK) {
+                const lLocal = (local && local.markets && local.markets[mk]) || { current: null, previous: null };
+                const lRemote = (remote && remote.markets && remote.markets[mk]) || { current: null, previous: null };
+                // 收集所有候選並按 marketDate 分組
+                const candidates = [lLocal.current, lLocal.previous, lRemote.current, lRemote.previous].filter(Boolean);
+                const byDate = {};
+                for (const s of candidates) {
+                    if (!s.marketDate) continue;
+                    if (!byDate[s.marketDate] || _snapPriority(s) > _snapPriority(byDate[s.marketDate])) {
+                        byDate[s.marketDate] = s;
+                    }
+                }
+                const dates = Object.keys(byDate).sort();   // 升冪
+                const newest = dates.length > 0 ? byDate[dates[dates.length - 1]] : null;
+                const prevDate = dates.length > 1 ? dates[dates.length - 2] : null;
+                out.markets[mk] = {
+                    current: newest || null,
+                    previous: prevDate ? byDate[prevDate] : null
+                };
+            }
+            out.lastCompleteDate = _computeLastCompleteDate(out.markets);
+            return out;
         }
 
         function _maybeCaptureDailyPnlSnapshots(stats) {
