@@ -4740,6 +4740,10 @@
                     updated++;
                 }
             });
+            // v15.071：手動 CSV 一鍵更新成功 → 標記三市場批次報價時間
+            if (updated > 0) {
+                try { _markBatchQuoteRefresh(['TW', 'HK', 'US'], 'csv-manual'); } catch(_) {}
+            }
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
         }
