@@ -3009,6 +3009,15 @@
                 _showStaleReject(state);
                 return false;
             }
+            // v15.071：preflight 通過時順手 merge 雲端 daily_pnl_snapshots 進本機，避免 push 洗掉雲端較新 snapshot
+            try {
+                const remoteSnap = state.saved && state.saved.daily_pnl_snapshots;
+                if (remoteSnap && remoteSnap.markets) {
+                    const localSnap = _loadDailyPnlSnapshots();
+                    const merged = _mergeDailyPnlSnapshots(localSnap, remoteSnap);
+                    _saveDailyPnlSnapshots(merged);
+                }
+            } catch(_) {}
             return true;
         }
 
