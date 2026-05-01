@@ -1455,6 +1455,108 @@
             `;
         }
 
+        // ──────────────────────────────────────────────────────────
+        // v15.066：持倉一覽 tbody 差異更新（取代每分鐘自動更新時整表 innerHTML 重建）
+        // 目的：保留滾動位置 + click 鎖定（hrow-selected）+ hover 狀態；降低 CPU
+        // 邏輯：每個 row 由 (symbol -> fingerprint) cache 控管；fp 含 i 解決奇偶背景
+        // ──────────────────────────────────────────────────────────
+        let _holdingRowCache = {};   // { [symbol]: fingerprint }
+
+        function _holdingRowFingerprint(h, i, currency) {
+            return [
+                h.symbol, h.market, h.name || '',
+                h.quantity, h.costPrice, h.currentPrice,
+                h.costTotalUSD, h.costTotalTWD,
+                h.valueTotalUSD, h.valueTotalTWD,
+                h.prevDayChangePct, h.dayChangePct,
+                h.dayPnlUSD, h.dayPnlTWD,
+                h.prevDayPnlUSD, h.prevDayPnlTWD,
+                currency, i
+            ].join('|');
+        }
+
+        function _buildHoldingRowHTML(h, i, currency) {
+            const pnl    = h.valueTotalUSD - h.costTotalUSD;
+            const pnlTWD = h.valueTotalTWD - h.costTotalTWD;
+            const isProfit = pnl >= 0;
+            const pnlPct = currency==='USD'
+                ? (h.costTotalUSD  > 0 ? (pnl    / h.costTotalUSD  * 100).toFixed(2) : '0.00')
+                : (h.costTotalTWD  > 0 ? (pnlTWD / h.costTotalTWD  * 100).toFixed(2) : '0.00');
+            const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
+            const displayValue = currency==='USD' ? fmtAmt(h.valueTotalUSD,'USD') : fmtAmt(h.valueTotalTWD,'TWD');
+            const displayPnl   = currency==='USD' ? fmtPnl(pnl,'USD') : fmtPnl(pnlTWD,'TWD');
+            const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
+
+            let prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
+            if (h.prevDayChangePct != null) {
+                const pp = h.prevDayChangePct >= 0;
+                prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
+                    + '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:'+(pp?'rgba(16,185,129,0.12)':'rgba(239,68,68,0.12)')+';color:'+(pp?'#6ee7b7':'#fca5a5')+';font-size:0.88rem;">'
+                    + (pp?'+':'') + h.prevDayChangePct.toFixed(2) + '%</span></td>';
+            }
+            let dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
+            let dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
+            if (h.dayChangePct != null) {
+                const cp = h.dayChangePct >= 0;
+                dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
+                    + '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:'+(cp?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)')+';color:'+(cp?'#10b981':'#ef4444')+';font-weight:600;">'
+                    + (cp?'+':'') + h.dayChangePct.toFixed(2) + '%</span></td>';
+                const dp    = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
+                const dpp   = dp >= 0;
+                const dpStr = fmtPnl(dp, currency);
+                dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:'+(dpp?'#10b981':'#ef4444')+';">'+dpStr+'</td>';
+            }
+
+            return `<tr data-symbol="${h.symbol}" style="background:${bg};">
+                <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#7e93a6;">${h.name||''}</small></td>
+                <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
+                <td style="padding:0.55rem 0.75rem;text-align:right;color:#a8bdd0;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                ${prevDayChgCell}
+                ${dayChgCell}
+                ${dayPnlCell}
+                <td style="padding:0.55rem 0.75rem;text-align:right;">${displayValue}</td>
+                <td style="padding:0.55rem 0.75rem;text-align:right;color:${isProfit?'#10b981':'#ef4444'};">${displayPnl}</td>
+                <td style="padding:0.55rem 0.75rem;text-align:right;color:${isProfit?'#10b981':'#ef4444'};"><span style="padding:0.2rem 0.5rem;border-radius:6px;background:${isProfit?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)'};">${isProfit?'+':''}${pnlPct}%</span></td>
+            </tr>`;
+        }
+
+        function _patchHoldingTableBody(tbody, sorted, currency) {
+            const newSymbols = new Set(sorted.map(h => h.symbol));
+            // 1. 移除已不存在的 symbol
+            Array.from(tbody.querySelectorAll('tr[data-symbol]')).forEach(tr => {
+                const sym = tr.dataset.symbol;
+                if (!newSymbols.has(sym)) {
+                    tr.remove();
+                    delete _holdingRowCache[sym];
+                }
+            });
+            // 2. 依排序順序遍歷：新增 / 替換 / 移動
+            sorted.forEach((h, i) => {
+                const fp = _holdingRowFingerprint(h, i, currency);
+                const existing = tbody.querySelector('tr[data-symbol="' + CSS.escape(h.symbol) + '"]');
+                if (!existing) {
+                    const tmp = document.createElement('tbody');
+                    tmp.innerHTML = _buildHoldingRowHTML(h, i, currency);
+                    const newRow = tmp.firstElementChild;
+                    const ref = tbody.children[i] || null;
+                    tbody.insertBefore(newRow, ref);
+                    _holdingRowCache[h.symbol] = fp;
+                } else if (_holdingRowCache[h.symbol] !== fp) {
+                    const tmp = document.createElement('tbody');
+                    tmp.innerHTML = _buildHoldingRowHTML(h, i, currency);
+                    existing.replaceWith(tmp.firstElementChild);
+                    _holdingRowCache[h.symbol] = fp;
+                } else {
+                    // 內容相同但位置可能錯：移動既有 row 到正確 index（不替換，保留 hover/focus）
+                    const ref = tbody.children[i];
+                    if (ref && ref !== existing) {
+                        tbody.insertBefore(existing, ref);
+                    }
+                }
+            });
+        }
+
         function renderTable(stats) {
             const sorted = [...stats.holdingsWithStats].sort((a, b) => {
                 let va, vb;
