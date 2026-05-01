@@ -1567,10 +1567,12 @@
                 const lLocal = (local && local.markets && local.markets[mk]) || { current: null, previous: null };
                 const lRemote = (remote && remote.markets && remote.markets[mk]) || { current: null, previous: null };
                 // 收集所有候選並按 marketDate 分組
-                const candidates = [lLocal.current, lLocal.previous, lRemote.current, lRemote.previous].filter(Boolean);
+                // v15.073：丟棄 marketDate 落在週末/已知假日的舊資料（v15.072 / v15.071 殘留可能含週末日期）
+                //         _isTradingDay 回 false → 丟；true 或 null（未涵蓋年份）→ 保留
+                const candidates = [lLocal.current, lLocal.previous, lRemote.current, lRemote.previous]
+                    .filter(s => s && s.marketDate && _isTradingDay(mk, s.marketDate) !== false);
                 const byDate = {};
                 for (const s of candidates) {
-                    if (!s.marketDate) continue;
                     if (!byDate[s.marketDate] || _snapPriority(s) > _snapPriority(byDate[s.marketDate])) {
                         byDate[s.marketDate] = s;
                     }
