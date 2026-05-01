@@ -1198,7 +1198,7 @@
             } catch(_) {}
         }
 
-        // 嘗試擷取單一市場的當日損益快照
+        // 嘗試擷取單一市場的當日損益快照（v15.070：current → previous 推進 + 重算 lastCompleteDate）
         // 條件：(1) 市場時段 status === 'closed'  (2) 該市場今日尚無快照  (3) 該市場至少有一筆 prevClose 可用
         function _captureDailyPnlSnapshot(marketKey, stats) {
             try {
@@ -1208,9 +1208,9 @@
                 if (!byMk || byMk.withData === 0) return;
 
                 const snap = _loadDailyPnlSnapshots();
-                if (!snap.markets) snap.markets = {};
-                const existing = snap.markets[marketKey];
-                if (existing && existing.marketDate === clock.localDate) return;   // 今日已有
+                if (!snap.markets[marketKey]) snap.markets[marketKey] = { current: null, previous: null };
+                const slot = snap.markets[marketKey];
+                if (slot.current && slot.current.marketDate === clock.localDate) return;   // 今日已有
 
                 const _holdingsRecord = (stats.holdingsWithStats || [])
                     .filter(h => _holdingMarketKey(h) === marketKey && h.prevClose != null)
@@ -1222,7 +1222,7 @@
                         prevPrevClose: h.prevPrevClose
                     }));
 
-                snap.markets[marketKey] = {
+                const newSnap = {
                     marketDate: clock.localDate,
                     closedAt: new Date().toISOString(),
                     source: 'live-close',
@@ -1230,8 +1230,13 @@
                     pnlTWD: byMk.pnlTWD,
                     holdings: _holdingsRecord
                 };
+                // current 推進為 previous，新 snapshot 變 current
+                if (slot.current) slot.previous = slot.current;
+                slot.current = newSnap;
+                // 重新計算 lastCompleteDate
+                snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
-                console.log(`[DailyPnL] Captured ${marketKey} snapshot for ${clock.localDate} (pnlTWD=${byMk.pnlTWD.toFixed(0)})`);
+                console.log(`[DailyPnL] Captured ${marketKey} snapshot for ${clock.localDate} (pnlTWD=${byMk.pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
         }
 
