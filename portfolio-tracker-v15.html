@@ -1496,7 +1496,7 @@
                 // backfill 必須完全對齊；否則不建（避免錯快照擴散到 Gist）
                 if (!isToday && newStatus !== 'fresh_after_close') return;
 
-                // A1：自己重算 pnl，不讀 stats.todayPnlByMarket
+                // A1：自己重算 pnl（不依賴 stats 內既有 by-market 累計值，那個 basis 永遠是 prevClose）
                 // basis：isToday 用 prevClose（今天 close − 昨天 close）；backfill 用 prevPrevClose（最後交易日 close − 再前交易日 close）
                 const _holdings = (stats && stats.holdingsWithStats) || [];
                 let pnlUSD = 0, pnlTWD = 0, withData = 0;
