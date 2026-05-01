@@ -1736,16 +1736,25 @@
                 const totSubStr = tot.hasAnyData
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
+                // v15.070 (P3)：未開盤 / 休市時不顯示金額，避免「美股 今日未開盤 +$xxx」自相矛盾
                 const mkRow = (mk, label) => {
                     const m = byMk[mk];
-                    const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
-                    const pos = v >= 0;
-                    const valStr = (m.count === 0)
-                        ? '無持倉'
-                        : (m.withData === 0 ? '資料讀取中' : fmtPnl(v, currency));
-                    const col = (m.count === 0 || m.withData === 0) ? '#607585' : (pos ? '#10b981' : '#ef4444');
+                    let valStr, col;
+                    if (m.count === 0) {
+                        valStr = '無持倉'; col = '#607585';
+                    } else if (m.status === 'not_open') {
+                        valStr = '今日未開盤'; col = '#607585';
+                    } else if (m.status === 'closed_or_holiday') {
+                        valStr = '休市'; col = '#607585';
+                    } else if (m.withData === 0) {
+                        valStr = '資料讀取中'; col = '#607585';
+                    } else {
+                        const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
+                        valStr = fmtPnl(v, currency);
+                        col = v >= 0 ? '#10b981' : '#ef4444';
+                    }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
-                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">' + _statusText(m.status) + '</span></span>'
+                        +   '<span style="color:#7e93a6;">' + label + '</span>'
                         +   '<span class="mono" style="color:' + col + ';">' + valStr + '</span>'
                         + '</div>';
                 };
