@@ -1315,6 +1315,30 @@
                     hasDayPnL = true;
                 }
 
+                // v15.069：byMarket 累計（不管 marketNotOpened，卡片用，盤前盤後也算數字；UI 看 status 決定怎麼顯示）
+                const _mkKey = _holdingMarketKey(h);
+                if (todayPnlByMarket[_mkKey]) {
+                    todayPnlByMarket[_mkKey].count++;
+                    if (prevClose != null && prevClose > 0) {
+                        todayPnlByMarket[_mkKey].withData++;
+                        const _dcRaw  = h.currentPrice - prevClose;
+                        const _dpRaw  = _dcRaw * h.quantity;
+                        let _dpUSD, _dpTWD;
+                        if (_isHK_HKD) {
+                            _dpUSD = _dpRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
+                            _dpTWD = _dpRaw * exchangeRates.HKD_TWD;
+                        } else if (h.market === 'TW') {
+                            _dpUSD = _dpRaw / exchangeRates.USD_TWD;
+                            _dpTWD = _dpRaw;
+                        } else {
+                            _dpUSD = _dpRaw;
+                            _dpTWD = _dpRaw * exchangeRates.USD_TWD;
+                        }
+                        todayPnlByMarket[_mkKey].pnlUSD += _dpUSD;
+                        todayPnlByMarket[_mkKey].pnlTWD += _dpTWD;
+                    }
+                }
+
                 return { ...h, costTotalUSD: costUSD, valueTotalUSD: valueUSD,
                     costTotalTWD: costTWD, valueTotalTWD: valueTWD, percentage: 0,
                     prevClose, prevPrevClose,
