@@ -2942,7 +2942,8 @@
 
         function _buildSyncMeta(pushedAt, domains) {
             const domainUpdatedAt = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
-            const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'general'];
+            // v15.071：加入 dailyPnlSnapshots dirty domain
+            const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'dailyPnlSnapshots', 'general'];
             const domainMeta = {};
             allDomains.forEach(d => domainMeta[d] = { updatedAt: domainUpdatedAt[d] || null });
             return {
