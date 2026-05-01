@@ -1238,6 +1238,19 @@
             let totalDayPnLUSD  = 0, totalDayPnLTWD  = 0, hasDayPnL  = false;
             let totalPrevDayPnLUSD = 0, totalPrevDayPnLTWD = 0, hasPrevDayPnL = false;
 
+            // v15.069：今日損益 byMarket（卡片 / strip 用，不受 v15.052 marketOpenedToday 限制）
+            const _MARKETS = ['TW', 'HK', 'US'];
+            const _now = new Date();
+            const todayPnlByMarket = {};
+            for (const mk of _MARKETS) {
+                const clock = _marketClock(mk, _now);
+                todayPnlByMarket[mk] = {
+                    status: clock.status, localDate: clock.localDate,
+                    pnlUSD: 0, pnlTWD: 0,
+                    count: 0, withData: 0
+                };
+            }
+
             // 第一遍：計算各持倉的 USD/TWD 市值並累加總計
             let holdingsWithStats = holdings.map(h => {
                 const costTotal  = h.costPrice * h.quantity;
