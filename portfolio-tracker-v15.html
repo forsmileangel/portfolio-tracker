@@ -1355,6 +1355,38 @@
 
             const totalPnLUSD = totalValueUSD - totalCostUSD;
             const totalPnLTWD = totalValueTWD - totalCostTWD;
+
+            // v15.069：今日總計（加總所有市場，不受 marketOpenedToday 限制；UI 看市場 status 決定顯示）
+            const todayPnlTotal = {
+                pnlUSD: _MARKETS.reduce((s, mk) => s + (todayPnlByMarket[mk].pnlUSD || 0), 0),
+                pnlTWD: _MARKETS.reduce((s, mk) => s + (todayPnlByMarket[mk].pnlTWD || 0), 0),
+                hasAnyData: _MARKETS.some(mk => todayPnlByMarket[mk].withData > 0)
+            };
+
+            // v15.069：昨日損益從 snapshot 讀取（凍結值，跨日不會浮動）
+            const _snap = (typeof _loadDailyPnlSnapshots === 'function') ? _loadDailyPnlSnapshots() : { markets: {} };
+            const yesterdayPnlByMarket = {};
+            for (const mk of _MARKETS) {
+                const ms = _snap.markets && _snap.markets[mk];
+                yesterdayPnlByMarket[mk] = ms ? {
+                    status: 'snapshot',
+                    marketDate: ms.marketDate,
+                    closedAt: ms.closedAt,
+                    source: ms.source || 'live-close',
+                    pnlUSD: ms.pnlUSD || 0,
+                    pnlTWD: ms.pnlTWD || 0,
+                    holdingsCount: Array.isArray(ms.holdings) ? ms.holdings.length : 0
+                } : {
+                    status: 'no_snapshot', pnlUSD: null, pnlTWD: null, marketDate: null
+                };
+            }
+            const yesterdayPnlTotal = {
+                pnlUSD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
+                pnlTWD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
+                complete: _MARKETS.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
+                hasAny:   _MARKETS.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot')
+            };
+
             return {
                 totalCost: totalCostUSD, totalValue: totalValueUSD,
                 totalPnL: totalPnLUSD, totalPnLPercent: totalCostUSD > 0 ? (totalPnLUSD / totalCostUSD) * 100 : 0,
@@ -1362,6 +1394,9 @@
                 totalPnLPercentTWD: totalCostTWD > 0 ? (totalPnLTWD / totalCostTWD) * 100 : 0,
                 totalDayPnLUSD, totalDayPnLTWD, hasDayPnL,
                 totalPrevDayPnLUSD, totalPrevDayPnLTWD, hasPrevDayPnL,
+                // v15.069 新增
+                todayPnlByMarket, todayPnlTotal,
+                yesterdayPnlByMarket, yesterdayPnlTotal,
                 holdingsWithStats
             };
         }
