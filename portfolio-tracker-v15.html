@@ -1190,14 +1190,17 @@
             return 'US';
         }
 
-        // 市場時段（不做完整假日表，週末視為 closed_or_holiday）
-        // 回傳：{ market, tz, localDate, localHHMM, status: 'not_open' | 'open' | 'closed' | 'closed_or_holiday' }
-        function _marketClock(marketKey, now) {
+        // v15.073：由市場行事曆驅動的 session 計算
+        // 回傳：{ market, tz, localDate, localHHMM, status, closeMin, lastCompletedTradingDate, nextTradingDate }
+        // status: 'not_open' | 'open' | 'closed' | 'closed_or_holiday'
+        // lastCompletedTradingDate：closed 時 = localDate；其他時 = 向前找的交易日；calendar unknown 時 fallback 用週末判斷
+        function _marketSession(marketKey, now) {
             now = now || new Date();
-            const tz = marketKey === 'TW' ? 'Asia/Taipei'
-                     : marketKey === 'HK' ? 'Asia/Hong_Kong'
-                     : 'America/New_York';
-            // 在目標時區取出當地日期、星期、時：分
+            const cal = MARKET_CALENDARS[marketKey];
+            const tz = (cal && cal.tz)
+                     || (marketKey === 'TW' ? 'Asia/Taipei'
+                       : marketKey === 'HK' ? 'Asia/Hong_Kong'
+                       : 'America/New_York');
             const fmt = new Intl.DateTimeFormat('en-US', {
                 timeZone: tz, weekday: 'short',
                 year: 'numeric', month: '2-digit', day: '2-digit',
@@ -1208,39 +1211,57 @@
             const localDate = `${parts.year}-${parts.month}-${parts.day}`;
             const hh = parseInt(parts.hour, 10), mm = parseInt(parts.minute, 10);
             const minutes = hh * 60 + mm;
-            const wd = parts.weekday;   // 'Mon' / 'Tue' / ... / 'Sat' / 'Sun'
-            const isWeekend = (wd === 'Sat' || wd === 'Sun');
 
-            // 各市場時段（分鐘）
-            let status = 'closed_or_holiday';
-            if (!isWeekend) {
-                if (marketKey === 'TW') {
-                    // 09:00 - 13:30
-                    if (minutes < 9*60)        status = 'not_open';
-                    else if (minutes < 13*60+30) status = 'open';
-                    else                         status = 'closed';
-                } else if (marketKey === 'HK') {
-                    // 09:30 - 12:00、13:00 - 16:10（含午休，午休內仍視為 open 給使用者連續顯示）
-                    if (minutes < 9*60+30)        status = 'not_open';
-                    else if (minutes < 12*60)     status = 'open';
-                    else if (minutes < 13*60)     status = 'open';   // 午休不切換顯示
-                    else if (minutes < 16*60+10)  status = 'open';
-                    else                          status = 'closed';
-                } else {
-                    // US：09:30 - 16:00（夏令冬令交給 Intl 處理）
-                    if (minutes < 9*60+30)        status = 'not_open';
-                    else if (minutes < 16*60)     status = 'open';
-                    else                          status = 'closed';
-                }
+            const todayIsTrading = _isTradingDay(marketKey, localDate);
+            const isWeekend = (parts.weekday === 'Sat' || parts.weekday === 'Sun');
+            // calendar 未涵蓋年份 → null：fallback 為純週末判斷
+            const tradingToday = (todayIsTrading === null) ? !isWeekend : todayIsTrading;
+
+            // 開盤 / 收盤分鐘（含 US early close）
+            const openMin  = (cal && cal.openMin)  ?? (marketKey === 'TW' ? 9*60     : marketKey === 'HK' ? 9*60+30  : 9*60+30);
+            const closeMin = (cal && cal.earlyClose && cal.earlyClose[localDate])
+                          || (cal && cal.closeMin)
+                          || (marketKey === 'TW' ? 13*60+30 : marketKey === 'HK' ? 16*60+10 : 16*60);
+
+            let status, lastCompletedTradingDate;
+            if (!tradingToday) {
+                status = 'closed_or_holiday';
+                // calendar unknown 時 _previousTradingDate 回 null → 退路用 _shiftDate -1 直到非週末（最多 7 天）
+                lastCompletedTradingDate = _previousTradingDate(marketKey, localDate)
+                                        || _previousNonWeekendDate(localDate);
+            } else if (minutes < openMin) {
+                status = 'not_open';
+                lastCompletedTradingDate = _previousTradingDate(marketKey, localDate)
+                                        || _previousNonWeekendDate(localDate);
+            } else if (minutes < closeMin) {
+                status = 'open';
+                lastCompletedTradingDate = _previousTradingDate(marketKey, localDate)
+                                        || _previousNonWeekendDate(localDate);
+            } else {
+                status = 'closed';
+                lastCompletedTradingDate = localDate;
             }
+
             return {
-                market: marketKey,
-                tz,
-                localDate,
+                market: marketKey, tz, localDate,
                 localHHMM: `${parts.hour}:${parts.minute}`,
-                status
+                status, closeMin,
+                lastCompletedTradingDate,
+                nextTradingDate: _nextTradingDate(marketKey, localDate)
             };
         }
+        // 不依賴 calendar 的「向前找非週末」fallback（calendar unknown 年份用）
+        function _previousNonWeekendDate(dateStr) {
+            let cursor = _shiftDate(dateStr, -1);
+            for (let i = 0; i < 7; i++) {
+                const wd = new Date(cursor + 'T12:00:00Z').getUTCDay();
+                if (wd !== 0 && wd !== 6) return cursor;
+                cursor = _shiftDate(cursor, -1);
+            }
+            return null;
+        }
+        // 保留 _marketClock 為 alias，避免改太多既有 callers
+        function _marketClock(marketKey, now) { return _marketSession(marketKey, now); }
 
         // 從 pf_analysis_v8 cache hydrate prevClose / prevPrevClose（v15.069 抽成函式）
         // 注意：marketOpenedToday 不 hydrate（時間敏感狀態，runAnalysis 會更新）
