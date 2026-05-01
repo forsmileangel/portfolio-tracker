@@ -1054,6 +1054,116 @@
             return '#ef4444';                            // 紅：已過期 / 明顯 stale
         }
 
+        // ────────────────────────────────────────────────────────
+        // v15.069：市場分類與市場時鐘（今日/昨日損益市場拆分用）
+        // ────────────────────────────────────────────────────────
+
+        // 持倉的市場分類：優先 h.market；fallback 用 symbol 判斷
+        function _holdingMarketKey(h) {
+            if (h && h.market === 'TW') return 'TW';
+            if (h && h.market === 'HK') return 'HK';
+            if (h && h.market === 'US') return 'US';
+            const sym = (h && h.symbol) || '';
+            if (sym.endsWith('.HK')) return 'HK';
+            if (sym.endsWith('.TW') || /^\d{4,6}[A-Z]?$/i.test(sym)) return 'TW';
+            return 'US';
+        }
+
+        // 市場時段（不做完整假日表，週末視為 closed_or_holiday）
+        // 回傳：{ market, tz, localDate, localHHMM, status: 'not_open' | 'open' | 'closed' | 'closed_or_holiday' }
+        function _marketClock(marketKey, now) {
+            now = now || new Date();
+            const tz = marketKey === 'TW' ? 'Asia/Taipei'
+                     : marketKey === 'HK' ? 'Asia/Hong_Kong'
+                     : 'America/New_York';
+            // 在目標時區取出當地日期、星期、時：分
+            const fmt = new Intl.DateTimeFormat('en-US', {
+                timeZone: tz, weekday: 'short',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+            });
+            const parts = {};
+            for (const p of fmt.formatToParts(now)) parts[p.type] = p.value;
+            const localDate = `${parts.year}-${parts.month}-${parts.day}`;
+            const hh = parseInt(parts.hour, 10), mm = parseInt(parts.minute, 10);
+            const minutes = hh * 60 + mm;
+            const wd = parts.weekday;   // 'Mon' / 'Tue' / ... / 'Sat' / 'Sun'
+            const isWeekend = (wd === 'Sat' || wd === 'Sun');
+
+            // 各市場時段（分鐘）
+            let status = 'closed_or_holiday';
+            if (!isWeekend) {
+                if (marketKey === 'TW') {
+                    // 09:00 - 13:30
+                    if (minutes < 9*60)        status = 'not_open';
+                    else if (minutes < 13*60+30) status = 'open';
+                    else                         status = 'closed';
+                } else if (marketKey === 'HK') {
+                    // 09:30 - 12:00、13:00 - 16:10（含午休，午休內仍視為 open 給使用者連續顯示）
+                    if (minutes < 9*60+30)        status = 'not_open';
+                    else if (minutes < 12*60)     status = 'open';
+                    else if (minutes < 13*60)     status = 'open';   // 午休不切換顯示
+                    else if (minutes < 16*60+10)  status = 'open';
+                    else                          status = 'closed';
+                } else {
+                    // US：09:30 - 16:00（夏令冬令交給 Intl 處理）
+                    if (minutes < 9*60+30)        status = 'not_open';
+                    else if (minutes < 16*60)     status = 'open';
+                    else                          status = 'closed';
+                }
+            }
+            return {
+                market: marketKey,
+                tz,
+                localDate,
+                localHHMM: `${parts.hour}:${parts.minute}`,
+                status
+            };
+        }
+
+        // 從 pf_analysis_v8 cache hydrate prevClose / prevPrevClose（v15.069 抽成函式）
+        // 注意：marketOpenedToday 不 hydrate（時間敏感狀態，runAnalysis 會更新）
+        function _hydrateDailyPnlCachesFromAnalysisCache() {
+            try {
+                const _rawCache = _loadCacheRaw();
+                if (!_rawCache || !_rawCache.data) return;
+                const _pc = window._prevCloseCache || {};
+                const _ppc = window._prevPrevCloseCache || {};
+                for (const sym in _rawCache.data) {
+                    const d = _rawCache.data[sym];
+                    if (d == null) continue;
+                    if (d.prevClose != null     && _pc[sym]  == null) _pc[sym]  = d.prevClose;
+                    if (d.prevPrevClose != null && _ppc[sym] == null) _ppc[sym] = d.prevPrevClose;
+                }
+                window._prevCloseCache     = _pc;
+                window._prevPrevCloseCache = _ppc;
+                if (window._marketOpenedToday == null) window._marketOpenedToday = {};
+            } catch(_) {}
+        }
+
+        // ────────────────────────────────────────────────────────
+        // v15.069：當日收盤快照（凍結）
+        // 結構：pt_daily_pnl_snapshots_v1 = { version, markets: { TW: {marketDate, closedAt, source, pnlTWD, pnlUSD, holdings:[]}, HK:..., US:... } }
+        // 不寫進 Gist；只在本機 localStorage
+        // ────────────────────────────────────────────────────────
+        function _loadDailyPnlSnapshots() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.dailyPnlSnapshots);
+                if (!raw) return { version: 1, markets: {} };
+                const parsed = JSON.parse(raw);
+                if (!parsed || parsed.version !== 1) return { version: 1, markets: {} };
+                if (!parsed.markets || typeof parsed.markets !== 'object') parsed.markets = {};
+                return parsed;
+            } catch(_) {
+                return { version: 1, markets: {} };
+            }
+        }
+        function _saveDailyPnlSnapshots(snap) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.dailyPnlSnapshots, JSON.stringify(snap));
+            } catch(_) {}
+        }
+
         // #endregion Storage Keys & Freshness Helper
 
         const PT_FX_CACHE_KEY = 'pt_fx_v1';
