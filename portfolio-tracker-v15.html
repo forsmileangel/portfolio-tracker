@@ -1604,55 +1604,97 @@
 
         function renderStats(stats) {
             const grid = document.getElementById('stats-grid');
-            // ── 昨日損益 卡片 ──────────────────────────────
+            // v15.069：今日 / 昨日損益卡片改三行市場拆分；卡片永遠存在（不消失）
+            const _statusText = (s) => ({
+                'not_open': '今日未開盤',
+                'open': '盤中',
+                'closed': '已收盤',
+                'closed_or_holiday': '假日/休市'
+            }[s] || s);
+
+            // ── 昨日損益 卡片（v15.069：讀凍結快照，跨日不浮動）──────
             const prevDayCard = (function() {
-                if (!stats.hasPrevDayPnL) return '';
-                const d   = currency==='USD' ? stats.totalPrevDayPnLUSD : stats.totalPrevDayPnLTWD;
-                const pos = d >= 0;
-                const col = pos ? '#10b981' : '#ef4444';
-                const mainStr = fmtPnl(d, currency);
-                const subStr  = currency==='USD'
-                    ? fmtPnl(stats.totalPrevDayPnLTWD, 'TWD')
-                    : fmtPnl(stats.totalPrevDayPnLUSD, 'USD');
-                const prevVal = stats.totalValue - stats.totalDayPnLUSD - stats.totalPrevDayPnLUSD;
-                const pct = prevVal > 0 ? (stats.totalPrevDayPnLUSD / prevVal * 100).toFixed(2) : null;
-                const pctStr = pct != null ? ' (' + (pos?'+':'') + pct + '%)' : '';
+                const tot = stats.yesterdayPnlTotal;
+                const byMk = stats.yesterdayPnlByMarket;
+                const totVal = currency==='USD' ? tot.pnlUSD : tot.pnlTWD;
+                const totPos = totVal >= 0;
+                const totCol = tot.hasAny ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                const totStr = tot.hasAny ? fmtPnl(totVal, currency) : '等待收盤快照';
+                const totSubStr = tot.hasAny
+                    ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
+                    : '';
+                const mkRow = (mk, label) => {
+                    const m = byMk[mk];
+                    if (m.status === 'snapshot') {
+                        const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
+                        const pos = v >= 0;
+                        const col = pos ? '#10b981' : '#ef4444';
+                        const dateNote = m.marketDate ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">${m.marketDate}</span>` : '';
+                        return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
+                            +   '<span style="color:#7e93a6;">' + label + dateNote + '</span>'
+                            +   '<span class="mono" style="color:' + col + ';">' + fmtPnl(v, currency) + '</span>'
+                            + '</div>';
+                    }
+                    return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
+                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無快照</span></span>'
+                        +   '<span class="mono" style="color:#607585;">-</span>'
+                        + '</div>';
+                };
                 return '<div class="stat-card" style="border:1px solid rgba(148,163,184,0.2);">'
-                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:nowrap;">'
-                    +   '<div style="display:flex;align-items:center;gap:0.75rem;">'
-                    +     '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(59,130,246,0.4);color:#fff;font-size:1.15rem;font-weight:700;">◁</div>'
-                    +     '<span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">昨日損益</span>'
+                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
+                    +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
+                    +     '<div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">◁</div>'
+                    +     '<span style="color:#60a5fa;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">昨日損益</span>'
                     +   '</div>'
-                    +   '<span class="mono stat-pct" style="color:'+col+';flex-shrink:0;">'+pctStr+'</span>'
                     + '</div>'
-                    + '<div class="mono stat-amount" style="color:'+col+';">'+mainStr+'</div>'
-                    + '<div class="mono stat-amount-sub" style="margin-top:0.45rem;color:'+col+';">'+subStr+'</div>'
+                    + '<div class="mono stat-amount" style="color:' + totCol + ';">' + totStr + '</div>'
+                    + (totSubStr ? '<div class="mono stat-amount-sub" style="margin-top:0.3rem;color:' + totCol + ';">' + totSubStr + '</div>' : '')
+                    + '<div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.06);">'
+                    +   mkRow('TW', '台股')
+                    +   mkRow('US', '美股')
+                    +   mkRow('HK', '港股')
+                    + '</div>'
                     + '</div>';
             })();
-            // ── 當日損益 卡片 ──────────────────────────────
+
+            // ── 今日損益 卡片（v15.069：依 _marketClock 標 status，卡片永遠存在）──
             const dayCard = (function() {
-                if (!stats.hasDayPnL) return '';
-                const d   = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
-                const pos = d >= 0;
-                const col = pos ? '#10b981' : '#ef4444';
-                const mainStr = fmtPnl(d, currency);
-                const subStr  = currency==='USD'
-                    ? fmtPnl(stats.totalDayPnLTWD, 'TWD')
-                    : fmtPnl(stats.totalDayPnLUSD, 'USD');
-                const prevVal = stats.totalValue - stats.totalDayPnLUSD;
-                const pct = prevVal > 0 ? (stats.totalDayPnLUSD / prevVal * 100).toFixed(2) : null;
-                const pctStr = pct != null ? ' (' + (pos?'+':'') + pct + '%)' : '';
+                const tot = stats.todayPnlTotal;
+                const byMk = stats.todayPnlByMarket;
+                const totVal = currency==='USD' ? tot.pnlUSD : tot.pnlTWD;
+                const totPos = totVal >= 0;
+                const totCol = tot.hasAnyData ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                const totStr = tot.hasAnyData ? fmtPnl(totVal, currency) : '資料讀取中';
+                const totSubStr = tot.hasAnyData
+                    ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
+                    : '';
+                const mkRow = (mk, label) => {
+                    const m = byMk[mk];
+                    const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
+                    const pos = v >= 0;
+                    const valStr = (m.count === 0)
+                        ? '無持倉'
+                        : (m.withData === 0 ? '資料讀取中' : fmtPnl(v, currency));
+                    const col = (m.count === 0 || m.withData === 0) ? '#607585' : (pos ? '#10b981' : '#ef4444');
+                    return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
+                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">' + _statusText(m.status) + '</span></span>'
+                        +   '<span class="mono" style="color:' + col + ';">' + valStr + '</span>'
+                        + '</div>';
+                };
                 return '<div class="stat-card" style="border:1px solid rgba(56,139,253,0.25);">'
-                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:nowrap;">'
-                    +   '<div style="display:flex;align-items:center;gap:0.75rem;">'
-                    +     '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(59,130,246,0.4);color:#fff;font-size:1.15rem;font-weight:700;">◈</div>'
-                    +     '<span style="color:#60a5fa;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">今日損益</span>'
+                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
+                    +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
+                    +     '<div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">◈</div>'
+                    +     '<span style="color:#60a5fa;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">今日損益</span>'
                     +   '</div>'
-                    +   '<span class="mono stat-pct" style="color:'+col+';flex-shrink:0;">'+pctStr+'</span>'
                     + '</div>'
-                    + '<div class="mono stat-amount" style="color:'+col+';">'+mainStr+'</div>'
-                    + '<div class="mono stat-amount-sub" style="margin-top:0.45rem;color:'+col+';">'+subStr+'</div>'
-                    + '<div style="margin-top:0.5rem;color:#607585;font-size:0.7rem;">＊美股盤後報價可能影響數字</div>'
+                    + '<div class="mono stat-amount" style="color:' + totCol + ';">' + totStr + '</div>'
+                    + (totSubStr ? '<div class="mono stat-amount-sub" style="margin-top:0.3rem;color:' + totCol + ';">' + totSubStr + '</div>' : '')
+                    + '<div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.06);">'
+                    +   mkRow('TW', '台股')
+                    +   mkRow('US', '美股')
+                    +   mkRow('HK', '港股')
+                    + '</div>'
                     + '</div>';
             })();
 
