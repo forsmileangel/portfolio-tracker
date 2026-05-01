@@ -1186,13 +1186,19 @@
                 return _emptyDailyPnlSnapshots();
             }
         }
-        // 計算 lastCompleteDate：三市場都有 current.marketDate 時，取最舊的
+        // 計算 lastCompleteDate：三市場都有 fresh_after_close current snapshot 時，取最舊的
+        // v15.071：只計 fresh，pending_quote 不算（舊資料 v15.070 沒 quoteStatus 視為 fresh，向下相容）
         function _computeLastCompleteDate(markets) {
-            const tw = markets.TW && markets.TW.current && markets.TW.current.marketDate;
-            const hk = markets.HK && markets.HK.current && markets.HK.current.marketDate;
-            const us = markets.US && markets.US.current && markets.US.current.marketDate;
+            const _freshDate = (c) => {
+                if (!c || !c.marketDate) return null;
+                const st = c.quoteStatus || 'fresh_after_close';
+                return st === 'fresh_after_close' ? c.marketDate : null;
+            };
+            const tw = _freshDate(markets.TW && markets.TW.current);
+            const hk = _freshDate(markets.HK && markets.HK.current);
+            const us = _freshDate(markets.US && markets.US.current);
             if (!tw || !hk || !us) return null;
-            return [tw, hk, us].sort()[0];   // YYYY-MM-DD 字串比較
+            return [tw, hk, us].sort()[0];
         }
         function _saveDailyPnlSnapshots(snap) {
             try {
