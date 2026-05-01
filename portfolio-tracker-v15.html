@@ -1164,6 +1164,50 @@
             } catch(_) {}
         }
 
+        // 嘗試擷取單一市場的當日損益快照
+        // 條件：(1) 市場時段 status === 'closed'  (2) 該市場今日尚無快照  (3) 該市場至少有一筆 prevClose 可用
+        function _captureDailyPnlSnapshot(marketKey, stats) {
+            try {
+                const clock = _marketClock(marketKey);
+                if (clock.status !== 'closed') return;
+                const byMk = stats && stats.todayPnlByMarket && stats.todayPnlByMarket[marketKey];
+                if (!byMk || byMk.withData === 0) return;
+
+                const snap = _loadDailyPnlSnapshots();
+                if (!snap.markets) snap.markets = {};
+                const existing = snap.markets[marketKey];
+                if (existing && existing.marketDate === clock.localDate) return;   // 今日已有
+
+                const _holdingsRecord = (stats.holdingsWithStats || [])
+                    .filter(h => _holdingMarketKey(h) === marketKey && h.prevClose != null)
+                    .map(h => ({
+                        symbol: h.symbol,
+                        quantity: h.quantity,
+                        currentPrice: h.currentPrice,
+                        prevClose: h.prevClose,
+                        prevPrevClose: h.prevPrevClose
+                    }));
+
+                snap.markets[marketKey] = {
+                    marketDate: clock.localDate,
+                    closedAt: new Date().toISOString(),
+                    source: 'live-close',
+                    pnlUSD: byMk.pnlUSD,
+                    pnlTWD: byMk.pnlTWD,
+                    holdings: _holdingsRecord
+                };
+                _saveDailyPnlSnapshots(snap);
+                console.log(`[DailyPnL] Captured ${marketKey} snapshot for ${clock.localDate} (pnlTWD=${byMk.pnlTWD.toFixed(0)})`);
+            } catch(_) {}
+        }
+
+        function _maybeCaptureDailyPnlSnapshots(stats) {
+            if (!stats || !stats.todayPnlByMarket) return;
+            for (const mk of ['TW', 'HK', 'US']) {
+                _captureDailyPnlSnapshot(mk, stats);
+            }
+        }
+
         // #endregion Storage Keys & Freshness Helper
 
         const PT_FX_CACHE_KEY = 'pt_fx_v1';
