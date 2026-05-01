@@ -5966,6 +5966,9 @@
             window._prevPrevCloseCache = _tmpPrevPrevClose;
             window._marketOpenedToday  = _tmpMarketOpened;
 
+            // v15.071：runAnalysis 跑完拿到新 prevClose → 標記三市場批次報價時間
+            try { _markBatchQuoteRefresh(['TW', 'HK', 'US'], 'yahoo-runAnalysis'); } catch(_) {}
+
             renderAll(); // 更新持倉管理的當日損益欄位
 
             // ── 顯示基本面 & 技術面各自的最後更新時間 ──
