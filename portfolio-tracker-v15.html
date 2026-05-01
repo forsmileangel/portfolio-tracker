@@ -1416,11 +1416,15 @@
             const totalPnLUSD = totalValueUSD - totalCostUSD;
             const totalPnLTWD = totalValueTWD - totalCostTWD;
 
-            // v15.069：今日總計（加總所有市場，不受 marketOpenedToday 限制；UI 看市場 status 決定顯示）
+            // v15.070 (P2)：今日總計只加總已交易日的市場，排除 not_open / closed_or_holiday
+            const _eligibleTodayStatus = (s) => s === 'open' || s === 'closed';
             const todayPnlTotal = {
-                pnlUSD: _MARKETS.reduce((s, mk) => s + (todayPnlByMarket[mk].pnlUSD || 0), 0),
-                pnlTWD: _MARKETS.reduce((s, mk) => s + (todayPnlByMarket[mk].pnlTWD || 0), 0),
-                hasAnyData: _MARKETS.some(mk => todayPnlByMarket[mk].withData > 0)
+                pnlUSD: _MARKETS.reduce((s, mk) =>
+                    _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlUSD || 0) : s, 0),
+                pnlTWD: _MARKETS.reduce((s, mk) =>
+                    _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlTWD || 0) : s, 0),
+                hasAnyData: _MARKETS.some(mk =>
+                    _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0)
             };
 
             // v15.069：昨日損益從 snapshot 讀取（凍結值，跨日不會浮動）
