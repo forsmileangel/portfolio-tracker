@@ -1061,6 +1061,121 @@
         }
 
         // ────────────────────────────────────────────────────────
+        // v15.073：市場行事曆 + 交易日狀態機
+        // 來源：TWSE「115 年市場開休市日期」、HKEX 2026 Securities Market Holiday Schedule、NYSE Holidays & Trading Hours
+        // 設計：holidays 用 Set<'YYYY-MM-DD'>；週末由 _isTradingDay 內部判斷（不一定要列在 holidays）
+        // 涵蓋 2026 全年；2027 之後年份回 null → 呼叫端 fallback 為純週末判斷
+        // ────────────────────────────────────────────────────────
+        const MARKET_CALENDARS = {
+            TW: {
+                tz: 'Asia/Taipei',
+                openMin: 9*60, closeMin: 13*60+30,
+                years: { 2026: true },
+                holidays: new Set([
+                    '2026-01-01',                                           // 元旦
+                    '2026-02-13','2026-02-16','2026-02-17','2026-02-18',     // 農曆春節（連假）
+                    '2026-02-19','2026-02-20',
+                    '2026-02-27','2026-02-28',                               // 228 和平紀念日（含補假）
+                    '2026-04-03','2026-04-06',                               // 兒童節 / 清明補假
+                    '2026-05-01',                                           // 勞動節
+                    '2026-06-19',                                           // 端午節
+                    '2026-09-25',                                           // 中秋節
+                    '2026-10-09','2026-10-10'                                // 國慶連假
+                ])
+            },
+            HK: {
+                tz: 'Asia/Hong_Kong',
+                openMin: 9*60+30, closeMin: 16*60+10,
+                years: { 2026: true },
+                holidays: new Set([
+                    '2026-01-01',                                           // New Year's Day
+                    '2026-02-17','2026-02-18','2026-02-19',                  // Lunar New Year (Tue~Thu)
+                    '2026-04-03','2026-04-06','2026-04-07',                  // Good Friday / Easter Monday / Ching Ming
+                    '2026-05-01',                                           // Labour Day
+                    '2026-05-25',                                           // Buddha's Birthday
+                    '2026-06-19',                                           // Tuen Ng (Dragon Boat)
+                    '2026-07-01',                                           // HKSAR Establishment Day
+                    '2026-09-26',                                           // Mid-Autumn Festival 翌日
+                    '2026-10-01',                                           // National Day
+                    '2026-10-19',                                           // Chung Yeung Festival
+                    '2026-12-25','2026-12-28'                                // Christmas + Boxing Day 補假
+                ])
+            },
+            US: {
+                tz: 'America/New_York',
+                openMin: 9*60+30, closeMin: 16*60,
+                years: { 2026: true },
+                holidays: new Set([
+                    '2026-01-01',          // New Year's Day
+                    '2026-01-19',          // MLK Day
+                    '2026-02-16',          // Presidents Day
+                    '2026-04-03',          // Good Friday
+                    '2026-05-25',          // Memorial Day
+                    '2026-06-19',          // Juneteenth
+                    '2026-07-03',          // Independence Day (observed; 7/4 為週六)
+                    '2026-09-07',          // Labor Day
+                    '2026-11-26',          // Thanksgiving
+                    '2026-12-25'           // Christmas
+                ]),
+                earlyClose: {
+                    '2026-07-02': 13*60,   // Independence Day eve
+                    '2026-11-27': 13*60,   // Day after Thanksgiving
+                    '2026-12-24': 13*60    // Christmas Eve
+                }
+            }
+        };
+
+        // 'YYYY-MM-DD' → 偏移 days 後的 'YYYY-MM-DD'（用 UTC 中午避開夏令時陷阱）
+        function _shiftDate(dateStr, days) {
+            const d = new Date(dateStr + 'T12:00:00Z');
+            d.setUTCDate(d.getUTCDate() + days);
+            const y = d.getUTCFullYear();
+            const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(d.getUTCDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        // 是否是該市場的交易日：true=是、false=明確不是、null=calendar 不涵蓋年份（fallback 週末判斷由呼叫端決定）
+        function _isTradingDay(market, dateStr) {
+            const cal = MARKET_CALENDARS[market];
+            if (!cal || !dateStr) return null;
+            const d = new Date(dateStr + 'T12:00:00Z');
+            if (isNaN(d.getTime())) return null;
+            const wd = d.getUTCDay();   // 0=Sun, 6=Sat
+            if (wd === 0 || wd === 6) return false;
+            const yr = parseInt(dateStr.slice(0, 4), 10);
+            if (!cal.years[yr]) {
+                // 未涵蓋年份：用 v15.064 _recordAppError，60s 同 source 去重避免洗版
+                try { _recordAppError && _recordAppError('calendar_unknown', new Error(`market=${market} year=${yr} not in MARKET_CALENDARS`)); } catch(_) {}
+                return null;
+            }
+            return !cal.holidays.has(dateStr);
+        }
+        // 從 dateStr 向前找最近交易日；calendar unknown 回 null
+        function _previousTradingDate(market, dateStr) {
+            if (!dateStr) return null;
+            let cursor = _shiftDate(dateStr, -1);
+            for (let i = 0; i < 14; i++) {
+                const r = _isTradingDay(market, cursor);
+                if (r === true) return cursor;
+                if (r === null) return null;
+                cursor = _shiftDate(cursor, -1);
+            }
+            return null;
+        }
+        // 從 dateStr 向後找最近交易日；calendar unknown 回 null
+        function _nextTradingDate(market, dateStr) {
+            if (!dateStr) return null;
+            let cursor = _shiftDate(dateStr, 1);
+            for (let i = 0; i < 14; i++) {
+                const r = _isTradingDay(market, cursor);
+                if (r === true) return cursor;
+                if (r === null) return null;
+                cursor = _shiftDate(cursor, 1);
+            }
+            return null;
+        }
+
+        // ────────────────────────────────────────────────────────
         // v15.069：市場分類與市場時鐘（今日/昨日損益市場拆分用）
         // ────────────────────────────────────────────────────────
 
