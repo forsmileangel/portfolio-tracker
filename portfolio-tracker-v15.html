@@ -1175,6 +1175,9 @@
                         const old = parsed.markets[mk];
                         if (old && old.marketDate) v2.markets[mk].current = old;
                     }
+                    // v15.072：補算 lastCompleteDate 並寫回 localStorage，避免每次開頁重跑 migration
+                    v2.lastCompleteDate = _computeLastCompleteDate(v2.markets);
+                    _saveDailyPnlSnapshots(v2);
                     return v2;
                 }
                 if (parsed.version !== 2) return _emptyDailyPnlSnapshots();
