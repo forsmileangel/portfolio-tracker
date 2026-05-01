@@ -2205,6 +2205,8 @@
                 allBtn.style.pointerEvents = _holdingsHidden ? 'none' : '';
             }
             _updateSyncTimeLabels();
+            // v15.069：嘗試擷取已收盤市場的當日損益快照（同一 marketDate 只會寫一次）
+            try { _maybeCaptureDailyPnlSnapshots(stats); } catch(_) {}
             // v15.022：防抖儲存，500ms 內多次 renderAll 只寫一次 localStorage
             clearTimeout(_saveStorageTimer);
             _saveStorageTimer = setTimeout(saveToStorage, 500);
