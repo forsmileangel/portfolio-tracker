@@ -1853,9 +1853,13 @@
                 const byMk = stats.yesterdayPnlByMarket;
                 const totVal = currency==='USD' ? tot.pnlUSD : tot.pnlTWD;
                 const totPos = totVal >= 0;
-                const totCol = tot.hasAny ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
-                const totStr = tot.hasAny ? fmtPnl(totVal, currency) : '等待收盤快照';
-                const totSubStr = tot.hasAny
+                // v15.072：headline 只在 complete（三市場都有 snapshot 且 lastCompleteDate 有效）才顯示總額
+                // 部分市場 hasAny → 顯示「快照未完整」避免把 US-only 合計誤讀為「昨日損益」
+                const totCol = tot.complete ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                const totStr = tot.complete
+                    ? fmtPnl(totVal, currency)
+                    : (tot.hasAny ? '快照未完整' : '等待收盤快照');
+                const totSubStr = tot.complete
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
                 const mkRow = (mk, label) => {
