@@ -4734,16 +4734,19 @@
         function directApplyPrices(prices) {
             saveHistory();
             let updated = 0;
+            const updatedMarkets = new Set();   // v15.072：只標實際被刷到的市場
             holdings.forEach(h => {
                 const newP = _lookupPrice(prices, h);
                 if (newP != null && !isNaN(newP) && newP > 0) {
                     h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
                     updated++;
+                    const mk = _holdingMarketKey(h);
+                    if (mk === 'TW' || mk === 'HK' || mk === 'US') updatedMarkets.add(mk);
                 }
             });
-            // v15.071：手動 CSV 一鍵更新成功 → 標記三市場批次報價時間
-            if (updated > 0) {
-                try { _markBatchQuoteRefresh(['TW', 'HK', 'US'], 'csv-manual'); } catch(_) {}
+            // v15.072：手動 CSV apply 也只 mark 實際刷到的市場
+            if (updatedMarkets.size > 0) {
+                try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-manual'); } catch(_) {}
             }
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
