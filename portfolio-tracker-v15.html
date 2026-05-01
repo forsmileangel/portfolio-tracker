@@ -1827,16 +1827,20 @@
 
             // v15.070 (P1)：昨日損益從 snapshot 讀，依 lastCompleteDate gating，避免日期混搭
             const _snap = _loadDailyPnlSnapshots();
-            const _lastComplete = _snap.lastCompleteDate || null;
+            // v15.074：fresh 判定同時擋下本機殘留的「週末 / 已知假日 marketDate」壞資料（不依賴 merge 才清）
+            const _isFresh = (mk, s) =>
+                !!s && !!s.marketDate
+                && (s.quoteStatus || 'fresh_after_close') === 'fresh_after_close'
+                && _isTradingDay(mk, s.marketDate) !== false;   // false=明確假日/週末；true 或 null 都接受
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
                 const slot = (_snap.markets && _snap.markets[mk]) || { current: null, previous: null };
-                let chosen = null;
-                if (_lastComplete) {
-                    // 取 marketDate <= lastCompleteDate 的最新 snapshot（current 優先；不符合再退到 previous）
-                    if (slot.current && slot.current.marketDate <= _lastComplete) chosen = slot.current;
-                    else if (slot.previous && slot.previous.marketDate <= _lastComplete) chosen = slot.previous;
-                }
+                // v15.074：per-market 各取自己 latest fresh（不再用三市場最舊 lastCompleteDate gating）
+                // 從 [current, previous] 篩 fresh 候選，依 marketDate 取最新（避免 current 反而比 previous 舊）
+                const candidates = [slot.current, slot.previous]
+                    .filter(s => _isFresh(mk, s))
+                    .sort((a, b) => b.marketDate.localeCompare(a.marketDate));
+                const chosen = candidates[0] || null;
                 yesterdayPnlByMarket[mk] = chosen ? {
                     status: 'snapshot',
                     marketDate: chosen.marketDate,
@@ -1849,12 +1853,16 @@
                     status: 'no_snapshot', pnlUSD: null, pnlTWD: null, marketDate: null
                 };
             }
+            const _lastComplete = _snap.lastCompleteDate || null;
+            // v15.074：complete 只看「使用者實際有持倉的市場」— 沒港股的使用者不會永遠 incomplete
+            const _activeMarkets = _MARKETS.filter(mk => (holdingsByMarket[mk]?.count || 0) > 0);
             const yesterdayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
                 pnlTWD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
-                complete: !!_lastComplete && _MARKETS.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
+                complete: _activeMarkets.length > 0
+                          && _activeMarkets.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
                 hasAny:   _MARKETS.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
-                lastCompleteDate: _lastComplete
+                lastCompleteDate: _lastComplete   // 仍保留供 UI 參考（最舊共同日期，純診斷）
             };
 
             return {
