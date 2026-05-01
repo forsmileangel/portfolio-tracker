@@ -1577,53 +1577,7 @@
             const si = (col) => _tableSort.by === col ? (_tableSort.dir === 'desc' ? ' ▼' : ' ▲') : '';
             const thBtn = (col, label, align='right') =>
                 `<th onclick="setTableSort('${col}')" style="padding:0.6rem 0.75rem;text-align:${align};color:#60a5fa;cursor:pointer;user-select:none;white-space:nowrap;">${label}${si(col)}</th>`;
-            const tbodyHTML = sorted.map((h,i) => {
-                const pnl    = h.valueTotalUSD - h.costTotalUSD;
-                const pnlTWD = h.valueTotalTWD - h.costTotalTWD;
-                const isProfit = pnl >= 0;
-                const pnlPct = currency==='USD'
-                    ? (h.costTotalUSD  > 0 ? (pnl    / h.costTotalUSD  * 100).toFixed(2) : '0.00')
-                    : (h.costTotalTWD  > 0 ? (pnlTWD / h.costTotalTWD  * 100).toFixed(2) : '0.00');
-                const priceCcy = (h.market==='HK'||h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol) ? 'HK$' : h.market==='TW' ? 'NT$' : '$';
-                const displayValue = currency==='USD' ? fmtAmt(h.valueTotalUSD,'USD') : fmtAmt(h.valueTotalTWD,'TWD');
-                const displayPnl   = currency==='USD' ? fmtPnl(pnl,'USD') : fmtPnl(pnlTWD,'TWD');
-                const bg = i%2===0 ? 'rgba(15,30,60,0.3)' : 'rgba(10,20,40,0.2)';
-
-                // 昨日漲跌
-                let prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
-                if (h.prevDayChangePct != null) {
-                    const pp = h.prevDayChangePct >= 0;
-                    prevDayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
-                        + '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:'+(pp?'rgba(16,185,129,0.12)':'rgba(239,68,68,0.12)')+';color:'+(pp?'#6ee7b7':'#fca5a5')+';font-size:0.88rem;">'
-                        + (pp?'+':'') + h.prevDayChangePct.toFixed(2) + '%</span></td>';
-                }
-                // 當日漲跌幅 & 當日損益
-                let dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
-                let dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:#7e93a6;">-</td>';
-                if (h.dayChangePct != null) {
-                    const cp = h.dayChangePct >= 0;
-                    dayChgCell = '<td style="padding:0.55rem 0.75rem;text-align:right;">'
-                        + '<span style="padding:0.2rem 0.5rem;border-radius:6px;background:'+(cp?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)')+';color:'+(cp?'#10b981':'#ef4444')+';font-weight:600;">'
-                        + (cp?'+':'') + h.dayChangePct.toFixed(2) + '%</span></td>';
-                    const dp    = currency==='USD' ? h.dayPnlUSD : h.dayPnlTWD;
-                    const dpp   = dp >= 0;
-                    const dpStr = fmtPnl(dp, currency);
-                    dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:'+(dpp?'#10b981':'#ef4444')+';">'+dpStr+'</td>';
-                }
-
-                return `<tr data-symbol="${h.symbol}" style="background:${bg};">
-                    <td style="padding:0.55rem 0.75rem;font-weight:600;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.symbol}<br><small style="color:#7e93a6;">${h.name||''}</small></td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;color:#a8bdd0;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-                    ${prevDayChgCell}
-                    ${dayChgCell}
-                    ${dayPnlCell}
-                    <td style="padding:0.55rem 0.75rem;text-align:right;">${displayValue}</td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;color:${isProfit?'#10b981':'#ef4444'};">${displayPnl}</td>
-                    <td style="padding:0.55rem 0.75rem;text-align:right;color:${isProfit?'#10b981':'#ef4444'};"><span style="padding:0.2rem 0.5rem;border-radius:6px;background:${isProfit?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)'};">${isProfit?'+':''}${pnlPct}%</span></td>
-                </tr>`;
-            }).join('');
+            // v15.066：tbody 由 _patchHoldingTableBody 處理（DOM diff），不再 join 字串
 
             const dayPnlFooter = stats.hasDayPnL ? (() => {
                 const dp  = currency==='USD' ? stats.totalDayPnLUSD : stats.totalDayPnLTWD;
@@ -1634,28 +1588,40 @@
                     + '<td style="padding:0.65rem 0.75rem;text-align:right;color:'+(pos?'#10b981':'#ef4444')+';font-weight:700;">'+dpStr+'</td>';
             })() : '<td></td><td></td><td></td>';
 
-            document.getElementById('holdings-table').innerHTML = `
-                <thead><tr>
-                    ${thBtn('symbol','代碼','left')}
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#a8bdd0;">昨日漲跌</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日漲跌</th>
-                    <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日損益</th>
-                    ${thBtn('value','市值 ('+currency+')')}
-                    ${thBtn('pnl','總損益 ('+currency+')')}
-                    ${thBtn('pnlpct','總損益%')}
-                </tr></thead>
-                <tbody>${tbodyHTML}</tbody>
-                <tfoot><tr style="background:rgba(30,58,110,0.2);">
-                    <td style="padding:0.65rem 0.75rem;color:#60a5fa;font-weight:700;">合計</td>
-                    <td></td><td></td><td></td>
-                    ${dayPnlFooter}
-                    <td style="padding:0.65rem 0.75rem;text-align:right;color:#60a5fa;font-weight:700;">${currency==='USD'?fmtAmt(stats.totalValue,'USD'):fmtAmt(stats.totalValueTWD,'TWD')}</td>
-                    <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${currency==='USD'?fmtPnl(stats.totalPnL,'USD'):fmtPnl(stats.totalPnLTWD,'TWD')}</td>
-                    <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%</td>
-                </tr></tfoot>`;
+            // v15.066：thead / tfoot 各自重建，tbody 用 DOM diff（保留滾動位置 + click 鎖定）
+            const table = document.getElementById('holdings-table');
+            // 確保 thead / tbody / tfoot 都存在（首次渲染）
+            if (!table.tHead)         table.appendChild(document.createElement('thead'));
+            if (!table.tBodies[0])    table.appendChild(document.createElement('tbody'));
+            if (!table.tFoot)         table.appendChild(document.createElement('tfoot'));
+
+            // thead 重建（含 sort indicator，每輪變化）
+            table.tHead.innerHTML = `<tr>
+                ${thBtn('symbol','代碼','left')}
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#a8bdd0;">昨日漲跌</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日漲跌</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日損益</th>
+                ${thBtn('value','市值 ('+currency+')')}
+                ${thBtn('pnl','總損益 ('+currency+')')}
+                ${thBtn('pnlpct','總損益%')}
+            </tr>`;
+
+            // tbody 差異更新（保留 hover / click 鎖定 / 滾動位置）
+            _patchHoldingTableBody(table.tBodies[0], sorted, currency);
+
+            // tfoot 重建（合計列）
+            table.tFoot.innerHTML = `<tr style="background:rgba(30,58,110,0.2);">
+                <td style="padding:0.65rem 0.75rem;color:#60a5fa;font-weight:700;">合計</td>
+                <td></td><td></td><td></td>
+                ${dayPnlFooter}
+                <td style="padding:0.65rem 0.75rem;text-align:right;color:#60a5fa;font-weight:700;">${currency==='USD'?fmtAmt(stats.totalValue,'USD'):fmtAmt(stats.totalValueTWD,'TWD')}</td>
+                <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${currency==='USD'?fmtPnl(stats.totalPnL,'USD'):fmtPnl(stats.totalPnLTWD,'TWD')}</td>
+                <td style="padding:0.65rem 0.75rem;text-align:right;color:${stats.totalPnL>=0?'#10b981':'#ef4444'};font-weight:700;">${stats.totalPnL>=0?'+':''}${stats.totalPnLPercent.toFixed(2)}%</td>
+            </tr>`;
+
             _applyHoldingRowSelection();
         }
 
