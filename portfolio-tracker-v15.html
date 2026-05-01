@@ -1567,6 +1567,11 @@
         }
 
         function renderTable(stats) {
+            // v15.067：null 值排到最後（不論 asc/desc）；null/undefined 一律視為「最差」
+            const _nullToBottom = (v, dir) => {
+                if (v == null || isNaN(v)) return dir === 'asc' ? Infinity : -Infinity;
+                return v;
+            };
             const sorted = [...stats.holdingsWithStats].sort((a, b) => {
                 let va, vb;
                 if (_tableSort.by === 'symbol') {
@@ -1578,6 +1583,20 @@
                 } else if (_tableSort.by === 'pnlpct') {
                     va = a.costTotalUSD > 0 ? (a.valueTotalUSD - a.costTotalUSD) / a.costTotalUSD : 0;
                     vb = b.costTotalUSD > 0 ? (b.valueTotalUSD - b.costTotalUSD) / b.costTotalUSD : 0;
+                } else if (_tableSort.by === 'prevDayPct') {
+                    // v15.067：昨日漲跌幅排序
+                    va = _nullToBottom(a.prevDayChangePct, _tableSort.dir);
+                    vb = _nullToBottom(b.prevDayChangePct, _tableSort.dir);
+                } else if (_tableSort.by === 'dayPct') {
+                    // v15.067：今日漲跌幅排序
+                    va = _nullToBottom(a.dayChangePct, _tableSort.dir);
+                    vb = _nullToBottom(b.dayChangePct, _tableSort.dir);
+                } else if (_tableSort.by === 'dayPnl') {
+                    // v15.067：今日損益排序（依目前幣別）
+                    const fa = currency === 'USD' ? a.dayPnlUSD : a.dayPnlTWD;
+                    const fb = currency === 'USD' ? b.dayPnlUSD : b.dayPnlTWD;
+                    va = _nullToBottom(fa, _tableSort.dir);
+                    vb = _nullToBottom(fb, _tableSort.dir);
                 } else { // value (default)
                     va = a.valueTotalUSD; vb = b.valueTotalUSD;
                 }
