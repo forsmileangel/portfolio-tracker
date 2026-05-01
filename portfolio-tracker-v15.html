@@ -1538,7 +1538,7 @@
                     delete _holdingRowCache[sym];
                 }
             });
-            // 2. 依排序順序遍歷：新增 / 替換 / 移動
+            // 2. 依排序順序遍歷：先處理新增 / 替換內容；位置校正在最後統一做（避免 replaceWith 後留在舊 index）
             sorted.forEach((h, i) => {
                 const fp = _holdingRowFingerprint(h, i, currency);
                 const existing = tbody.querySelector('tr[data-symbol="' + CSS.escape(h.symbol) + '"]');
@@ -1550,16 +1550,18 @@
                     tbody.insertBefore(newRow, ref);
                     _holdingRowCache[h.symbol] = fp;
                 } else if (_holdingRowCache[h.symbol] !== fp) {
+                    // 內容變更：replaceWith 會讓新 row 接收舊 row 的位置；位置校正交給下一個 if 處理
                     const tmp = document.createElement('tbody');
                     tmp.innerHTML = _buildHoldingRowHTML(h, i, currency);
                     existing.replaceWith(tmp.firstElementChild);
                     _holdingRowCache[h.symbol] = fp;
-                } else {
-                    // 內容相同但位置可能錯：移動既有 row 到正確 index（不替換，保留 hover/focus）
-                    const ref = tbody.children[i];
-                    if (ref && ref !== existing) {
-                        tbody.insertBefore(existing, ref);
-                    }
+                }
+                // v15.067 修正（Codex review）：每輪都做位置校正，不只 fp-same 分支
+                // 不論是新建、replace 還是 move，都確認 row 在正確 index
+                const currentRow = tbody.querySelector('tr[data-symbol="' + CSS.escape(h.symbol) + '"]');
+                const ref = tbody.children[i];
+                if (currentRow && ref && ref !== currentRow) {
+                    tbody.insertBefore(currentRow, ref);
                 }
             });
         }
