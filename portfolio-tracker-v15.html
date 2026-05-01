@@ -6189,9 +6189,9 @@
             window._prevPrevCloseCache = _tmpPrevPrevClose;
             window._marketOpenedToday  = _tmpMarketOpened;
 
-            // v15.072：移除 v15.071 在此處標 _markBatchQuoteRefresh 的呼叫
-            // runAnalysis 只更新 prevClose / prevPrevClose / marketOpenedToday，沒寫 holdings.currentPrice，
-            // 不應該偽裝成「批次報價刷新」→ 否則收盤後會把 stale currentPrice 凍進 fresh_after_close snapshot。
+            // v15.073：runAnalysis 跑完，prevClose / prevPrevClose 對齊到各市場 lastCompletedTradingDate
+            // 標 analysis meta（不是 quote meta；v15.072 已移除 _markBatchQuoteRefresh，這裡延續不再呼叫）
+            try { _markAnalysisRefresh(['TW', 'HK', 'US']); } catch(_) {}
 
             renderAll(); // 更新持倉管理的當日損益欄位
 
