@@ -1465,19 +1465,26 @@
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0)
             };
 
-            // v15.069：昨日損益從 snapshot 讀取（凍結值，跨日不會浮動）
-            const _snap = (typeof _loadDailyPnlSnapshots === 'function') ? _loadDailyPnlSnapshots() : { markets: {} };
+            // v15.070 (P1)：昨日損益從 snapshot 讀，依 lastCompleteDate gating，避免日期混搭
+            const _snap = _loadDailyPnlSnapshots();
+            const _lastComplete = _snap.lastCompleteDate || null;
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
-                const ms = _snap.markets && _snap.markets[mk];
-                yesterdayPnlByMarket[mk] = ms ? {
+                const slot = (_snap.markets && _snap.markets[mk]) || { current: null, previous: null };
+                let chosen = null;
+                if (_lastComplete) {
+                    // 取 marketDate <= lastCompleteDate 的最新 snapshot（current 優先；不符合再退到 previous）
+                    if (slot.current && slot.current.marketDate <= _lastComplete) chosen = slot.current;
+                    else if (slot.previous && slot.previous.marketDate <= _lastComplete) chosen = slot.previous;
+                }
+                yesterdayPnlByMarket[mk] = chosen ? {
                     status: 'snapshot',
-                    marketDate: ms.marketDate,
-                    closedAt: ms.closedAt,
-                    source: ms.source || 'live-close',
-                    pnlUSD: ms.pnlUSD || 0,
-                    pnlTWD: ms.pnlTWD || 0,
-                    holdingsCount: Array.isArray(ms.holdings) ? ms.holdings.length : 0
+                    marketDate: chosen.marketDate,
+                    closedAt: chosen.closedAt,
+                    source: chosen.source || 'live-close',
+                    pnlUSD: chosen.pnlUSD || 0,
+                    pnlTWD: chosen.pnlTWD || 0,
+                    holdingsCount: Array.isArray(chosen.holdings) ? chosen.holdings.length : 0
                 } : {
                     status: 'no_snapshot', pnlUSD: null, pnlTWD: null, marketDate: null
                 };
@@ -1485,8 +1492,9 @@
             const yesterdayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
                 pnlTWD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
-                complete: _MARKETS.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
-                hasAny:   _MARKETS.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot')
+                complete: !!_lastComplete && _MARKETS.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
+                hasAny:   _MARKETS.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
+                lastCompleteDate: _lastComplete
             };
 
             return {
