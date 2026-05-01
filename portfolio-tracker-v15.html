@@ -5447,6 +5447,27 @@
             loadPrivacy();           // 還原隱私模式設定
             loadFont();              // 還原字型設定
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
+
+            // 啟動時立刻把 localStorage cache 中的 prevClose / prevPrevClose / marketOpenedToday
+            // hydrate 到 window 全域變數，避免「今日損益 / 昨日損益」卡片在啟動 1-60 秒間消失
+            // （原本只有 runAnalysis() 跑完才會填入 window cache，啟動 renderAll 第一次跑時 window cache 是 undefined）
+            try {
+                const _rawCache = _loadCacheRaw();
+                if (_rawCache && _rawCache.data) {
+                    const _pc = {}, _ppc = {}, _mo = {};
+                    for (const sym in _rawCache.data) {
+                        const d = _rawCache.data[sym];
+                        if (d == null) continue;
+                        if (d.prevClose != null)         _pc[sym]  = d.prevClose;
+                        if (d.prevPrevClose != null)     _ppc[sym] = d.prevPrevClose;
+                        if (d.marketOpenedToday != null) _mo[sym]  = d.marketOpenedToday;
+                    }
+                    window._prevCloseCache     = _pc;
+                    window._prevPrevCloseCache = _ppc;
+                    window._marketOpenedToday  = _mo;
+                }
+            } catch(_) {}
+
             renderAll();
             // 有 Gist 憑證時跳過本地 toast（auto-pull 成功後會顯示雲端 toast）
             const _hasGistCreds = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
