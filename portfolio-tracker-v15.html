@@ -1103,8 +1103,13 @@
                     '2026-09-26',                                           // Mid-Autumn Festival 翌日
                     '2026-10-01',                                           // National Day
                     '2026-10-19',                                           // Chung Yeung Festival
-                    '2026-12-25','2026-12-28'                                // Christmas + Boxing Day 補假
-                ])
+                    '2026-12-25'                                             // v15.074：移除 12/28（HKEX 公告無此日）
+                ]),
+                earlyClose: {                                                // v15.074：HKEX 半日市（12:00 收市）
+                    '2026-02-16': 12*60,   // 農曆除夕
+                    '2026-12-24': 12*60,   // Christmas Eve
+                    '2026-12-31': 12*60    // New Year's Eve
+                }
             },
             US: {
                 tz: 'America/New_York',
