@@ -7083,13 +7083,21 @@
 
                 // 靜默更新股價（不存入 undo 歷史）
                 let updated = 0;
+                const updatedMarkets = new Set();   // v15.072：只標實際被刷到的市場
                 holdings.forEach(h => {
                     const np = _lookupPrice(prices, h);
-                    if (np != null && !isNaN(np) && np > 0) { h.currentPrice = parseFloat(np); updated++; }
+                    if (np != null && !isNaN(np) && np > 0) {
+                        h.currentPrice = parseFloat(np);
+                        updated++;
+                        const mk = _holdingMarketKey(h);
+                        if (mk === 'TW' || mk === 'HK' || mk === 'US') updatedMarkets.add(mk);
+                    }
                 });
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
-                    // v15.071：批次報價更新成功（CSV 含三市場），標記 lastQuoteAt 給 snapshot 新鮮度判斷用
-                    try { _markBatchQuoteRefresh(['TW', 'HK', 'US'], 'csv-silent'); } catch(_) {}
+                    // v15.072：CSV 不一定覆蓋三市場，只給有實際刷到報價的市場 mark lastQuoteAt
+                    if (updatedMarkets.size > 0) {
+                        try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-silent'); } catch(_) {}
+                    }
                     renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
