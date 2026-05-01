@@ -1372,10 +1372,18 @@
             try {
                 const meta = _loadMarketQuoteMeta();
                 const ts = new Date().toISOString();
+                const now = new Date();
                 const arr = Array.isArray(markets) ? markets : [markets];
                 for (const mk of arr) {
                     if (mk === 'TW' || mk === 'HK' || mk === 'US') {
-                        meta[mk] = { lastQuoteAt: ts, source: source || 'unknown' };
+                        // v15.073：marketDate = 該市場 lastCompletedTradingDate（不是日曆日）
+                        // 收盤後刷 → marketDate=今天；週末/假日刷 → marketDate=最後交易日
+                        const session = _marketSession(mk, now);
+                        meta[mk] = {
+                            lastQuoteAt: ts,
+                            marketDate: session.lastCompletedTradingDate || null,
+                            source: source || 'unknown'
+                        };
                     }
                 }
                 localStorage.setItem(STORAGE_KEYS.marketQuoteMeta, JSON.stringify(meta));
