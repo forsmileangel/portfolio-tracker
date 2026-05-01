@@ -3293,6 +3293,7 @@
                     moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                     moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false,
                     marketSnapshots,
+                    daily_pnl_snapshots: _loadDailyPnlSnapshots(),   // v15.071：跨裝置同步
                     pushedAt,
                     sync_meta: _buildSyncMeta(pushedAt)
                 }, null, 2);
