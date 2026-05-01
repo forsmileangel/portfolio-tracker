@@ -1200,6 +1200,68 @@
             } catch(_) {}
         }
 
+        // ────────────────────────────────────────────────────────
+        // v15.071：市場批次報價時間（給 snapshot 新鮮度判斷使用）
+        // 結構：{ TW: { lastQuoteAt: ISO, source: 'csv'|'yahoo'|'silent' }, HK:..., US:... }
+        // 只有「批次報價更新流程」才 update，單一手動改價不寫
+        // ────────────────────────────────────────────────────────
+        function _loadMarketQuoteMeta() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.marketQuoteMeta);
+                if (!raw) return { TW: null, HK: null, US: null };
+                const parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null };
+                return {
+                    TW: parsed.TW || null,
+                    HK: parsed.HK || null,
+                    US: parsed.US || null
+                };
+            } catch(_) {
+                return { TW: null, HK: null, US: null };
+            }
+        }
+        function _markBatchQuoteRefresh(markets, source) {
+            try {
+                const meta = _loadMarketQuoteMeta();
+                const ts = new Date().toISOString();
+                const arr = Array.isArray(markets) ? markets : [markets];
+                for (const mk of arr) {
+                    if (mk === 'TW' || mk === 'HK' || mk === 'US') {
+                        meta[mk] = { lastQuoteAt: ts, source: source || 'unknown' };
+                    }
+                }
+                localStorage.setItem(STORAGE_KEYS.marketQuoteMeta, JSON.stringify(meta));
+            } catch(_) {}
+        }
+        // 各市場收盤時間（local time, minutes since midnight）— 跟 _marketClock 內的時段對齊
+        const _MARKET_CLOSE_MIN = { TW: 13*60+30, HK: 16*60+10, US: 16*60 };
+        // 判斷批次報價是否「在該市場收盤後 ≥ 5 分鐘」更新過
+        function _isQuoteFreshAfterClose(marketKey, clock) {
+            const meta = _loadMarketQuoteMeta();
+            const m = meta[marketKey];
+            if (!m || !m.lastQuoteAt) return false;
+            const quoteAt = new Date(m.lastQuoteAt);
+            if (isNaN(quoteAt.getTime())) return false;
+            // 把 lastQuoteAt 換算到該市場時區的當日 minutes
+            try {
+                const fmt = new Intl.DateTimeFormat('en-US', {
+                    timeZone: clock.tz,
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+                });
+                const parts = {};
+                for (const p of fmt.formatToParts(quoteAt)) parts[p.type] = p.value;
+                const quoteDate = `${parts.year}-${parts.month}-${parts.day}`;
+                const quoteMin = parseInt(parts.hour, 10) * 60 + parseInt(parts.minute, 10);
+                // 必須是同一日（market localDate）且 quoteMin >= 收盤時間 + 5 分鐘
+                if (quoteDate !== clock.localDate) return false;
+                const closeMin = _MARKET_CLOSE_MIN[marketKey];
+                return closeMin != null && quoteMin >= closeMin + 5;
+            } catch(_) {
+                return false;
+            }
+        }
+
         // 嘗試擷取單一市場的當日損益快照（v15.070：current → previous 推進 + 重算 lastCompleteDate）
         // 條件：(1) 市場時段 status === 'closed'  (2) 該市場今日尚無快照  (3) 該市場至少有一筆 prevClose 可用
         function _captureDailyPnlSnapshot(marketKey, stats) {
