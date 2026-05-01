@@ -2133,6 +2133,7 @@
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
                 // v15.070 (P3)：未開盤 / 休市時不顯示金額，避免「美股 今日未開盤 +$xxx」自相矛盾
+                // v15.073：休市時加註「沿用 MM-DD 快照」對應前交易日
                 const mkRow = (mk, label) => {
                     const m = byMk[mk];
                     let valStr, col;
@@ -2141,7 +2142,8 @@
                     } else if (m.status === 'not_open') {
                         valStr = '今日未開盤'; col = '#607585';
                     } else if (m.status === 'closed_or_holiday') {
-                        valStr = '休市'; col = '#607585';
+                        const lc = m.lastCompletedTradingDate ? m.lastCompletedTradingDate.slice(5) : '';
+                        valStr = lc ? `休市，沿用 ${lc} 快照` : '休市'; col = '#607585';
                     } else if (m.withData === 0) {
                         valStr = '資料讀取中'; col = '#607585';
                     } else {
