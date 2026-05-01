@@ -5412,6 +5412,13 @@
                 }
             })();
 
+            // v15.066：PWA 版本更新偵測；5 分鐘後第一次檢查、之後每 30 分鐘
+            // 直接拿 APP_VERSION 對網路 HTML 版本字串比對（baseline 不依賴第一次抓的值）
+            setTimeout(() => {
+                _checkAppVersion();
+                _versionCheckTimer = setInterval(_checkAppVersion, 30 * 60 * 1000);
+            }, 5 * 60 * 1000);
+
             // v15.064：頁面啟動時更新錯誤日誌計數
             try { _renderErrorLogCount(); } catch(_) {}
             // 啟動每分鐘自動更新報價
