@@ -1295,6 +1295,11 @@
                     count: 0, withData: 0
                 };
             }
+            // v15.070：cost / value byMarket（總投入 / 總市值 / 總損益 三張卡片用）
+            const holdingsByMarket = {};
+            for (const mk of _MARKETS) {
+                holdingsByMarket[mk] = { costUSD: 0, costTWD: 0, valueUSD: 0, valueTWD: 0, count: 0 };
+            }
 
             // 第一遍：計算各持倉的 USD/TWD 市值並累加總計
             let holdingsWithStats = holdings.map(h => {
