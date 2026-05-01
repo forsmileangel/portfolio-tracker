@@ -3780,7 +3780,15 @@
                 localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
                 _updatePendingPushIndicator();
                 saveToStorage();
+                // v15.069：Gist pull 後立刻 hydrate 既有 cache 並排程一次 loadAnalysis，
+                //   讓新裝置不用等 1hr 就能看到今日/昨日損益
+                try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
                 renderAll();
+                try {
+                    if (typeof loadAnalysis === 'function' && holdings.length > 0) {
+                        setTimeout(() => loadAnalysis(false, true), 1500);
+                    }
+                } catch(_) {}
                 const _depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
                 showImportToast(`☁️ 已從雲端載入 ${holdings.length} 筆庫存${_depNote}`, 3000);
 
