@@ -1678,6 +1678,7 @@
                 const clock = _marketClock(mk, _now);
                 todayPnlByMarket[mk] = {
                     status: clock.status, localDate: clock.localDate,
+                    lastCompletedTradingDate: clock.lastCompletedTradingDate || null,   // v15.073：UI 顯示「沿用 MM-DD 快照」
                     pnlUSD: 0, pnlTWD: 0,
                     count: 0, withData: 0
                 };
