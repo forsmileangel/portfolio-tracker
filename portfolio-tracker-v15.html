@@ -2547,10 +2547,26 @@
         // ────────────────────────────────────────────────────────
         // v15.066：PWA 版本更新偵測
         // 用 APP_VERSION（寫死）對網路上抓回的 HTML regex 比對，「打開就是舊版」也能提示
+        // v15.068 修正：只在 remote 比 current 新時提示；GitHub Pages CDN 傳播延遲拿到舊版時靜默
         // ────────────────────────────────────────────────────────
         let _versionCheckTimer = null;
         let _lastVersionCheckErrorTs = 0;   // 同 source 6hr 內最多記 1 筆，避免離線時洗版錯誤日誌
         const _APP_VERSION_RE = /font-family:monospace;\s*pointer-events:none;">v(15\.\d{3})/;
+
+        // v15.068：將 'v15.067' 解析為 [15, 67]
+        function _parseAppVersion(v) {
+            const m = (v || '').match(/v?(\d+)\.(\d+)/);
+            if (!m) return null;
+            return [parseInt(m[1], 10), parseInt(m[2], 10)];
+        }
+        // v15.068：判斷 remote 是否嚴格大於 current（避免 CDN 倒帶時誤判舊版為新版）
+        function _isNewerVersion(remote, current) {
+            const r = _parseAppVersion(remote);
+            const c = _parseAppVersion(current);
+            if (!r || !c) return false;
+            if (r[0] !== c[0]) return r[0] > c[0];
+            return r[1] > c[1];
+        }
 
         async function _checkAppVersion() {
             // 離線跳過（navigator.onLine 不一定可靠但能濾掉明顯 case）
@@ -2565,7 +2581,8 @@
                 const m = txt.match(_APP_VERSION_RE);
                 if (!m) return;   // 抓不到版本字串，靜默
                 const remoteVersion = 'v' + m[1];
-                if (remoteVersion !== APP_VERSION) {
+                // v15.068 修正：只在嚴格新於本機時提示；CDN 邊緣節點回傳舊版時靜默繼續輪詢
+                if (_isNewerVersion(remoteVersion, APP_VERSION)) {
                     _showVersionUpdateToast(remoteVersion);
                     if (_versionCheckTimer) {
                         clearInterval(_versionCheckTimer);
