@@ -1391,6 +1391,44 @@
         }
         // 各市場收盤時間（local time, minutes since midnight）— 跟 _marketClock 內的時段對齊
         const _MARKET_CLOSE_MIN = { TW: 13*60+30, HK: 16*60+10, US: 16*60 };
+
+        // ────────────────────────────────────────────────────────
+        // v15.073：market analysis meta — runAnalysis 完成後 prevClose / prevPrevClose 對齊到的 marketDate
+        // 給 _captureDailyPnlSnapshot 跟 quote meta 一起雙重對齊驗證新鮮度
+        // ────────────────────────────────────────────────────────
+        function _loadMarketAnalysisMeta() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.marketAnalysisMeta);
+                if (!raw) return { TW: null, HK: null, US: null };
+                const parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null };
+                return {
+                    TW: parsed.TW || null,
+                    HK: parsed.HK || null,
+                    US: parsed.US || null
+                };
+            } catch(_) {
+                return { TW: null, HK: null, US: null };
+            }
+        }
+        function _markAnalysisRefresh(markets) {
+            try {
+                const meta = _loadMarketAnalysisMeta();
+                const ts = new Date().toISOString();
+                const now = new Date();
+                const arr = Array.isArray(markets) ? markets : [markets];
+                for (const mk of arr) {
+                    if (mk === 'TW' || mk === 'HK' || mk === 'US') {
+                        const session = _marketSession(mk, now);
+                        meta[mk] = {
+                            lastAnalyzedAt: ts,
+                            marketDate: session.lastCompletedTradingDate || null
+                        };
+                    }
+                }
+                localStorage.setItem(STORAGE_KEYS.marketAnalysisMeta, JSON.stringify(meta));
+            } catch(_) {}
+        }
         // v15.072：把 lastQuoteAt（ISO）轉成「該市場時區」的 { date, minutes }
         // 給 _isQuoteFreshAfterClose 與 _captureDailyPnlSnapshot 的 backfill 路徑共用
         function _lastQuoteLocalInfo(marketKey, lastQuoteAt) {
