@@ -2087,7 +2087,9 @@
                         const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
                         const pos = v >= 0;
                         const col = pos ? '#10b981' : '#ef4444';
-                        const dateNote = m.marketDate ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">${m.marketDate}</span>` : '';
+                        // v15.073：marketDate 顯示縮為 MM-DD（年份相同時減少視覺噪音）
+                        const dateShort = m.marketDate ? m.marketDate.slice(5) : '';
+                        const dateNote = dateShort ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">(${dateShort})</span>` : '';
                         return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
                             +   '<span style="color:#7e93a6;">' + label + dateNote + '</span>'
                             +   '<span class="mono" style="color:' + col + ';">' + fmtPnl(v, currency) + '</span>'
@@ -2102,7 +2104,10 @@
                     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
                     +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
                     +     '<div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">◁</div>'
-                    +     '<span style="color:#60a5fa;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">昨日損益</span>'
+                    +     '<div style="display:flex;flex-direction:column;line-height:1.1;">'
+                    +       '<span style="color:#60a5fa;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">昨日損益</span>'
+                    +       '<span style="color:#607585;font-size:0.62rem;letter-spacing:0.5px;">前交易日快照</span>'   // v15.073
+                    +     '</div>'
                     +   '</div>'
                     + '</div>'
                     + '<div class="mono stat-amount" style="color:' + totCol + ';">' + totStr + '</div>'
