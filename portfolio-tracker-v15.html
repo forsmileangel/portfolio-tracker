@@ -5971,8 +5971,9 @@
             window._prevPrevCloseCache = _tmpPrevPrevClose;
             window._marketOpenedToday  = _tmpMarketOpened;
 
-            // v15.071：runAnalysis 跑完拿到新 prevClose → 標記三市場批次報價時間
-            try { _markBatchQuoteRefresh(['TW', 'HK', 'US'], 'yahoo-runAnalysis'); } catch(_) {}
+            // v15.072：移除 v15.071 在此處標 _markBatchQuoteRefresh 的呼叫
+            // runAnalysis 只更新 prevClose / prevPrevClose / marketOpenedToday，沒寫 holdings.currentPrice，
+            // 不應該偽裝成「批次報價刷新」→ 否則收盤後會把 stale currentPrice 凍進 fresh_after_close snapshot。
 
             renderAll(); // 更新持倉管理的當日損益欄位
 
