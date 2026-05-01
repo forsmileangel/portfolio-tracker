@@ -1147,17 +1147,50 @@
         // 結構：pt_daily_pnl_snapshots_v1 = { version, markets: { TW: {marketDate, closedAt, source, pnlTWD, pnlUSD, holdings:[]}, HK:..., US:... } }
         // 不寫進 Gist；只在本機 localStorage
         // ────────────────────────────────────────────────────────
+        // v15.070：snapshot schema v2 — markets[mk] = { current, previous } + lastCompleteDate
+        function _emptyDailyPnlSnapshots() {
+            return {
+                version: 2,
+                lastCompleteDate: null,
+                markets: {
+                    TW: { current: null, previous: null },
+                    HK: { current: null, previous: null },
+                    US: { current: null, previous: null }
+                }
+            };
+        }
         function _loadDailyPnlSnapshots() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEYS.dailyPnlSnapshots);
-                if (!raw) return { version: 1, markets: {} };
+                if (!raw) return _emptyDailyPnlSnapshots();
                 const parsed = JSON.parse(raw);
-                if (!parsed || parsed.version !== 1) return { version: 1, markets: {} };
+                if (!parsed) return _emptyDailyPnlSnapshots();
+                // v1 → v2 migration（v1 markets[mk] = snapshot 直接覆蓋）
+                if (parsed.version === 1 && parsed.markets && typeof parsed.markets === 'object') {
+                    const v2 = _emptyDailyPnlSnapshots();
+                    for (const mk of ['TW', 'HK', 'US']) {
+                        const old = parsed.markets[mk];
+                        if (old && old.marketDate) v2.markets[mk].current = old;
+                    }
+                    return v2;
+                }
+                if (parsed.version !== 2) return _emptyDailyPnlSnapshots();
                 if (!parsed.markets || typeof parsed.markets !== 'object') parsed.markets = {};
+                for (const mk of ['TW', 'HK', 'US']) {
+                    if (!parsed.markets[mk]) parsed.markets[mk] = { current: null, previous: null };
+                }
                 return parsed;
             } catch(_) {
-                return { version: 1, markets: {} };
+                return _emptyDailyPnlSnapshots();
             }
+        }
+        // 計算 lastCompleteDate：三市場都有 current.marketDate 時，取最舊的
+        function _computeLastCompleteDate(markets) {
+            const tw = markets.TW && markets.TW.current && markets.TW.current.marketDate;
+            const hk = markets.HK && markets.HK.current && markets.HK.current.marketDate;
+            const us = markets.US && markets.US.current && markets.US.current.marketDate;
+            if (!tw || !hk || !us) return null;
+            return [tw, hk, us].sort()[0];   // YYYY-MM-DD 字串比較
         }
         function _saveDailyPnlSnapshots(snap) {
             try {
