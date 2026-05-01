@@ -1624,14 +1624,15 @@
             if (!table.tFoot)         table.appendChild(document.createElement('tfoot'));
 
             // thead 重建（含 sort indicator，每輪變化）
+            // v15.067：昨日漲跌 / 今日漲跌 / 今日損益 改為可排序
             table.tHead.innerHTML = `<tr>
                 ${thBtn('symbol','代碼','left')}
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
-                <th style="padding:0.6rem 0.75rem;text-align:right;color:#a8bdd0;">昨日漲跌</th>
-                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日漲跌</th>
-                <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">今日損益</th>
+                ${thBtn('prevDayPct','昨日漲跌')}
+                ${thBtn('dayPct','今日漲跌')}
+                ${thBtn('dayPnl','今日損益')}
                 ${thBtn('value','市值 ('+currency+')')}
                 ${thBtn('pnl','總損益 ('+currency+')')}
                 ${thBtn('pnlpct','總損益%')}
