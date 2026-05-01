@@ -2520,6 +2520,58 @@
         // v15.064：統一應用錯誤紀錄（最多 50 筆，舊筆自動丟棄）
         // source: 'gist_push' / 'gist_pull' / 'csv_proxy_all_fail' / 'fundamentals_json_load' / 'render_health' 等
         // v15.065：加入 60s 內同 source+message 去重（避免 31 個 symbol 同輪刷新洗版錯誤日誌）
+        // ────────────────────────────────────────────────────────
+        // v15.066：PWA 版本更新偵測
+        // 用 APP_VERSION（寫死）對網路上抓回的 HTML regex 比對，「打開就是舊版」也能提示
+        // ────────────────────────────────────────────────────────
+        let _versionCheckTimer = null;
+        let _lastVersionCheckErrorTs = 0;   // 同 source 6hr 內最多記 1 筆，避免離線時洗版錯誤日誌
+        const _APP_VERSION_RE = /font-family:monospace;\s*pointer-events:none;">v(15\.\d{3})/;
+
+        async function _checkAppVersion() {
+            // 離線跳過（navigator.onLine 不一定可靠但能濾掉明顯 case）
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+            // 只在前台檢查，避免背景無謂打網路
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+
+            try {
+                const r = await fetch('./portfolio-tracker-v15.html?_=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const txt = await r.text();
+                const m = txt.match(_APP_VERSION_RE);
+                if (!m) return;   // 抓不到版本字串，靜默
+                const remoteVersion = 'v' + m[1];
+                if (remoteVersion !== APP_VERSION) {
+                    _showVersionUpdateToast(remoteVersion);
+                    if (_versionCheckTimer) {
+                        clearInterval(_versionCheckTimer);
+                        _versionCheckTimer = null;
+                    }
+                }
+            } catch (e) {
+                // 6 小時內同 source 最多記 1 筆（v15.065 60s 去重對 30 分輪詢來不及 collapse）
+                const now = Date.now();
+                if (now - _lastVersionCheckErrorTs > 6 * 60 * 60 * 1000) {
+                    _lastVersionCheckErrorTs = now;
+                    try { _recordAppError('app_version_check', e); } catch(_) {}
+                }
+            }
+        }
+
+        function _showVersionUpdateToast(remoteVersion) {
+            // id guard：避免重複產生
+            if (document.getElementById('version-update-toast')) return;
+            const t = document.createElement('div');
+            t.id = 'version-update-toast';
+            t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:99999;'
+                + 'background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;padding:0.75rem 1.25rem;'
+                + 'border-radius:8px;font-weight:600;font-size:0.85rem;box-shadow:0 4px 12px rgba(0,0,0,0.4);cursor:pointer;';
+            t.textContent = '⚡ 發現新版本 ' + remoteVersion + '，點此重新載入';
+            t.onclick = () => location.reload();
+            document.body.appendChild(t);
+            // 不自動消失 — 等使用者點擊
+        }
+
         function _recordAppError(source, err, meta) {
             try {
                 const entry = {
