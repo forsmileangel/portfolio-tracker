@@ -5448,23 +5448,24 @@
             loadFont();              // 還原字型設定
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
 
-            // 啟動時立刻把 localStorage cache 中的 prevClose / prevPrevClose / marketOpenedToday
-            // hydrate 到 window 全域變數，避免「今日損益 / 昨日損益」卡片在啟動 1-60 秒間消失
-            // （原本只有 runAnalysis() 跑完才會填入 window cache，啟動 renderAll 第一次跑時 window cache 是 undefined）
+            // 啟動時立刻把 localStorage cache 中的 prevClose / prevPrevClose hydrate 到 window 全域變數，
+            // 避免「今日損益 / 昨日損益」卡片在啟動 1-60 秒間消失。
+            // 注意：marketOpenedToday 是時間敏感狀態（盤前盤後會變），不從 cache hydrate；
+            //       讓它保持空物件，calculateStats 預設視為「市場開盤」計算今日損益；
+            //       runAnalysis() 跑完會以當下真實狀態覆蓋（盤後 / 假日的 ETF 仍會被正確標 false）。
             try {
                 const _rawCache = _loadCacheRaw();
                 if (_rawCache && _rawCache.data) {
-                    const _pc = {}, _ppc = {}, _mo = {};
+                    const _pc = {}, _ppc = {};
                     for (const sym in _rawCache.data) {
                         const d = _rawCache.data[sym];
                         if (d == null) continue;
-                        if (d.prevClose != null)         _pc[sym]  = d.prevClose;
-                        if (d.prevPrevClose != null)     _ppc[sym] = d.prevPrevClose;
-                        if (d.marketOpenedToday != null) _mo[sym]  = d.marketOpenedToday;
+                        if (d.prevClose != null)     _pc[sym]  = d.prevClose;
+                        if (d.prevPrevClose != null) _ppc[sym] = d.prevPrevClose;
                     }
                     window._prevCloseCache     = _pc;
                     window._prevPrevCloseCache = _ppc;
-                    window._marketOpenedToday  = _mo;
+                    window._marketOpenedToday  = {};   // 不 hydrate；讓 calculateStats 預設市場開盤
                 }
             } catch(_) {}
 
