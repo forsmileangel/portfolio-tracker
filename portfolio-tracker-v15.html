@@ -1464,81 +1464,87 @@
             return closeMin != null && info.minutes >= closeMin + 5;
         }
 
-        // 嘗試擷取單一市場的當日損益快照
-        // v15.071：加 quoteStatus / lastQuoteAt 新鮮度檢查
-        // v15.072：not_open / closed_or_holiday 時，若 lastQuoteAt 在「上一交易日收盤後 ≥ 5 分鐘」→ backfill
+        // v15.073：依市場行事曆 + 雙 meta 對齊建立 snapshot
+        // 原則：
+        //   - target = session.lastCompletedTradingDate（永遠是真交易日，A2 防呆）
+        //   - status === 'open' 不 capture
+        //   - source = isToday ? 'live-close' : 'backfill'
+        //   - fresh_after_close 必要條件：quote meta + analysis meta 兩個 marketDate 都 === target
+        //   - backfill 必須兩個 meta 都齊；isToday 退一步可 pending_quote
+        //   - A1：snapshot 的 pnl 自己重算，isToday 用 prevClose、backfill 用 prevPrevClose；不讀 stats.todayPnlByMarket
         function _captureDailyPnlSnapshot(marketKey, stats) {
             try {
-                const clock = _marketClock(marketKey);
-                const meta = _loadMarketQuoteMeta();
-                const lastQuoteAt = meta[marketKey] && meta[marketKey].lastQuoteAt || null;
+                const session = _marketSession(marketKey, new Date());
+                if (session.status === 'open') return;
 
-                // 決定本次 snapshot 的 marketDate / 新鮮度狀態 / source
-                let marketDate, newStatus, source;
-                if (clock.status === 'closed') {
-                    marketDate = clock.localDate;
-                    newStatus = _isQuoteFreshAfterClose(marketKey, clock) ? 'fresh_after_close' : 'pending_quote';
-                    source = 'live-close';
-                } else if (clock.status === 'not_open' || clock.status === 'closed_or_holiday') {
-                    // backfill：lastQuoteAt 必須存在 + 在「該市場時區」屬於上一個交易日的收盤 ≥ 5 分鐘後
-                    if (!lastQuoteAt) return;
-                    const info = _lastQuoteLocalInfo(marketKey, lastQuoteAt);
-                    if (!info) return;
-                    const closeMin = _MARKET_CLOSE_MIN[marketKey];
-                    if (closeMin == null || info.minutes < closeMin + 5) return;
-                    marketDate = info.date;
-                    newStatus = 'fresh_after_close';   // 已驗證 lastQuoteAt ≥ close + 5min
-                    source = 'backfill';
-                } else {
-                    return;   // open / 其他狀態 → 不 capture
+                const target = session.lastCompletedTradingDate;
+                if (!target) return;
+                // A2 防呆：double-check target 是真交易日（calendar unknown 也擋下，false / null 都 return）
+                if (_isTradingDay(marketKey, target) !== true) return;
+
+                const isToday = (target === session.localDate);
+                const source = isToday ? 'live-close' : 'backfill';
+
+                // 雙 meta 對齊驗證
+                const quoteMeta    = _loadMarketQuoteMeta()[marketKey]    || {};
+                const analysisMeta = _loadMarketAnalysisMeta()[marketKey] || {};
+                const quoteOk    = quoteMeta.marketDate    === target;
+                const analysisOk = analysisMeta.marketDate === target;
+                const newStatus = (quoteOk && analysisOk) ? 'fresh_after_close' : 'pending_quote';
+
+                // backfill 必須完全對齊；否則不建（避免錯快照擴散到 Gist）
+                if (!isToday && newStatus !== 'fresh_after_close') return;
+
+                // A1：自己重算 pnl，不讀 stats.todayPnlByMarket
+                // basis：isToday 用 prevClose（今天 close − 昨天 close）；backfill 用 prevPrevClose（最後交易日 close − 再前交易日 close）
+                const _holdings = (stats && stats.holdingsWithStats) || [];
+                let pnlUSD = 0, pnlTWD = 0, withData = 0;
+                for (const h of _holdings) {
+                    if (_holdingMarketKey(h) !== marketKey) continue;
+                    const basis = isToday ? h.prevClose : h.prevPrevClose;
+                    if (basis == null || !(basis > 0)) continue;
+                    const _isHK_HKD = (h.market === 'HK' || (typeof h.symbol === 'string' && h.symbol.endsWith('.HK'))) && !HK_USD_PRICED.has(h.symbol);
+                    const dRaw = (h.currentPrice - basis) * h.quantity;
+                    let dUSD, dTWD;
+                    if (_isHK_HKD)            { dUSD = dRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD; dTWD = dRaw * exchangeRates.HKD_TWD; }
+                    else if (h.market === 'TW') { dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
+                    else                       { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
+                    pnlUSD += dUSD; pnlTWD += dTWD; withData++;
                 }
-
-                const byMk = stats && stats.todayPnlByMarket && stats.todayPnlByMarket[marketKey];
-                if (!byMk || byMk.withData === 0) return;
+                if (withData === 0) return;
 
                 const snap = _loadDailyPnlSnapshots();
                 if (!snap.markets[marketKey]) snap.markets[marketKey] = { current: null, previous: null };
                 const slot = snap.markets[marketKey];
 
-                // 同日已有 snapshot：依 quoteStatus + lastQuoteAt 決定是否覆蓋
-                if (slot.current && slot.current.marketDate === marketDate) {
+                // 同 target 已有 snapshot：依 quoteStatus + lastQuoteAt 決定是否覆蓋
+                if (slot.current && slot.current.marketDate === target) {
                     const oldStatus = slot.current.quoteStatus || 'fresh_after_close';
-                    if (oldStatus === 'fresh_after_close' && newStatus === 'pending_quote') return;   // 不退化
+                    if (oldStatus === 'fresh_after_close' && newStatus === 'pending_quote') return;
                     if (oldStatus === newStatus) {
-                        const oldQuoteAt = slot.current.lastQuoteAt;
-                        if (!lastQuoteAt) return;
-                        if (oldQuoteAt && new Date(lastQuoteAt) <= new Date(oldQuoteAt)) return;
+                        const oldQA = slot.current.lastQuoteAt;
+                        if (oldQA && quoteMeta.lastQuoteAt && new Date(quoteMeta.lastQuoteAt) <= new Date(oldQA)) return;
                     }
-                    // 其他情況（pending → fresh，或 lastQuoteAt 推進）允許覆蓋；不動 previous
                 } else if (slot.current) {
-                    // marketDate 不同 → 推進 current 為 previous
                     slot.previous = slot.current;
                 }
 
-                const _holdingsRecord = (stats.holdingsWithStats || [])
-                    .filter(h => _holdingMarketKey(h) === marketKey && h.prevClose != null)
-                    .map(h => ({
-                        symbol: h.symbol,
-                        quantity: h.quantity,
-                        currentPrice: h.currentPrice,
-                        prevClose: h.prevClose,
-                        prevPrevClose: h.prevPrevClose
-                    }));
-
                 slot.current = {
-                    marketDate,
+                    marketDate: target,
                     closedAt: new Date().toISOString(),
                     source,
-                    pnlUSD: byMk.pnlUSD,
-                    pnlTWD: byMk.pnlTWD,
-                    holdings: _holdingsRecord,
+                    pnlUSD, pnlTWD,
+                    holdings: _holdings
+                        .filter(h => _holdingMarketKey(h) === marketKey && (isToday ? h.prevClose : h.prevPrevClose) != null)
+                        .map(h => ({ symbol: h.symbol, quantity: h.quantity, currentPrice: h.currentPrice, prevClose: h.prevClose, prevPrevClose: h.prevPrevClose })),
                     quoteStatus: newStatus,
-                    lastQuoteAt: lastQuoteAt
+                    lastQuoteAt: quoteMeta.lastQuoteAt || null,
+                    basisField: isToday ? 'prevClose' : 'prevPrevClose'   // debug
                 };
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
                 try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
-                console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${marketDate} src=${source} (pnlTWD=${byMk.pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
+                console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${target} src=${source} basis=${slot.current.basisField} (pnlTWD=${pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
         }
 
