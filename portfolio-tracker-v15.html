@@ -1320,6 +1320,16 @@
                 totalCostUSD += costUSD; totalValueUSD += valueUSD;
                 totalCostTWD += costTWD; totalValueTWD += valueTWD;
 
+                // v15.070：累計到 byMarket（A）
+                const _mkA = _holdingMarketKey(h);
+                if (holdingsByMarket[_mkA]) {
+                    holdingsByMarket[_mkA].costUSD  += costUSD;
+                    holdingsByMarket[_mkA].costTWD  += costTWD;
+                    holdingsByMarket[_mkA].valueUSD += valueUSD;
+                    holdingsByMarket[_mkA].valueTWD += valueTWD;
+                    holdingsByMarket[_mkA].count++;
+                }
+
                 // 當日損益：從 _prevCloseCache 取昨收價；昨日漲跌：從 _prevPrevCloseCache 取前日收盤
                 const prevClose     = window._prevCloseCache?.[h.symbol]     ?? null;
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
