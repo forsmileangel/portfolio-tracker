@@ -6338,17 +6338,10 @@
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
             }
             console.log('%c✅ Portfolio Tracker v15 已啟動', 'color:#10b981; font-size:14px;');
-            // 還原上次未同步的 pending 提示；有 pending 則先推後拉
+            // v15.075：啟動無條件呼叫 _gistSilentPull，由 classify 決定要 pull / 觸發 push / 報衝突
+            // 取代舊的「pending > 0 → 先推後拉，push 失敗就卡死」分支
             _updatePendingPushIndicator();
-            const _pendingOnBoot = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
-            if (_pendingOnBoot > 0 && localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
-                console.log(`[AutoPush] 偵測到 ${_pendingOnBoot} 筆未同步改動，優先重試推送`);
-                _pushRetryCount = 0;
-                _gistSilentPush().then(ok => { if (ok) _gistSilentPull(); });
-            } else {
-                // 啟動時靜默從 Gist 拉取最新庫存（有 token 才執行，失敗不報錯）
-                _gistSilentPull();
-            }
+            _gistSilentPull();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
