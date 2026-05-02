@@ -161,7 +161,15 @@
         
         .glass-card { background: linear-gradient(135deg, rgba(11,26,51,0.97) 0%, rgba(6,13,26,0.99) 100%); backdrop-filter: blur(20px); border: 1.5px solid rgba(56,139,253,0.18); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(96,165,250,0.08); position: relative; overflow: hidden; }
         
-        .stat-card { background: linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(37,99,235,0.1) 100%); border: 2px solid rgba(56,139,253,0.4); border-radius: 16px; padding: 1.5rem; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(56,139,253,0.2), inset 0 1px 0 rgba(255,255,255,0.1); container-type: inline-size; }
+        .stat-card { background: linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(37,99,235,0.1) 100%); border: 2px solid rgba(56,139,253,0.4); border-radius: 16px; padding: 1.5rem; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(56,139,253,0.2), inset 0 1px 0 rgba(255,255,255,0.1); container-type: inline-size; display:flex; flex-direction:column; }
+        /* v15.076：5 張卡片內部區塊節奏統一，桌機 separator 對齊 */
+        .stat-card-header { min-height: 56px; }
+        .stat-card-amount { min-height: 36px; }
+        .stat-card-subamt { min-height: 22px; }
+        .stat-card-mkblock { margin-top: auto; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        @media (max-width: 540px) {
+            .stat-card-header, .stat-card-amount, .stat-card-subamt { min-height: auto; }
+        }
         /* 主金額：container-type 量 content box；padding≈48px 需較高 cqw 補回 */
         .stat-amount { font-size: clamp(1.15rem, 12cqw, 2rem) !important; font-weight: 700; white-space: nowrap; line-height: 1.25; }
         .stat-amount-sub { font-size: clamp(0.88rem, 5cqw, 1.05rem) !important; white-space: nowrap; }
