@@ -6423,6 +6423,14 @@
             loadMoxa();              // 還原 MOXA 股票設定
             loadWatchlist();         // 還原觀察清單
             loadTradeHistory();      // 還原已實現損益紀錄
+            // v15.076：沒填 GIST 憑證時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
+            // 有 GIST → silent pull 會把雲端 tradeHistory 拉回；CSV 匯入也仍可手動帶入
+            if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) {
+                if (tradeHistory.length > 0) {
+                    tradeHistory = [];
+                    try { saveTradeHistory(); } catch(_) {}
+                }
+            }
             loadSnapshots();         // 還原月度市值快照
             holdings.forEach(_ensureLots); // 舊資料向下相容：補齊 lots 欄位
             loadPrivacy();           // 還原隱私模式設定
