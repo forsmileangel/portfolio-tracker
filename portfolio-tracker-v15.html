@@ -2356,7 +2356,7 @@
             }
 
             return `<tr data-symbol="${h.symbol}" style="background:${bg};">
-                <td style="padding:0.55rem 0.75rem;font-weight:600;white-space:nowrap;"><button onclick="event.stopPropagation();_fillTradeForm('${h.symbol.replace(/'/g, "\\'")}','${h.market}')" title="填入交易表單" style="padding:2px 7px;margin-right:6px;min-width:28px;min-height:28px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.35);border-radius:5px;color:#60a5fa;font-size:0.8rem;cursor:pointer;vertical-align:middle;">↗</button>${h.symbol}<br><small style="color:#7e93a6;font-weight:400;">${h.name||''}</small></td>
+                <td style="padding:0.55rem 0.75rem;font-weight:600;white-space:nowrap;"><button onclick="event.stopPropagation();_fillTradeForm('${h.symbol.replace(/'/g, "\\'")}','${h.market}')" style="padding:2px 7px;margin-right:6px;min-width:30px;min-height:28px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.35);border-radius:5px;color:#60a5fa;font-size:0.95rem;cursor:pointer;vertical-align:middle;line-height:1;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'}</button>${h.symbol}<br><small style="color:#7e93a6;font-weight:400;">${h.name||''}</small></td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;color:#a8bdd0;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
