@@ -4202,13 +4202,19 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
-                _applyCloudDomainTimes(saved, gistState.cloudUpdatedAt);
-                _rememberCloudState(gistState.data);
-                _clearDirtyDomains();
-                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
-                _updatePendingPushIndicator();
+                _applySyncBaseline(gistState);   // v15.075：統一寫 baseline + 清 dirty + 清 pending
                 _storageReady = true;
                 saveToStorage();
+
+                // v15.075：手動 pull = 放棄本機未上傳異動 → 完整 reset，避免下次重啟又被 dirty 卡住
+                history = [];
+                _redoStack = [];
+                _syncUndoRedoBtns();
+                localStorage.removeItem(PT_LOCAL_MODIFY_TS);
+                clearTimeout(_autoPushTimer);
+                clearTimeout(_retryTimer);
+                _pushRetryCount = 0;
+
                 renderAll();
 
                 const t = new Date().toLocaleTimeString('zh-TW');
@@ -4220,6 +4226,8 @@
                 setGistStatus(`❌ 拉取失敗：${e.message}`, '#ef4444');
                 // v15.064：記錄到錯誤日誌
                 _recordAppError('gist_pull', e);
+            } finally {
+                _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
             }
         }
 
