@@ -661,6 +661,25 @@
             <pre id="error-log-display" style="display:none; max-height:300px; overflow:auto; margin-top:0.6rem; padding:0.6rem; background:rgba(6,13,26,0.9); border:1px solid rgba(148,163,184,0.15); border-radius:6px; color:#a8bdd0; font-size:0.72rem; font-family:ui-monospace,monospace; white-space:pre-wrap; word-break:break-word;"></pre>
         </div>
 
+        <!-- v15.077：本地資料夾同步（桌機限定，與 Gist 互斥） -->
+        <div class="glass-card" id="local-sync-card" style="padding:1rem 1.5rem; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;"><i class="ic">≡</i> 本地資料夾同步（桌機限定）</label>
+                <span id="local-sync-status" style="font-size:0.72rem; color:#607585;">未啟用</span>
+            </div>
+            <div style="font-size:0.78rem; color:#7e93a6; margin-bottom:0.5rem; line-height:1.55;">
+                建議把選的資料夾放在 OneDrive / iCloud / Dropbox 同步資料夾，桌機間自動跨裝置。
+                <span id="local-sync-dir-name" style="color:#a8bdd0; margin-left:0.4rem;"></span><br>
+                <span style="color:#607585; font-size:0.72rem;">⚠ iOS Safari、Firefox、Safari 不支援；Gist 已設定時此功能停用。</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:0.5rem;">
+                <button id="local-sync-pick-btn" onclick="_localSyncPickDir()" style="padding:0.5rem; background:rgba(56,139,253,0.12); color:#e2e8f0; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">選擇資料夾</button>
+                <button id="local-sync-push-btn" onclick="_localSyncPush({manual:true})" style="padding:0.5rem; background:rgba(16,185,129,0.12); color:#e2e8f0; border:1px solid rgba(16,185,129,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">推送至本地</button>
+                <button id="local-sync-pull-btn" onclick="_localSyncPull({manual:true})" style="padding:0.5rem; background:rgba(124,58,237,0.12); color:#e2e8f0; border:1px solid rgba(124,58,237,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">從本地拉取</button>
+                <button id="local-sync-off-btn" onclick="_localSyncDisable()" style="padding:0.5rem; background:rgba(239,68,68,0.12); color:#e2e8f0; border:1px solid rgba(239,68,68,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">停用本地同步</button>
+            </div>
+        </div>
+
         <!-- 雲端 CSV 設定 -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
