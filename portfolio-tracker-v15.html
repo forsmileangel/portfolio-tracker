@@ -3242,6 +3242,43 @@
             return !!(state?.cloudRevision && base && state.cloudRevision !== base);
         }
 
+        // ────────────────────────────────────────────────────────
+        // v15.075：同步狀態 classifier — 用 GitHub Gist revision SHA 判斷本機/雲端是否真衝突
+        // 取代「dirty 一律 reject」舊設計，避免 user 多裝置切換時被永久卡住
+        // ────────────────────────────────────────────────────────
+        function _getLocalSyncState() {
+            return {
+                dirtyDomains:       _getDirtyDomains(),
+                pendingPushCount:   parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10),
+                baseCloudRevision:  localStorage.getItem(PT_LAST_CLOUD_REV) || '',
+                baseCloudUpdatedAt: localStorage.getItem(PT_LAST_CLOUD_TS) || ''
+            };
+        }
+        // 輸入 _fetchGistState 結果 → 6 種狀態之一
+        function _classifyCloudSyncState(gistState) {
+            const local = _getLocalSyncState();
+            const cloudRev = (gistState && gistState.cloudRevision) || '';
+            const dirty = local.dirtyDomains.length > 0 || local.pendingPushCount > 0;
+            if (!cloudRev) return dirty ? 'dirty_no_cloud' : 'clean_no_cloud';
+            if (!local.baseCloudRevision) return 'no_cloud_base';
+            const same = cloudRev === local.baseCloudRevision;
+            if (!dirty && same)   return 'clean_cloud_same';
+            if (!dirty && !same)  return 'clean_cloud_newer';
+            if (dirty && same)    return 'dirty_cloud_same';
+            return 'dirty_cloud_newer_conflict';
+        }
+        // push / pull 成功後統一寫 baseline + 清 dirty / pending
+        function _applySyncBaseline(gistState) {
+            if (!gistState) return;
+            try { if (gistState.data)  _rememberCloudState(gistState.data); } catch(_) {}
+            try { if (gistState.saved) _applyCloudDomainTimes(gistState.saved, gistState.cloudUpdatedAt); } catch(_) {}
+            _clearDirtyDomains();
+            localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+            _updatePendingPushIndicator();
+        }
+        // v15.075：pull 套用期間防 dirty 反彈
+        let _isApplyingCloudPull = false;
+
         function _showStaleReject(state) {
             const msg = `雲端已有新版（${_fmtSyncTs(state?.cloudUpdatedAt)}），本機不是基於最新版，已拒絕上傳。請先拉取雲端最新版再修改。`;
             setGistStatus(`❌ ${msg}`, '#ef4444');
