@@ -3285,29 +3285,29 @@
             showWarnToast(`❌ ${msg}`, 5000);
         }
 
+        // v15.075：preflight 改 classify-based。回傳 gistState 物件（caller push 成功後可直接拿 cloudRevision 寫 baseline，省一次 fetch）；reject 回 false
         async function _preflightGistPush(token, gistId) {
-            if (!gistId) return true; // 首次建立 Gist
+            if (!gistId) return { saved: null, data: null, cloudRevision: '', cloudUpdatedAt: '' };   // 首次建立 Gist：caller 視為 OK
             const state = await _fetchGistState(token, gistId);
-            const base = localStorage.getItem(PT_LAST_CLOUD_REV) || '';
-            if (!state.saved) return true; // 既有 Gist 但尚未建立 tracker 檔案
-            if (state.cloudRevision && !base) {
-                _showStaleReject(state);
-                return false;
+            if (!state.saved) return state;   // 既有 Gist 但尚未建立 tracker 檔案 → 視為 OK
+            const cls = _classifyCloudSyncState(state);
+            // 安全 push 條件：本機 base 與雲端 revision 相同（即使本機 dirty 也是基於最新 push）
+            if (cls === 'clean_cloud_same' || cls === 'dirty_cloud_same') {
+                // preflight 通過時順手 merge 雲端 daily_pnl_snapshots 進本機，避免 push 洗掉雲端較新 snapshot
+                try {
+                    const remoteSnap = state.saved && state.saved.daily_pnl_snapshots;
+                    if (remoteSnap && remoteSnap.markets) {
+                        const localSnap = _loadDailyPnlSnapshots();
+                        const merged = _mergeDailyPnlSnapshots(localSnap, remoteSnap);
+                        _saveDailyPnlSnapshots(merged);
+                    }
+                } catch(_) {}
+                return state;
             }
-            if (_cloudChangedSinceBase(state)) {
-                _showStaleReject(state);
-                return false;
-            }
-            // v15.071：preflight 通過時順手 merge 雲端 daily_pnl_snapshots 進本機，避免 push 洗掉雲端較新 snapshot
-            try {
-                const remoteSnap = state.saved && state.saved.daily_pnl_snapshots;
-                if (remoteSnap && remoteSnap.markets) {
-                    const localSnap = _loadDailyPnlSnapshots();
-                    const merged = _mergeDailyPnlSnapshots(localSnap, remoteSnap);
-                    _saveDailyPnlSnapshots(merged);
-                }
-            } catch(_) {}
-            return true;
+            // 其餘狀態（no_cloud_base / clean_cloud_newer / dirty_cloud_newer_conflict）→ reject
+            // 對 silent push：caller 看到 false 就 abort；對手動 push：caller 跳 confirm 提供強制覆蓋
+            _showStaleReject(state);
+            return false;
         }
 
         function _updatePendingPushIndicator() {
