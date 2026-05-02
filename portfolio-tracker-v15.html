@@ -3997,8 +3997,22 @@
             if (holdings.length === 0 && deposits.length === 0) { setGistStatus('❌ 目前無資料可推送', '#ef4444'); showWarnToast('❌ 目前無持倉或存款資料可推送'); return; }
 
             setGistStatus('⏳ 推送中...', '#60a5fa');
+            // v15.075：preflight 失敗 → 提供「強制覆蓋」逃生口（離線改完回來時用）
+            let _force = false;
             try {
-                if (!(await _preflightGistPush(token, gistId))) return;
+                const _pf = await _preflightGistPush(token, gistId);
+                if (_pf === false) {
+                    const ok = confirm(
+                        '雲端已有他裝置 push 過的較新資料，預設拒絕推送以避免覆蓋。\n\n' +
+                        '若你確定本機資料才是正本（例如離線修改後回到網路），可選「確定」強制推送覆蓋雲端。\n' +
+                        '取消後可改用「拉取雲端最新」按鈕。'
+                    );
+                    if (!ok) {
+                        setGistStatus('已取消推送', '#fbbf24');
+                        return;
+                    }
+                    _force = true;
+                }
             } catch(e) {
                 // v15.062：preflight 失敗時也要記錄錯誤、判斷 401/403 後停止重試
                 _recordPushError(e);
