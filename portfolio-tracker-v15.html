@@ -7098,8 +7098,9 @@
             // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
             // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
             const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+            // v15.078 codex P3：共用 _isFsaSupported()，避免 mobile 殘留 localSyncEnabled='1' 時 _hasFsaInit 誤回 true
             const _hasFsaInit  = !_hasGistInit
-                              && (typeof window.showDirectoryPicker === 'function')
+                              && _isFsaSupported()
                               && localStorage.getItem(STORAGE_KEYS.localSyncEnabled) === '1';
             if (!_hasGistInit && !_hasFsaInit) {
                 if (tradeHistory.length > 0) {
