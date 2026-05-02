@@ -5582,6 +5582,504 @@
         // #endregion Gist Silent Pull
         // #endregion Gist Sync
 
+        // ════════════════════════════════════════════════════════════════════
+        // v15.077：本地資料夾同步（File System Access API）— 桌機限定，獨立於 Gist
+        // 設計約束：GIST 已設定時 hard reject FSA；不共用 Gist 函式 / dirty domain / pending count
+        // ════════════════════════════════════════════════════════════════════
+        // #region Local Sync (FSA, desktop-only, independent from Gist)
+
+        // ── IndexedDB helpers — 存 FileSystemDirectoryHandle（unserializable，不能用 localStorage）
+        const PT_IDB_NAME         = 'pt_idb_v1';
+        const PT_IDB_STORE        = 'handles';
+        const PT_IDB_SYNC_DIR_KEY = 'syncDir';
+        function _idbOpen() {
+            return new Promise((resolve, reject) => {
+                if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB not available'));
+                const req = indexedDB.open(PT_IDB_NAME, 1);
+                req.onupgradeneeded = () => {
+                    const db = req.result;
+                    if (!db.objectStoreNames.contains(PT_IDB_STORE)) db.createObjectStore(PT_IDB_STORE);
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror   = () => reject(req.error);
+            });
+        }
+        async function _idbPut(key, val) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_STORE, 'readwrite');
+                    tx.objectStore(PT_IDB_STORE).put(val, key);
+                    tx.oncomplete = () => { db.close(); resolve(true); };
+                    tx.onerror    = () => { db.close(); reject(tx.error); };
+                });
+            } catch(e) {
+                console.warn('[LocalSync] IDB put failed:', e?.message);
+                return false;
+            }
+        }
+        async function _idbGet(key) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_STORE, 'readonly');
+                    const r  = tx.objectStore(PT_IDB_STORE).get(key);
+                    r.onsuccess = () => { db.close(); resolve(r.result); };
+                    r.onerror   = () => { db.close(); reject(r.error); };
+                });
+            } catch(e) {
+                console.warn('[LocalSync] IDB get failed:', e?.message);
+                return null;
+            }
+        }
+        async function _idbDelete(key) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_STORE, 'readwrite');
+                    tx.objectStore(PT_IDB_STORE).delete(key);
+                    tx.oncomplete = () => { db.close(); resolve(true); };
+                    tx.onerror    = () => { db.close(); reject(tx.error); };
+                });
+            } catch(_) { return false; }
+        }
+
+        // ── basic predicates
+        function _isFsaSupported() { return typeof window.showDirectoryPicker === 'function'; }
+        function _hasGistCreds() {
+            return !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+        }
+        function _isLocalSyncEnabled() {
+            return !_hasGistCreds()
+                && _isFsaSupported()
+                && localStorage.getItem(STORAGE_KEYS.localSyncEnabled) === '1';
+        }
+        function _getLocalSyncDeviceId() {
+            let id = localStorage.getItem(STORAGE_KEYS.localSyncDeviceId);
+            if (!id) {
+                try {
+                    id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                        ? crypto.randomUUID()
+                        : ('dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+                } catch(_) {
+                    id = 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                }
+                localStorage.setItem(STORAGE_KEYS.localSyncDeviceId, id);
+            }
+            return id;
+        }
+        function _getLocalSyncFileName() {
+            return localStorage.getItem(STORAGE_KEYS.localSyncFile) || 'portfolio-tracker.json';
+        }
+        function _readLocalSyncDirty() {
+            try {
+                const arr = JSON.parse(localStorage.getItem(STORAGE_KEYS.localSyncDirtyDomains) || '[]');
+                return Array.isArray(arr) ? arr : [];
+            } catch(_) { return []; }
+        }
+        function _writeLocalSyncDirty(arr) {
+            if (Array.isArray(arr) && arr.length > 0) {
+                localStorage.setItem(STORAGE_KEYS.localSyncDirtyDomains, JSON.stringify(arr));
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.localSyncDirtyDomains);
+            }
+        }
+        function _markLocalSyncModified(domains) {
+            // FSA 自己的 dirty domains，跟 Gist 完全獨立；GIST 已設或 FSA 沒啟用都 noop
+            if (_isApplyingCloudPull) return;
+            if (_hasGistCreds()) return;
+            if (!_isLocalSyncEnabled()) return;
+            const ts = new Date().toISOString();
+            localStorage.setItem(STORAGE_KEYS.localSyncLocalModifiedAt, ts);
+            const set = new Set(_readLocalSyncDirty());
+            (Array.isArray(domains) ? domains : [domains]).forEach(d => { if (d) set.add(d); });
+            _writeLocalSyncDirty([...set]);
+        }
+        function _clearLocalSyncDirty() {
+            _writeLocalSyncDirty([]);
+            localStorage.removeItem(STORAGE_KEYS.localSyncLocalModifiedAt);
+        }
+
+        // ── permission helpers
+        async function _localSyncGetDirNoPrompt() {
+            const handle = await _idbGet(PT_IDB_SYNC_DIR_KEY);
+            if (!handle) return null;
+            try {
+                const perm = await handle.queryPermission({ mode: 'readwrite' });
+                return perm === 'granted' ? handle : null;
+            } catch(_) { return null; }
+        }
+        async function _localSyncRequestPermissionOnGesture() {
+            const handle = await _idbGet(PT_IDB_SYNC_DIR_KEY);
+            if (!handle) return null;
+            try {
+                const perm = await handle.queryPermission({ mode: 'readwrite' });
+                if (perm === 'granted') return handle;
+                const r = await handle.requestPermission({ mode: 'readwrite' });
+                return r === 'granted' ? handle : null;
+            } catch(_) { return null; }
+        }
+        async function _localSyncPickDir() {
+            if (_hasGistCreds()) {
+                showWarnToast('Gist 已啟用，請先停用 Gist 才能改用本地同步', 3500);
+                return;
+            }
+            if (!_isFsaSupported()) {
+                showWarnToast('此瀏覽器不支援 File System Access API（請用桌機 Chrome / Edge，或改用 Gist）', 4000);
+                return;
+            }
+            try {
+                const handle = await window.showDirectoryPicker({ id: 'portfolio-tracker', mode: 'readwrite' });
+                const ok = await _idbPut(PT_IDB_SYNC_DIR_KEY, handle);
+                if (!ok) {
+                    showWarnToast('IndexedDB 不可用（無痕模式或被禁用），無法保存資料夾授權', 4000);
+                    return;
+                }
+                localStorage.setItem(STORAGE_KEYS.localSyncDirName, handle.name || '(未命名資料夾)');
+                localStorage.setItem(STORAGE_KEYS.localSyncEnabled, '1');
+                _getLocalSyncDeviceId();   // 第一次啟用順手生成 device id
+                _setLocalSyncStatus(`已啟用：${handle.name}`, '#10b981');
+                _renderLocalSyncStatus();
+            } catch(e) {
+                if (e?.name !== 'AbortError') {
+                    console.warn('[LocalSync] pickDir failed:', e?.message);
+                    showWarnToast(`選擇資料夾失敗：${e?.message || e}`, 3500);
+                }
+            }
+        }
+        async function _localSyncDisable() {
+            localStorage.setItem(STORAGE_KEYS.localSyncEnabled, '0');
+            await _idbDelete(PT_IDB_SYNC_DIR_KEY);
+            localStorage.removeItem(STORAGE_KEYS.localSyncDirName);
+            localStorage.removeItem(STORAGE_KEYS.localSyncBasePushedAt);
+            localStorage.removeItem(STORAGE_KEYS.localSyncLocalModifiedAt);
+            localStorage.removeItem(STORAGE_KEYS.localSyncDirtyDomains);
+            localStorage.removeItem(STORAGE_KEYS.localSyncLastPushAt);
+            localStorage.removeItem(STORAGE_KEYS.localSyncLastPullAt);
+            localStorage.removeItem(STORAGE_KEYS.localSyncLastError);
+            // localSyncDeviceId 保留（重新啟用沿用同一 device id）
+            _setLocalSyncStatus('已停用', '#7e93a6');
+            _renderLocalSyncStatus();
+            showImportToast('已停用本地資料夾同步', 1800);
+        }
+
+        // ── payload build / validate / apply
+        function _buildLocalSyncPayload() {
+            const pushedAt = new Date().toISOString();
+            return {
+                schema_version: PT_SCHEMA_VERSION,
+                app_version:    APP_VERSION,
+                pushedAt,
+                sync_source:    'local_fsa',
+                local_sync_meta: {
+                    payload_version: 1,
+                    deviceId:        _getLocalSyncDeviceId(),
+                    basePushedAt:    localStorage.getItem(STORAGE_KEYS.localSyncBasePushedAt) || '',
+                    dirtyDomains:    _readLocalSyncDirty(),
+                    fileName:        _getLocalSyncFileName()
+                },
+                holdings,
+                watchlist,
+                tradeHistory,
+                deposits,
+                marketSnapshots,
+                daily_pnl_snapshots: _loadDailyPnlSnapshots(),
+                currency,
+                exchangeRates,
+                sheet_url:    document.getElementById('sheet-url')?.value?.trim() || '',
+                cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
+                crypto_twd:    parseFloat(document.getElementById('crypto-twd-input')?.value) || 0,
+                crypto_pie_cb: document.getElementById('crypto-pie-cb')?.checked || false,
+                moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
+                moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false
+            };
+        }
+        function _validateLocalSyncPayload(saved) {
+            if (!saved || typeof saved !== 'object') return { ok: false, reason: '檔案不是合法 JSON 物件' };
+            if (!Array.isArray(saved.holdings)) return { ok: false, reason: 'holdings 欄位缺失或不是 array' };
+            const sv = saved.schema_version;
+            if (sv != null && Number(sv) > Number(PT_SCHEMA_VERSION)) {
+                return { ok: false, reason: `Schema 版本 v${sv} 高於本機 v${PT_SCHEMA_VERSION}，請先更新 PWA` };
+            }
+            if (saved.pushedAt && isNaN(new Date(saved.pushedAt).getTime())) {
+                return { ok: false, reason: 'pushedAt 不是合法時間' };
+            }
+            if (saved.sync_source != null && saved.sync_source !== 'local_fsa' && saved.sync_source !== '') {
+                return { ok: false, reason: `sync_source 非預期：${saved.sync_source}` };
+            }
+            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots']) {
+                if (saved[k] != null && !Array.isArray(saved[k])) {
+                    return { ok: false, reason: `${k} 欄位存在但不是 array` };
+                }
+            }
+            if (saved.daily_pnl_snapshots != null) {
+                if (typeof saved.daily_pnl_snapshots !== 'object'
+                 || !saved.daily_pnl_snapshots.markets
+                 || typeof saved.daily_pnl_snapshots.markets !== 'object') {
+                    return { ok: false, reason: 'daily_pnl_snapshots 結構不符' };
+                }
+            }
+            return { ok: true };
+        }
+        function _applyLocalSyncPayload(saved) {
+            // 套用前後 _isApplyingCloudPull = true 防 dirty 反彈（與 Gist pull 共用 flag，但 FSA 自己的 dirty 用 _markLocalSyncModified）
+            _isApplyingCloudPull = true;
+            try {
+                holdings = saved.holdings;
+                holdings.forEach(h => { h.persist = true; _ensureLots(h); });
+                if (saved.currency)      currency = saved.currency;
+                if (saved.exchangeRates) { exchangeRates = saved.exchangeRates; syncRateInputs(); }
+                if (saved.sheet_url) {
+                    const sheetEl = document.getElementById('sheet-url');
+                    if (sheetEl) sheetEl.value = saved.sheet_url;
+                    saveSheetUrlSetting();
+                }
+                deposits = Array.isArray(saved.deposits) ? saved.deposits : [];
+                saveDeposits();
+                if (saved.cash_pie_cb != null) {
+                    localStorage.setItem(PT_CASH_PIE_KEY, saved.cash_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('cash-pie-cb'); if (cb) cb.checked = !!saved.cash_pie_cb;
+                }
+                if (saved.crypto_twd != null) {
+                    const v = saved.crypto_twd || 0;
+                    if (v > 0) localStorage.setItem(PT_CRYPTO_KEY, v); else localStorage.removeItem(PT_CRYPTO_KEY);
+                    const el = document.getElementById('crypto-twd-input'); if (el) el.value = v > 0 ? v : '';
+                }
+                if (saved.crypto_pie_cb != null) {
+                    localStorage.setItem(PT_CRYPTO_PIE_KEY, saved.crypto_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('crypto-pie-cb'); if (cb) cb.checked = !!saved.crypto_pie_cb;
+                }
+                if (saved.moxa_twd != null) {
+                    const v = saved.moxa_twd || 0;
+                    if (v > 0) localStorage.setItem(PT_MOXA_KEY, v); else localStorage.removeItem(PT_MOXA_KEY);
+                    const el = document.getElementById('moxa-twd-input'); if (el) el.value = v > 0 ? v : '';
+                }
+                if (saved.moxa_pie_cb != null) {
+                    localStorage.setItem(PT_MOXA_PIE_KEY, saved.moxa_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('moxa-pie-cb'); if (cb) cb.checked = !!saved.moxa_pie_cb;
+                }
+                if (Array.isArray(saved.watchlist)) { watchlist = saved.watchlist; saveWatchlist(); renderWatchlist(); }
+                tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
+                saveTradeHistory();
+                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
+                try {
+                    if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
+                        const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots);
+                        _saveDailyPnlSnapshots(merged);
+                    }
+                } catch(_) {}
+                saveToStorage();
+                try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
+                renderAll();
+            } finally {
+                _isApplyingCloudPull = false;
+            }
+        }
+
+        // ── push / pull
+        let _localSyncPushTimer = null;
+        function _scheduleLocalSyncPush() {
+            // 沒啟用 FSA 自動 noop；GIST 設了也自動 noop
+            if (!_isLocalSyncEnabled()) return;
+            clearTimeout(_localSyncPushTimer);
+            _localSyncPushTimer = setTimeout(() => { _localSyncPush({ manual: false }).catch(_ => {}); }, 2000);
+        }
+        async function _localSyncPush({ manual = false, force = false } = {}) {
+            if (_hasGistCreds()) {
+                if (manual) showWarnToast('Gist 已啟用，請先停用 Gist 才能用本地同步', 3500);
+                return false;
+            }
+            if (!_isLocalSyncEnabled()) {
+                if (manual) showWarnToast('本地同步未啟用，請先選擇資料夾', 3000);
+                return false;
+            }
+            const handle = manual
+                ? await _localSyncRequestPermissionOnGesture()   // 手動可 prompt
+                : await _localSyncGetDirNoPrompt();              // 自動不 prompt
+            if (!handle) {
+                if (manual) {
+                    _setLocalSyncStatus('⚠ 需要重新授權資料夾', '#fbbf24');
+                    showWarnToast('需要授權才能寫入資料夾', 3000);
+                }
+                return false;
+            }
+            try {
+                const fileName = _getLocalSyncFileName();
+                // 衝突偵測：讀檔現存 pushedAt vs 本機 basePushedAt
+                let existing = null;
+                try {
+                    const existingFh = await handle.getFileHandle(fileName, { create: false });
+                    const f = await existingFh.getFile();
+                    const t = await f.text();
+                    existing = JSON.parse(t);
+                } catch(_) { /* 檔不存在或損壞，當作首次 push */ }
+                if (existing && !force) {
+                    const base = localStorage.getItem(STORAGE_KEYS.localSyncBasePushedAt) || '';
+                    const remoteTs = existing.pushedAt || '';
+                    if (base && remoteTs && remoteTs !== base) {
+                        // 檔案被他裝置 push 過 → conflict
+                        const msg = `同步檔已被他處更新（${remoteTs}），與本機基準（${base}）不符`;
+                        localStorage.setItem(STORAGE_KEYS.localSyncLastError, msg);
+                        if (manual) {
+                            const ok = confirm(`${msg}\n\n按確定 = 強制覆蓋同步檔（建議先點「拉取」確認他處變更）\n按取消 = 中止`);
+                            if (!ok) {
+                                _setLocalSyncStatus('❌ 衝突：手動取消推送', '#ef4444');
+                                return false;
+                            }
+                            return _localSyncPush({ manual: true, force: true });
+                        } else {
+                            _setLocalSyncStatus('❌ 衝突：手動處理（拉取或強制推送）', '#ef4444');
+                            return false;
+                        }
+                    }
+                }
+                const payload = _buildLocalSyncPayload();
+                const fileHandle = await handle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(payload, null, 2));
+                await writable.close();
+                localStorage.setItem(STORAGE_KEYS.localSyncBasePushedAt, payload.pushedAt);
+                localStorage.setItem(STORAGE_KEYS.localSyncLastPushAt,   payload.pushedAt);
+                localStorage.removeItem(STORAGE_KEYS.localSyncLastError);
+                _clearLocalSyncDirty();
+                _setLocalSyncStatus(`✅ 已推送${force?'（強制覆蓋）':''}`, '#10b981');
+                _renderLocalSyncStatus();
+                return true;
+            } catch(e) {
+                const msg = e?.message || String(e);
+                localStorage.setItem(STORAGE_KEYS.localSyncLastError, msg);
+                try { _recordAppError && _recordAppError('local_sync_push', e); } catch(_) {}
+                _setLocalSyncStatus(`❌ 推送失敗：${msg}`, '#ef4444');
+                if (manual) showWarnToast(`本地推送失敗：${msg}`, 4000);
+                return false;
+            }
+        }
+        async function _localSyncPull({ manual = false } = {}) {
+            if (_hasGistCreds()) {
+                if (manual) showWarnToast('Gist 已啟用，請先停用 Gist 才能用本地同步', 3500);
+                return false;
+            }
+            if (!_isLocalSyncEnabled()) {
+                if (manual) showWarnToast('本地同步未啟用，請先選擇資料夾', 3000);
+                return false;
+            }
+            const handle = manual
+                ? await _localSyncRequestPermissionOnGesture()
+                : await _localSyncGetDirNoPrompt();
+            if (!handle) {
+                if (manual) {
+                    _setLocalSyncStatus('⚠ 需要重新授權資料夾', '#fbbf24');
+                    showWarnToast('需要授權才能讀取資料夾', 3000);
+                }
+                return false;
+            }
+            try {
+                const fileName = _getLocalSyncFileName();
+                let fileHandle;
+                try { fileHandle = await handle.getFileHandle(fileName, { create: false }); }
+                catch {
+                    if (manual) showWarnToast(`找不到 ${fileName}`, 3000);
+                    _setLocalSyncStatus('檔案尚未建立', '#7e93a6');
+                    return false;
+                }
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                let saved;
+                try { saved = JSON.parse(text); }
+                catch(e) {
+                    const msg = `${fileName} 不是合法 JSON：${e.message}`;
+                    localStorage.setItem(STORAGE_KEYS.localSyncLastError, msg);
+                    try { _recordAppError && _recordAppError('local_sync_pull', e); } catch(_) {}
+                    _setLocalSyncStatus(`❌ ${msg}`, '#ef4444');
+                    if (manual) showWarnToast(msg, 4000);
+                    return false;
+                }
+                const v = _validateLocalSyncPayload(saved);
+                if (!v.ok) {
+                    const msg = `驗證失敗：${v.reason}`;
+                    localStorage.setItem(STORAGE_KEYS.localSyncLastError, msg);
+                    try { _recordAppError && _recordAppError('local_sync_pull', new Error(msg)); } catch(_) {}
+                    _setLocalSyncStatus(`❌ ${msg}`, '#ef4444');
+                    if (manual) showWarnToast(msg, 4000);
+                    return false;
+                }
+                if (saved.holdings.length === 0 && holdings.length > 0 && !manual) {
+                    // 自動 pull 不要把空檔覆蓋有資料的本機（保護 — 手動 pull 不擋）
+                    return false;
+                }
+                _applyLocalSyncPayload(saved);
+                if (saved.pushedAt) localStorage.setItem(STORAGE_KEYS.localSyncBasePushedAt, saved.pushedAt);
+                localStorage.setItem(STORAGE_KEYS.localSyncLastPullAt, new Date().toISOString());
+                localStorage.removeItem(STORAGE_KEYS.localSyncLastError);
+                _clearLocalSyncDirty();
+                _setLocalSyncStatus(`✅ 已從本地同步檔載入`, '#10b981');
+                _renderLocalSyncStatus();
+                if (manual) showImportToast(`✅ 已從 ${fileName} 載入 ${holdings.length} 筆持倉`, 2500);
+                return true;
+            } catch(e) {
+                const msg = e?.message || String(e);
+                localStorage.setItem(STORAGE_KEYS.localSyncLastError, msg);
+                try { _recordAppError && _recordAppError('local_sync_pull', e); } catch(_) {}
+                _setLocalSyncStatus(`❌ 拉取失敗：${msg}`, '#ef4444');
+                if (manual) showWarnToast(`本地拉取失敗：${msg}`, 4000);
+                return false;
+            }
+        }
+
+        // ── UI status
+        function _setLocalSyncStatus(text, color) {
+            const el = document.getElementById('local-sync-status');
+            if (el) { el.textContent = text; el.style.color = color || '#607585'; }
+        }
+        function _renderLocalSyncStatus() {
+            const card     = document.getElementById('local-sync-card');
+            const pickBtn  = document.getElementById('local-sync-pick-btn');
+            const pushBtn  = document.getElementById('local-sync-push-btn');
+            const pullBtn  = document.getElementById('local-sync-pull-btn');
+            const offBtn   = document.getElementById('local-sync-off-btn');
+            const dirNameEl= document.getElementById('local-sync-dir-name');
+            if (!card) return;
+            if (_hasGistCreds()) {
+                card.style.opacity = '0.4';
+                card.style.pointerEvents = 'none';
+                _setLocalSyncStatus('Gist 已啟用，本地同步停用', '#7e93a6');
+                if (dirNameEl) dirNameEl.textContent = '';
+                return;
+            }
+            card.style.opacity = '1';
+            card.style.pointerEvents = '';
+            if (!_isFsaSupported()) {
+                if (pickBtn) pickBtn.disabled = pushBtn.disabled = pullBtn.disabled = true;
+                _setLocalSyncStatus('瀏覽器不支援（請用桌機 Chrome / Edge，或改用 Gist）', '#fbbf24');
+                if (dirNameEl) dirNameEl.textContent = '';
+                return;
+            }
+            const enabled = localStorage.getItem(STORAGE_KEYS.localSyncEnabled) === '1';
+            const dirName = localStorage.getItem(STORAGE_KEYS.localSyncDirName) || '';
+            if (dirNameEl) dirNameEl.textContent = enabled && dirName ? `資料夾：${dirName}` : '';
+            if (!enabled) {
+                _setLocalSyncStatus('未啟用', '#7e93a6');
+                if (pushBtn) pushBtn.disabled = true;
+                if (pullBtn) pullBtn.disabled = true;
+                if (offBtn)  offBtn.disabled  = true;
+                return;
+            }
+            if (pushBtn) pushBtn.disabled = false;
+            if (pullBtn) pullBtn.disabled = false;
+            if (offBtn)  offBtn.disabled  = false;
+            const lastPush = localStorage.getItem(STORAGE_KEYS.localSyncLastPushAt) || '';
+            const lastPull = localStorage.getItem(STORAGE_KEYS.localSyncLastPullAt) || '';
+            const lastErr  = localStorage.getItem(STORAGE_KEYS.localSyncLastError)  || '';
+            const fmt = ts => ts ? new Date(ts).toLocaleString('zh-TW', { hour:'2-digit', minute:'2-digit', month:'2-digit', day:'2-digit' }) : '—';
+            if (lastErr) {
+                _setLocalSyncStatus(`❌ ${lastErr.slice(0,80)}`, '#ef4444');
+            } else {
+                _setLocalSyncStatus(`已啟用｜推送 ${fmt(lastPush)}｜拉取 ${fmt(lastPull)}`, '#10b981');
+            }
+        }
+
+        // #endregion Local Sync
+
         // #region Analysis Data (fundamentals.json + Yahoo chart)
         async function fetchSymbolDataFromYahoo(symbol) {
             const BASE1    = 'https://query1.finance.yahoo.com';
