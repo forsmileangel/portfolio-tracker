@@ -2147,7 +2147,7 @@
                         const dateNote = dateShort ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">(${dateShort})</span>` : '';
                         return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
                             +   '<span style="color:#7e93a6;">' + label + dateNote + '</span>'
-                            +   '<span class="mono" style="color:' + col + ';">' + fmtPnl(v, currency) + '</span>'
+                            +   '<span class="mono" style="color:' + col + ';">' + pv(fmtPnl(v, currency)) + '</span>'   // v15.076：套 pv()
                             + '</div>';
                     }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
