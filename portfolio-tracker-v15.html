@@ -2020,27 +2020,49 @@
         }
 
         // ==================== 字型切換 ====================
+        // v15.076：字體選項擴充為 4 階循環（預設 → 芫荽 → Noto Sans TC → 霞鶩文楷 TC → 預設）
         const PT_FONT_KEY = 'pt_font';
+        const FONT_ORDER = ['default', 'iansui', 'notoSansTc', 'lxgwWenkaiTc'];
         const FONTS = {
-            default: { label: '預設', family: "'Microsoft JhengHei','微軟正黑體','PingFang TC','Heiti TC',sans-serif" },
-            iansui:  { label: '芫荽', family: "'Iansui','Microsoft JhengHei','PingFang TC',sans-serif" },
+            default:      { label: '預設',       family: "'Microsoft JhengHei','微軟正黑體','PingFang TC','Heiti TC',sans-serif" },
+            iansui:       { label: '芫荽',       family: "'Iansui','Microsoft JhengHei','PingFang TC',sans-serif",
+                            cssUrl: 'https://fonts.googleapis.com/css2?family=Iansui&display=swap' },
+            notoSansTc:   { label: 'Noto Sans',  family: "'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif",
+                            cssUrl: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap' },
+            lxgwWenkaiTc: { label: '霞鶩文楷',   family: "'LXGW WenKai TC','Microsoft JhengHei','PingFang TC',sans-serif",
+                            cssUrl: 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=swap' }
         };
         let _currentFont = 'default';
 
-        function _loadIansuiFont() {
-            if (document.getElementById('iansui-font-link')) return; // 已載入
+        function _ensureFontLink(key) {
+            const f = FONTS[key];
+            if (!f || !f.cssUrl) return;   // default 用系統字體不需載
+            const id = `pt-font-link-${key}`;
+            if (document.getElementById(id)) return;
             const link = document.createElement('link');
-            link.id   = 'iansui-font-link';
+            link.id   = id;
             link.rel  = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Iansui&display=swap';
+            link.href = f.cssUrl;
             document.head.appendChild(link);
         }
 
-        function applyFont(key) {
+        async function applyFont(key) {
             const f = FONTS[key] || FONTS.default;
-            if (key === 'iansui') _loadIansuiFont();
+            if (f.cssUrl) {
+                showImportToast('載入字體中…', 1500);
+                _ensureFontLink(key);
+                try {
+                    await Promise.race([
+                        document.fonts.ready,
+                        new Promise((_, rej) => setTimeout(() => rej(new Error('font-timeout')), 5000))
+                    ]);
+                    showImportToast(`已套用：${f.label}`, 1200);
+                } catch(_) {
+                    showImportToast('字體載入逾時，已 fallback 系統字體', 1800);
+                    // 不 return，仍讓 family 套上去（CSS fallback 鏈會用後備字體）
+                }
+            }
             document.body.style.fontFamily = f.family;
-            // 同步套用到 input/button/select（CSS 裡寫死了 font-family）
             const style = document.getElementById('pt-font-override') || (() => {
                 const s = document.createElement('style');
                 s.id = 'pt-font-override';
@@ -2055,22 +2077,25 @@
         }
 
         function toggleFont() {
-            applyFont(_currentFont === 'default' ? 'iansui' : 'default');
+            const idx = FONT_ORDER.indexOf(_currentFont);
+            const next = FONT_ORDER[(idx + 1) % FONT_ORDER.length];
+            applyFont(next);
         }
 
         function _updateFontBtn() {
             const btn = document.getElementById('font-toggle-btn');
             const lbl = document.getElementById('font-toggle-label');
             if (!btn) return;
-            const isIansui = _currentFont === 'iansui';
+            const f = FONTS[_currentFont] || FONTS.default;
             btn.style.borderColor = 'rgba(100,116,139,0.3)';
             btn.style.color       = '#f1f5f9';
-            if (lbl) lbl.textContent = isIansui ? '芫荽體' : '預設字型';
+            if (lbl) lbl.textContent = f.label;
         }
 
         function loadFont() {
             const saved = localStorage.getItem(PT_FONT_KEY) || 'default';
-            applyFont(saved);
+            // 未知 key fallback 到 default
+            applyFont(FONTS[saved] ? saved : 'default');
         }
 
         function renderStats(stats) {
