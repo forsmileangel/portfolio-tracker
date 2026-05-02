@@ -4095,7 +4095,7 @@
                     }
                 }
 
-                saveHistory();
+                // v15.075：手動 pull = 放棄本機未上傳異動，不再把 dirty 狀態存進 undo（結尾會清 history）
                 holdings = saved.holdings;
                 holdings.forEach(h => { h.persist = true; _ensureLots(h); }); // 從雲端拉取一律標記保留，並補齊 lots
                 if (saved.currency)      currency = saved.currency;
