@@ -7132,7 +7132,7 @@
             try { if (typeof onSymbolInput  === 'function') onSymbolInput(sEl.value);  } catch(_) {}
             if (qEl) qEl.value = '';
             if (cEl) cEl.value = '';
-            if (qEl) qEl.focus();
+            // v15.077：移除 qEl.focus() — 手機 tap 持倉按鈕後不應自動彈鍵盤打斷 user
             try { showImportToast(`已填入 ${symbol}`, 1500); } catch(_) {}
         }
         // 桌機雙擊持倉一覽 row → 填表（避開按鈕本身的 click 鎖定行為）
