@@ -6989,8 +6989,8 @@
             // v15.077：FSA silent pull（沒 GIST + 啟用 FSA + 權限 granted 才執行；不主動 prompt）
             (async () => {
                 try {
-                    if (_hasGistCreds()) return;
-                    if (!_isLocalSyncEnabled()) return;
+                    if (_hasGistCreds()) { _renderLocalSyncStatus(); return; }
+                    if (!_isLocalSyncEnabled()) { _renderLocalSyncStatus(); return; }
                     const handle = await _localSyncGetDirNoPrompt();
                     if (!handle) {
                         _setLocalSyncStatus('⚠ 本地資料夾權限已過期，請點「拉取」重新授權', '#fbbf24');
