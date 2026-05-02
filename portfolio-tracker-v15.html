@@ -4344,11 +4344,7 @@
                 } catch(_) {}
 
                 _storageReady = true;
-                _applyCloudDomainTimes(saved, gistState.cloudUpdatedAt);
-                _rememberCloudState(gistState.data);
-                _clearDirtyDomains();
-                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
-                _updatePendingPushIndicator();
+                _applySyncBaseline(gistState);   // v15.075：統一寫 baseline + 清 dirty + 清 pending
                 saveToStorage();
                 // v15.069：Gist pull 後立刻 hydrate 既有 cache 並排程一次 loadAnalysis，
                 //   讓新裝置不用等 1hr 就能看到今日/昨日損益
@@ -4364,6 +4360,8 @@
 
             } catch(e) {
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
+            } finally {
+                _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
             }
         }
 
