@@ -6188,16 +6188,26 @@
             const dirNameEl= document.getElementById('local-sync-dir-name');
             if (!card) return;
             if (_hasGistCreds()) {
-                card.style.opacity = '0.4';
-                card.style.pointerEvents = 'none';
-                _setLocalSyncStatus('Gist 已啟用，本地同步停用', '#7e93a6');
+                // v15.078：取消整張 pointer-events:none，三個 sync 按鈕個別 disabled，但「停用」仍可點
+                // 讓誤啟用 FSA 的 user 能關掉 FSA 設定
+                card.style.opacity = '0.7';
+                card.style.pointerEvents = '';
+                if (pickBtn) pickBtn.disabled = true;
+                if (pushBtn) pushBtn.disabled = true;
+                if (pullBtn) pullBtn.disabled = true;
+                if (offBtn)  offBtn.disabled  = false;
+                _setLocalSyncStatus('Gist 已啟用，本地同步停用（可點下方「停用本地同步」清除 FSA 設定）', '#7e93a6');
                 if (dirNameEl) dirNameEl.textContent = '';
                 return;
             }
             card.style.opacity = '1';
             card.style.pointerEvents = '';
             if (!_isFsaSupported()) {
-                if (pickBtn) pickBtn.disabled = pushBtn.disabled = pullBtn.disabled = true;
+                // v15.078：手機 / 不支援 FSA 的瀏覽器，所有按鈕 disable（含 offBtn — 沒設過就不需要停用）
+                if (pickBtn) pickBtn.disabled = true;
+                if (pushBtn) pushBtn.disabled = true;
+                if (pullBtn) pullBtn.disabled = true;
+                if (offBtn)  offBtn.disabled  = true;
                 _setLocalSyncStatus('瀏覽器不支援（請用桌機 Chrome / Edge，或改用 Gist）', '#fbbf24');
                 if (dirNameEl) dirNameEl.textContent = '';
                 return;
