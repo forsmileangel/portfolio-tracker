@@ -7122,9 +7122,9 @@
             // 取代舊的「pending > 0 → 先推後拉，push 失敗就卡死」分支
             _updatePendingPushIndicator();
             _gistSilentPull();
-            // v15.077：FSA silent pull（沒 GIST + 啟用 FSA + 權限 granted 才執行；不主動 prompt）
-            // FSA 規範：reload 後 handle 仍在 IDB 但 permission 回 'prompt'，必須 user gesture 內 request
-            // 解法：權限過期時註冊一次性 click/keydown handler，user 第一次跟頁面互動時自動恢復授權 + pull
+            // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
+            // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
+            // 權限過期時：只顯示 status 提示，user 必須到設定 Tab → 本地同步 → 主動點「拉取」按鈕重新授權
             (async () => {
                 try {
                     if (_hasGistCreds()) { _renderLocalSyncStatus(); return; }
@@ -7135,24 +7135,9 @@
                         _renderLocalSyncStatus();
                         return;
                     }
-                    // 權限過期：顯示 toast + 註冊一次性 gesture handler
-                    _setLocalSyncStatus('⚠ 點任意處恢復本地同步授權', '#fbbf24');
+                    // 權限過期：僅 status 提示，不註冊任何全域 listener
+                    _setLocalSyncStatus('⚠ 本地資料夾權限已過期，請到設定 Tab → 本地同步 → 點「從本地拉取」重新授權', '#fbbf24');
                     _renderLocalSyncStatus();
-                    try { showImportToast('☁ 本地同步：點任意處恢復授權後自動拉取', 4000); } catch(_) {}
-                    const _onFirstGesture = async (ev) => {
-                        document.removeEventListener('click',   _onFirstGesture, true);
-                        document.removeEventListener('keydown', _onFirstGesture, true);
-                        try {
-                            const h = await _localSyncRequestPermissionOnGesture();
-                            if (h) {
-                                await _localSyncPull({ manual: false });
-                                try { showImportToast('☁ 已從本地同步檔自動載入', 1800); } catch(_) {}
-                            }
-                        } catch(_) {}
-                        _renderLocalSyncStatus();
-                    };
-                    document.addEventListener('click',   _onFirstGesture, { capture: true });
-                    document.addEventListener('keydown', _onFirstGesture, { capture: true });
                 } catch(_) {}
             })();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
