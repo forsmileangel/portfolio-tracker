@@ -2625,8 +2625,8 @@
             if (currency !== _pieSnapshot.currency) return true;
             // 隱私模式切換
             if (_privacyMode !== _pieSnapshot.privacyMode) return true;
-            // 現金/加密/MOXA 金額或勾選狀態變化
-            const cashNow    = parseFloat(document.getElementById('cash-twd-input')?.value)   || 0;
+            // v15.076 P0-2：cashNow 改用 _depositsTWD()（跟 renderPie 一致；v15.049 改存款 Tab 後 #cash-twd-input 已非真實來源）
+            const cashNow    = _depositsTWD();
             const cryptoNow  = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
             const moxaNow    = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
             const cbCash     = document.getElementById('cash-pie-cb')?.checked   ?? false;
@@ -2642,7 +2642,8 @@
             const grandTotal = stats.totalValueTWD + effectiveCash + effectiveCrypto + effectiveMoxa;
             if (grandTotal <= 0) return true;
             for (const h of stats.holdingsWithStats) {
-                const ratio = h.valueTWD / grandTotal;
+                // v15.076 P0-2：欄位名修正 valueTWD → valueTotalTWD（holdingsWithStats 實際 return 欄位）
+                const ratio = h.valueTotalTWD / grandTotal;
                 const prev  = _pieSnapshot.ratios[h.id];
                 if (prev == null) return true;
                 if (Math.abs(ratio - prev) > 0.005) return true; // 佔比差距超過 0.5%
