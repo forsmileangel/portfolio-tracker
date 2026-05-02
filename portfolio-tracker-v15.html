@@ -1618,16 +1618,23 @@
             if (oldS.quoteStatus !== newS.quoteStatus) return false;
             if (oldS.basisField  !== newS.basisField)  return false;
             if (oldS.source      !== newS.source)      return false;
-            if (oldS.lastQuoteAt !== newS.lastQuoteAt) return false;
-            const _approxEq = (a, b) => Math.abs((a||0) - (b||0)) < 0.01;
+            // v15.078 hotfix：移除 lastQuoteAt 比較（line 1576-1582 的覆蓋規則已處理「lastQuoteAt 沒推進就 return」，這條比較邏輯上冗餘且導致 silent refresh 推進 quoteMeta.lastQuoteAt 但 pnl 沒變的情境誤判為「不等價」→ 反覆寫入 + mark dirty → 手機 PWA 持續跳「1 筆未同步」）
+            const _approxEq = (a, b, tol) => Math.abs((a||0) - (b||0)) < (tol || 0.01);
             if (!_approxEq(oldS.pnlUSD, newS.pnlUSD)) return false;
             if (!_approxEq(oldS.pnlTWD, newS.pnlTWD)) return false;
             const oh = Array.isArray(oldS.holdings) ? oldS.holdings : [];
             const nh = Array.isArray(newS.holdings) ? newS.holdings : [];
             if (oh.length !== nh.length) return false;
-            const _key = h => `${h.symbol}|${h.quantity}|${h.currentPrice}|${h.prevClose}|${h.prevPrevClose}`;
-            const oset = new Set(oh.map(_key));
-            for (const h of nh) { if (!oset.has(_key(h))) return false; }
+            // v15.078 hotfix：holdings 改用容差比較，避免盤後 silent CSV 微小價格差異（小數點 4 位後）反覆觸發 rewrite
+            const oMap = new Map(oh.map(h => [h.symbol, h]));
+            for (const h of nh) {
+                const o = oMap.get(h.symbol);
+                if (!o) return false;
+                if (!_approxEq(o.quantity,      h.quantity,      0.0001)) return false;
+                if (!_approxEq(o.currentPrice,  h.currentPrice,  0.001))  return false;
+                if (!_approxEq(o.prevClose,     h.prevClose,     0.001))  return false;
+                if (!_approxEq(o.prevPrevClose, h.prevPrevClose, 0.001))  return false;
+            }
             return true;
         }
 
