@@ -1602,7 +1602,11 @@
                 slot.current = newCurrent;
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
-                try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
+                // v15.078 hotfix：pending_quote 是中間狀態（quote / analysis meta 尚未對齊 target），不應該進 Gist dirty / pending
+                // 只有 fresh_after_close 才算「真的有新昨日損益要同步」，避免 PWA 放著就跳「1 筆改動未同步」
+                if (newStatus === 'fresh_after_close') {
+                    try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
+                }
                 console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${target} src=${source} basis=${slot.current.basisField} (pnlTWD=${pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
         }
