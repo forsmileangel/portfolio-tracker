@@ -2098,7 +2098,8 @@
                     const cBase = currency==='USD' ? m.costUSD : m.costTWD;
                     const pct = cBase > 0 ? (v / cBase * 100).toFixed(2) : null;
                     const pctStr = pct != null ? ` (${v>=0?'+':''}${pct}%)` : '';
-                    valStr = pv(fmtPnl(v, currency)) + pctStr;
+                    // v15.076：百分比也包進 pv()，避免反推總投入金額
+                    valStr = pv(fmtPnl(v, currency) + pctStr);
                     col = v >= 0 ? '#10b981' : '#ef4444';
                 }
                 return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
