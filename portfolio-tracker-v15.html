@@ -5157,8 +5157,7 @@
                 ['currency',      currency || 'TWD']
             ];
             csv += '\n\n[OtherAssets]\n';
-            csv += _other.map(([k, v]) => `${k}=${v}`).join('
-');
+            csv += _other.map(([k, v]) => `${k}=${v}`).join('\n');
 
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
