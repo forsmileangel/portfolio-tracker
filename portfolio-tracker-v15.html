@@ -3443,6 +3443,9 @@
             if (_isApplyingCloudPull) return;
             _markLocalModified(domains);
             _scheduleAutoPush();
+            // v15.077：FSA 分流（GIST 已設或 FSA 未啟用會自動 noop）
+            try { _markLocalSyncModified(domains); } catch(_) {}
+            try { _scheduleLocalSyncPush(); } catch(_) {}
         }
         function _scheduleAutoPush() {
             if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) return;
