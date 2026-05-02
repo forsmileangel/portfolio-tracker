@@ -3584,6 +3584,23 @@
             if (pre) { pre.textContent = ''; pre.style.display = 'none'; }
             if (typeof showImportToast === 'function') showImportToast('✅ 錯誤紀錄已清除', 1500);
         }
+        // v15.076：複製錯誤日誌 JSON 到剪貼簿（給 codex review / debug 用，省去截圖）
+        function _copyErrorLog() {
+            let log = [];
+            try { log = JSON.parse(localStorage.getItem(STORAGE_KEYS.errorLog) || '[]'); } catch(_) {}
+            if (!Array.isArray(log) || log.length === 0) {
+                showImportToast('（目前沒有錯誤紀錄可複製）', 1500);
+                return;
+            }
+            const text = JSON.stringify(log, null, 2);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showImportToast(`已複製 ${log.length} 筆錯誤到剪貼簿`, 1500))
+                    .catch(() => showImportToast('複製失敗（瀏覽器拒絕）', 2000));
+            } else {
+                showImportToast('複製失敗（瀏覽器不支援 Clipboard API）', 2000);
+            }
+        }
 
         // v15.061：記錄最後一次推送錯誤至 localStorage（v15.062 加入 err.status 優先判斷；v15.064 連動 _recordAppError）
         function _recordPushError(err, statusOverride) {
