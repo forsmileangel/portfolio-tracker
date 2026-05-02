@@ -2192,7 +2192,7 @@
                 // v15.073：休市時加註「沿用 MM-DD 快照」對應前交易日
                 const mkRow = (mk, label) => {
                     const m = byMk[mk];
-                    let valStr, col;
+                    let valStr, col, isAmount = false;
                     if (m.count === 0) {
                         valStr = '無持倉'; col = '#607585';
                     } else if (m.status === 'not_open') {
@@ -2206,22 +2206,28 @@
                         const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
                         valStr = fmtPnl(v, currency);
                         col = v >= 0 ? '#10b981' : '#ef4444';
+                        isAmount = true;
                     }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
                         +   '<span style="color:#7e93a6;">' + label + '</span>'
-                        +   '<span class="mono" style="color:' + col + ';">' + valStr + '</span>'
+                        +   '<span class="mono" style="color:' + col + ';">' + (isAmount ? pv(valStr) : valStr) + '</span>'   // v15.076：金額才套 pv()
                         + '</div>';
                 };
+                // v15.076：headline / sub 也要 pv()，但只在 hasAnyData（真有金額）才遮，狀態文字不遮
+                const totStrFinal = tot.hasAnyData ? pv(totStr) : totStr;
+                const totSubFinal = tot.hasAnyData && totSubStr ? pv(totSubStr) : totSubStr;
                 return '<div class="stat-card" style="border:1px solid rgba(56,139,253,0.25);">'
-                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
+                    + '<div class="stat-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
                     +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
                     +     '<div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">◈</div>'
                     +     '<span style="color:#60a5fa;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">今日損益</span>'
                     +   '</div>'
                     + '</div>'
-                    + '<div class="mono stat-amount" style="color:' + totCol + ';">' + totStr + '</div>'
-                    + (totSubStr ? '<div class="mono stat-amount-sub" style="margin-top:0.3rem;color:' + totCol + ';">' + totSubStr + '</div>' : '')
-                    + '<div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.06);">'
+                    + '<div class="mono stat-amount stat-card-amount" style="color:' + totCol + ';">' + totStrFinal + '</div>'
+                    + (totSubFinal
+                        ? '<div class="mono stat-amount-sub stat-card-subamt" style="margin-top:0.3rem;color:' + totCol + ';">' + totSubFinal + '</div>'
+                        : '<div class="stat-card-subamt" style="visibility:hidden;">&nbsp;</div>')
+                    + '<div class="stat-card-mkblock">'
                     +   mkRow('TW', '台股')
                     +   mkRow('US', '美股')
                     +   mkRow('HK', '港股')
