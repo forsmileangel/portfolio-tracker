@@ -3349,6 +3349,10 @@
             _updateSyncTimeLabels();
         }
         function _markAndAutoPush(domains) {
+            // v15.075（codex P2）：pull 套用期間 renderAll() 可能觸發 _captureDailyPnlSnapshot 等
+            // → 呼叫 _markAndAutoPush；_markLocalModified 已 guard 但 _scheduleAutoPush 仍會排 timer
+            // 這裡再加一層 guard，避免 pull 完 2 秒後又偷偷 push（雖無 dirty/pending 但會多一筆 Gist revision）
+            if (_isApplyingCloudPull) return;
             _markLocalModified(domains);
             _scheduleAutoPush();
         }
