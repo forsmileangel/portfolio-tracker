@@ -4244,18 +4244,28 @@
                     return;
                 }
 
-                const dirtyDomains = _getDirtyDomains();
-                if (dirtyDomains.length > 0) {
-                    if (!localStorage.getItem(PT_LAST_CLOUD_REV) || _cloudChangedSinceBase(gistState)) {
-                        showWarnToast(`❌ 雲端已有新版（${_fmtSyncTs(gistState.cloudUpdatedAt)}），本機也有未上傳修改，已停止自動同步以避免覆蓋。`, 5000);
-                        setGistStatus('❌ 同步衝突：請先手動處理雲端與本機差異', '#ef4444');
-                    } else {
-                        setGistStatus('本機有未上傳修改，已略過自動拉取', '#fbbf24');
-                    }
+                // v15.075：classify-based 主導，取代「dirty 一律 skip」
+                const cls = _classifyCloudSyncState(gistState);
+                if (cls === 'clean_cloud_same') {
+                    return;   // 雲端 = 本機 baseline，無事
+                }
+                if (cls === 'dirty_cloud_same') {
+                    // 本機有未上傳修改但 baseline 對齊雲端 → 安全 push
+                    setGistStatus('本機有未上傳修改，啟動推送…', '#fbbf24');
+                    _gistSilentPush();
                     return;
                 }
-
-                saveHistory();
+                if (cls === 'dirty_cloud_newer_conflict') {
+                    showWarnToast(`❌ 雲端已有新版（${_fmtSyncTs(gistState.cloudUpdatedAt)}），本機也有未上傳修改。請手動「拉取」覆蓋本機，或在「推送」時選強制覆蓋。`, 5000);
+                    setGistStatus('❌ 同步衝突：請手動處理雲端與本機差異', '#ef4444');
+                    return;
+                }
+                if (cls === 'no_cloud_base' || cls === 'dirty_no_cloud') {
+                    setGistStatus('⚠ 同步基準未建立，請手動推送或拉取一次', '#fbbf24');
+                    return;
+                }
+                // clean_cloud_newer / clean_no_cloud → 套用雲端資料（auto pull）
+                _isApplyingCloudPull = true;
                 holdings = saved.holdings;
                 holdings.forEach(h => h.persist = true);
                 if (saved.currency)      currency = saved.currency;
