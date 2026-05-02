@@ -3362,11 +3362,16 @@
             if (_isApplyingCloudPull) return;
             const ts = new Date().toISOString();
             localStorage.setItem(PT_LOCAL_MODIFY_TS, ts);
+            // v15.076 P0-1：pending count 從「呼叫次數」改成「多少類資料尚未同步」
+            // 同 domain 重複呼叫只更新 ts，pending count 不再累加
+            const before = new Set(_getDirtyDomains());
             _markDomainsModified(domains, ts);
-            // 只有在 Gist 已設定時才累計 pending
-            if (localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
+            const after = new Set(_getDirtyDomains());
+            let newDomains = 0;
+            for (const d of after) if (!before.has(d)) newDomains++;
+            if (newDomains > 0 && localStorage.getItem(GIST_TOKEN_KEY) && localStorage.getItem(GIST_ID_KEY)) {
                 const curr = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
-                localStorage.setItem(PT_PENDING_PUSH_COUNT, String(curr + 1));
+                localStorage.setItem(PT_PENDING_PUSH_COUNT, String(curr + newDomains));
                 _updatePendingPushIndicator();
             }
             _updateSyncTimeLabels();
