@@ -2155,7 +2155,7 @@
                         + '</div>';
                 };
                 return '<div class="stat-card" style="border:1px solid rgba(148,163,184,0.2);">'
-                    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
+                    + '<div class="stat-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
                     +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
                     +     '<div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">◁</div>'
                     +     '<div style="display:flex;flex-direction:column;line-height:1.1;">'
@@ -2164,9 +2164,11 @@
                     +     '</div>'
                     +   '</div>'
                     + '</div>'
-                    + '<div class="mono stat-amount" style="color:' + totCol + ';">' + totStr + '</div>'
-                    + (totSubStr ? '<div class="mono stat-amount-sub" style="margin-top:0.3rem;color:' + totCol + ';">' + totSubStr + '</div>' : '')
-                    + '<div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.06);">'
+                    + '<div class="mono stat-amount stat-card-amount" style="color:' + totCol + ';">' + pv(totStr) + '</div>'   // v15.076：套 pv()
+                    + (totSubStr
+                        ? '<div class="mono stat-amount-sub stat-card-subamt" style="margin-top:0.3rem;color:' + totCol + ';">' + pv(totSubStr) + '</div>'
+                        : '<div class="stat-card-subamt" style="visibility:hidden;">&nbsp;</div>')   // v15.076：撐高保 separator 對齊
+                    + '<div class="stat-card-mkblock">'
                     +   mkRow('TW', '台股')
                     +   mkRow('US', '美股')
                     +   mkRow('HK', '港股')
