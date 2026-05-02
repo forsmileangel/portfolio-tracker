@@ -6521,6 +6521,32 @@
             }
         });
 
+        // v15.076：持倉一覽桌機雙擊 / 行動裝置使用 row 內按鈕，把 symbol + market 填入交易表單
+        function _fillTradeForm(symbol, market) {
+            const sEl = document.getElementById('form-symbol');
+            const mEl = document.getElementById('form-market');
+            const qEl = document.getElementById('form-quantity');
+            const cEl = document.getElementById('form-cost');
+            if (!sEl || !mEl) return;
+            sEl.value = symbol || '';
+            mEl.value = market || 'US';
+            try { if (typeof onMarketChange === 'function') onMarketChange(mEl.value); } catch(_) {}
+            try { if (typeof onSymbolInput  === 'function') onSymbolInput(sEl.value);  } catch(_) {}
+            if (qEl) qEl.value = '';
+            if (cEl) cEl.value = '';
+            if (qEl) qEl.focus();
+            try { showImportToast(`已填入 ${symbol}`, 1500); } catch(_) {}
+        }
+        // 桌機雙擊持倉一覽 row → 填表（避開按鈕本身的 click 鎖定行為）
+        document.addEventListener('dblclick', function(e) {
+            const tr = e.target.closest('#holdings-table tbody tr[data-symbol]');
+            if (!tr) return;
+            const symbol = tr.dataset.symbol;
+            const h = holdings.find(x => x.symbol === symbol);
+            if (!h) return;
+            _fillTradeForm(h.symbol, h.market);
+        });
+
         // ==================== 每分鐘自動更新報價 ====================
         let _autoRefreshTimer = null;
         let _countdownTimer   = null;
