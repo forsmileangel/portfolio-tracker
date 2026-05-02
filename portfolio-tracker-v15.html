@@ -2129,11 +2129,12 @@
                 // v15.072：headline 只在 complete（三市場都有 snapshot 且 lastCompleteDate 有效）才顯示總額
                 // 部分市場 hasAny → 顯示「快照未完整」避免把 US-only 合計誤讀為「昨日損益」
                 const totCol = tot.complete ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                // v15.076：只在 complete（真有金額）時套 pv()，狀態文字不遮
                 const totStr = tot.complete
-                    ? fmtPnl(totVal, currency)
+                    ? pv(fmtPnl(totVal, currency))
                     : (tot.hasAny ? '快照未完整' : '等待收盤快照');
                 const totSubStr = tot.complete
-                    ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
+                    ? pv(currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
                 const mkRow = (mk, label) => {
                     const m = byMk[mk];
