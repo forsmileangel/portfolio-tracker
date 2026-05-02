@@ -1857,12 +1857,14 @@
             const _lastComplete = _snap.lastCompleteDate || null;
             // v15.074：complete 只看「使用者實際有持倉的市場」— 沒港股的使用者不會永遠 incomplete
             const _activeMarkets = _MARKETS.filter(mk => (holdingsByMarket[mk]?.count || 0) > 0);
+            // v15.075：加總範圍與 complete 一致用 _activeMarkets，避免使用者沒持有的市場（如 HK count=0）
+            // 仍把歷史 snapshot 算進 headline 總額
             const yesterdayPnlTotal = {
-                pnlUSD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
-                pnlTWD: _MARKETS.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
+                pnlUSD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
+                pnlTWD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
                 complete: _activeMarkets.length > 0
                           && _activeMarkets.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
-                hasAny:   _MARKETS.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
+                hasAny:   _activeMarkets.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
                 lastCompleteDate: _lastComplete   // 仍保留供 UI 參考（最舊共同日期，純診斷）
             };
 
