@@ -646,9 +646,12 @@
                 <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;"><i class="ic">!</i> 錯誤日誌</label>
                 <span style="font-size:0.72rem; color:#607585;">最多保留 50 筆</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr auto; gap:0.5rem;">
+            <div style="display:grid; grid-template-columns:1fr auto auto; gap:0.5rem;">
                 <button onclick="toggleErrorLog()" style="padding:0.5rem; background:rgba(56,139,253,0.12); color:#e2e8f0; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">
                     查看（<span id="error-log-count">0</span> 筆）
+                </button>
+                <button onclick="_copyErrorLog()" style="padding:0.5rem 0.85rem; background:rgba(96,165,250,0.12); color:#e2e8f0; border:1px solid rgba(96,165,250,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;" title="複製錯誤 JSON 到剪貼簿（給 codex review 用）">
+                    複製
                 </button>
                 <button onclick="clearErrorLog()" style="padding:0.5rem 0.85rem; background:rgba(239,68,68,0.12); color:#e2e8f0; border:1px solid rgba(239,68,68,0.3); border-radius:8px; font-size:0.82rem; cursor:pointer;">
                     清除
