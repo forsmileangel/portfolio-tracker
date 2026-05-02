@@ -6988,19 +6988,37 @@
             _updatePendingPushIndicator();
             _gistSilentPull();
             // v15.077：FSA silent pull（沒 GIST + 啟用 FSA + 權限 granted 才執行；不主動 prompt）
+            // FSA 規範：reload 後 handle 仍在 IDB 但 permission 回 'prompt'，必須 user gesture 內 request
+            // 解法：權限過期時註冊一次性 click/keydown handler，user 第一次跟頁面互動時自動恢復授權 + pull
             (async () => {
                 try {
                     if (_hasGistCreds()) { _renderLocalSyncStatus(); return; }
                     if (!_isLocalSyncEnabled()) { _renderLocalSyncStatus(); return; }
                     const handle = await _localSyncGetDirNoPrompt();
-                    if (!handle) {
-                        _setLocalSyncStatus('⚠ 本地資料夾權限已過期，請點「拉取」重新授權', '#fbbf24');
+                    if (handle) {
+                        await _localSyncPull({ manual: false });
                         _renderLocalSyncStatus();
                         return;
                     }
-                    await _localSyncPull({ manual: false });
+                    // 權限過期：顯示 toast + 註冊一次性 gesture handler
+                    _setLocalSyncStatus('⚠ 點任意處恢復本地同步授權', '#fbbf24');
+                    _renderLocalSyncStatus();
+                    try { showImportToast('☁ 本地同步：點任意處恢復授權後自動拉取', 4000); } catch(_) {}
+                    const _onFirstGesture = async (ev) => {
+                        document.removeEventListener('click',   _onFirstGesture, true);
+                        document.removeEventListener('keydown', _onFirstGesture, true);
+                        try {
+                            const h = await _localSyncRequestPermissionOnGesture();
+                            if (h) {
+                                await _localSyncPull({ manual: false });
+                                try { showImportToast('☁ 已從本地同步檔自動載入', 1800); } catch(_) {}
+                            }
+                        } catch(_) {}
+                        _renderLocalSyncStatus();
+                    };
+                    document.addEventListener('click',   _onFirstGesture, { capture: true });
+                    document.addEventListener('keydown', _onFirstGesture, { capture: true });
                 } catch(_) {}
-                _renderLocalSyncStatus();
             })();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
