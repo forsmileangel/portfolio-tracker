@@ -6967,6 +6967,21 @@
             // 取代舊的「pending > 0 → 先推後拉，push 失敗就卡死」分支
             _updatePendingPushIndicator();
             _gistSilentPull();
+            // v15.077：FSA silent pull（沒 GIST + 啟用 FSA + 權限 granted 才執行；不主動 prompt）
+            (async () => {
+                try {
+                    if (_hasGistCreds()) return;
+                    if (!_isLocalSyncEnabled()) return;
+                    const handle = await _localSyncGetDirNoPrompt();
+                    if (!handle) {
+                        _setLocalSyncStatus('⚠ 本地資料夾權限已過期，請點「拉取」重新授權', '#fbbf24');
+                        _renderLocalSyncStatus();
+                        return;
+                    }
+                    await _localSyncPull({ manual: false });
+                } catch(_) {}
+                _renderLocalSyncStatus();
+            })();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
