@@ -2785,7 +2785,8 @@
                 cash:     cashTWD, crypto: cryptoTWD, moxa: moxaTWD,
                 cbCash:   _cbCash, cbCrypto: _cbCrypto, cbMoxa: _cbMoxa,
                 ratios:   Object.fromEntries(
-                    stats.holdingsWithStats.map(h => [h.id, _grand > 0 ? h.valueTWD / _grand : 0])
+                    // v15.076 P0-2：欄位名修正 valueTWD → valueTotalTWD（與 _shouldRenderPie 對齊）
+                    stats.holdingsWithStats.map(h => [h.id, _grand > 0 ? h.valueTotalTWD / _grand : 0])
                 )
             };
             _lastPieRenderTime = Date.now();
