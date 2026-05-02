@@ -1541,7 +1541,8 @@
                     slot.previous = slot.current;
                 }
 
-                slot.current = {
+                // v15.076 P0-1：先建構 newCurrent，與舊值比對 — 完全等價就 no-op（不寫 localStorage、不 mark dirty、不 push）
+                const newCurrent = {
                     marketDate: target,
                     closedAt: new Date().toISOString(),
                     source,
@@ -1553,11 +1554,33 @@
                     lastQuoteAt: quoteMeta.lastQuoteAt || null,
                     basisField: isToday ? 'prevClose' : 'prevPrevClose'   // debug
                 };
+                if (slot.current && _isSnapshotEquivalent(slot.current, newCurrent)) return;
+
+                slot.current = newCurrent;
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
                 try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
                 console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${target} src=${source} basis=${slot.current.basisField} (pnlTWD=${pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
+        }
+        // v15.076 P0-1：snapshot 等價判斷 — closedAt 不算（每次 new Date() 都會變）
+        function _isSnapshotEquivalent(oldS, newS) {
+            if (!oldS || !newS) return false;
+            if (oldS.marketDate  !== newS.marketDate)  return false;
+            if (oldS.quoteStatus !== newS.quoteStatus) return false;
+            if (oldS.basisField  !== newS.basisField)  return false;
+            if (oldS.source      !== newS.source)      return false;
+            if (oldS.lastQuoteAt !== newS.lastQuoteAt) return false;
+            const _approxEq = (a, b) => Math.abs((a||0) - (b||0)) < 0.01;
+            if (!_approxEq(oldS.pnlUSD, newS.pnlUSD)) return false;
+            if (!_approxEq(oldS.pnlTWD, newS.pnlTWD)) return false;
+            const oh = Array.isArray(oldS.holdings) ? oldS.holdings : [];
+            const nh = Array.isArray(newS.holdings) ? newS.holdings : [];
+            if (oh.length !== nh.length) return false;
+            const _key = h => `${h.symbol}|${h.quantity}|${h.currentPrice}|${h.prevClose}|${h.prevPrevClose}`;
+            const oset = new Set(oh.map(_key));
+            for (const h of nh) { if (!oset.has(_key(h))) return false; }
+            return true;
         }
 
         // ────────────────────────────────────────────────────────
