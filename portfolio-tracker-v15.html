@@ -6935,9 +6935,13 @@
             loadMoxa();              // 還原 MOXA 股票設定
             loadWatchlist();         // 還原觀察清單
             loadTradeHistory();      // 還原已實現損益紀錄
-            // v15.076：沒填 GIST 憑證時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
-            // 有 GIST → silent pull 會把雲端 tradeHistory 拉回；CSV 匯入也仍可手動帶入
-            if (!localStorage.getItem(GIST_TOKEN_KEY) || !localStorage.getItem(GIST_ID_KEY)) {
+            // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
+            // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
+            const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+            const _hasFsaInit  = !_hasGistInit
+                              && (typeof window.showDirectoryPicker === 'function')
+                              && localStorage.getItem(STORAGE_KEYS.localSyncEnabled) === '1';
+            if (!_hasGistInit && !_hasFsaInit) {
                 if (tradeHistory.length > 0) {
                     tradeHistory = [];
                     try { saveTradeHistory(); } catch(_) {}
