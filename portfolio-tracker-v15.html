@@ -5775,9 +5775,27 @@
         }
 
         // ── basic predicates
-        function _isFsaSupported() { return typeof window.showDirectoryPicker === 'function'; }
+        // v15.078 hotfix：FSA 真正限定桌機（擋 mobile UA / secureContext / IDB 三層），避免 Android Chrome 走 FSA 路徑卡住 UI
+        function _isFsaSupported() {
+            if (typeof window.showDirectoryPicker !== 'function') return false;
+            if (typeof window.isSecureContext !== 'undefined' && !window.isSecureContext) return false;
+            if (typeof indexedDB === 'undefined') return false;
+            try {
+                const ua = navigator.userAgent || '';
+                if (/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return false;
+            } catch(_) {}
+            return true;
+        }
+        // v15.078：除了 localStorage，也納入目前輸入框 token / id，避免 user 填完但還沒按 push 時被 FSA 路徑誤觸
         function _hasGistCreds() {
-            return !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+            const lsToken = localStorage.getItem(GIST_TOKEN_KEY) || '';
+            const lsId    = localStorage.getItem(GIST_ID_KEY)    || '';
+            if (lsToken && lsId) return true;
+            try {
+                const inToken = (document.getElementById('gist-token')?.value || '').trim();
+                const inId    = (document.getElementById('gist-id')?.value || '').trim();
+                return !!inToken && !!inId;
+            } catch(_) { return false; }
         }
         function _isLocalSyncEnabled() {
             return !_hasGistCreds()
