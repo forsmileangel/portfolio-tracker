@@ -5052,6 +5052,29 @@
                 });
                 csv += tRows.map(r => r.join('\t')).join('\n');
             }
+            // ── Deposits（v15.077：各銀行存款）──
+            if (deposits.length > 0) {
+                csv += '\n\n[Deposits]\n';
+                const dRows = [['Bank','Currency','Amount']];
+                deposits.forEach(d => {
+                    dRows.push([d.bank || '', d.currency || 'TWD', d.amount || 0]);
+                });
+                csv += dRows.map(r => r.join('\t')).join('\n');
+            }
+            // ── OtherAssets（v15.077：crypto / moxa / pie 勾選 / sheet_url / currency 單值欄位）──
+            const _other = [
+                ['cash_pie_cb',   document.getElementById('cash-pie-cb')?.checked   ? 'true' : 'false'],
+                ['crypto_twd',    parseFloat(document.getElementById('crypto-twd-input')?.value) || 0],
+                ['crypto_pie_cb', document.getElementById('crypto-pie-cb')?.checked ? 'true' : 'false'],
+                ['moxa_twd',      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0],
+                ['moxa_pie_cb',   document.getElementById('moxa-pie-cb')?.checked   ? 'true' : 'false'],
+                ['sheet_url',     document.getElementById('sheet-url')?.value?.trim() || ''],
+                ['currency',      currency || 'TWD']
+            ];
+            csv += '\n\n[OtherAssets]\n';
+            csv += _other.map(([k, v]) => `${k}=${v}`).join('
+');
+
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
