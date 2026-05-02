@@ -3331,6 +3331,9 @@
 
         // #region Gist Sync (manual + auto-push, retry, preflight)
         function _markLocalModified(domains) {
+            // v15.075：pull 套用期間（renderAll / saveDeposits / saveTradeHistory 等被內部呼叫）不標 dirty
+            // 否則拉雲端後立刻又 dirty，sync baseline 永遠對不齊
+            if (_isApplyingCloudPull) return;
             const ts = new Date().toISOString();
             localStorage.setItem(PT_LOCAL_MODIFY_TS, ts);
             _markDomainsModified(domains, ts);
