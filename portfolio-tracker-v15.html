@@ -2107,7 +2107,7 @@
                     + '</div>';
             };
             const _byMarketBlock = (kind) =>
-                '<div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.06);">'
+                '<div class="stat-card-mkblock">'   // v15.076：CSS class 統一，桌機 separator 對齊
                 + _kindRow('TW', '台股', kind)
                 + _kindRow('US', '美股', kind)
                 + _kindRow('HK', '港股', kind)
