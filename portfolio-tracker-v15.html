@@ -5036,7 +5036,7 @@
         }
 
         function exportHoldings() {
-            if (holdings.length === 0 && tradeHistory.length === 0) return alert('尚無持倉或交易紀錄');
+            if (holdings.length === 0 && tradeHistory.length === 0 && deposits.length === 0) return alert('尚無持倉、交易或存款紀錄');
             // ── Holdings ──
             const hRows = [['Symbol','Market','Name','Quantity','Cost Price','Current Price','Added Date','Lots']];
             holdings.forEach(h => {
