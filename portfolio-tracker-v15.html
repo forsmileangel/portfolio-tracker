@@ -4091,17 +4091,16 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, newId);
-                _rememberCloudState(data);
-                localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
-                _clearDirtyDomains();
-                _updatePendingPushIndicator();
+                // v15.075：用 _applySyncBaseline 統一寫 baseline + 清 dirty + 清 pending
+                _applySyncBaseline({ data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt });
                 _updateSyncTimeLabels();
                 localStorage.removeItem('pt_last_push_error');
 
                 const t = new Date().toLocaleTimeString('zh-TW');
                 const depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
-                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉${depNote}（${t}）`, '#10b981');
-                showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）`, 2500);
+                const _forceTag = _force ? '（強制覆蓋）' : '';
+                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉${depNote}${_forceTag}（${t}）`, '#10b981');
+                showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）${_forceTag}`, 2500);
 
             } catch(e) {
                 _recordPushError(e);
