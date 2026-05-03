@@ -4805,10 +4805,13 @@
                 }
 
                 // master flag 未處理 → 強制 auto-pull（使用者已宣告雲端主版本）
+                // v15.079 hotfix：先記下要處理的 id，等套用成功後才標記 processed，
+                // 避免 apply 中途 throw（catch 只 console.warn）導致 master id 已消化但本機沒套用
                 let _forceApplyCloud = false;
+                let _pendingMasterId = null;
                 if (_hasUnprocessedMaster) {
                     console.log('[AutoPull] master flag detected, forcing apply cloud:', _masterFlag.id);
-                    _addProcessedMasterId(_masterFlag.id);
+                    _pendingMasterId = _masterFlag.id;
                     _forceApplyCloud = true;
                 }
 
