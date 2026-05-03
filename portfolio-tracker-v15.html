@@ -5268,6 +5268,25 @@
             setTimeout(() => toast.remove(), duration || 4000);
         }
 
+        // v15.079：手動推送三選一 modal — 回 Promise<'master'|'staging'|'cancel'>
+        function _promptPushMode() {
+            return new Promise(resolve => {
+                const modal = document.getElementById('push-mode-modal');
+                if (!modal) return resolve('cancel');
+                modal.style.display = 'flex';
+                const close = (val) => {
+                    modal.style.display = 'none';
+                    document.getElementById('pm-master').onclick  = null;
+                    document.getElementById('pm-staging').onclick = null;
+                    document.getElementById('pm-cancel').onclick  = null;
+                    resolve(val);
+                };
+                document.getElementById('pm-master').onclick  = () => close('master');
+                document.getElementById('pm-staging').onclick = () => close('staging');
+                document.getElementById('pm-cancel').onclick  = () => close('cancel');
+            });
+        }
+
         async function autoRefreshAfterImport() {
             // ① 更新報價（有設定 Google Sheet 時才執行）
             const sheetUrl = (document.getElementById('sheet-url')?.value || '').trim();
