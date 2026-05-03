@@ -4755,7 +4755,8 @@
                 } catch(_) {}
 
                 _storageReady = true;
-                _applySyncBaseline(gistState);   // v15.075：統一寫 baseline + 清 dirty + 清 pending
+                // v15.075/079：統一寫 baseline + 清 dirty + 清 pending；pull 完成後本機 hash = 雲端 hash
+                _applySyncBaseline(gistState, { userDataHash: _cloudHashV || _localHashV });
                 saveToStorage();
                 // v15.069：Gist pull 後立刻 hydrate 既有 cache 並排程一次 loadAnalysis，
                 //   讓新裝置不用等 1hr 就能看到今日/昨日損益
