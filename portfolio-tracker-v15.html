@@ -3419,9 +3419,33 @@
         // 設計：以使用者資料內容 hash 取代 revision/pushedAt 作為主判斷
         // 不入 hash：marketSnapshots / daily_pnl_snapshots / pushedAt / sync_meta / 報價 / FX / 分析快取
         // ────────────────────────────────────────────────────────
+        // v15.079 hotfix：normalize holding — 只取庫存「結構欄位」進 hash，
+        // 排除動態報價（currentPrice / prevClose / prevPrevClose / dayPnL / marketOpenedToday 等）
+        // 否則 silentRefreshPrices / runAnalysis 寫入即時報價會導致 hash 變動，誤判為 user data 不同
+        function _normalizeHoldingForHash(h) {
+            if (!h || typeof h !== 'object') return null;
+            return {
+                id:         h.id || null,
+                symbol:     h.symbol || '',
+                market:     h.market || '',
+                quantity:   h.quantity ?? 0,
+                costPrice:  h.costPrice ?? 0,
+                lots:       Array.isArray(h.lots) ? h.lots.map(l => ({
+                    qty:   l.qty   ?? l.quantity ?? 0,
+                    cost:  l.cost  ?? l.costPrice ?? 0,
+                    date:  l.date  || ''
+                })) : [],
+                addedDate:  h.addedDate || '',
+                persist:    !!h.persist,
+                name:       h.name || ''
+            };
+        }
+        function _normalizeHoldingsForHash(arr) {
+            return Array.isArray(arr) ? arr.map(_normalizeHoldingForHash) : [];
+        }
         function _buildLocalUserPayload() {
             return {
-                holdings,
+                holdings:      _normalizeHoldingsForHash(holdings),
                 watchlist,
                 tradeHistory,
                 deposits,
@@ -3437,7 +3461,7 @@
         function _extractUserDataFromGistPayload(payload) {
             if (!payload || typeof payload !== 'object') return null;
             return {
-                holdings:      payload.holdings     || [],
+                holdings:      _normalizeHoldingsForHash(payload.holdings),   // 同步排除雲端 payload 內的動態報價欄位
                 watchlist:     payload.watchlist    || [],
                 tradeHistory:  payload.tradeHistory || [],
                 deposits:      payload.deposits     || {},
