@@ -865,15 +865,15 @@
         "cat": "外匯",
         "price": 98.20999908447266,
         "chg1d": 0.13254205851453016,
-        "chg7d": -0.304540701707564
+        "chg7d": -0.27417167268194204
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4629.89990234375,
-        "chg1d": 0.3293758291533108,
-        "chg7d": -1.9566716677334
+        "price": 4644.5,
+        "chg1d": 0.6457581950344232,
+        "chg7d": -1.6474982086116923
       },
       {
         "symbol": "CL=F",
@@ -887,9 +887,9 @@
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 78270.203125,
-        "chg1d": 2.5763715664445197,
-        "chg7d": 0.8480484557702789
+        "price": 78679.53125,
+        "chg1d": 0.0283270137209221,
+        "chg7d": 0.02795941465003802
       }
     ],
     "news": [
@@ -898,7 +898,7 @@
         "title": "Dow Jones Futures: Stock Market Hits High After Bullish Pause; Apple, Broadcom In Buy Zones",
         "publisher": "Investor's Business Daily",
         "link": "https://finance.yahoo.com/m/cfdf164e-e24a-366b-9d8b-b0274f05ba94/dow-jones-futures%3A-stock.html",
-        "providerPublishTime": 1777690674,
+        "providerPublishTime": 1777811826,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -918,43 +918,206 @@
         },
         "relatedTickers": [
           "AAPL",
+          "BRK.A",
           "GME",
           "EBAY",
           "^DJI",
           "^GSPC",
-          "GOOG",
-          "VIK",
-          "AVGO",
           "LITE",
-          "BRK.A",
-          "^IXIC",
           "AMD",
-          " RKLB",
-          "ALAB",
-          "ALB",
-          "ANET",
-          "GLW"
+          "GOOG",
+          "GLW",
+          "^IXIC",
+          "AVGO",
+          "VIK"
         ],
         "_sym": "AMD",
         "titleZh": "道瓊斯期貨：股市在看漲暫停後觸及高點；蘋果、博通在買入區"
       },
       {
-        "uuid": "93893efa-00b0-37d9-8828-d4b6f478241f",
-        "title": "How Investors Are Reacting To Broadcom (AVGO) Embedding AppNeta Observability Inside Google Cloud",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/investors-reacting-broadcom-avgo-embedding-021339411.html",
-        "providerPublishTime": 1777688019,
+        "uuid": "9f79639b-f252-3ec1-9c47-b53d1b759e19",
+        "title": "Why Growth Investors Are Ditching FELG for the NASDAQ-100’s 9.74% Edge",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/9f79639b-f252-3ec1-9c47-b53d1b759e19/why-growth-investors-are.html",
+        "providerPublishTime": 1777811425,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/q7CEgJDIR38z7SHlrATgRA--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/dfc5c49a1ab838a9c236bef742ffecf1",
-              "width": 1194,
-              "height": 432,
+              "url": "https://s.yimg.com/uu/api/res/1.2/NPDsRXKL6q9VbKtSG5j4mw--~B/aD0xMDAwO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/752f8ad7f096776286f17e0d69d39861",
+              "width": 1500,
+              "height": 1000,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Li2FbprcZyz2DyuRz5g7iQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/dfc5c49a1ab838a9c236bef742ffecf1",
+              "url": "https://s.yimg.com/uu/api/res/1.2/MXayAko.Q9MmpKlLxxJ2xQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/752f8ad7f096776286f17e0d69d39861",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "QQQ",
+          "META",
+          "TSLA",
+          "GOOGL",
+          "GOOG",
+          "AVGO",
+          "FELG",
+          "AAPL",
+          "AMZN",
+          "MSFT",
+          "SPY",
+          "LLY",
+          "NVDA"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "為什麼成長投資者放棄FELG ，轉投納斯達克100指數9.74%的優勢"
+      },
+      {
+        "uuid": "910efdc2-74d8-3a86-aeb7-f8148b34fcf0",
+        "title": "SMH Has Crushed the S&P 500 by 2,041% Over a Decade, But Recent 42% Rally Signals Dangerous Valuations",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/910efdc2-74d8-3a86-aeb7-f8148b34fcf0/smh-has-crushed-the-s%26p-500.html",
+        "providerPublishTime": 1777803331,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/zVqTDLe4z8szh2LVxtGSxw--~B/aD05MjU7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b6ff1e9804834c8d5159dc6490464d70",
+              "width": 1500,
+              "height": 925,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nyo2.ZwvOg1eBbUtTCT44A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b6ff1e9804834c8d5159dc6490464d70",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^GSPC",
+          "SMH",
+          "SPY",
+          "NVDA",
+          "TSM",
+          "AVGO",
+          "ASML"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "SMH在十年內將標準普爾500指數壓低了2,041 ％ ，但最近42 ％的反彈標誌著危險的估值"
+      },
+      {
+        "uuid": "5ba83176-9d2e-3fa9-8ff2-66bb55334c85",
+        "title": "Alphabet Is Dropping $190 Billion on AI Infrastructure: 3 Semiconductor Stocks Set to Win Big",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/5ba83176-9d2e-3fa9-8ff2-66bb55334c85/alphabet-is-dropping-%24190.html",
+        "providerPublishTime": 1777789371,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/tZjt8pgQVZh9G_n8iOA5Hw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/790cde6300ca61744263c63f2a0bcd3d",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wsFdxdGqtKtyZvzyYHKrZA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/790cde6300ca61744263c63f2a0bcd3d",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "AVGO"
+        ],
+        "_sym": "AVGO",
+        "titleZh": "Alphabet在人工智能基礎設施上下跌$ 1900億： 3隻半導體股將大獲全勝"
+      },
+      {
+        "uuid": "e697499b-de27-3185-9c3b-2c5eed2b5e5a",
+        "title": "Cathie Wood sells $79.9M of strong, surging semiconductor stock",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/e697499b-de27-3185-9c3b-2c5eed2b5e5a/cathie-wood-sells-%2479.9m-of.html",
+        "providerPublishTime": 1777780980,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hoc3IYX0LeVXAzHQigPAcw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/f178eef93e3b74bbba042787f9e9e981",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/HvS7Jg0Es4fYlwn1g3oMsg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/f178eef93e3b74bbba042787f9e9e981",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "GOOG",
+          "META"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Cathie Wood出售$ 7990萬美元強勁、飆升的半導體股票"
+      },
+      {
+        "uuid": "4268b01b-2850-3a0b-aa4d-e2cf0eae144c",
+        "title": "Deutsche Bank Keeps Hold Rating on AMD Ahead of Q1 Results",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/deutsche-bank-keeps-hold-rating-224031215.html",
+        "providerPublishTime": 1777761631,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/6Ls8jw.oIjwNyn14lDh_hA--~B/aD0zMjYzO3c9NTE4NDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/1e85b81aa18457637c55df2e7f588803",
+              "width": 5184,
+              "height": 3263,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/yFDDqsBQQbwUeMkLOz5M2g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/1e85b81aa18457637c55df2e7f588803",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "DB"
+        ],
+        "_sym": "AMD",
+        "titleZh": "德意志銀行在第一季度業績前繼續保持對AMD的評級"
+      },
+      {
+        "uuid": "4e380276-2c81-3dff-9c76-f7c537ab86a1",
+        "title": "Is Broadcom (AVGO) One of the Best American Tech Stocks to Buy?",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/broadcom-avgo-one-best-american-223952363.html",
+        "providerPublishTime": 1777761592,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/H4QnFjguGsbFcrnMfQWe3w--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/4a31470717140dc0b5330d507cacd0ab",
+              "width": 1456,
+              "height": 816,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/FYef0dzhiKmEEArTt7kOJA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/4a31470717140dc0b5330d507cacd0ab",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -965,57 +1128,25 @@
           "AVGO"
         ],
         "_sym": "AVGO",
-        "titleZh": "投資者對Broadcom （ AVGO ）在Google Cloud內嵌入AppNeta可觀察性的反應"
+        "titleZh": "Broadcom （ AVGO ）是最好的美國科技股票之一嗎？"
       },
       {
-        "uuid": "dc52a469-4f82-4354-9dcf-d7efdb400524",
-        "title": "AMD earnings, Fed commentary, April jobs report: What to Watch",
-        "publisher": "Yahoo Finance Video",
-        "link": "https://finance.yahoo.com/video/amd-earnings-fed-commentary-april-230000206.html",
-        "providerPublishTime": 1777676400,
-        "type": "VIDEO",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/rQ56ZwVu5Q7NUTwSLhIwgg--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://d29szjachogqwa.cloudfront.net/images/user-uploaded/wtw-thumbnail-5012026_3394.png",
-              "width": 1920,
-              "height": 1080,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5h_ZsDaeXn1G7iQvVU6hcg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://d29szjachogqwa.cloudfront.net/images/user-uploaded/wtw-thumbnail-5012026_3394.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "DIS",
-          "AMD",
-          "UBER",
-          "MCD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "AMD盈利，聯儲局評論， 4月就業報告：觀看內容"
-      },
-      {
-        "uuid": "2307a382-5e3f-31c9-86be-bdae1b2f5aae",
-        "title": "Jobs Report, Berkshire Annual Meeting: What to Watch in the Next Week",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/2307a382-5e3f-31c9-86be-bdae1b2f5aae/jobs-report%2C-berkshire-annual.html",
-        "providerPublishTime": 1777670720,
+        "uuid": "021e4040-0524-38d7-a1dc-6a01162e295a",
+        "title": "Missed Advanced Micro Devices' Big Move? Here's Why It's Still a Buy",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/021e4040-0524-38d7-a1dc-6a01162e295a/missed-advanced-micro.html",
+        "providerPublishTime": 1777744620,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/aenDIEd9tdNzDKOOQyytYg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/cf6a54be63658dfd69d6c7ba035c59ea",
-              "width": 1280,
-              "height": 640,
+              "url": "https://s.yimg.com/uu/api/res/1.2/.H6CCM4oVL8yhDaver5hqg--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0c1ba3e1b773e8bc44611683f9705bf2",
+              "width": 1200,
+              "height": 800,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/WFSVt8kkX8jjEMZ9MMWRNA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/cf6a54be63658dfd69d6c7ba035c59ea",
+              "url": "https://s.yimg.com/uu/api/res/1.2/WRuTVX.1o2IghinSjprrPw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0c1ba3e1b773e8bc44611683f9705bf2",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1023,36 +1154,31 @@
           ]
         },
         "relatedTickers": [
-          "PLTR",
-          "BRK.A",
           "AMD",
-          "CRWV",
-          "CL=F",
-          "TSN",
-          "NCLH",
-          "DUOL",
-          "SONO"
+          "META",
+          "INTC",
+          "NVDA"
         ],
         "_sym": "AMD",
-        "titleZh": "伯克希爾年會就業報告：下週觀看內容"
+        "titleZh": "錯過了進階微型裝置的大動作？這就是為什麼它仍然值得購買的原因"
       },
       {
-        "uuid": "aa78ef4e-0591-33bc-a2ed-c7f731c5d81e",
-        "title": "Riot Platform Stock Spikes After Data Center Debut, AMD Doubles Capacity",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/aa78ef4e-0591-33bc-a2ed-c7f731c5d81e/riot-platform-stock-spikes.html",
-        "providerPublishTime": 1777667527,
+        "uuid": "67b89da1-3318-3a50-aa75-0ad4824a03e7",
+        "title": "A Look At AST SpaceMobile (ASTS) Valuation After FCC Satellite Approval And BlueBird 7 Launch Setback",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/look-ast-spacemobile-asts-valuation-171308297.html",
+        "providerPublishTime": 1777741988,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jC.zD1.WEisSl.0DFfoffA--~B/aD01NjU7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/5f7d1a3ae9471f9cc0aa118ecba54c35",
-              "width": 1000,
-              "height": 565,
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZNIgIyed.oyZqDcrY_yApg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
+              "width": 1194,
+              "height": 432,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/HujExuQOBGQGbeVAZGSOXA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/5f7d1a3ae9471f9cc0aa118ecba54c35",
+              "url": "https://s.yimg.com/uu/api/res/1.2/_J5edd25Ac_GIAkIzOf.ag--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1060,30 +1186,28 @@
           ]
         },
         "relatedTickers": [
-          "BTC-USD",
-          "AMD",
-          "RIOT"
+          "ASTS"
         ],
-        "_sym": "AMD",
-        "titleZh": "數據中心首次亮相後， Riot平臺股價飆升， AMD的容量翻了一番"
+        "_sym": "ASTS",
+        "titleZh": "FCC衛星批準和BlueBird 7發射受挫後的AST SpaceMobile （ ASTS ）估值"
       },
       {
-        "uuid": "800fe5c4-ed3b-3499-989a-deb0e50c256a",
-        "title": "Nasdaq Tops 25,000. Tech Is Back In Control.",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/800fe5c4-ed3b-3499-989a-deb0e50c256a/nasdaq-tops-25%2C000.-tech-is.html",
-        "providerPublishTime": 1777665710,
+        "uuid": "30b4cdac-71df-356b-8d52-38b918e88727",
+        "title": "Jim Cramer’s Opinion on 21 Stocks: Oklo, AST SpaceMobile, and Others",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-opinion-21-stocks-165936273.html",
+        "providerPublishTime": 1777741176,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_kc6REYMS1JrAuV5bYtjfA--~B/aD02NTt3PTMyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e",
-              "width": 320,
-              "height": 65,
+              "url": "https://s.yimg.com/uu/api/res/1.2/tak3wMpuXBTxJSxoMu1s0A--~B/aD03Njg7dz0xMTUyO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/3fe61364b95991c98978f250ba7bea2c",
+              "width": 1152,
+              "height": 768,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5waH37HKuL3X52B3V2GWrw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e",
+              "url": "https://s.yimg.com/uu/api/res/1.2/VwvtGgIGvc13wojaZj3h7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/3fe61364b95991c98978f250ba7bea2c",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1091,14 +1215,134 @@
           ]
         },
         "relatedTickers": [
+          "ASTS",
+          "OKLO"
+        ],
+        "_sym": "ASTS",
+        "titleZh": "Jim Cramer對21隻股票的看法： Oklo、AST SpaceMobile等"
+      },
+      {
+        "uuid": "e2856a9b-1ae9-32f6-a5d2-6fb26466d805",
+        "title": "These Are April's 2 Hottest AI Stocks. Should You Buy Them in May?",
+        "publisher": "Barchart",
+        "link": "https://finance.yahoo.com/m/e2856a9b-1ae9-32f6-a5d2-6fb26466d805/these-are-april%27s-2-hottest.html",
+        "providerPublishTime": 1777735802,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/AC8LfIiLZAJxQKTGYMfUvA--~B/aD0xMDY0O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/e7d9281efcd52df9885e2aa41365a29b",
+              "width": 1600,
+              "height": 1064,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/4lzW8peENeR_ssHdH3sUIw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/e7d9281efcd52df9885e2aa41365a29b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "ANET",
           "^IXIC",
-          "^DJI",
-          "AMD",
-          "PLTR",
           "^GSPC"
         ],
         "_sym": "AMD",
-        "titleZh": "納斯達克指數突破25,000點。科技股重新掌控局面。"
+        "titleZh": "這些是四月份2個最熱門的人工智慧股票。您應該在5月份購買它們嗎？"
+      },
+      {
+        "uuid": "f723e1cf-947b-3920-94e3-d9f777e384d0",
+        "title": "UFO ETF Faces a Critical Test: Can Pre-Profit Space Stocks Deliver on $1.85B Backlog",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/f723e1cf-947b-3920-94e3-d9f777e384d0/ufo-etf-faces-a-critical.html",
+        "providerPublishTime": 1777734308,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/PsvTCEsnYRu6pEC1JuR_jw--~B/aD0xMDAwO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/3569337beb1e9fb0ac0d8551d8534260",
+              "width": 1500,
+              "height": 1000,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/sKYT2jagc8zrhstYX_Hc4A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/3569337beb1e9fb0ac0d8551d8534260",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          " RKLB",
+          "ASTS",
+          "NVDA"
+        ],
+        "_sym": "ASTS",
+        "titleZh": "UFO ETF面臨嚴峻考驗：預賺太空股能否在18.5億$的待辦項目中交出"
+      },
+      {
+        "uuid": "22e9dcd8-be28-34be-b6a0-5156b42cd82b",
+        "title": "Why Did AST SpaceMobile Stock Slip in April?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/22e9dcd8-be28-34be-b6a0-5156b42cd82b/why-did-ast-spacemobile-stock.html",
+        "providerPublishTime": 1777732687,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/fioCJO2cKVAGzoTXxjQGBw--~B/aD04NzU7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f6a65bdbcad3255c136118ed8dc27835",
+              "width": 1400,
+              "height": 875,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/cCzT9p1Gxbra5L1.0glV_Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f6a65bdbcad3255c136118ed8dc27835",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "ASTS",
+          "SPAX.PVT"
+        ],
+        "_sym": "ASTS",
+        "titleZh": "爲什麼AST SpaceMobile的股票在4月份下跌？"
+      },
+      {
+        "uuid": "1102da72-6d4d-3224-81d8-52c065ef94f0",
+        "title": "Bitmine’s 5 Million ETH Treasury Puts Valuation And Risk In Focus",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/crypto/articles/bitmine-5-million-eth-treasury-101156692.html",
+        "providerPublishTime": 1777716716,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/bVME5zY4X.madJsOrjI1Fg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/98479ef7e2a2339ba3575f02b13c7750",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WaZPcrR2AbhPbxHPYuZyKA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/98479ef7e2a2339ba3575f02b13c7750",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "BMNR",
+          "ETH-USD"
+        ],
+        "_sym": "BMNR",
+        "titleZh": "Bitmine的500萬ETH財政部關注估值和風險"
       },
       {
         "uuid": "b42a5453-fdf8-3894-9745-2b10ad9677c2",
@@ -1131,102 +1375,6 @@
         "titleZh": "以太坊基金會向Tom Lee的BitMine出售價值2300萬$的以太幣"
       },
       {
-        "uuid": "b4a8721b-c320-3e32-99d5-db4bbf437fdb",
-        "title": "Stocks Recover From Tuesday OpenAI Selloff",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/b4a8721b-c320-3e32-99d5-db4bbf437fdb/stocks-recover-from-tuesday.html",
-        "providerPublishTime": 1777660175,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Fwf5HL4GsEGPbDfR3MJBPg--~B/aD02MzA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
-              "width": 1200,
-              "height": 630,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/zIJaagDuCJitt1Cvcwyc7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "CRWV",
-          "AVGO",
-          "ORCL",
-          "9984.T",
-          "AMD"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "股票從周二OpenAI拋售中恢復"
-      },
-      {
-        "uuid": "b246014e-b62f-3722-8a0b-f30af3a07666",
-        "title": "The First $6 Trillion Company May Not Be Nvidia",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/b246014e-b62f-3722-8a0b-f30af3a07666/the-first-%246-trillion-company.html",
-        "providerPublishTime": 1777658760,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1GyokYb3rhlU1hBCT9NaMg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/xpHfBAvtmcLfGwrHdK.gaA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "NVDA",
-          "AVGO"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "第一家$ 6兆美元的公司可能不是NVIDIA"
-      },
-      {
-        "uuid": "3edfcfee-c12f-3499-a89e-7a7469670201",
-        "title": "Broadcom Shares Trade Near 52-Week High: Can the Rally Continue?",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/broadcom-shares-trade-near-52-171900626.html",
-        "providerPublishTime": 1777655940,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4ZSsINkb5XqZ9wfTmt56nw--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/11c57bc89878c9157e259fddcb0b1629",
-              "width": 635,
-              "height": 400,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/8r.IYAChaKKB3Jf5PXKFhQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/11c57bc89878c9157e259fddcb0b1629",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AVGO",
-          "AMD",
-          "SWKS",
-          "NVDA"
-        ],
-        "_sym": "AVGO",
-        "titleZh": "Broadcom股價接近52週高位：反彈能否繼續？"
-      },
-      {
         "uuid": "72a4f68a-2271-382a-89fb-f997bb389759",
         "title": "AST SpaceMobile Shares Slide Following CEO Compensation Disclosures",
         "publisher": "Benzinga",
@@ -1253,40 +1401,7 @@
           "ASTS"
         ],
         "_sym": "ASTS",
-        "titleZh": "AST SpaceMobile在首席執行官薪酬披露後的股票投影片"
-      },
-      {
-        "uuid": "b87fdf78-6374-3f34-af96-ba72969060cb",
-        "title": "Planet Labs & Carbon Mapper To Develop Specialized Tanager Spacecraft",
-        "publisher": "IPO-Edge.com",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/planet-labs-carbon-mapper-develop-205056638.html",
-        "providerPublishTime": 1777582256,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/zWlRrSIGxRAbDVq1NN0oTw--~B/aD0xMTQ4O3c9MjAzOTthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/ipo_edge_com_346/35660450024667646fd2b1bcc02cd23b",
-              "width": 2039,
-              "height": 1148,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/PTNLOSWmHXTAN5cdnp2t5A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ipo_edge_com_346/35660450024667646fd2b1bcc02cd23b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "PL",
-          "VSAT",
-          "ASTS",
-          "BKSY",
-          "RKLB"
-        ],
-        "_sym": "ASTS",
-        "titleZh": "Planet Labs和Carbon Mapper將開發專用Tanager太空船"
+        "titleZh": "AST SpaceMobile在首席執行官薪酬披露後的股票幻燈片"
       },
       {
         "uuid": "5ed34b2b-6ff9-3c38-a3a7-1c07da522cc8",
@@ -1382,130 +1497,8 @@
         ],
         "_sym": "BMNR",
         "titleZh": "Strive首席執行官：比特幣50 ％的崩潰顯示了為什麼數字信貸是未來"
-      },
-      {
-        "uuid": "acdfe938-8c6b-317f-87e9-604c3f98a7eb",
-        "title": "Whales Selling Ethereum? 10-Year Dormant ETH Holder Moves $23M As Tom Lee's Bitmine Buying Continues",
-        "publisher": "CCN",
-        "link": "https://finance.yahoo.com/m/acdfe938-8c6b-317f-87e9-604c3f98a7eb/whales-selling-ethereum%3F.html",
-        "providerPublishTime": 1777455135,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/E3xpzJRtvomiYNeleYCgJA--~B/aD04NjQ7dz0xNTM2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ccn_928/41764a90605590331d429038d0602a34",
-              "width": 1536,
-              "height": 864,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/dGsqqYbS9TbTFEOTDOBrgA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ccn_928/41764a90605590331d429038d0602a34",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ETH-USD",
-          "BMNR"
-        ],
-        "_sym": "BMNR",
-        "titleZh": "鯨魚出售以太坊？隨著Tom Lee的比特幣購買繼續， 10年休眠以太坊持有人移動了2300萬$"
-      },
-      {
-        "uuid": "3118bab7-1bf7-3d73-865d-1917ebb93ccf",
-        "title": "Should FCC Approval for 248-Satellite Direct-to-Device Network Require Action From AST SpaceMobile (ASTS) Investors?",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/fcc-approval-248-satellite-direct-150658639.html",
-        "providerPublishTime": 1777388818,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ZNIgIyed.oyZqDcrY_yApg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_J5edd25Ac_GIAkIzOf.ag--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/6008364ab7a4bfa5cc53e4098a01b3b0",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ASTS",
-          "VZ",
-          "T"
-        ],
-        "_sym": "ASTS",
-        "titleZh": "FCC批準248顆衛星直接到設備網絡是否需要AST SpaceMobile （ ASTS ）投資者採取行動？"
-      },
-      {
-        "uuid": "776b85f0-f7b8-3597-a7f0-813a07a0dd68",
-        "title": "AST SpaceMobile to Host First Quarter 2026 Business Update Call on May 11, 2026",
-        "publisher": "Business Wire",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/ast-spacemobile-host-first-quarter-131600841.html",
-        "providerPublishTime": 1777382160,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/BbwiZW1zCUwU.Rf32TES_w--~B/aD0yNDA7dz00ODA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/36dcda212d9b19f8455829679c417149",
-              "width": 480,
-              "height": 240,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/0Akiwak12DXvvas1GqhdCA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/36dcda212d9b19f8455829679c417149",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ASTS"
-        ],
-        "_sym": "ASTS",
-        "titleZh": "AST SpaceMobile將於2026年5月11日舉辦2026年第一季業務最新消息電話會議"
-      },
-      {
-        "uuid": "45f80eda-dbf8-3531-9381-2c18ccb422e4",
-        "title": "AST SpaceMobile, Inc. (ASTS) Surpasses Market Returns: Some Facts Worth Knowing",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/ast-spacemobile-inc-asts-surpasses-220003721.html",
-        "providerPublishTime": 1777327203,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/nxwFIPS2ImeTQYZMYlnAgg--~B/aD02MDA7dz05MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/1a018a29aef5adbf5b4319f32058e209",
-              "width": 900,
-              "height": 600,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/b7m1GSxHeAeYrh4cHL3hRA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/1a018a29aef5adbf5b4319f32058e209",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ASTS",
-          "^GSPC",
-          "^DJI",
-          "^IXIC"
-        ],
-        "_sym": "ASTS",
-        "titleZh": "AST SpaceMobile, Inc. (ASTS)超越市場回報：一些值得了解的事實"
       }
     ],
-    "fetched_at": 1777694977338
+    "fetched_at": 1777814408855
   }
 }
