@@ -3839,8 +3839,26 @@
             const gistId = localStorage.getItem(GIST_ID_KEY);
             if (!token || !gistId) return false; // 未設定憑證，只存 localStorage
             try {
-                if (!(await _preflightGistPush(token, gistId))) return false;
+                const _pf = await _preflightGistPush(token, gistId);
+                if (_pf.action === 'reject') return false;
+                // v15.079：hash_match → 內容無變化，不必 PATCH，只更 baseline + 清 dirty
+                if (_pf.action === 'noop') {
+                    _applySyncBaseline({
+                        data: _pf.state.data,
+                        saved: _pf.state.saved,
+                        cloudRevision: _pf.state.cloudRevision,
+                        cloudUpdatedAt: _pf.state.cloudUpdatedAt
+                    }, { userDataHash: _pf.localHash });
+                    _pushRetryCount = 0;
+                    clearTimeout(_retryTimer);
+                    _updateSyncTimeLabels();
+                    localStorage.removeItem('pt_last_push_error');
+                    console.log('[Snapshot] hash_match：本機與雲端內容相同，跳過 PATCH');
+                    return true;
+                }
                 const pushedAt = new Date().toISOString();
+                // v15.079：sync_meta 含 userDataHash；silent push 永不寫 master flag
+                const sync_meta = await _buildSyncMeta(pushedAt, undefined, { userDataHash: _pf.localHash });
                 const payload = JSON.stringify({
                     schema_version: PT_SCHEMA_VERSION,
                     holdings,
@@ -3858,7 +3876,7 @@
                     marketSnapshots,
                     daily_pnl_snapshots: _loadDailyPnlSnapshots(),   // v15.071：跨裝置同步
                     pushedAt,
-                    sync_meta: _buildSyncMeta(pushedAt)
+                    sync_meta
                 }, null, 2);
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
@@ -3879,8 +3897,11 @@
                     throw e;
                 }
                 const data = await res.json().catch(() => null);
-                // v15.075：用 _applySyncBaseline 統一寫 baseline + 清 dirty + 清 pending
-                _applySyncBaseline({ data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt });
+                // v15.075/079：用 _applySyncBaseline 統一寫 baseline + 清 dirty + 清 pending + 寫 lastUserDataHash
+                _applySyncBaseline(
+                    { data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt },
+                    { userDataHash: _pf.localHash }
+                );
                 _pushRetryCount = 0;
                 clearTimeout(_retryTimer);
                 _updateSyncTimeLabels();
