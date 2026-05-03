@@ -3513,6 +3513,105 @@
         function _clearRollbackSummary() {
             localStorage.removeItem(STORAGE_KEYS.rollbackSummary);
         }
+        // v15.079：啟動 / pull 完成後呼叫，依 rollbackSummary 顯示 #rollback-card
+        function _renderRollbackCard() {
+            const card = document.getElementById('rollback-card');
+            const info = document.getElementById('rollback-info');
+            if (!card || !info) return;
+            const sum = _loadRollbackSummary();
+            if (!sum || !sum.masterId) {
+                card.style.display = 'none';
+                return;
+            }
+            const t = sum.createdAt ? new Date(sum.createdAt).toLocaleString('zh-TW') : '?';
+            info.innerHTML = `偵測到本機回復點：標記於 <b style="color:#e2e8f0;">${t}</b>。<br>若這次「標記最新版」誤標，可還原本機到該雲端資料（不影響其他裝置）。`;
+            card.style.display = 'block';
+        }
+        function _dismissRollback() {
+            if (!confirm('確定不再需要這個回復點？\n\n清除後將無法回到標記前的雲端資料。')) return;
+            const sum = _loadRollbackSummary();
+            if (sum && sum.masterId) {
+                try { _idbDeleteRollback(sum.masterId); } catch(_) {}
+            }
+            _clearRollbackSummary();
+            _renderRollbackCard();
+            showImportToast('已清除本機回復點', 1800);
+        }
+        async function _doRollback() {
+            const sum = _loadRollbackSummary();
+            if (!sum || !sum.masterId) { showWarnToast('回復點不存在'); return; }
+            const r = await _idbGetRollback(sum.masterId);
+            if (!r) { showWarnToast('IDB 內回復資料已遺失'); _clearRollbackSummary(); _renderRollbackCard(); return; }
+            const t = sum.createdAt ? new Date(sum.createdAt).toLocaleString('zh-TW') : '?';
+            const ok = confirm(`確定要還原本機資料到 ${t}（標記前的雲端內容）？\n\n注意：\n• 只還原本機，不會影響雲端與其他裝置\n• 還原後若要讓雲端也回復，請再選一次「標記最新版」`);
+            if (!ok) return;
+            await rollbackToBeforeMaster(sum.masterId, r);
+        }
+        async function rollbackToBeforeMaster(masterId, rollbackObj) {
+            const r = rollbackObj || (await _idbGetRollback(masterId));
+            if (!r) { showWarnToast('回復點已不存在'); return false; }
+            const before = r.beforeCloudPayload;
+            if (!before || typeof before !== 'object') {
+                showWarnToast('回復資料不完整');
+                return false;
+            }
+            _isApplyingCloudPull = true;
+            try {
+                // 套用 beforeCloudPayload 至本機（手動 pull 流程的子集）
+                if (Array.isArray(before.holdings)) {
+                    holdings = before.holdings;
+                    holdings.forEach(h => { h.persist = true; try { _ensureLots(h); } catch(_) {} });
+                }
+                if (Array.isArray(before.watchlist)) { watchlist = before.watchlist; saveWatchlist(); }
+                if (Array.isArray(before.tradeHistory)) { tradeHistory = before.tradeHistory; saveTradeHistory(); }
+                if (Array.isArray(before.deposits)) { deposits = before.deposits; saveDeposits(); }
+                if (Array.isArray(before.marketSnapshots)) { marketSnapshots = before.marketSnapshots; saveSnapshots(); }
+                if (before.currency) currency = before.currency;
+                if (before.exchangeRates) { exchangeRates = before.exchangeRates; try { syncRateInputs(); } catch(_) {} }
+                if (before.sheet_url != null) {
+                    const sheetEl = document.getElementById('sheet-url');
+                    if (sheetEl) { sheetEl.value = before.sheet_url; try { saveSheetUrlSetting(); } catch(_) {} }
+                }
+                if (before.cash_pie_cb != null) {
+                    localStorage.setItem(PT_CASH_PIE_KEY, before.cash_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('cash-pie-cb'); if (cb) cb.checked = !!before.cash_pie_cb;
+                }
+                if (before.crypto_twd != null) {
+                    const v = before.crypto_twd || 0;
+                    if (v > 0) localStorage.setItem(PT_CRYPTO_KEY, v); else localStorage.removeItem(PT_CRYPTO_KEY);
+                    const el = document.getElementById('crypto-twd-input'); if (el) el.value = v > 0 ? v : '';
+                }
+                if (before.crypto_pie_cb != null) {
+                    localStorage.setItem(PT_CRYPTO_PIE_KEY, before.crypto_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('crypto-pie-cb'); if (cb) cb.checked = !!before.crypto_pie_cb;
+                }
+                if (before.moxa_twd != null) {
+                    const v = before.moxa_twd || 0;
+                    if (v > 0) localStorage.setItem(PT_MOXA_KEY, v); else localStorage.removeItem(PT_MOXA_KEY);
+                    const el = document.getElementById('moxa-twd-input'); if (el) el.value = v > 0 ? v : '';
+                }
+                if (before.moxa_pie_cb != null) {
+                    localStorage.setItem(PT_MOXA_PIE_KEY, before.moxa_pie_cb ? '1' : '0');
+                    const cb = document.getElementById('moxa-pie-cb'); if (cb) cb.checked = !!before.moxa_pie_cb;
+                }
+                // 標 master 處理 + 清回復點 + 不影響 Gist
+                _addProcessedMasterId(masterId);
+                await _idbDeleteRollback(masterId);
+                _clearRollbackSummary();
+                // 把本機 hash 重設為「還原後內容」對應 hash，供 silent push 之後判斷
+                try {
+                    const restoredHash = await _userDataHash(_buildLocalUserPayload());
+                    if (restoredHash) localStorage.setItem(STORAGE_KEYS.lastUserDataHash, restoredHash);
+                } catch(_) {}
+                saveToStorage();
+                renderAll();
+                _renderRollbackCard();
+                showImportToast('✅ 已還原本機至標記前雲端資料', 2500);
+                return true;
+            } finally {
+                _isApplyingCloudPull = false;
+            }
+        }
 
         // push / pull 成功後統一寫 baseline + 清 dirty / pending；v15.079 加 lastUserDataHash
         function _applySyncBaseline(gistState, opts) {
