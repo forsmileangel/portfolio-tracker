@@ -4579,7 +4579,16 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
-                _applySyncBaseline(gistState);   // v15.075：統一寫 baseline + 清 dirty + 清 pending
+                // v15.075/079：統一寫 baseline + 清 dirty；同時計算 hash 寫 lastUserDataHash + 標 master 處理（如有）
+                let _pulledHash = saved?.sync_meta?.userDataHash || null;
+                if (!_pulledHash) {
+                    try { _pulledHash = await _userDataHash(_extractUserDataFromGistPayload(saved)); } catch(_) {}
+                }
+                _applySyncBaseline(gistState, { userDataHash: _pulledHash });
+                try {
+                    const mf = saved?.sync_meta?.userConfirmedCloudMaster;
+                    if (mf && mf.id) _addProcessedMasterId(mf.id);
+                } catch(_) {}
                 _storageReady = true;
                 saveToStorage();
 
