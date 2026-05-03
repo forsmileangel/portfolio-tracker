@@ -4919,6 +4919,8 @@
                 _storageReady = true;
                 // v15.075/079：統一寫 baseline + 清 dirty + 清 pending；pull 完成後本機 hash = 雲端 hash
                 _applySyncBaseline(gistState, { userDataHash: _cloudHashV || _localHashV });
+                // v15.079 hotfix：套用成功後才標記 master id processed
+                if (_pendingMasterId) _addProcessedMasterId(_pendingMasterId);
                 saveToStorage();
                 // v15.069：Gist pull 後立刻 hydrate 既有 cache 並排程一次 loadAnalysis，
                 //   讓新裝置不用等 1hr 就能看到今日/昨日損益
