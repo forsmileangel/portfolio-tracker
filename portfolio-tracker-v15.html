@@ -3627,9 +3627,20 @@
                     if (restoredHash) localStorage.setItem(STORAGE_KEYS.lastUserDataHash, restoredHash);
                 } catch(_) {}
                 saveToStorage();
+                // v15.079 hotfix：rollback 後本機與雲端內容不同（雲端仍是 master 那版）→
+                // 標 user domains dirty 但「不」auto-push，由使用者自行選擇暫存或標記最新版
+                try {
+                    const ts = new Date().toISOString();
+                    _markDomainsModified(['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings'], ts);
+                    localStorage.setItem(PT_LOCAL_MODIFY_TS, ts);
+                    const cur = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
+                    localStorage.setItem(PT_PENDING_PUSH_COUNT, String(cur + 1));
+                    _updatePendingPushIndicator();
+                    _updateSyncTimeLabels();
+                } catch(_) {}
                 renderAll();
                 _renderRollbackCard();
-                showImportToast('✅ 已還原本機至標記前雲端資料', 2500);
+                showImportToast('✅ 已還原本機至標記前雲端資料（雲端未變動，請手動選擇推送方式）', 3500);
                 return true;
             } finally {
                 _isApplyingCloudPull = false;
