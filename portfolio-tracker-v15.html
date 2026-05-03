@@ -1625,11 +1625,9 @@
                 slot.current = newCurrent;
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
-                // v15.078 hotfix：pending_quote 是中間狀態（quote / analysis meta 尚未對齊 target），不應該進 Gist dirty / pending
-                // 只有 fresh_after_close 才算「真的有新昨日損益要同步」，避免 PWA 放著就跳「1 筆改動未同步」
-                if (newStatus === 'fresh_after_close') {
-                    try { _markAndAutoPush(['dailyPnlSnapshots']); } catch(_) {}
-                }
+                // v15.079 hotfix：daily snapshot 完全不再進 Gist dirty / pending count
+                // 由其他 user-data domain 的 push 順帶帶上雲端（payload 仍含 daily_pnl_snapshots，但不算 user data hash）
+                // 若整個 session 沒任何 user data 改動，snapshot 就只在本機保存，下次有 push 才同步
                 console.log(`[DailyPnL] Captured ${marketKey} ${newStatus} for ${target} src=${source} basis=${slot.current.basisField} (pnlTWD=${pnlTWD.toFixed(0)}, lastComplete=${snap.lastCompleteDate})`);
             } catch(_) {}
         }
