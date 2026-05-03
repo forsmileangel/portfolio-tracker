@@ -3920,7 +3920,9 @@
             }
         }
 
-        // 每日首次開啟時自動記錄市值快照，有新快照則靜默推送 Gist
+        // 每日首次開啟時自動記錄市值快照
+        // v15.079：snapshot 不再直接 _gistSilentPush()；marketSnapshots 不入 userDataHash，
+        // 靠其他 domain push 順帶帶上雲端，pending count 不再因 snapshot-only 變動而 +1
         function recordSnapshot() {
             const today = new Date().toISOString().slice(0, 10);
             if (marketSnapshots.some(s => s.date === today)) return;
@@ -3929,7 +3931,6 @@
             marketSnapshots.push({ date: today, stockTWD });
             marketSnapshots.sort((a, b) => a.date.localeCompare(b.date));
             saveSnapshots();
-            _gistSilentPush(); // 有新快照才推，每日最多一次
         }
 
         // 依 mode 將快照分組，回傳 [{ key, first, last }] 降冪（快照為主）
