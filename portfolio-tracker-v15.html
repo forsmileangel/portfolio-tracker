@@ -4290,23 +4290,15 @@
             if (!token) { setGistStatus('❌ 請先填入 GitHub Token', '#ef4444'); showWarnToast('❌ 請先在設定填入 GitHub Token'); return; }
             if (holdings.length === 0 && deposits.length === 0) { setGistStatus('❌ 目前無資料可推送', '#ef4444'); showWarnToast('❌ 目前無持倉或存款資料可推送'); return; }
 
+            // v15.079：手動推送先進三選一 modal（master / staging / cancel）
+            const mode = await _promptPushMode();
+            if (mode === 'cancel') { setGistStatus('已取消推送', '#fbbf24'); return; }
+
             setGistStatus('⏳ 推送中...', '#60a5fa');
-            // v15.075：preflight 失敗 → 提供「強制覆蓋」逃生口（離線改完回來時用）
             let _force = false;
+            let _pf;
             try {
-                const _pf = await _preflightGistPush(token, gistId);
-                if (_pf === false) {
-                    const ok = confirm(
-                        '雲端已有他裝置 push 過的較新資料，預設拒絕推送以避免覆蓋。\n\n' +
-                        '若你確定本機資料才是正本（例如離線修改後回到網路），可選「確定」強制推送覆蓋雲端。\n' +
-                        '取消後可改用「拉取雲端最新」按鈕。'
-                    );
-                    if (!ok) {
-                        setGistStatus('已取消推送', '#fbbf24');
-                        return;
-                    }
-                    _force = true;
-                }
+                _pf = await _preflightGistPush(token, gistId);
             } catch(e) {
                 // v15.062：preflight 失敗時也要記錄錯誤、判斷 401/403 後停止重試
                 _recordPushError(e);
@@ -4318,7 +4310,78 @@
                 }
                 return;
             }
+
+            // v15.079：staging + hash_match → 不送 PATCH，只更 baseline + 清 dirty
+            if (mode === 'staging' && _pf.action === 'noop') {
+                _applySyncBaseline(
+                    { data: _pf.state.data, saved: _pf.state.saved, cloudRevision: _pf.state.cloudRevision, cloudUpdatedAt: _pf.state.cloudUpdatedAt },
+                    { userDataHash: _pf.localHash }
+                );
+                _updateSyncTimeLabels();
+                localStorage.removeItem('pt_last_push_error');
+                const t0 = new Date().toLocaleTimeString('zh-TW');
+                setGistStatus(`✅ 雲端與本機內容相同，已更新基準（${t0}）`, '#10b981');
+                showImportToast('✅ 雲端與本機內容相同，已更新同步基準', 2500);
+                return;
+            }
+
+            // v15.079：staging + reject → confirm 強制覆蓋逃生口（master 模式直接 force，不問）
+            if (mode === 'staging' && _pf.action === 'reject') {
+                const ok = confirm(
+                    '雲端已有他裝置 push 過的較新資料，預設拒絕推送以避免覆蓋。\n\n' +
+                    '若你確定本機資料才是正本（例如離線修改後回到網路），可選「確定」強制推送覆蓋雲端。\n' +
+                    '取消後可改用「拉取雲端最新」按鈕。'
+                );
+                if (!ok) { setGistStatus('已取消推送', '#fbbf24'); return; }
+                _force = true;
+            }
+
+            // v15.079：master 模式 — 總是 force 推（即使 preflight reject 也覆蓋），並寫 master flag + 存 IDB rollback
+            let userConfirmedCloudMaster = null;
+            if (mode === 'master') {
+                _force = true;
+                const masterId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                    ? crypto.randomUUID()
+                    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                const sourceDeviceId = _getDeviceId();
+                userConfirmedCloudMaster = {
+                    id: masterId,
+                    at: '',                              // 下面 pushedAt 確定後再回填
+                    userDataHash: _pf.localHash,
+                    appVersion: APP_VERSION,
+                    sourceDeviceId
+                };
+                // 標記前先存本機回復點（含當時雲端 payload 完整 dump）
+                try {
+                    const beforePayload = _pf.state?.saved || null;
+                    let beforeHash = beforePayload?.sync_meta?.userDataHash || null;
+                    if (!beforeHash && beforePayload) {
+                        beforeHash = await _userDataHash(_extractUserDataFromGistPayload(beforePayload));
+                    }
+                    const createdAt = new Date().toISOString();
+                    await _idbSaveRollback(masterId, {
+                        masterId,
+                        sourceDeviceId,
+                        createdAt,
+                        beforeCloudPayload: beforePayload,
+                        beforeCloudUserDataHash: beforeHash,
+                        afterUserDataHash: _pf.localHash
+                    });
+                    _saveRollbackSummary({ masterId, createdAt, sourceDeviceId });
+                } catch(e) {
+                    console.warn('[MasterPush] save rollback failed:', e);
+                    showWarnToast('⚠ 無法建立本機回復點（IndexedDB 異常），仍會繼續推送', 4000);
+                }
+            }
+
             const pushedAt = new Date().toISOString();
+            if (userConfirmedCloudMaster) userConfirmedCloudMaster.at = pushedAt;
+
+            const sync_meta = await _buildSyncMeta(pushedAt, undefined, {
+                userDataHash: _pf.localHash,
+                userConfirmedCloudMaster
+            });
+
             const payload = JSON.stringify({
                 schema_version: PT_SCHEMA_VERSION,
                 holdings,
@@ -4336,7 +4399,7 @@
                 marketSnapshots,
                 daily_pnl_snapshots: _loadDailyPnlSnapshots(),   // v15.071：跨裝置同步
                 pushedAt,
-                sync_meta: _buildSyncMeta(pushedAt)
+                sync_meta
             }, null, 2);
 
             try {
@@ -4385,16 +4448,23 @@
 
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, newId);
-                // v15.075：用 _applySyncBaseline 統一寫 baseline + 清 dirty + 清 pending
-                _applySyncBaseline({ data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt });
+                // v15.075/079：_applySyncBaseline 統一寫 baseline + 清 dirty + 寫 lastUserDataHash
+                _applySyncBaseline(
+                    { data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt },
+                    { userDataHash: _pf.localHash }
+                );
+                // master 模式：把自己這次的 master id 加入「已處理」清單，避免下次 silent pull 把自己又拉一次
+                if (mode === 'master' && userConfirmedCloudMaster) {
+                    _addProcessedMasterId(userConfirmedCloudMaster.id);
+                }
                 _updateSyncTimeLabels();
                 localStorage.removeItem('pt_last_push_error');
 
                 const t = new Date().toLocaleTimeString('zh-TW');
                 const depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
-                const _forceTag = _force ? '（強制覆蓋）' : '';
-                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉${depNote}${_forceTag}（${t}）`, '#10b981');
-                showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）${_forceTag}`, 2500);
+                const modeTag = mode === 'master' ? '（標記最新版）' : (_force ? '（強制覆蓋）' : '（暫存上傳）');
+                setGistStatus(`✅ 已推送 ${holdings.length} 筆持倉${depNote}${modeTag}（${t}）`, '#10b981');
+                showImportToast(`✅ 資料已推送至 GitHub Gist（持倉 ${holdings.length} 筆${depNote}）${modeTag}`, 2500);
 
             } catch(e) {
                 _recordPushError(e);
