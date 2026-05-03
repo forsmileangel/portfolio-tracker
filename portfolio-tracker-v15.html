@@ -4797,9 +4797,10 @@
                 const _hasUnprocessedMaster = !!(_masterFlag && _masterFlag.id && !_isMasterIdProcessed(_masterFlag.id));
 
                 // hash 相同 → 內容無變化，只更 baseline（master 若新就標處理）
+                // v15.079 hotfix：_applySyncBaseline 成功後才標記 master id processed
                 if (v2.kind === 'hash_match') {
-                    if (_hasUnprocessedMaster) _addProcessedMasterId(_masterFlag.id);
                     _applySyncBaseline(gistState, { userDataHash: _localHashV });
+                    if (_hasUnprocessedMaster) _addProcessedMasterId(_masterFlag.id);
                     console.log('[AutoPull] hash_match — 跳過套用雲端資料');
                     return;
                 }
