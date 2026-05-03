@@ -4630,27 +4630,52 @@
                     return;
                 }
 
-                // v15.075：classify-based 主導，取代「dirty 一律 skip」
-                const cls = _classifyCloudSyncState(gistState);
-                if (cls === 'clean_cloud_same') {
-                    return;   // 雲端 = 本機 baseline，無事
-                }
-                if (cls === 'dirty_cloud_same') {
-                    // 本機有未上傳修改但 baseline 對齊雲端 → 安全 push
-                    setGistStatus('本機有未上傳修改，啟動推送…', '#fbbf24');
-                    _gistSilentPush();
+                // v15.079：hash-first + master flag detection
+                const v2 = await _classifyCloudSyncStateV2(gistState);
+                const _localHashV = v2.localHash;
+                const _cloudHashV = v2.cloudHash;
+                const _masterFlag = saved.sync_meta?.userConfirmedCloudMaster || null;
+                const _hasUnprocessedMaster = !!(_masterFlag && _masterFlag.id && !_isMasterIdProcessed(_masterFlag.id));
+
+                // hash 相同 → 內容無變化，只更 baseline（master 若新就標處理）
+                if (v2.kind === 'hash_match') {
+                    if (_hasUnprocessedMaster) _addProcessedMasterId(_masterFlag.id);
+                    _applySyncBaseline(gistState, { userDataHash: _localHashV });
+                    console.log('[AutoPull] hash_match — 跳過套用雲端資料');
                     return;
                 }
-                if (cls === 'dirty_cloud_newer_conflict') {
-                    showWarnToast(`❌ 雲端已有新版（${_fmtSyncTs(gistState.cloudUpdatedAt)}），本機也有未上傳修改。請手動「拉取」覆蓋本機，或在「推送」時選強制覆蓋。`, 5000);
-                    setGistStatus('❌ 同步衝突：請手動處理雲端與本機差異', '#ef4444');
-                    return;
+
+                // master flag 未處理 → 強制 auto-pull（使用者已宣告雲端主版本）
+                let _forceApplyCloud = false;
+                if (_hasUnprocessedMaster) {
+                    console.log('[AutoPull] master flag detected, forcing apply cloud:', _masterFlag.id);
+                    _addProcessedMasterId(_masterFlag.id);
+                    _forceApplyCloud = true;
                 }
-                if (cls === 'no_cloud_base' || cls === 'dirty_no_cloud') {
-                    setGistStatus('⚠ 同步基準未建立，請手動推送或拉取一次', '#fbbf24');
-                    return;
+
+                // 既有 6-state classify（hash 不同且無 master flag）
+                const cls = v2.kind;
+                if (!_forceApplyCloud) {
+                    if (cls === 'clean_cloud_same') {
+                        return;   // 雲端 = 本機 baseline，無事
+                    }
+                    if (cls === 'dirty_cloud_same') {
+                        // 本機有未上傳修改但 baseline 對齊雲端 → 安全 push
+                        setGistStatus('本機有未上傳修改，啟動推送…', '#fbbf24');
+                        _gistSilentPush();
+                        return;
+                    }
+                    if (cls === 'dirty_cloud_newer_conflict') {
+                        showWarnToast(`❌ 雲端已有新版（${_fmtSyncTs(gistState.cloudUpdatedAt)}），本機也有未上傳修改。請手動「拉取」覆蓋本機，或在「推送」時選強制覆蓋。`, 5000);
+                        setGistStatus('❌ 同步衝突：請手動處理雲端與本機差異', '#ef4444');
+                        return;
+                    }
+                    if (cls === 'no_cloud_base' || cls === 'dirty_no_cloud') {
+                        setGistStatus('⚠ 同步基準未建立，請手動推送或拉取一次', '#fbbf24');
+                        return;
+                    }
                 }
-                // clean_cloud_newer / clean_no_cloud → 套用雲端資料（auto pull）
+                // clean_cloud_newer / clean_no_cloud / _forceApplyCloud → 套用雲端資料（auto pull）
                 _isApplyingCloudPull = true;
                 holdings = saved.holdings;
                 holdings.forEach(h => h.persist = true);
