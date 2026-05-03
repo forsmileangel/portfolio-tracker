@@ -644,6 +644,23 @@
             <div id="gist-status" style="margin-top:0.45rem; font-size:0.78rem; color:#607585;"></div>
         </div>
 
+        <!-- v15.079：本機回復點（標記最新版前的雲端資料快照） -->
+        <div class="glass-card" id="rollback-card" style="display:none; padding:1rem 1.5rem; margin-top:1rem; border-color:rgba(251,191,36,0.4);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#fbbf24; font-size:0.85rem; font-weight:600;"><i class="ic">↺</i> 本機回復點</label>
+                <span style="font-size:0.72rem; color:#607585;">標記前雲端資料</span>
+            </div>
+            <div id="rollback-info" style="font-size:0.78rem; color:#94a3b8; margin-bottom:0.6rem;"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                <button onclick="_doRollback()" style="padding:0.55rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; text-transform:none; letter-spacing:0;">
+                    回到標記前雲端資料
+                </button>
+                <button onclick="_dismissRollback()" style="padding:0.55rem; background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3); border-radius:8px; font-weight:600; font-size:0.82rem; cursor:pointer; text-transform:none; letter-spacing:0;">
+                    不需要
+                </button>
+            </div>
+        </div>
+
         <!-- 錯誤日誌（v15.064） -->
         <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; flex-wrap:wrap; gap:0.5rem;">
