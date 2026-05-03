@@ -5878,19 +5878,32 @@
         // #region Local Sync (FSA, desktop-only, independent from Gist)
 
         // ── IndexedDB helpers — 存 FileSystemDirectoryHandle（unserializable，不能用 localStorage）
+        // v15.079：DB version 升 1→2，新增 'rollbacks' store 給 master flag 回復點使用；既有 'handles' store 不動
         const PT_IDB_NAME         = 'pt_idb_v1';
         const PT_IDB_STORE        = 'handles';
+        const PT_IDB_ROLLBACK_STORE = 'rollbacks';
+        const PT_IDB_VERSION      = 2;
         const PT_IDB_SYNC_DIR_KEY = 'syncDir';
         function _idbOpen() {
             return new Promise((resolve, reject) => {
                 if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB not available'));
-                const req = indexedDB.open(PT_IDB_NAME, 1);
-                req.onupgradeneeded = () => {
+                const req = indexedDB.open(PT_IDB_NAME, PT_IDB_VERSION);
+                req.onupgradeneeded = (ev) => {
                     const db = req.result;
+                    const oldV = ev.oldVersion || 0;
                     if (!db.objectStoreNames.contains(PT_IDB_STORE)) db.createObjectStore(PT_IDB_STORE);
+                    if (oldV < 2 && !db.objectStoreNames.contains(PT_IDB_ROLLBACK_STORE)) {
+                        db.createObjectStore(PT_IDB_ROLLBACK_STORE);
+                    }
                 };
-                req.onsuccess = () => resolve(req.result);
+                req.onsuccess = () => {
+                    const db = req.result;
+                    // v15.079：他 tab 開新版升級時讓本連線釋放，避免 block
+                    db.onversionchange = () => { try { db.close(); } catch(_) {} };
+                    resolve(db);
+                };
                 req.onerror   = () => reject(req.error);
+                req.onblocked = () => console.warn('[IDB] open blocked — 其他 tab 仍開著舊版 DB，請關閉重試');
             });
         }
         async function _idbPut(key, val) {
@@ -5927,6 +5940,46 @@
                 return await new Promise((resolve, reject) => {
                     const tx = db.transaction(PT_IDB_STORE, 'readwrite');
                     tx.objectStore(PT_IDB_STORE).delete(key);
+                    tx.oncomplete = () => { db.close(); resolve(true); };
+                    tx.onerror    = () => { db.close(); reject(tx.error); };
+                });
+            } catch(_) { return false; }
+        }
+        // v15.079：rollback store helpers（key = masterId）
+        async function _idbSaveRollback(masterId, obj) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_ROLLBACK_STORE, 'readwrite');
+                    tx.objectStore(PT_IDB_ROLLBACK_STORE).put(obj, masterId);
+                    tx.oncomplete = () => { db.close(); resolve(true); };
+                    tx.onerror    = () => { db.close(); reject(tx.error); };
+                });
+            } catch(e) {
+                console.warn('[Rollback] IDB save failed:', e?.message);
+                return false;
+            }
+        }
+        async function _idbGetRollback(masterId) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_ROLLBACK_STORE, 'readonly');
+                    const r  = tx.objectStore(PT_IDB_ROLLBACK_STORE).get(masterId);
+                    r.onsuccess = () => { db.close(); resolve(r.result || null); };
+                    r.onerror   = () => { db.close(); reject(r.error); };
+                });
+            } catch(e) {
+                console.warn('[Rollback] IDB get failed:', e?.message);
+                return null;
+            }
+        }
+        async function _idbDeleteRollback(masterId) {
+            try {
+                const db = await _idbOpen();
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(PT_IDB_ROLLBACK_STORE, 'readwrite');
+                    tx.objectStore(PT_IDB_ROLLBACK_STORE).delete(masterId);
                     tx.oncomplete = () => { db.close(); resolve(true); };
                     tx.onerror    = () => { db.close(); reject(tx.error); };
                 });
