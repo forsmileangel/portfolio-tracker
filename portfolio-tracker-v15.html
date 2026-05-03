@@ -7574,6 +7574,7 @@
             // v15.075：啟動無條件呼叫 _gistSilentPull，由 classify 決定要 pull / 觸發 push / 報衝突
             // 取代舊的「pending > 0 → 先推後拉，push 失敗就卡死」分支
             _updatePendingPushIndicator();
+            _renderRollbackCard();   // v15.079：若本機有 master rollback summary 則顯示卡片
             _gistSilentPull();
             // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
             // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
