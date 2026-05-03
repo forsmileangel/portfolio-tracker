@@ -1076,6 +1076,10 @@
             dailyPnlSnapshots:'pt_daily_pnl_snapshots_v1',  // v15.069 起（v15.071 起會同步進 Gist）
             marketQuoteMeta:  'pt_market_quote_meta_v1',    // v15.071/073：批次報價更新時間 + marketDate（v15.073 加）
             marketAnalysisMeta:'pt_market_analysis_meta_v1', // v15.073：runAnalysis 完成後 prevClose/prevPrevClose 對齊的 marketDate
+            // v15.079：userDataHash + master flag tracking（純本機）
+            lastUserDataHash:        'pt_last_user_data_hash_v1',
+            processedMasterIds:      'pt_processed_master_ids_v1',
+            rollbackSummary:         'pt_cloud_master_rollback_summary_v1',
             // v15.077：本地資料夾同步（FSA），桌機限定，獨立於 Gist 流程
             localSyncEnabled:        'pt_local_sync_enabled',
             localSyncFile:           'pt_local_sync_file',
