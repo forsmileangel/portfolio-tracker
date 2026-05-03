@@ -3390,14 +3390,120 @@
             if (dirty && same)    return 'dirty_cloud_same';
             return 'dirty_cloud_newer_conflict';
         }
-        // push / pull 成功後統一寫 baseline + 清 dirty / pending
-        function _applySyncBaseline(gistState) {
+
+        // ────────────────────────────────────────────────────────
+        // v15.079：userDataHash + master flag 系列
+        // 設計：以使用者資料內容 hash 取代 revision/pushedAt 作為主判斷
+        // 不入 hash：marketSnapshots / daily_pnl_snapshots / pushedAt / sync_meta / 報價 / FX / 分析快取
+        // ────────────────────────────────────────────────────────
+        function _buildLocalUserPayload() {
+            return {
+                holdings,
+                watchlist,
+                tradeHistory,
+                deposits,
+                currency,
+                sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
+                cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
+                crypto_twd:    parseFloat(document.getElementById('crypto-twd-input')?.value) || 0,
+                crypto_pie_cb: document.getElementById('crypto-pie-cb')?.checked || false,
+                moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
+                moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false
+            };
+        }
+        function _extractUserDataFromGistPayload(payload) {
+            if (!payload || typeof payload !== 'object') return null;
+            return {
+                holdings:      payload.holdings     || [],
+                watchlist:     payload.watchlist    || [],
+                tradeHistory:  payload.tradeHistory || [],
+                deposits:      payload.deposits     || {},
+                currency:      payload.currency     || 'USD',
+                sheet_url:     payload.sheet_url    || '',
+                cash_pie_cb:   payload.cash_pie_cb  ?? false,
+                crypto_twd:    payload.crypto_twd   ?? 0,
+                crypto_pie_cb: payload.crypto_pie_cb ?? false,
+                moxa_twd:      payload.moxa_twd     ?? 0,
+                moxa_pie_cb:   payload.moxa_pie_cb  ?? false
+            };
+        }
+        // 遞迴排序物件 keys（陣列順序保留），讓 JSON.stringify 結果穩定
+        function _canonicalize(obj) {
+            if (obj === null || typeof obj !== 'object') return obj;
+            if (Array.isArray(obj)) return obj.map(_canonicalize);
+            const out = {};
+            Object.keys(obj).sort().forEach(k => { out[k] = _canonicalize(obj[k]); });
+            return out;
+        }
+        async function _userDataHash(userData) {
+            if (!userData) return null;
+            try {
+                const canonical = JSON.stringify(_canonicalize(userData));
+                const buf = new TextEncoder().encode(canonical);
+                const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+                return Array.from(new Uint8Array(hashBuf))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch(e) {
+                console.warn('[UserDataHash] failed', e);
+                return null;
+            }
+        }
+        // hash-first classify：hash 同 → 'hash_match'；不同 → fallback 既有 6-state
+        async function _classifyCloudSyncStateV2(gistState) {
+            const cloudPayload = gistState?.saved || null;
+            let cloudHash = cloudPayload?.sync_meta?.userDataHash || null;
+            if (!cloudHash && cloudPayload) {
+                cloudHash = await _userDataHash(_extractUserDataFromGistPayload(cloudPayload));
+            }
+            const localHash = await _userDataHash(_buildLocalUserPayload());
+            if (cloudHash && localHash && cloudHash === localHash) {
+                return { kind: 'hash_match', cloudRevision: gistState.cloudRevision || '', cloudUpdatedAt: gistState.cloudUpdatedAt || '', cloudHash, localHash };
+            }
+            return { kind: _classifyCloudSyncState(gistState), cloudHash, localHash };
+        }
+        // ────────────────────────────────────────────────────────
+        // v15.079：master flag 處理（已處理 id 集合 + rollback summary）
+        // ────────────────────────────────────────────────────────
+        function _getProcessedMasterIds() {
+            try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.processedMasterIds) || '[]')); }
+            catch(_) { return new Set(); }
+        }
+        function _addProcessedMasterId(id) {
+            if (!id) return;
+            const s = _getProcessedMasterIds();
+            s.add(id);
+            // 滾動保留最近 50 筆
+            const arr = [...s];
+            const kept = arr.length > 50 ? arr.slice(-50) : arr;
+            localStorage.setItem(STORAGE_KEYS.processedMasterIds, JSON.stringify(kept));
+        }
+        function _isMasterIdProcessed(id) {
+            return _getProcessedMasterIds().has(id);
+        }
+        function _saveRollbackSummary(summary) {
+            localStorage.setItem(STORAGE_KEYS.rollbackSummary, JSON.stringify(summary));
+        }
+        function _loadRollbackSummary() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.rollbackSummary) || 'null'); }
+            catch(_) { return null; }
+        }
+        function _clearRollbackSummary() {
+            localStorage.removeItem(STORAGE_KEYS.rollbackSummary);
+        }
+
+        // push / pull 成功後統一寫 baseline + 清 dirty / pending；v15.079 加 lastUserDataHash
+        function _applySyncBaseline(gistState, opts) {
             if (!gistState) return;
             try { if (gistState.data)  _rememberCloudState(gistState.data); } catch(_) {}
             try { if (gistState.saved) _applyCloudDomainTimes(gistState.saved, gistState.cloudUpdatedAt); } catch(_) {}
             _clearDirtyDomains();
             localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
             _updatePendingPushIndicator();
+            // v15.079：寫 lastUserDataHash（caller 已算過就直接傳，否則 noop 留待下次自然寫入）
+            try {
+                const h = opts && opts.userDataHash;
+                if (h) localStorage.setItem(STORAGE_KEYS.lastUserDataHash, h);
+            } catch(_) {}
         }
         // v15.075：pull 套用期間防 dirty 反彈
         let _isApplyingCloudPull = false;
