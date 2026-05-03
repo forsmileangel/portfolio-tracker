@@ -3314,12 +3314,14 @@
             if (appliedAt) localStorage.setItem(PT_LOCAL_MODIFY_TS, appliedAt);
         }
 
-        function _buildSyncMeta(pushedAt, domains) {
+        // v15.079：async — 加 userDataHashVersion / userDataHash / userConfirmedCloudMaster
+        async function _buildSyncMeta(pushedAt, domains, opts) {
             const domainUpdatedAt = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
             // v15.071：加入 dailyPnlSnapshots dirty domain
             const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'dailyPnlSnapshots', 'general'];
             const domainMeta = {};
             allDomains.forEach(d => domainMeta[d] = { updatedAt: domainUpdatedAt[d] || null });
+            const userDataHash = (opts && opts.userDataHash) || await _userDataHash(_buildLocalUserPayload());
             return {
                 metadata_version: 1,
                 pushedAt,
@@ -3327,7 +3329,11 @@
                 baseCloudRevision: localStorage.getItem(PT_LAST_CLOUD_REV) || '',
                 baseCloudUpdatedAt: localStorage.getItem(PT_LAST_CLOUD_TS) || '',
                 dirtyDomains: domains || _getDirtyDomains(),
-                domains: domainMeta
+                domains: domainMeta,
+                // v15.079：userDataHash + master flag（master 只由「標記最新版」push 寫入）
+                userDataHashVersion: 1,
+                userDataHash,
+                userConfirmedCloudMaster: (opts && opts.userConfirmedCloudMaster) || null
             };
         }
 
