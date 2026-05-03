@@ -3250,9 +3250,10 @@
         }
 
         function _getDirtyDomains() {
-            const list = _readJsonStorage(PT_DIRTY_DOMAINS, []);
-            const pending = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
-            return list.length === 0 && pending > 0 ? ['general'] : list;
+            // v15.079 hotfix：移除「pending > 0 → ['general']」fallback
+            // 舊邏輯會讓殘留 pending count（v15.077/078 升級殘留）誤判為 user dirty，
+            // 也會讓 hash 比對白費（hash 同但 dirty 不空 → 仍走 dirty 分支）
+            return _readJsonStorage(PT_DIRTY_DOMAINS, []);
         }
 
         function _setDirtyDomains(domains) {
