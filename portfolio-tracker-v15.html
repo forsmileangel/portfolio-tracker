@@ -3520,13 +3520,22 @@
             showWarnToast(`❌ ${msg}`, 5000);
         }
 
-        // v15.075：preflight 改 classify-based。回傳 gistState 物件（caller push 成功後可直接拿 cloudRevision 寫 baseline，省一次 fetch）；reject 回 false
+        // v15.075/079：preflight — 回傳 { action, state, kind, cloudHash, localHash }
+        // action: 'push'（可推）/ 'noop'（hash_match 不必推）/ 'reject'（stale）
         async function _preflightGistPush(token, gistId) {
-            if (!gistId) return { saved: null, data: null, cloudRevision: '', cloudUpdatedAt: '' };   // 首次建立 Gist：caller 視為 OK
+            if (!gistId) {
+                return { action: 'push', state: { saved: null, data: null, cloudRevision: '', cloudUpdatedAt: '' }, kind: 'new', localHash: await _userDataHash(_buildLocalUserPayload()) };
+            }
             const state = await _fetchGistState(token, gistId);
-            if (!state.saved) return state;   // 既有 Gist 但尚未建立 tracker 檔案 → 視為 OK
-            const cls = _classifyCloudSyncState(state);
-            // 安全 push 條件：本機 base 與雲端 revision 相同（即使本機 dirty 也是基於最新 push）
+            if (!state.saved) {
+                return { action: 'push', state, kind: 'no_cloud_payload', localHash: await _userDataHash(_buildLocalUserPayload()) };
+            }
+            const v2 = await _classifyCloudSyncStateV2(state);
+            // v15.079：hash 相同 → 內容無變化，不必 PATCH
+            if (v2.kind === 'hash_match') {
+                return { action: 'noop', state, kind: 'hash_match', cloudHash: v2.cloudHash, localHash: v2.localHash };
+            }
+            const cls = v2.kind;
             if (cls === 'clean_cloud_same' || cls === 'dirty_cloud_same') {
                 // preflight 通過時順手 merge 雲端 daily_pnl_snapshots 進本機，避免 push 洗掉雲端較新 snapshot
                 try {
@@ -3537,12 +3546,11 @@
                         _saveDailyPnlSnapshots(merged);
                     }
                 } catch(_) {}
-                return state;
+                return { action: 'push', state, kind: cls, cloudHash: v2.cloudHash, localHash: v2.localHash };
             }
             // 其餘狀態（no_cloud_base / clean_cloud_newer / dirty_cloud_newer_conflict）→ reject
-            // 對 silent push：caller 看到 false 就 abort；對手動 push：caller 跳 confirm 提供強制覆蓋
             _showStaleReject(state);
-            return false;
+            return { action: 'reject', state, kind: cls, cloudHash: v2.cloudHash, localHash: v2.localHash };
         }
 
         function _updatePendingPushIndicator() {
