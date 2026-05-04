@@ -1683,33 +1683,37 @@
         // ────────────────────────────────────────────────────────
         // v15.071：跨裝置 snapshot merge（三層優先序：fresh > lastQuoteAt > closedAt）
         // ────────────────────────────────────────────────────────
-        function _snapPriority(s) {
+        // v15.080：完整性優先排序 — complete > fresh_after_close > basisUserDataHash 同來源 > lastQuoteAt > closedAt
+        function _snapPriority(s, localUserHash) {
             if (!s) return -1;
+            const isComplete = s.complete !== false;     // undefined / true → complete（向下相容）
             const isFresh = (s.quoteStatus || 'fresh_after_close') === 'fresh_after_close';
+            const sameBasis = !!(localUserHash && s.basisUserDataHash === localUserHash);
             const qt = s.lastQuoteAt ? new Date(s.lastQuoteAt).getTime() : 0;
             const ct = s.closedAt ? new Date(s.closedAt).getTime() : 0;
-            // 排序 key：fresh(1bit) → lastQuoteAt → closedAt
-            // 用大數值編碼避免精度問題：fresh × 1e15 + qt + ct/1e6
-            return (isFresh ? 1e15 : 0) + qt + (ct / 1e6);
+            // 排序 key（高位優先）：complete > fresh > sameBasis > qt > ct
+            return (isComplete ? 1e18 : 0)
+                 + (isFresh    ? 1e16 : 0)
+                 + (sameBasis  ? 1e14 : 0)
+                 + qt
+                 + (ct / 1e6);
         }
-        function _mergeDailyPnlSnapshots(local, remote) {
+        function _mergeDailyPnlSnapshots(local, remote, localUserHash) {
             const out = _emptyDailyPnlSnapshots();
             const _MK = ['TW', 'HK', 'US'];
             for (const mk of _MK) {
                 const lLocal = (local && local.markets && local.markets[mk]) || { current: null, previous: null };
                 const lRemote = (remote && remote.markets && remote.markets[mk]) || { current: null, previous: null };
-                // 收集所有候選並按 marketDate 分組
-                // v15.073：丟棄 marketDate 落在週末/已知假日的舊資料（v15.072 / v15.071 殘留可能含週末日期）
-                //         _isTradingDay 回 false → 丟；true 或 null（未涵蓋年份）→ 保留
+                // v15.073：丟棄 marketDate 落在週末/已知假日的舊資料
                 const candidates = [lLocal.current, lLocal.previous, lRemote.current, lRemote.previous]
                     .filter(s => s && s.marketDate && _isTradingDay(mk, s.marketDate) !== false);
                 const byDate = {};
                 for (const s of candidates) {
-                    if (!byDate[s.marketDate] || _snapPriority(s) > _snapPriority(byDate[s.marketDate])) {
+                    if (!byDate[s.marketDate] || _snapPriority(s, localUserHash) > _snapPriority(byDate[s.marketDate], localUserHash)) {
                         byDate[s.marketDate] = s;
                     }
                 }
-                const dates = Object.keys(byDate).sort();   // 升冪
+                const dates = Object.keys(byDate).sort();
                 const newest = dates.length > 0 ? byDate[dates[dates.length - 1]] : null;
                 const prevDate = dates.length > 1 ? dates[dates.length - 2] : null;
                 out.markets[mk] = {
