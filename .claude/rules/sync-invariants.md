@@ -82,12 +82,19 @@
 - `daily_pnl_snapshots`（每市場昨日損益快照）保留
 - 兩者**有統計與備份意義**，不可移除
 
-### 行為限制
-- snapshot **可以**隨真正 user-data push 帶上 Gist payload（payload 內欄位仍在）
-- snapshot **不可**單獨 +1 pending count
-- snapshot **不可**單獨呼叫 `_gistSilentPush()`
-- snapshot **不可**單獨呼叫 `_markAndAutoPush(['marketSnapshots'])` / `_markAndAutoPush(['dailyPnlSnapshots'])`
-- 若整個 session 沒任何 user-data 改動，snapshot 就只在本機保存，等下次有 user push 才順帶同步
+### 行為限制（v15.080 升級為 user push vs system push 分流）
+- snapshot **不可**進入 **user push 流程**：
+  - 不算 user dirty
+  - **不**單獨 +1 pending count
+  - **不**寫 master flag
+  - **不**呼叫 `_gistSilentPush()`
+  - **不**呼叫 `_markAndAutoPush(['marketSnapshots'])` / `_markAndAutoPush(['dailyPnlSnapshots'])`
+- snapshot **可以**走 **system push 流程**（`_scheduleSystemSyncPush` / `_systemSyncPush`），前提：
+  - push 前必比對本機 vs 雲端 `userDataHash`，僅 **`hash_match`** 才 PATCH
+  - 失敗只寫 `_recordAppError('system_sync_*', ...)`，**不**彈 toast、**不**增 pending
+  - PATCH 只動 system 欄位（`daily_pnl_snapshots` / `daily_pnl_baselines` / `daily_pnl_price_cache` / `system_meta`），**不**改 user data、**不**寫 master flag
+- snapshot **可以**隨真正 user-data push 順帶帶上 Gist payload（既有 payload 內欄位仍在）
+- `_scheduleSystemSyncPush()` 開頭必須有 `if (_isApplyingCloudPull) return;`，避免 pull 套用期間反向排 push timer（與既有 `_markAndAutoPush` guard 同等對待）
 
 ### 收盤快照前置條件（不可繞過）
 - 必須通過 market calendar 檢查（`_isTradingDay(marketKey, target) === true`）
