@@ -4959,12 +4959,21 @@
                 const _masterFlag = saved.sync_meta?.userConfirmedCloudMaster || null;
                 const _hasUnprocessedMaster = !!(_masterFlag && _masterFlag.id && !_isMasterIdProcessed(_masterFlag.id));
 
-                // hash 相同 → 內容無變化，只更 baseline（master 若新就標處理）
-                // v15.079 hotfix：_applySyncBaseline 成功後才標記 master id processed
+                // hash 相同 → user data 不覆蓋，但 v15.080 仍 merge system data（snapshots / baselines / price_cache）
                 if (v2.kind === 'hash_match') {
+                    // merge daily_pnl_snapshots
+                    try {
+                        if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
+                            const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots, _localHashV);
+                            _saveDailyPnlSnapshots(merged);
+                        }
+                    } catch(_) {}
+                    // 套用 baselines / price_cache 並 hydrate _prevCloseCache
+                    try { _applySystemDataFromPayload(saved); } catch(_) {}
                     _applySyncBaseline(gistState, { userDataHash: _localHashV });
                     if (_hasUnprocessedMaster) _addProcessedMasterId(_masterFlag.id);
-                    console.log('[AutoPull] hash_match — 跳過套用雲端資料');
+                    try { renderAll(); } catch(_) {}
+                    console.log('[AutoPull] hash_match — user data 不覆蓋，但 system data 已 merge');
                     return;
                 }
 
