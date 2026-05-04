@@ -245,6 +245,7 @@
 | v15.077 | FSA 太寬鬆（Android 也走 FSA） + 全域 capture handler 攔截所有點擊 | v15.078 三層擋桌機限定 + 拔除 handler |
 | v15.078 hotfix 前 | `pending_quote` 中間狀態進 dirty | 改 `fresh_after_close` 才標 |
 | v15.079 初版 | holdings 直接進 hash + snapshot 仍 auto-push + pending general fallback + rollback 沒標 dirty + master id 過早 processed | hotfix 5 條全修：`_normalizeHoldingsForHash` / 拔 `_markAndAutoPush(['dailyPnlSnapshots'])` / 拔 general fallback / rollback `_markDomainsModified` / `_addProcessedMasterId` 移到 `_applySyncBaseline` 之後 |
+| v15.080 | snapshot 與 baseline 沒同步通道導致跨裝置看不到昨日損益 | 引入 system sync channel：`_scheduleSystemSyncPush` + hash-match guard + 不進 pending + `_isApplyingCloudPull` guard；§3 規則文字升級（不是例外） |
 
 ---
 
