@@ -3824,10 +3824,10 @@
                     }
 
                     // step 2：從 price cache 算 baseline + 直接建 complete snapshot
-                    // 語意修正（hotfix P1-4）：
-                    //   prevClose      = close[prevTrading]      ← 「昨收」（用於 dayPnL = currentPrice − prevClose）
-                    //   prevPrevClose  = close[prevPrevTrading]  ← 「再前一交易日 close」
-                    //   backfill 用 close[target] − close[prevTrading] 算 pnl
+                    // 語意（v15.080 後續修補）：
+                    //   prevClose      = close[target]      ← 最近完成交易日收盤 = 今日 PnL basis
+                    //   prevPrevClose  = close[prevTrading] ← 上一交易日 close = 昨日 PnL basis
+                    //   snapshot pnl   = close[target] − close[prevTrading]（target 那天的當日損益）
                     const expectedHoldingsCount = list.length;
                     let pnlUSD = 0, pnlTWD = 0, withData = 0;
                     const usedHoldings = [];
