@@ -3648,22 +3648,33 @@
             try {
                 // 1. fetch 最新 Gist + 比對 hash
                 const state = await _fetchGistState(token, gistId);
-                const cloudHash = state?.saved?.sync_meta?.userDataHash || null;
                 const localHash = await _userDataHash(_buildLocalUserPayload());
-                // 2. cloud 有 hash 且不同 → abort（snapshot 是別份庫存算的，不該推上去）
-                if (cloudHash && localHash !== cloudHash) {
-                    _recordAppError('system_sync_hash_mismatch', new Error('local hash != cloud hash, abort system push'), { reason, cloudHash: cloudHash.slice(0,12), localHash: (localHash||'').slice(0,12) });
+                // 2. 沒有雲端 saved（首次 Gist）→ system push 跳過（讓 user push 先建立 baseline）
+                if (!state?.saved) return false;
+                // 3. v15.080 hotfix P1-3：cloudHash 缺失（舊 Gist 無 sync_meta.userDataHash）時，從雲端 user data 即時計算
+                //    禁止繞過 hash guard，避免本機 snapshot 是用別份庫存算的卻推上去
+                let cloudHash = state.saved.sync_meta?.userDataHash || null;
+                if (!cloudHash) {
+                    try { cloudHash = await _userDataHash(_extractUserDataFromGistPayload(state.saved)); } catch(_) {}
+                }
+                if (!cloudHash || localHash !== cloudHash) {
+                    _recordAppError('system_sync_hash_mismatch', new Error('local hash != cloud hash, abort system push'), {
+                        reason,
+                        cloudHash: (cloudHash || 'null').slice(0,12),
+                        localHash: (localHash || 'null').slice(0,12)
+                    });
                     return false;
                 }
-                // 3. 沒有雲端 saved（首次 Gist）→ system push 也跳過（讓 user push 先建立 user payload baseline）
-                if (!state?.saved) {
-                    return false;
-                }
-                // 4. merge system fields 進 cloud payload，PATCH 整份
+                // 4. v15.080 hotfix P1-2：merge remote + local system fields，避免本機 partial 洗掉雲端較完整資料
                 const payload = { ...state.saved };
-                payload.daily_pnl_snapshots   = _loadDailyPnlSnapshots();
-                if (_dailyPnlBaselines)  payload.daily_pnl_baselines  = _dailyPnlBaselines;
-                if (_dailyPnlPriceCache) payload.daily_pnl_price_cache = _dailyPnlPriceCache;
+                // 4a. snapshots：用既有 _mergeDailyPnlSnapshots 完整性優先排序
+                const localSnap  = _loadDailyPnlSnapshots();
+                const remoteSnap = state.saved.daily_pnl_snapshots;
+                payload.daily_pnl_snapshots = _mergeDailyPnlSnapshots(localSnap, remoteSnap, localHash);
+                // 4b. baselines：per-symbol merge — 本機沒有 / 較舊就沿用 remote
+                payload.daily_pnl_baselines = _mergeBaselines(_dailyPnlBaselines, state.saved.daily_pnl_baselines);
+                // 4c. price_cache：per-symbol merge close arrays（dedupe by marketDate, keep latest fetchedAt, slice last 10）
+                payload.daily_pnl_price_cache = _mergePriceCache(_dailyPnlPriceCache, state.saved.daily_pnl_price_cache);
                 payload.system_meta = {
                     version: 1,
                     userDataHash: localHash,
@@ -3671,6 +3682,12 @@
                     sourceDeviceId: _getDeviceId(),
                     reason
                 };
+                // 同步 merged 結果回本機 memory，下次 capture 看得到 remote
+                try {
+                    if (payload.daily_pnl_snapshots && payload.daily_pnl_snapshots.markets) _saveDailyPnlSnapshots(payload.daily_pnl_snapshots);
+                    if (payload.daily_pnl_baselines)  _dailyPnlBaselines  = payload.daily_pnl_baselines;
+                    if (payload.daily_pnl_price_cache) _dailyPnlPriceCache = payload.daily_pnl_price_cache;
+                } catch(_) {}
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
                     headers: {
