@@ -1949,11 +1949,12 @@
 
             // v15.070 (P1)：昨日損益從 snapshot 讀，依 lastCompleteDate gating，避免日期混搭
             const _snap = _loadDailyPnlSnapshots();
-            // v15.074：fresh 判定同時擋下本機殘留的「週末 / 已知假日 marketDate」壞資料（不依賴 merge 才清）
+            // v15.074/080：fresh 判定 — fresh_after_close + 真交易日 + complete（v15.080 新增；undefined 為向下相容視為 true）
             const _isFresh = (mk, s) =>
                 !!s && !!s.marketDate
                 && (s.quoteStatus || 'fresh_after_close') === 'fresh_after_close'
-                && _isTradingDay(mk, s.marketDate) !== false;   // false=明確假日/週末；true 或 null 都接受
+                && _isTradingDay(mk, s.marketDate) !== false   // false=明確假日/週末；true 或 null 都接受
+                && s.complete !== false;                        // v15.080：partial 不顯示為昨日損益
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
                 const slot = (_snap.markets && _snap.markets[mk]) || { current: null, previous: null };
