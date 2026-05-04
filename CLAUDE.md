@@ -43,6 +43,8 @@
 
 **硬性規則**：改 Gist 同步、FSA 本地同步、daily/market snapshot、dirty domain / pending count、userDataHash、PWA 啟動流程**任一**前，必須先讀 `sync-invariants.md` 與 `gist-sync.md`，並對照修改前 Checklist 8 條逐項回答 yes/no。不可只看當前需求埋頭改。
 
+**規則例外**：規則不是 100% 強制。當當前需求與規則衝突時，**不得自行打破**，必須在 plan / 回應中明確列出：(a) 違反哪一條規則、(b) 可能重現哪個已修補回歸點或產生何種同步異常、(c) 是否有替代方案，交由使用者明確同意後才動 code。詳見 `sync-invariants.md` §0。
+
 ## Git 設定
 - Auto-commit hook 已設定：修改檔案後自動 `git add → commit → push`
 - 不需要手動 commit，Claude Code 每次存檔會自動觸發
