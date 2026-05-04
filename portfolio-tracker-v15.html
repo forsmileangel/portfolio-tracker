@@ -4076,20 +4076,34 @@
             }
             const v2 = await _classifyCloudSyncStateV2(state);
             // v15.079：hash 相同 → 內容無變化，不必 PATCH
+            // v15.080 後續修補：hash_match 順手清 dirty / pending（user 改了又改回原值的情境）
+            // 不寫 PT_LAST_CLOUD_REV / lastUserDataHash（這些只在實際 push / pull apply 才動）
             if (v2.kind === 'hash_match') {
+                try {
+                    _clearDirtyDomains();
+                    localStorage.setItem(PT_PENDING_PUSH_COUNT, '0');
+                    _updatePendingPushIndicator();
+                } catch(_) {}
                 return { action: 'noop', state, kind: 'hash_match', cloudHash: v2.cloudHash, localHash: v2.localHash };
             }
             const cls = v2.kind;
-            if (cls === 'clean_cloud_same' || cls === 'dirty_cloud_same') {
-                // preflight 通過時順手 merge 雲端 daily_pnl_snapshots 進本機，避免 push 洗掉雲端較新 snapshot
+            // v15.080 後續修補：cloud_user_same_system_newer 也放行 push（system sync 期間 revision 變動，user data 沒衝突）
+            if (cls === 'clean_cloud_same' || cls === 'dirty_cloud_same' || cls === 'cloud_user_same_system_newer') {
+                // preflight 通過時 merge 雲端 system data 進本機，避免 push 洗掉雲端較新值
+                // v15.080 後續修補：擴大 merge 範圍至 baselines + price_cache（原本只 merge snapshots）
                 try {
-                    const remoteSnap = state.saved && state.saved.daily_pnl_snapshots;
-                    if (remoteSnap && remoteSnap.markets) {
-                        const localSnap = _loadDailyPnlSnapshots();
-                        const merged = _mergeDailyPnlSnapshots(localSnap, remoteSnap);
+                    const sv = state.saved;
+                    if (sv?.daily_pnl_snapshots?.markets) {
+                        const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), sv.daily_pnl_snapshots, v2.localHash);
                         _saveDailyPnlSnapshots(merged);
                     }
+                    if (sv?.daily_pnl_baselines)   _dailyPnlBaselines  = _mergeBaselines(_dailyPnlBaselines,   sv.daily_pnl_baselines);
+                    if (sv?.daily_pnl_price_cache) _dailyPnlPriceCache = _mergePriceCache(_dailyPnlPriceCache, sv.daily_pnl_price_cache);
+                    _hydratePrevCloseFromBaselines();
                 } catch(_) {}
+                if (cls === 'cloud_user_same_system_newer') {
+                    console.log('[Preflight] cloud_user_same_system_newer (system revision newer, user push allowed)');
+                }
                 return { action: 'push', state, kind: cls, cloudHash: v2.cloudHash, localHash: v2.localHash };
             }
             // 其餘狀態（no_cloud_base / clean_cloud_newer / dirty_cloud_newer_conflict）→ reject
