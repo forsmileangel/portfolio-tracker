@@ -1599,14 +1599,21 @@
 
                 const complete = (withData === expectedHoldingsCount);
 
+                // v15.080 hotfix P1-1：先把所有 await 跑完再做 read-modify-write，避免三市場並發 capture 互相覆蓋
+                let basisUserDataHash = null;
+                let basisHoldingsHash = null;
+                try { basisUserDataHash = await _userDataHash(_buildLocalUserPayload()); } catch(_) {}
+                try { basisHoldingsHash = await _userDataHash({ holdings: _normalizeHoldingsForHash(holdings) }); } catch(_) {}
+
+                // ── 以下 read → decide → write 必須 sync 連續執行 ──
                 const snap = _loadDailyPnlSnapshots();
                 if (!snap.markets[marketKey]) snap.markets[marketKey] = { current: null, previous: null };
                 const slot = snap.markets[marketKey];
 
-                // v15.080：partial 不可覆蓋 complete；同 target 已有 complete snapshot 時更嚴格
+                // partial 不可覆蓋 complete；同 target 已有 complete snapshot 時更嚴格
                 if (slot.current && slot.current.marketDate === target) {
-                    const oldComplete = slot.current.complete !== false;   // undefined / true → 視為 complete（向下相容）
-                    if (oldComplete && !complete) return;                  // 已 complete 不被 partial 覆蓋
+                    const oldComplete = slot.current.complete !== false;
+                    if (oldComplete && !complete) return;
                     const oldStatus = slot.current.quoteStatus || 'fresh_after_close';
                     if (oldStatus === 'fresh_after_close' && newStatus === 'pending_quote') return;
                     if (oldStatus === newStatus && oldComplete === complete) {
@@ -1616,12 +1623,6 @@
                 } else if (slot.current) {
                     slot.previous = slot.current;
                 }
-
-                // v15.080：來源標記（async）— 失敗就記 null，不擋 capture
-                let basisUserDataHash = null;
-                let basisHoldingsHash = null;
-                try { basisUserDataHash = await _userDataHash(_buildLocalUserPayload()); } catch(_) {}
-                try { basisHoldingsHash = await _userDataHash({ holdings: _normalizeHoldingsForHash(holdings) }); } catch(_) {}
 
                 const newCurrent = {
                     marketKey,
@@ -1633,7 +1634,6 @@
                     quoteStatus: newStatus,
                     lastQuoteAt: quoteMeta.lastQuoteAt || null,
                     basisField: isToday ? 'prevClose' : 'prevPrevClose',
-                    // v15.080 新增完整性與來源標記
                     complete,
                     expectedHoldingsCount,
                     withData,
@@ -1646,7 +1646,6 @@
                 slot.current = newCurrent;
                 snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
                 _saveDailyPnlSnapshots(snap);
-                // v15.080：完整 + fresh 才走 system push（hash_match guard 在 _systemSyncPush 內）
                 if (complete && newStatus === 'fresh_after_close') {
                     try { _scheduleSystemSyncPush('daily_pnl_snapshot'); } catch(_) {}
                 }
