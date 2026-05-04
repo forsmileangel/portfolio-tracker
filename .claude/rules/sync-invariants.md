@@ -41,9 +41,10 @@
 
 ## 1. 核心原則
 
-1. **使用者資料一致性用 `userDataHash` 判斷**，不用 `pushedAt` / `revision` 單獨判斷。
+1. **使用者資料一致性用 `userDataHash` 判斷**，不用 `pushedAt` / `revision` 單獨判斷。**revision 不可單獨判定 user data 衝突** — 若 cloud user data 與本機上次同步過的版本一致（cloudHash === lastUserDataHash），即使 Gist revision 變動（可能是 system sync push）也應放行 user push（v15.080 後續修補新增 `cloud_user_same_system_newer` state）。
 2. **`pushedAt` 是時間順序，不是資料差異**。雲端可能 revision 增加但內容相同（snapshot only push）→ 不可視為使用者 dirty。
 3. **system-generated data 不等於 user dirty**。報價 / 分析 / snapshot / FX / cache 都是系統產生，不該觸發使用者可見的「未同步」提示。
+4. **baseline.prevClose 語意 = 今日 PnL basis = close[最近完成交易日]**（對齊 runAnalysis 未開盤路徑寫法）。backfill / hydrate 路徑都必須遵守此語意；marketDate 必須等於該市場目前的 lastCompletedTradingDate 才能 hydrate 進 `_prevCloseCache`，否則跳過避免兩倍漲幅 bug。
 
 ---
 
