@@ -43,7 +43,9 @@
 
 **硬性規則**：改 Gist 同步、FSA 本地同步、daily/market snapshot、dirty domain / pending count、userDataHash、PWA 啟動流程**任一**前，必須先讀 `sync-invariants.md` 與 `gist-sync.md`，並對照修改前 Checklist 8 條逐項回答 yes/no。不可只看當前需求埋頭改。
 
-**規則例外**：規則不是 100% 強制。當當前需求與規則衝突時，**不得自行打破**，必須在 plan / 回應中明確列出：(a) 違反哪一條規則、(b) 可能重現哪個已修補回歸點或產生何種同步異常、(c) 是否有替代方案，交由使用者明確同意後才動 code。詳見 `sync-invariants.md` §0。
+**規則例外**：規則不是 100% 強制。當當前需求與規則衝突時，**不得自行打破**，必須在 plan / 回應中明確列出：(a) 違反哪一條規則、(b) 可能重現哪個已修補回歸點或產生何種同步異常、(c) 是否有替代方案，交由使用者明確同意後才動 code，並在 `sync-invariants.md` §11 留例外日誌。詳見 `sync-invariants.md` §0。
+
+**規則進化**：同一節規則被破例累計第 2 次需主動提醒、**第 3 次禁止再以例外處理**，必須提出新規則文字交由使用者決定是否升級規則本身（規則應與實際需求同步進化，不可當神主牌）。
 
 ## Git 設定
 - Auto-commit hook 已設定：修改檔案後自動 `git add → commit → push`
