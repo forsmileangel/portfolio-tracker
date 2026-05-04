@@ -4881,14 +4881,6 @@
                 saveTradeHistory();
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
-                // v15.071：merge 雲端 daily_pnl_snapshots 進本機（不直接覆蓋）
-                try {
-                    if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
-                        const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots);
-                        _saveDailyPnlSnapshots(merged);
-                    }
-                } catch(_) {}
-
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
                 // v15.075/079：統一寫 baseline + 清 dirty；同時計算 hash 寫 lastUserDataHash + 標 master 處理（如有）
@@ -4896,6 +4888,15 @@
                 if (!_pulledHash) {
                     try { _pulledHash = await _userDataHash(_extractUserDataFromGistPayload(saved)); } catch(_) {}
                 }
+                // v15.071/080：merge 雲端 daily_pnl_snapshots 進本機（傳本機 hash 給 priority 用）
+                try {
+                    if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
+                        const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots, _pulledHash);
+                        _saveDailyPnlSnapshots(merged);
+                    }
+                } catch(_) {}
+                // v15.080：手動 pull 也套用 system data（baselines / price_cache）+ hydrate _prevCloseCache
+                try { _applySystemDataFromPayload(saved); } catch(_) {}
                 _applySyncBaseline(gistState, { userDataHash: _pulledHash });
                 try {
                     const mf = saved?.sync_meta?.userConfirmedCloudMaster;
