@@ -3843,11 +3843,11 @@
                             missingSymbols.push(sym);
                             continue;
                         }
-                        // 寫 baseline（修正語意）
+                        // 寫 baseline（v15.080 後續修補：對齊 runAnalysis 未開盤路徑語意）
                         _dailyPnlBaselines.symbols[sym] = {
                             market: mk,
-                            prevClose: cPrev,            // 上一交易日 close = 今日 PnL 的 basis
-                            prevPrevClose: cPrevPrev,    // 再前一交易日 close
+                            prevClose:     cTarget,      // close[target] = 最近完成交易日收盤 = 今日 PnL basis
+                            prevPrevClose: cPrev,        // close[prevTrading] = 上一交易日 close = 昨日 PnL basis
                             marketDate: target,
                             fetchedAt: new Date().toISOString(),
                             source: 'backfill-price-history'
