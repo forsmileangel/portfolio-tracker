@@ -33,12 +33,15 @@
 
 ## 架構規則
 詳細規則已模組化至 `.claude/rules/`：
+- `sync-invariants.md`：**改 Gist / FSA / 快照 / pending / hash / PWA 啟動流程前必讀的同步不變式**（v15.069-v15.079 踩過的坑全在這）
 - `rendering.md`：差異更新架構（不可改回 innerHTML 全部重建）
 - `performance.md`：效能規則（防抖、onchange）
 - `gist-sync.md`：新增欄位時的同步 checklist + Gist API 錯誤處理（401/403、e.status、_isAuthError）
 - `notion.md`：Notion 寫作規則與頁面 ID
 - `storage-keys.md`：localStorage key 必須登記至 `STORAGE_KEYS` 物件，rename 需有 migration
 - `cache-strategy.md`：對外資料須有時間戳顯色、stale fallback、新增基本面欄位 5 步 checklist
+
+**硬性規則**：改 Gist 同步、FSA 本地同步、daily/market snapshot、dirty domain / pending count、userDataHash、PWA 啟動流程**任一**前，必須先讀 `sync-invariants.md` 與 `gist-sync.md`，並對照修改前 Checklist 8 條逐項回答 yes/no。不可只看當前需求埋頭改。
 
 ## Git 設定
 - Auto-commit hook 已設定：修改檔案後自動 `git add → commit → push`
