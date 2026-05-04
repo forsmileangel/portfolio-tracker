@@ -3608,6 +3608,70 @@
             if (v.priceCache) _dailyPnlPriceCache = v.priceCache;
             _hydratePrevCloseFromBaselines();
         }
+
+        // v15.080：system sync push（snapshot / baseline / price_cache）
+        //   debounce 2s + _isApplyingCloudPull guard
+        function _scheduleSystemSyncPush(reason) {
+            if (_isApplyingCloudPull) return;
+            clearTimeout(_systemPushTimer);
+            _systemPushTimer = setTimeout(() => _systemSyncPush(reason), 2000);
+        }
+        async function _systemSyncPush(reason) {
+            const token  = localStorage.getItem(GIST_TOKEN_KEY);
+            const gistId = localStorage.getItem(GIST_ID_KEY);
+            if (!token || !gistId) return false;
+            try {
+                // 1. fetch 最新 Gist + 比對 hash
+                const state = await _fetchGistState(token, gistId);
+                const cloudHash = state?.saved?.sync_meta?.userDataHash || null;
+                const localHash = await _userDataHash(_buildLocalUserPayload());
+                // 2. cloud 有 hash 且不同 → abort（snapshot 是別份庫存算的，不該推上去）
+                if (cloudHash && localHash !== cloudHash) {
+                    _recordAppError('system_sync_hash_mismatch', new Error('local hash != cloud hash, abort system push'), { reason, cloudHash: cloudHash.slice(0,12), localHash: (localHash||'').slice(0,12) });
+                    return false;
+                }
+                // 3. 沒有雲端 saved（首次 Gist）→ system push 也跳過（讓 user push 先建立 user payload baseline）
+                if (!state?.saved) {
+                    return false;
+                }
+                // 4. merge system fields 進 cloud payload，PATCH 整份
+                const payload = { ...state.saved };
+                payload.daily_pnl_snapshots   = _loadDailyPnlSnapshots();
+                if (_dailyPnlBaselines)  payload.daily_pnl_baselines  = _dailyPnlBaselines;
+                if (_dailyPnlPriceCache) payload.daily_pnl_price_cache = _dailyPnlPriceCache;
+                payload.system_meta = {
+                    version: 1,
+                    userDataHash: localHash,
+                    updatedAt: new Date().toISOString(),
+                    sourceDeviceId: _getDeviceId(),
+                    reason
+                };
+                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        description: 'Portfolio Tracker 持倉同步',
+                        public: false,
+                        files: { [GIST_FILENAME]: { content: JSON.stringify(payload, null, 2) } }
+                    })
+                });
+                if (!res.ok) {
+                    const e = new Error(`HTTP ${res.status}`);
+                    e.status = res.status;
+                    throw e;
+                }
+                // 5. 不寫 master flag、不更新 user baseline、不清 dirty / pending
+                console.log(`[SystemSync] push ok (reason=${reason})`);
+                return true;
+            } catch(e) {
+                _recordAppError(`system_sync_${reason}`, e);
+                return false;
+            }
+        }
         // v15.079：啟動 / pull 完成後呼叫，依 rollbackSummary 顯示 #rollback-card
         function _renderRollbackCard() {
             const card = document.getElementById('rollback-card');
