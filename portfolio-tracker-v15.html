@@ -3537,6 +3537,77 @@
         function _clearRollbackSummary() {
             localStorage.removeItem(STORAGE_KEYS.rollbackSummary);
         }
+
+        // ────────────────────────────────────────────────────────
+        // v15.080：System Sync Channel — daily_pnl_snapshots / baselines / price_cache
+        //   • Gist 是 system data 唯一持久層；本機只用 memory cache
+        //   • 不進 user dirty / pending / master flag
+        //   • push 前 hash_match guard；hash 不同 abort + _recordAppError
+        // ────────────────────────────────────────────────────────
+        let _dailyPnlBaselines = null;     // { version, userDataHash, updatedAt, symbols: { sym: { market, prevClose, prevPrevClose, marketDate, fetchedAt, source } } }
+        let _dailyPnlPriceCache = null;    // { version, updatedAt, symbols: { sym: { market, closes: [{ marketDate, close, fetchedAt, source }] (≤10) } } }
+        let _systemSyncCooldownTs = 0;     // backfill 全域 cooldown 起算時間（3min）
+        let _systemPushTimer = null;       // _scheduleSystemSyncPush debounce timer
+
+        // 嚴格驗證雲端 system payload — 失敗只忽略 system 區塊，不影響 user data pull
+        function _validateSystemPayload(payload) {
+            if (!payload || typeof payload !== 'object') return { baselines: null, priceCache: null };
+            const out = { baselines: null, priceCache: null };
+            // baselines
+            try {
+                const b = payload.daily_pnl_baselines;
+                if (b && typeof b === 'object' && b.symbols && typeof b.symbols === 'object') {
+                    const symbols = {};
+                    Object.entries(b.symbols).forEach(([sym, data]) => {
+                        if (!data || typeof data !== 'object') return;
+                        const pc = data.prevClose;
+                        const ppc = data.prevPrevClose;
+                        const okPc  = pc  === null || typeof pc  === 'number';
+                        const okPpc = ppc === null || typeof ppc === 'number';
+                        if (typeof data.market === 'string' && okPc && okPpc) symbols[sym] = data;
+                    });
+                    out.baselines = { ...b, symbols };
+                }
+            } catch(e) { _recordAppError('system_payload_validate', e, { section: 'baselines' }); }
+            // price cache
+            try {
+                const c = payload.daily_pnl_price_cache;
+                if (c && typeof c === 'object' && c.symbols && typeof c.symbols === 'object') {
+                    const symbols = {};
+                    Object.entries(c.symbols).forEach(([sym, data]) => {
+                        if (!data || typeof data !== 'object' || !Array.isArray(data.closes)) return;
+                        const closes = data.closes.filter(x =>
+                            x && typeof x === 'object'
+                            && typeof x.marketDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.marketDate)
+                            && typeof x.close === 'number'
+                        );
+                        if (typeof data.market === 'string') symbols[sym] = { ...data, closes };
+                    });
+                    out.priceCache = { ...c, symbols };
+                }
+            } catch(e) { _recordAppError('system_payload_validate', e, { section: 'priceCache' }); }
+            return out;
+        }
+        // hydrate window._prevCloseCache / _prevPrevCloseCache 從 baselines memory
+        function _hydratePrevCloseFromBaselines() {
+            if (!_dailyPnlBaselines || !_dailyPnlBaselines.symbols) return;
+            const pc  = window._prevCloseCache     || {};
+            const ppc = window._prevPrevCloseCache || {};
+            Object.entries(_dailyPnlBaselines.symbols).forEach(([sym, data]) => {
+                if (typeof data.prevClose     === 'number') pc[sym]  = data.prevClose;
+                if (typeof data.prevPrevClose === 'number') ppc[sym] = data.prevPrevClose;
+            });
+            window._prevCloseCache     = pc;
+            window._prevPrevCloseCache = ppc;
+        }
+        // 從雲端 payload merge system data 進 memory（pull 路徑共用）
+        function _applySystemDataFromPayload(saved) {
+            if (!saved) return;
+            const v = _validateSystemPayload(saved);
+            if (v.baselines)  _dailyPnlBaselines  = v.baselines;
+            if (v.priceCache) _dailyPnlPriceCache = v.priceCache;
+            _hydratePrevCloseFromBaselines();
+        }
         // v15.079：啟動 / pull 完成後呼叫，依 rollbackSummary 顯示 #rollback-card
         function _renderRollbackCard() {
             const card = document.getElementById('rollback-card');
