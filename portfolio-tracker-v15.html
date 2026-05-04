@@ -7956,8 +7956,10 @@
                             const _chartCcy = res0?.meta?.currency ?? '';
                             const _ccyScale = (HK_USD_PRICED.has(r.holding) && _chartCcy === 'HKD')
                                 ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
-                            const closes = rawCloses.filter(c => c != null).map(c => c * _ccyScale);
-                            const lastTs   = ts[ts.length - 1];
+                            // v15.080 後續修補：zip + filter 對齊 timestamp 與 close（盤中 close=null 時 ts/closes 對不齊會誤判 todayOpened）
+                            const _pairs = rawCloses.map((cv, i) => ({ ts: ts[i], close: cv })).filter(p => p.close != null);
+                            const closes = _pairs.map(p => p.close * _ccyScale);
+                            const lastTs   = _pairs.length > 0 ? _pairs[_pairs.length - 1].ts : null;
                             const _tz = _exchangeTz(r.holding);
                             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
                             const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
