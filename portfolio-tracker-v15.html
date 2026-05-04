@@ -5149,7 +5149,7 @@
                 }, 8000);
 
                 const t = new Date().toLocaleTimeString('zh-TW');
-                const _depPull = deposits.length > 0 ? ` + ${deposits.length} 筆持倉${_depPull}` : '';
+                const _depPull = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
                 setGistStatus(`✅ 已拉取 ${holdings.length} 筆持倉${_depPull}（${t}）`, '#10b981');
                 showImportToast(`✅ 已從雲端拉取 ${holdings.length} 筆持倉${_depPull}`, 2500);
 
