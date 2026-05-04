@@ -3626,12 +3626,55 @@
             window._prevPrevCloseCache = ppc;
         }
         // 從雲端 payload merge system data 進 memory（pull 路徑共用）
+        // v15.080 hotfix P1-2：用 merge 取代覆蓋，避免本機 partial 洗掉雲端較完整資料
         function _applySystemDataFromPayload(saved) {
             if (!saved) return;
             const v = _validateSystemPayload(saved);
-            if (v.baselines)  _dailyPnlBaselines  = v.baselines;
-            if (v.priceCache) _dailyPnlPriceCache = v.priceCache;
+            if (v.baselines)  _dailyPnlBaselines  = _mergeBaselines(_dailyPnlBaselines, v.baselines);
+            if (v.priceCache) _dailyPnlPriceCache = _mergePriceCache(_dailyPnlPriceCache, v.priceCache);
             _hydratePrevCloseFromBaselines();
+        }
+        // baselines per-symbol merge：fetchedAt 較新優先；本機沒有就拿 remote 的
+        function _mergeBaselines(local, remote) {
+            const a = (local && local.symbols) || {};
+            const b = (remote && remote.symbols) || {};
+            const out = { version: 1, userDataHash: (local && local.userDataHash) || (remote && remote.userDataHash) || null, updatedAt: new Date().toISOString(), symbols: {} };
+            const symbols = new Set([...Object.keys(a), ...Object.keys(b)]);
+            symbols.forEach(sym => {
+                const la = a[sym], lb = b[sym];
+                if (la && lb) {
+                    const ta = la.fetchedAt ? new Date(la.fetchedAt).getTime() : 0;
+                    const tb = lb.fetchedAt ? new Date(lb.fetchedAt).getTime() : 0;
+                    out.symbols[sym] = (ta >= tb) ? la : lb;
+                } else {
+                    out.symbols[sym] = la || lb;
+                }
+            });
+            return out;
+        }
+        // price_cache per-symbol merge：close array 用 marketDate dedupe（取較新 fetchedAt），保留最後 10 個交易日
+        function _mergePriceCache(local, remote) {
+            const a = (local && local.symbols) || {};
+            const b = (remote && remote.symbols) || {};
+            const out = { version: 1, updatedAt: new Date().toISOString(), symbols: {} };
+            const symbols = new Set([...Object.keys(a), ...Object.keys(b)]);
+            symbols.forEach(sym => {
+                const market = (a[sym] && a[sym].market) || (b[sym] && b[sym].market) || '';
+                const closesA = (a[sym] && Array.isArray(a[sym].closes)) ? a[sym].closes : [];
+                const closesB = (b[sym] && Array.isArray(b[sym].closes)) ? b[sym].closes : [];
+                const map = {};
+                [...closesA, ...closesB].forEach(c => {
+                    if (!c || !c.marketDate || typeof c.close !== 'number') return;
+                    const exist = map[c.marketDate];
+                    if (!exist) { map[c.marketDate] = c; return; }
+                    const te = exist.fetchedAt ? new Date(exist.fetchedAt).getTime() : 0;
+                    const tn = c.fetchedAt ? new Date(c.fetchedAt).getTime() : 0;
+                    if (tn > te) map[c.marketDate] = c;
+                });
+                const merged = Object.values(map).sort((x, y) => x.marketDate.localeCompare(y.marketDate));
+                out.symbols[sym] = { market, closes: merged.slice(-10) };
+            });
+            return out;
         }
 
         // v15.080：system sync push（snapshot / baseline / price_cache）
