@@ -249,6 +249,7 @@
 | v15.080 | snapshot 與 baseline 沒同步通道導致跨裝置看不到昨日損益 | 引入 system sync channel：`_scheduleSystemSyncPush` + hash-match guard + 不進 pending + `_isApplyingCloudPull` guard；§3 規則文字升級（不是例外） |
 | v15.080 後續修補 A | system sync push 讓 Gist revision 變動但 sync_meta.userDataHash 不變，B 改 holdings 後 preflight fallback 6-state 比 revision → 誤判 `dirty_cloud_newer_conflict` reject | 新增 `cloud_user_same_system_newer` state（cloudHash === lastUserDataHash 即放行 push）；hash_match 順手清 dirty / pending；preflight merge 範圍擴大至 baselines + price_cache（不只 snapshots）|
 | v15.080 後續修補 B | `_backfillDailyPnlSystemData` 寫 `baseline.prevClose = close[prevTrading]`（少推一天），hydrate 後 `_prevCloseCache` 變錯，今日漲幅 ≈ 兩倍（前次收盤漲幅 + 今日漲幅）| backfill 改寫 `prevClose: cTarget, prevPrevClose: cPrev`；`_hydratePrevCloseFromBaselines` 加 marketDate guard（必須等於該市場 lastCompletedTradingDate）擋舊錯 baseline；silentRefreshPrices / directApplyPrices 後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正 |
+| v15.080 後續修補 C | Yahoo chart API 三處（fetchSymbolDataFromYahoo 主路徑 / 補抓 / 槓桿 ETF）對 closes 用 `.filter(v => v != null)` 過濾盤中 null close，但 timestamp 沒同步 filter → `tss[last]` 仍指向今天但 closes 已少一筆 → `opened` 誤判 true → `prevClose = closes[len-2]` 取到「真.前一交易日」（其實是 prevPrevClose）→ 一鍵更新後今日漲幅變兩倍 / 昨日漲跌跑掉 | 三處統一改為 `pairs = closes.map((c,i) => ({ts:tss[i], close:c})).filter(p => p.close != null)`，opened 判斷與 prevClose 取值都用 filter 過的 pairs，保證 timestamp 與 close 對齊 |
 
 ---
 
