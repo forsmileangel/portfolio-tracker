@@ -1,3 +1,18 @@
+## v15.079 後的同步判斷原則（必讀）
+
+> 本檔處理 Gist API 細節與「新增同類型欄位」checklist。**高層同步不變式**（user data vs system data、hash 規則、snapshot 不可 push、master flag、rollback、PWA / FSA 平台限定）已獨立至 [`sync-invariants.md`](./sync-invariants.md)。
+>
+> 改任何 Gist 邏輯前**必須**先讀 `sync-invariants.md`，再回到本檔對照 API 細節。
+
+### 同步判斷主軸（v15.079 起）
+
+- **資料是否相同**：用 `userDataHash`（SHA-256 + canonical JSON），不用 `pushedAt` / `revision` 單獨判斷
+- **hash 不同才比 revision**：`_classifyCloudSyncStateV2` 先看 hash → `hash_match` 短路；否則 fallback 既有 6-state classify
+- **snapshot 不算 user 改動**：`marketSnapshots` / `daily_pnl_snapshots` 不入 hash、不進 dirty domain、不單獨 push
+- **master flag**：使用者手動「標記最新版」才寫；其他裝置看到未處理 master id → 套用後才標 processed（避免 throw 中途吃 id）
+
+---
+
 ## Gist 同步 — 新增欄位 Checklist
 
 若要新增同類型手動輸入欄位（TWD 值 + 圓餅圖勾選），需同步修改以下 7 處：
