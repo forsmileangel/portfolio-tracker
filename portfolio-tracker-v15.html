@@ -3698,6 +3698,119 @@
                 return false;
             }
         }
+
+        // v15.080：補近期收盤價（新裝置 / 雲端缺料時用 Yahoo chart 補 baseline）
+        //   • 全域 cooldown 3min；單 symbol 24hr 內有 close history 不重抓
+        //   • 全部 active holdings 都有 close 才產生 complete=true snapshot
+        //   • 失敗只 _recordAppError，不彈 toast、不增 pending
+        const _BACKFILL_COOLDOWN_MS = 3 * 60 * 1000;
+        const _BACKFILL_SYMBOL_TTL  = 24 * 60 * 60 * 1000;
+        async function _backfillDailyPnlSystemData(reason) {
+            const now = Date.now();
+            if (now - _systemSyncCooldownTs < _BACKFILL_COOLDOWN_MS) return false;
+            _systemSyncCooldownTs = now;
+            try {
+                if (!Array.isArray(holdings) || holdings.length === 0) return false;
+                // 依市場分組
+                const byMarket = { TW: [], HK: [], US: [] };
+                for (const h of holdings) {
+                    const mk = _holdingMarketKey(h);
+                    if (mk && byMarket[mk]) byMarket[mk].push(h);
+                }
+                if (!_dailyPnlPriceCache) _dailyPnlPriceCache = { version: 1, updatedAt: new Date().toISOString(), symbols: {} };
+                if (!_dailyPnlBaselines)  _dailyPnlBaselines  = { version: 1, userDataHash: null, updatedAt: new Date().toISOString(), symbols: {} };
+
+                let anyComplete = false;
+                for (const mk of ['TW', 'HK', 'US']) {
+                    const list = byMarket[mk];
+                    if (!list || list.length === 0) continue;
+                    const session = _marketSession(mk, new Date());
+                    const target = session.lastCompletedTradingDate;
+                    if (!target) continue;
+                    const prevTrading = _previousTradingDate(mk, target);
+                    if (!prevTrading) continue;
+
+                    let allOk = true;
+                    for (const h of list) {
+                        const sym = h.symbol;
+                        // 24hr 內已有資料不重抓
+                        const cached = _dailyPnlPriceCache.symbols[sym];
+                        const recent = cached?.closes?.[cached.closes.length - 1];
+                        if (recent && recent.fetchedAt && (now - new Date(recent.fetchedAt).getTime() < _BACKFILL_SYMBOL_TTL)) {
+                            // 仍要從 cache 抽 prevClose / prevPrevClose 寫到 baseline
+                            const fillBaseline = _extractCloseForDate(cached.closes, target);
+                            const fillPrev     = _extractCloseForDate(cached.closes, prevTrading);
+                            if (fillBaseline != null && fillPrev != null) {
+                                _dailyPnlBaselines.symbols[sym] = {
+                                    market: mk,
+                                    prevClose: fillBaseline,
+                                    prevPrevClose: fillPrev,
+                                    marketDate: target,
+                                    fetchedAt: recent.fetchedAt,
+                                    source: 'price-cache'
+                                };
+                                continue;
+                            }
+                        }
+                        // 否則 yfFetch 補近 10 個交易日 close
+                        try {
+                            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1mo`;
+                            const data = await yfFetch(url);
+                            const result = data?.chart?.result?.[0];
+                            const ts     = result?.timestamp || [];
+                            const closes = result?.indicators?.quote?.[0]?.close || [];
+                            if (!ts.length || !closes.length) { allOk = false; continue; }
+                            const tz = _exchangeTz(sym);
+                            const closeArr = [];
+                            for (let i = 0; i < ts.length; i++) {
+                                if (closes[i] == null) continue;
+                                const d = new Date(ts[i] * 1000);
+                                // 取目標時區的 YYYY-MM-DD
+                                const md = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                                closeArr.push({ marketDate: md, close: closes[i], fetchedAt: new Date().toISOString(), source: 'yahoo-chart' });
+                            }
+                            // 保留最後 10 個交易日
+                            const last10 = closeArr.slice(-10);
+                            _dailyPnlPriceCache.symbols[sym] = { market: mk, closes: last10 };
+                            const baselineClose = _extractCloseForDate(last10, target);
+                            const prevClose     = _extractCloseForDate(last10, prevTrading);
+                            if (baselineClose != null && prevClose != null) {
+                                _dailyPnlBaselines.symbols[sym] = {
+                                    market: mk,
+                                    prevClose: baselineClose,
+                                    prevPrevClose: prevClose,
+                                    marketDate: target,
+                                    fetchedAt: new Date().toISOString(),
+                                    source: 'yahoo-chart'
+                                };
+                            } else {
+                                allOk = false;
+                            }
+                        } catch(e) {
+                            allOk = false;
+                        }
+                    }
+                    if (allOk) anyComplete = true;
+                }
+                _dailyPnlPriceCache.updatedAt = new Date().toISOString();
+                _dailyPnlBaselines.updatedAt  = new Date().toISOString();
+                _hydratePrevCloseFromBaselines();
+                if (anyComplete) {
+                    try { _scheduleSystemSyncPush('daily_pnl_backfill'); } catch(_) {}
+                    try { renderAll(); } catch(_) {}
+                }
+                return anyComplete;
+            } catch(e) {
+                _recordAppError('daily_pnl_backfill', e, { reason });
+                return false;
+            }
+        }
+        // 從 closes array 找指定 marketDate 的 close（精準對齊）
+        function _extractCloseForDate(closes, targetDate) {
+            if (!Array.isArray(closes) || !targetDate) return null;
+            const hit = closes.find(c => c.marketDate === targetDate);
+            return hit ? hit.close : null;
+        }
         // v15.079：啟動 / pull 完成後呼叫，依 rollbackSummary 顯示 #rollback-card
         function _renderRollbackCard() {
             const card = document.getElementById('rollback-card');
