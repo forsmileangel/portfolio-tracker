@@ -5131,9 +5131,25 @@
                 _pushRetryCount = 0;
 
                 renderAll();
+                // v15.080 hotfix P2：與 silent pull 對齊的後處理 — hydrate cache + 1.5s 後背景跑 loadAnalysis +
+                // 8s 後若 baselines 仍空就 backfill（避免新瀏覽器 manual pull 後今日損益卡住直到下小時 timer）
+                try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
+                try {
+                    if (typeof loadAnalysis === 'function' && holdings.length > 0) {
+                        setTimeout(() => loadAnalysis(false, true), 1500);
+                    }
+                } catch(_) {}
+                setTimeout(() => {
+                    try {
+                        if (Array.isArray(holdings) && holdings.length > 0) {
+                            const hasBaseline = _dailyPnlBaselines && _dailyPnlBaselines.symbols && Object.keys(_dailyPnlBaselines.symbols).length > 0;
+                            if (!hasBaseline) _backfillDailyPnlSystemData('manual_pull_no_baseline');
+                        }
+                    } catch(_) {}
+                }, 8000);
 
                 const t = new Date().toLocaleTimeString('zh-TW');
-                const _depPull = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
+                const _depPull = deposits.length > 0 ? ` + ${deposits.length} 筆持倉${_depPull}` : '';
                 setGistStatus(`✅ 已拉取 ${holdings.length} 筆持倉${_depPull}（${t}）`, '#10b981');
                 showImportToast(`✅ 已從雲端拉取 ${holdings.length} 筆持倉${_depPull}`, 2500);
 
