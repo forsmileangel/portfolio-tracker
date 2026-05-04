@@ -7903,6 +7903,16 @@
             _updatePendingPushIndicator();
             _renderRollbackCard();   // v15.079：若本機有 master rollback summary 則顯示卡片
             _gistSilentPull();
+            // v15.080：啟動 + silent pull 後 8 秒，若本機今日損益仍缺 prevClose（_dailyPnlBaselines 為空），啟動 backfill
+            //   只在有 holdings 時觸發；fail-safe：cooldown 已自帶
+            setTimeout(() => {
+                try {
+                    if (Array.isArray(holdings) && holdings.length > 0) {
+                        const hasBaseline = _dailyPnlBaselines && _dailyPnlBaselines.symbols && Object.keys(_dailyPnlBaselines.symbols).length > 0;
+                        if (!hasBaseline) _backfillDailyPnlSystemData('startup_no_baseline');
+                    }
+                } catch(_) {}
+            }, 8000);
             // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
             // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
             // 權限過期時：只顯示 status 提示，user 必須到設定 Tab → 本地同步 → 主動點「拉取」按鈕重新授權
