@@ -233,7 +233,7 @@
 
 ---
 
-## 9. v15.069→v15.079 已修補的回歸點（不可重蹈）
+## 9. v15.069→v15.080 已修補的回歸點（不可重蹈）
 
 | 版本 | 錯誤 | 修補 |
 |------|------|------|
@@ -247,6 +247,8 @@
 | v15.078 hotfix 前 | `pending_quote` 中間狀態進 dirty | 改 `fresh_after_close` 才標 |
 | v15.079 初版 | holdings 直接進 hash + snapshot 仍 auto-push + pending general fallback + rollback 沒標 dirty + master id 過早 processed | hotfix 5 條全修：`_normalizeHoldingsForHash` / 拔 `_markAndAutoPush(['dailyPnlSnapshots'])` / 拔 general fallback / rollback `_markDomainsModified` / `_addProcessedMasterId` 移到 `_applySyncBaseline` 之後 |
 | v15.080 | snapshot 與 baseline 沒同步通道導致跨裝置看不到昨日損益 | 引入 system sync channel：`_scheduleSystemSyncPush` + hash-match guard + 不進 pending + `_isApplyingCloudPull` guard；§3 規則文字升級（不是例外） |
+| v15.080 後續修補 A | system sync push 讓 Gist revision 變動但 sync_meta.userDataHash 不變，B 改 holdings 後 preflight fallback 6-state 比 revision → 誤判 `dirty_cloud_newer_conflict` reject | 新增 `cloud_user_same_system_newer` state（cloudHash === lastUserDataHash 即放行 push）；hash_match 順手清 dirty / pending；preflight merge 範圍擴大至 baselines + price_cache（不只 snapshots）|
+| v15.080 後續修補 B | `_backfillDailyPnlSystemData` 寫 `baseline.prevClose = close[prevTrading]`（少推一天），hydrate 後 `_prevCloseCache` 變錯，今日漲幅 ≈ 兩倍（前次收盤漲幅 + 今日漲幅）| backfill 改寫 `prevClose: cTarget, prevPrevClose: cPrev`；`_hydratePrevCloseFromBaselines` 加 marketDate guard（必須等於該市場 lastCompletedTradingDate）擋舊錯 baseline；silentRefreshPrices / directApplyPrices 後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正 |
 
 ---
 
