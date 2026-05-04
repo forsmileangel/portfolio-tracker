@@ -7249,11 +7249,14 @@
                                 const qd  = await yfFetch(`${BASE1}/v8/finance/chart/${symbol}?interval=1d&range=5d`);
                                 const ch  = qd?.chart?.result?.[0];
                                 const tss = ch?.timestamp ?? [];
-                                const c   = (ch?.indicators?.quote?.[0]?.close ?? []).filter(v => v != null);
-                                if (tss.length === 0 || c.length === 0) throw new Error('no chart data');
+                                // v15.080 後續修補：zip + filter 對齊 timestamp 與 close（盤中 close=null 時不能只 filter 一邊）
+                                // 否則 tss[last] 仍指向今天但 closes 已少一筆 → opened 誤判 true → prevClose 取 closes[len-2] 變「真前一交易日」→ 兩倍漲幅 bug
+                                const _pairs = (ch?.indicators?.quote?.[0]?.close ?? []).map((cv, i) => ({ ts: tss[i], close: cv })).filter(p => p.close != null);
+                                if (_pairs.length === 0) throw new Error('no chart data');
+                                const c = _pairs.map(p => p.close);
                                 const _tz0 = _exchangeTz(symbol);
                                 const todayET = new Date().toLocaleDateString('en-US', {timeZone:_tz0});
-                                const barET   = new Date(tss[tss.length-1]*1000).toLocaleDateString('en-US',{timeZone:_tz0});
+                                const barET   = new Date(_pairs[_pairs.length-1].ts * 1000).toLocaleDateString('en-US',{timeZone:_tz0});
                                 marketOpenedToday = (todayET === barET);
                                 // 去除 Yahoo 在未開盤時附加的幻影重複 bar（closes[-1]=closes[-2] 完全相等）
                                 const adjC = c.slice();
