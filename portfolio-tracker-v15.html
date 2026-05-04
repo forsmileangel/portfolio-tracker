@@ -3770,7 +3770,6 @@
             _systemSyncCooldownTs = now;
             try {
                 if (!Array.isArray(holdings) || holdings.length === 0) return false;
-                // 依市場分組
                 const byMarket = { TW: [], HK: [], US: [] };
                 for (const h of holdings) {
                     const mk = _holdingMarketKey(h);
@@ -3779,6 +3778,12 @@
                 if (!_dailyPnlPriceCache) _dailyPnlPriceCache = { version: 1, updatedAt: new Date().toISOString(), symbols: {} };
                 if (!_dailyPnlBaselines)  _dailyPnlBaselines  = { version: 1, userDataHash: null, updatedAt: new Date().toISOString(), symbols: {} };
 
+                // v15.080 hotfix P1-4：算 hash 一次 + 每市場結束直接建 complete snapshot
+                let basisUserDataHash = null;
+                let basisHoldingsHash = null;
+                try { basisUserDataHash = await _userDataHash(_buildLocalUserPayload()); } catch(_) {}
+                try { basisHoldingsHash = await _userDataHash({ holdings: _normalizeHoldingsForHash(holdings) }); } catch(_) {}
+
                 let anyComplete = false;
                 for (const mk of ['TW', 'HK', 'US']) {
                     const list = byMarket[mk];
@@ -3786,70 +3791,109 @@
                     const session = _marketSession(mk, new Date());
                     const target = session.lastCompletedTradingDate;
                     if (!target) continue;
-                    const prevTrading = _previousTradingDate(mk, target);
+                    if (_isTradingDay(mk, target) !== true) continue;
+                    const prevTrading     = _previousTradingDate(mk, target);
+                    const prevPrevTrading = prevTrading ? _previousTradingDate(mk, prevTrading) : null;
                     if (!prevTrading) continue;
 
-                    let allOk = true;
+                    // step 1：對每 symbol 抓 / 用 cache 補近 10 個交易日 close
                     for (const h of list) {
                         const sym = h.symbol;
-                        // 24hr 內已有資料不重抓
                         const cached = _dailyPnlPriceCache.symbols[sym];
                         const recent = cached?.closes?.[cached.closes.length - 1];
-                        if (recent && recent.fetchedAt && (now - new Date(recent.fetchedAt).getTime() < _BACKFILL_SYMBOL_TTL)) {
-                            // 仍要從 cache 抽 prevClose / prevPrevClose 寫到 baseline
-                            const fillBaseline = _extractCloseForDate(cached.closes, target);
-                            const fillPrev     = _extractCloseForDate(cached.closes, prevTrading);
-                            if (fillBaseline != null && fillPrev != null) {
-                                _dailyPnlBaselines.symbols[sym] = {
-                                    market: mk,
-                                    prevClose: fillBaseline,
-                                    prevPrevClose: fillPrev,
-                                    marketDate: target,
-                                    fetchedAt: recent.fetchedAt,
-                                    source: 'price-cache'
-                                };
-                                continue;
-                            }
-                        }
-                        // 否則 yfFetch 補近 10 個交易日 close
+                        const cacheFresh = !!(recent && recent.fetchedAt && (now - new Date(recent.fetchedAt).getTime() < _BACKFILL_SYMBOL_TTL));
+                        if (cacheFresh) continue;     // 24hr 內已抓過，跳過
                         try {
                             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1mo`;
                             const data = await yfFetch(url);
                             const result = data?.chart?.result?.[0];
                             const ts     = result?.timestamp || [];
                             const closes = result?.indicators?.quote?.[0]?.close || [];
-                            if (!ts.length || !closes.length) { allOk = false; continue; }
+                            if (!ts.length || !closes.length) continue;
                             const tz = _exchangeTz(sym);
                             const closeArr = [];
                             for (let i = 0; i < ts.length; i++) {
                                 if (closes[i] == null) continue;
                                 const d = new Date(ts[i] * 1000);
-                                // 取目標時區的 YYYY-MM-DD
                                 const md = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
                                 closeArr.push({ marketDate: md, close: closes[i], fetchedAt: new Date().toISOString(), source: 'yahoo-chart' });
                             }
-                            // 保留最後 10 個交易日
                             const last10 = closeArr.slice(-10);
                             _dailyPnlPriceCache.symbols[sym] = { market: mk, closes: last10 };
-                            const baselineClose = _extractCloseForDate(last10, target);
-                            const prevClose     = _extractCloseForDate(last10, prevTrading);
-                            if (baselineClose != null && prevClose != null) {
-                                _dailyPnlBaselines.symbols[sym] = {
-                                    market: mk,
-                                    prevClose: baselineClose,
-                                    prevPrevClose: prevClose,
-                                    marketDate: target,
-                                    fetchedAt: new Date().toISOString(),
-                                    source: 'yahoo-chart'
-                                };
-                            } else {
-                                allOk = false;
-                            }
-                        } catch(e) {
-                            allOk = false;
-                        }
+                        } catch(_) { /* 單 symbol 失敗就略過 */ }
                     }
-                    if (allOk) anyComplete = true;
+
+                    // step 2：從 price cache 算 baseline + 直接建 complete snapshot
+                    // 語意修正（hotfix P1-4）：
+                    //   prevClose      = close[prevTrading]      ← 「昨收」（用於 dayPnL = currentPrice − prevClose）
+                    //   prevPrevClose  = close[prevPrevTrading]  ← 「再前一交易日 close」
+                    //   backfill 用 close[target] − close[prevTrading] 算 pnl
+                    const expectedHoldingsCount = list.length;
+                    let pnlUSD = 0, pnlTWD = 0, withData = 0;
+                    const usedHoldings = [];
+                    const missingSymbols = [];
+                    for (const h of list) {
+                        const sym = h.symbol;
+                        const cache = _dailyPnlPriceCache.symbols[sym];
+                        const closes = cache?.closes || [];
+                        const cTarget   = _extractCloseForDate(closes, target);
+                        const cPrev     = _extractCloseForDate(closes, prevTrading);
+                        const cPrevPrev = prevPrevTrading ? _extractCloseForDate(closes, prevPrevTrading) : null;
+                        if (cTarget == null || cPrev == null) {
+                            missingSymbols.push(sym);
+                            continue;
+                        }
+                        // 寫 baseline（修正語意）
+                        _dailyPnlBaselines.symbols[sym] = {
+                            market: mk,
+                            prevClose: cPrev,            // 上一交易日 close = 今日 PnL 的 basis
+                            prevPrevClose: cPrevPrev,    // 再前一交易日 close
+                            marketDate: target,
+                            fetchedAt: new Date().toISOString(),
+                            source: 'backfill-price-history'
+                        };
+                        // 計算 pnl（close[target] − close[prevTrading]）
+                        const _isHK_HKD = (h.market === 'HK' || (typeof sym === 'string' && sym.endsWith('.HK'))) && !HK_USD_PRICED.has(sym);
+                        const dRaw = (cTarget - cPrev) * h.quantity;
+                        let dUSD, dTWD;
+                        if (_isHK_HKD)            { dUSD = dRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD; dTWD = dRaw * exchangeRates.HKD_TWD; }
+                        else if (h.market === 'TW') { dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
+                        else                       { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
+                        pnlUSD += dUSD; pnlTWD += dTWD; withData++;
+                        usedHoldings.push({ symbol: sym, quantity: h.quantity, currentPrice: cTarget, prevClose: cPrev, prevPrevClose: cPrevPrev });
+                    }
+
+                    const complete = (withData === expectedHoldingsCount) && expectedHoldingsCount > 0;
+                    if (!complete) continue;   // partial 不寫 snapshot（仍保留 baselines 給 UI 顯示今日損益）
+
+                    // step 3：直接寫 complete snapshot（不依賴 capture meta 對齊）
+                    const snap = _loadDailyPnlSnapshots();
+                    if (!snap.markets[mk]) snap.markets[mk] = { current: null, previous: null };
+                    const slot = snap.markets[mk];
+                    // 同 target 已有 complete snapshot 不覆蓋（本機既有更可信）
+                    if (slot.current && slot.current.marketDate === target && slot.current.complete !== false) continue;
+                    if (slot.current && slot.current.marketDate !== target) slot.previous = slot.current;
+                    slot.current = {
+                        marketKey: mk,
+                        marketDate: target,
+                        closedAt: new Date().toISOString(),
+                        source: 'backfill-price-history',
+                        pnlUSD, pnlTWD,
+                        holdings: usedHoldings,
+                        quoteStatus: 'fresh_after_close',
+                        lastQuoteAt: null,
+                        basisField: 'prevClose',
+                        complete: true,
+                        expectedHoldingsCount,
+                        withData,
+                        missingSymbols: [],
+                        basisUserDataHash,
+                        basisHoldingsHash
+                    };
+                    snap.lastCompleteDate = _computeLastCompleteDate(snap.markets);
+                    _saveDailyPnlSnapshots(snap);
+                    anyComplete = true;
+                    console.log(`[Backfill] ${mk} complete snapshot built for ${target} (pnlTWD=${pnlTWD.toFixed(0)})`);
                 }
                 _dailyPnlPriceCache.updatedAt = new Date().toISOString();
                 _dailyPnlBaselines.updatedAt  = new Date().toISOString();
