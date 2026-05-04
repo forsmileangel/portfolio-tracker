@@ -6162,6 +6162,18 @@
             if (updatedMarkets.size > 0) {
                 try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-manual'); } catch(_) {}
             }
+            // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
+            // （避免 currentPrice 已新但 prevClose 為空，今日漲幅顯示「-」過久）
+            try {
+                const _missingBaseline = holdings.some(h => {
+                    const pc = window._prevCloseCache?.[h.symbol];
+                    return pc == null || !(pc > 0);
+                });
+                if (_missingBaseline && typeof loadAnalysis === 'function') {
+                    clearTimeout(window._missingBaselineTimer);
+                    window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
+                }
+            } catch(_) {}
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
         }
