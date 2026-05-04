@@ -3521,6 +3521,8 @@
             }
         }
         // hash-first classify：hash 同 → 'hash_match'；不同 → fallback 既有 6-state
+        // v15.080 後續修補：新增 'cloud_user_same_system_newer' — cloud user data 與本機上次同步過的版本一致
+        // （system sync 期間累積的 revision 變動），允許 user push 不再 reject
         async function _classifyCloudSyncStateV2(gistState) {
             const cloudPayload = gistState?.saved || null;
             let cloudHash = cloudPayload?.sync_meta?.userDataHash || null;
@@ -3530,6 +3532,10 @@
             const localHash = await _userDataHash(_buildLocalUserPayload());
             if (cloudHash && localHash && cloudHash === localHash) {
                 return { kind: 'hash_match', cloudRevision: gistState.cloudRevision || '', cloudUpdatedAt: gistState.cloudUpdatedAt || '', cloudHash, localHash };
+            }
+            const lastUserHash = localStorage.getItem(STORAGE_KEYS.lastUserDataHash);
+            if (cloudHash && lastUserHash && cloudHash === lastUserHash && localHash !== cloudHash) {
+                return { kind: 'cloud_user_same_system_newer', cloudRevision: gistState.cloudRevision || '', cloudUpdatedAt: gistState.cloudUpdatedAt || '', cloudHash, localHash };
             }
             return { kind: _classifyCloudSyncState(gistState), cloudHash, localHash };
         }
