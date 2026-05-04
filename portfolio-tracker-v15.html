@@ -3614,11 +3614,21 @@
             return out;
         }
         // hydrate window._prevCloseCache / _prevPrevCloseCache 從 baselines memory
+        // v15.080 後續修補：marketDate 必須 === 該市場目前的 lastCompletedTradingDate
+        // 否則跳過（避免使用過期 / 跨裝置寫錯的舊 baseline 把今日漲幅算成兩倍）
         function _hydratePrevCloseFromBaselines() {
             if (!_dailyPnlBaselines || !_dailyPnlBaselines.symbols) return;
             const pc  = window._prevCloseCache     || {};
             const ppc = window._prevPrevCloseCache || {};
+            const now = new Date();
             Object.entries(_dailyPnlBaselines.symbols).forEach(([sym, data]) => {
+                try {
+                    const mk = data.market;
+                    if (mk) {
+                        const session = _marketSession(mk, now);
+                        if (data.marketDate !== session.lastCompletedTradingDate) return;
+                    }
+                } catch(_) { return; }
                 if (typeof data.prevClose     === 'number') pc[sym]  = data.prevClose;
                 if (typeof data.prevPrevClose === 'number') ppc[sym] = data.prevPrevClose;
             });
