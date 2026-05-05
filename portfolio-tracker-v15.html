@@ -1646,6 +1646,16 @@
                         const oldQA = slot.current.lastQuoteAt;
                         if (oldQA && quoteMeta.lastQuoteAt && new Date(quoteMeta.lastQuoteAt) <= new Date(oldQA)) return;
                     }
+                    // v15.082：同 target 已有 complete fresh snapshot 時，新 pnl 與舊 pnl 差異 > 5% 警告
+                    // 提早發現 capture 算法回歸（避免 v15.081 那種 baseline 語意改了 capture 沒跟上的 bug）
+                    if (oldComplete && complete && oldStatus === 'fresh_after_close' && newStatus === 'fresh_after_close') {
+                        const oldPnl = slot.current.pnlTWD || 0;
+                        const diff   = Math.abs(pnlTWD - oldPnl);
+                        const ref    = Math.max(Math.abs(oldPnl), Math.abs(pnlTWD), 1);
+                        if (diff / ref > 0.05) {
+                            console.warn(`[DailyPnL] ${marketKey} ${target} complete snapshot pnlTWD changed > 5% (old=${oldPnl.toFixed(0)} new=${pnlTWD.toFixed(0)}) — verify basis correctness`);
+                        }
+                    }
                 } else if (slot.current) {
                     slot.previous = slot.current;
                 }
