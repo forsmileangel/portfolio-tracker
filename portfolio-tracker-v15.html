@@ -1669,7 +1669,7 @@
                     holdings: usedHoldings,
                     quoteStatus: newStatus,
                     lastQuoteAt: quoteMeta.lastQuoteAt || null,
-                    basisField: isToday ? 'prevClose' : 'prevPrevClose',
+                    basisField: 'closePair',     // v15.082：明確用 close[target] - close[prevTrading]，不再用 isToday 分支
                     complete,
                     expectedHoldingsCount,
                     withData,
