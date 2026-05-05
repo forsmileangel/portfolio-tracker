@@ -45,6 +45,8 @@
 2. **`pushedAt` 是時間順序，不是資料差異**。雲端可能 revision 增加但內容相同（snapshot only push）→ 不可視為使用者 dirty。
 3. **system-generated data 不等於 user dirty**。報價 / 分析 / snapshot / FX / cache 都是系統產生，不該觸發使用者可見的「未同步」提示。
 4. **baseline.prevClose 語意 = 今日 PnL basis = close[最近完成交易日]**（對齊 runAnalysis 未開盤路徑寫法）。backfill / hydrate 路徑都必須遵守此語意；marketDate 必須等於該市場目前的 lastCompletedTradingDate 才能 hydrate 進 `_prevCloseCache`，否則跳過避免兩倍漲幅 bug。
+5. **`_captureDailyPnlSnapshot` 必須用明確 close pair：`close[target] - close[prevTrading]`**（v15.082 起）。**禁止**用 `isToday ? h.prevClose : h.prevPrevClose` 這種「依 stats 變數語意決定 basis」的寫法 — v15.081 改 baseline 語意（prevClose = close[target]）後，isToday=true 會誤算 ≈ 0。capture 來源優先序：baseline.marketDate===target → price_cache → stats fallback。同 target 已有 complete fresh snapshot 時，新 pnlTWD 變化 > 5% 必印 console.warn（提早發現 basis 語意回歸）。
+6. **「今日損益」只算盤中市場（`status === 'open'`）**（v15.082 起）。'closed'（收盤後）數值已凍進前次收盤損益，不再進今日總額；UI 卡片 'closed' 顯示「已收盤，見前次收盤」灰色文字，避免「美股 +247」這種收盤後仍浮動的誤導。
 
 ---
 
