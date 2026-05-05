@@ -1578,23 +1578,48 @@
                 const expectedHoldingsCount = marketHoldings.length;
                 if (expectedHoldingsCount === 0) return;
 
+                // v15.082：明確用 close[target] - close[prevTrading] 算「target 那天的當日損益」
+                // 不再用 isToday ? h.prevClose : h.prevPrevClose 模糊語意（v15.081 改 baseline 語意後 isToday=true 會誤算 ≈ 0）
+                // 來源優先序：baseline.marketDate===target → price_cache → stats fallback
+                const prevTrading = _previousTradingDate(marketKey, target);
                 let pnlUSD = 0, pnlTWD = 0, withData = 0;
                 const missingSymbols = [];
                 const usedHoldings = [];
                 for (const h of marketHoldings) {
-                    const basis = isToday ? h.prevClose : h.prevPrevClose;
-                    if (basis == null || !(basis > 0)) {
+                    let cTarget = null, cPrev = null;
+                    // (1) baseline（marketDate guard 過）
+                    const bl = _dailyPnlBaselines?.symbols?.[h.symbol];
+                    if (bl && bl.marketDate === target) {
+                        if (typeof bl.prevClose     === 'number') cTarget = bl.prevClose;
+                        if (typeof bl.prevPrevClose === 'number') cPrev   = bl.prevPrevClose;
+                    }
+                    // (2) price_cache（backfill 抓的近 10 個交易日 close）
+                    if ((cTarget == null || cPrev == null) && _dailyPnlPriceCache?.symbols?.[h.symbol]) {
+                        const closes = _dailyPnlPriceCache.symbols[h.symbol].closes || [];
+                        if (cTarget == null) {
+                            const e = closes.find(c => c.marketDate === target);
+                            if (e && typeof e.close === 'number') cTarget = e.close;
+                        }
+                        if (cPrev == null && prevTrading) {
+                            const e = closes.find(c => c.marketDate === prevTrading);
+                            if (e && typeof e.close === 'number') cPrev = e.close;
+                        }
+                    }
+                    // (3) stats fallback：v15.081 後 h.prevClose = close[target], h.prevPrevClose = close[prevTrading]
+                    if (cTarget == null && h.prevClose     != null && h.prevClose     > 0) cTarget = h.prevClose;
+                    if (cPrev   == null && h.prevPrevClose != null && h.prevPrevClose > 0) cPrev   = h.prevPrevClose;
+                    if (cTarget == null || !(cTarget > 0) || cPrev == null || !(cPrev > 0)) {
                         missingSymbols.push(h.symbol);
                         continue;
                     }
                     const _isHK_HKD = (h.market === 'HK' || (typeof h.symbol === 'string' && h.symbol.endsWith('.HK'))) && !HK_USD_PRICED.has(h.symbol);
-                    const dRaw = (h.currentPrice - basis) * h.quantity;
+                    const dRaw = (cTarget - cPrev) * h.quantity;
                     let dUSD, dTWD;
                     if (_isHK_HKD)            { dUSD = dRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD; dTWD = dRaw * exchangeRates.HKD_TWD; }
                     else if (h.market === 'TW') { dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
                     else                       { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
                     pnlUSD += dUSD; pnlTWD += dTWD; withData++;
-                    usedHoldings.push({ symbol: h.symbol, quantity: h.quantity, currentPrice: h.currentPrice, prevClose: h.prevClose, prevPrevClose: h.prevPrevClose });
+                    usedHoldings.push({ symbol: h.symbol, quantity: h.quantity, currentPrice: cTarget, prevClose: cTarget, prevPrevClose: cPrev });
                 }
                 if (withData === 0) return;
 
