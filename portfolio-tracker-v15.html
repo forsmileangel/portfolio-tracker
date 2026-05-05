@@ -1975,8 +1975,9 @@
             const totalPnLUSD = totalValueUSD - totalCostUSD;
             const totalPnLTWD = totalValueTWD - totalCostTWD;
 
-            // v15.070 (P2)：今日總計只加總已交易日的市場，排除 not_open / closed_or_holiday
-            const _eligibleTodayStatus = (s) => s === 'open' || s === 'closed';
+            // v15.082：今日總計只算「盤中」市場（'open'）；'closed' 已收盤的市場數值已凍進前次收盤損益，不再進今日總額
+            // 'not_open' / 'closed_or_holiday' 同樣排除（既有行為）
+            const _eligibleTodayStatus = (s) => s === 'open';
             const todayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) =>
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlUSD || 0) : s, 0),
