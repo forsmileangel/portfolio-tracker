@@ -2356,6 +2356,9 @@
                     } else if (m.status === 'closed_or_holiday') {
                         const lc = m.lastCompletedTradingDate ? m.lastCompletedTradingDate.slice(5) : '';
                         valStr = lc ? `休市，沿用 ${lc} 快照` : '休市'; col = '#607585';
+                    } else if (m.status === 'closed') {
+                        // v15.082：已收盤的市場，今日數值已凍進前次收盤損益，不再浮動顯示
+                        valStr = '已收盤，見前次收盤'; col = '#607585';
                     } else if (m.withData === 0) {
                         valStr = '資料讀取中'; col = '#607585';
                     } else {
