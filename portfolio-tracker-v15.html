@@ -1608,9 +1608,8 @@
                             if (e && typeof e.close === 'number') cPrev = e.close;
                         }
                     }
-                    // (3) stats fallback：v15.081 後 h.prevClose = close[target], h.prevPrevClose = close[prevTrading]
-                    if (cTarget == null && h.prevClose     != null && h.prevClose     > 0) cTarget = h.prevClose;
-                    if (cPrev   == null && h.prevPrevClose != null && h.prevPrevClose > 0) cPrev   = h.prevPrevClose;
+                    // v15.902：移除 stats fallback — _prevCloseCache 語意不可靠（可能 baseline / API / repair 寫的）
+                    // 缺資料時讓 symbol 進 missingSymbols，等 backfill / system pull 補齊
                     if (cTarget == null || !(cTarget > 0) || cPrev == null || !(cPrev > 0)) {
                         missingSymbols.push(h.symbol);
                         continue;
