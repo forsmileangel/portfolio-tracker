@@ -9302,17 +9302,7 @@
                     if (updatedMarkets.size > 0) {
                         try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-silent'); } catch(_) {}
                     }
-                    // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
-                    try {
-                        const _missingBaseline = holdings.some(h => {
-                            const pc = window._prevCloseCache?.[h.symbol];
-                            return pc == null || !(pc > 0);
-                        });
-                        if (_missingBaseline && typeof loadAnalysis === 'function') {
-                            clearTimeout(window._missingBaselineTimer);
-                            window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
-                        }
-                    } catch(_) {}
+                    _scheduleMissingPrevCloseRepair('csv-silent');
                     renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
