@@ -81,8 +81,6 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-  v15.902 - Hotfix：禁止 missing prevClose 修補污染前次收盤快照。修 v15.901 _repairMissingPrevCloseForHoldings 用 todayStr===barStr 判斷 opened 而寫錯 prevClose 語意（opened=true 時寫成 closes[len-2] = 昨天收盤，但 baseline 語意要求 close[lastCompletedTradingDate] = 今天收盤），並透過 _captureDailyPnlSnapshot 的 stats fallback 污染 snapshot → 台股/港股收盤後前次收盤損益被錯誤值覆蓋。三層修補：(1) repair 改用 _marketSession 判斷 status（open / closed / not_open / closed_or_holiday），且只更新 _prevCloseCache / _prevPrevCloseCache 顯示用 cache，不寫 _dailyPnlBaselines / _dailyPnlPriceCache / analysis cache；(2) _captureDailyPnlSnapshot 移除 stats fallback（line 1611-1613）— complete snapshot 只接受有明確 marketDate 的 baseline / price_cache 來源；(3) 同 target complete fresh snapshot 覆蓋條件升級 — 新舊 pnlTWD 差 > 5% 直接拒絕覆蓋並 _recordAppError，不再只 console.warn。
-  v15.901 - 今日漲跌顯示與 missing prevClose 小修：(1) 持倉表「今日漲跌」移除 _marketOpenedToday guard，只要 prevClose 有值就算（上方「今日損益」卡片仍依市場 status 判斷）；(2) 新增 _repairMissingPrevCloseForHoldings 輕量補正（Yahoo 5d chart），取代重跑整個 loadAnalysis；5 處觸發點（startup/gist-pull/csv-manual/csv-silent/analysis-fresh），2 分鐘 cooldown 防洗版；不碰 holdings / Gist push / snapshot / baseline / system sync。
   v15.900 - v15 系列終版凍結（Stable Final）：把 v15.082 的內容鎖死成 v15.9 終版；功能基本穩定（Gist 同步 + system sync channel + userDataHash + master/staging/cancel + FSA + 兩倍漲幅 + capture basis + preflight 誤擋全部修補完成），未來 v15 不再進版，所有開發轉往 v16。本版作為 rollback target — 後續若 v16 改壞，可直接 `git checkout v15.900` 回到此版。git tag: v15.900。
   v15.082 - 修補 v15.081 後 capture basis 語意未跟上 + 收盤後今日損益仍浮動：(P1) 美股收盤後（NY localDate === target）_captureDailyPnlSnapshot 仍用 `isToday ? h.prevClose : h.prevPrevClose` 模糊語意，但 v15.081 已把 baseline 語意改成「prevClose = close[target]」→ isToday=true 時 basis = close[target] ≈ currentPrice → snapshot pnlTWD ≈ 0（看到「美股 +247」而非「+203,482」）；同 marketDate 已有 complete fresh snapshot 時又只看 lastQuoteAt 較新就允許覆蓋 → 一鍵更新刷新 quote meta 後錯誤的 snapshot 蓋掉正確的。修法：capture 改用明確 `close[target] - close[prevTrading]` 公式，來源優先 baseline.marketDate===target → price_cache → stats fallback；basisField 從 'prevClose'/'prevPrevClose' 改 'closePair'；snapshot.holdings[i] 寫入 `prevClose:cTarget, prevPrevClose:cPrev`（明確）；同 target complete snapshot 比對若 pnlTWD 變化 > 5% 印 console.warn（提早發現 basis 語意回歸）。(P2) 今日損益 'closed' 狀態仍計入今日總額且卡片顯示金額 → 收盤後數值持續浮動誤導；`_eligibleTodayStatus` 從 `s === 'open' || s === 'closed'` 收緊為僅 `s === 'open'`；UI mkRow 'closed' 狀態顯示「已收盤，見前次收盤」灰色文字（與 'not_open' / 'closed_or_holiday' 一致風格）。設計約束：不升 PT_SCHEMA_VERSION、不動 STORAGE_KEYS / 同步通道 / user push / pull / master / rollback 流程；snapshot.holdings 欄位語意改變但向下相容（舊 snapshot.holdings[i].prevClose 仍可讀）。
   v15.081 - 修補 v15.080 hotfix 殘洞：(A) loadAnalysis 結尾整包覆蓋 window._prevCloseCache 的 race condition — 即使先前已寫入經 marketDate guard 驗證的 system baseline，也會被 fundamentals.json (f.prev_close) / chart=5d 補抓的舊值整批洗掉，造成「打開時昨日/今日漲跌正確、按完一鍵更新後變兩倍」反覆復發；改為 merge 既有值（不整包賦值）+ 結尾立刻呼叫 _hydratePrevCloseFromBaselines() 讓 system baseline 重新覆蓋（marketDate guard 過的優先於 analysis）。(B) Yahoo chart 三處（fetchSymbolDataFromYahoo 主路徑 / 補抓 / 槓桿 ETF）原本對 closes 做 .filter(v => v != null) 但 timestamps 沒同步 filter → 盤中 close=null 時 tss[last] 仍指向今天但 closes 已少一筆 → opened 誤判 true → prevClose 取 closes[len-2] 變「真.前一交易日」(其實是 prevPrevClose) → 兩倍漲幅 bug；三處統一改 zip + filter 對齊 timestamp 與 close。(C) preflight 新增 cloud_user_same_system_newer state — system sync push 讓 Gist revision 變動但 sync_meta.userDataHash 不變時，B 改 holdings 後 preflight 不再誤判 dirty_cloud_newer_conflict reject；放行條件 cloudHash === lastUserDataHash。(D) hash_match 順手清 dirty / pending（使用者改了又改回原值的情境）；preflight merge 範圍擴大至 baselines + price_cache（不只 snapshots）。(E) _backfillDailyPnlSystemData 寫 baseline 改 prevClose=cTarget / prevPrevClose=cPrev（對齊 runAnalysis 未開盤路徑語意）；snapshot pnl 計算（cTarget - cPrev）不動。(F) _hydratePrevCloseFromBaselines 加 marketDate guard — baseline.marketDate 必須等於該市場 lastCompletedTradingDate 才寫入 _prevCloseCache。(G) silentRefreshPrices / directApplyPrices 後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正；(H) sync-invariants.md §1 補第 4 條 baseline.prevClose 語意；§9 表格加 v15.080 後續修補三條（A merge guard / B chart filter 對齊 / C cloud_user_same_system_newer）；本版同步通道、user push / pull / master / rollback 流程完全不動。
@@ -385,7 +383,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.902</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.900</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1058,7 +1056,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.902';
+        const APP_VERSION = 'v15.900';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1609,8 +1607,9 @@
                             if (e && typeof e.close === 'number') cPrev = e.close;
                         }
                     }
-                    // v15.902：移除 stats fallback — _prevCloseCache 語意不可靠（可能 baseline / API / repair 寫的）
-                    // 缺資料時讓 symbol 進 missingSymbols，等 backfill / system pull 補齊
+                    // (3) stats fallback：v15.081 後 h.prevClose = close[target], h.prevPrevClose = close[prevTrading]
+                    if (cTarget == null && h.prevClose     != null && h.prevClose     > 0) cTarget = h.prevClose;
+                    if (cPrev   == null && h.prevPrevClose != null && h.prevPrevClose > 0) cPrev   = h.prevPrevClose;
                     if (cTarget == null || !(cTarget > 0) || cPrev == null || !(cPrev > 0)) {
                         missingSymbols.push(h.symbol);
                         continue;
@@ -1649,16 +1648,14 @@
                         const oldQA = slot.current.lastQuoteAt;
                         if (oldQA && quoteMeta.lastQuoteAt && new Date(quoteMeta.lastQuoteAt) <= new Date(oldQA)) return;
                     }
-                    // v15.902：同 target 已有 complete fresh snapshot 時，新 pnl 與舊 pnl 差異 > 5% → 拒絕覆蓋
-                    // （v15.082 只 console.warn，但 v15.901 引入的 repair 污染證明會實際覆蓋成錯誤值；本版升級為硬擋 + error log）
+                    // v15.082：同 target 已有 complete fresh snapshot 時，新 pnl 與舊 pnl 差異 > 5% 警告
+                    // 提早發現 capture 算法回歸（避免 v15.081 那種 baseline 語意改了 capture 沒跟上的 bug）
                     if (oldComplete && complete && oldStatus === 'fresh_after_close' && newStatus === 'fresh_after_close') {
                         const oldPnl = slot.current.pnlTWD || 0;
                         const diff   = Math.abs(pnlTWD - oldPnl);
                         const ref    = Math.max(Math.abs(oldPnl), Math.abs(pnlTWD), 1);
                         if (diff / ref > 0.05) {
-                            _recordAppError('daily_pnl_snapshot_large_diff', null, { marketKey, target, oldPnl, newPnl: pnlTWD });
-                            console.warn(`[DailyPnL] ${marketKey} ${target} complete snapshot pnlTWD diff > 5% (old=${oldPnl.toFixed(0)} new=${pnlTWD.toFixed(0)}) — REJECTED overwrite`);
-                            return;
+                            console.warn(`[DailyPnL] ${marketKey} ${target} complete snapshot pnlTWD changed > 5% (old=${oldPnl.toFixed(0)} new=${pnlTWD.toFixed(0)}) — verify basis correctness`);
                         }
                     }
                 } else if (slot.current) {
@@ -1916,8 +1913,11 @@
                     totalPrevDayPnLTWD += prevDayPnlTWD;
                     hasPrevDayPnL = true;
                 }
+                // 當日損益：若 _marketOpenedToday 明確為 false（槓桿 ETF 今日未開盤）則跳過
+                const _mkt = window._marketOpenedToday;
+                const marketNotOpened = (_mkt != null && _mkt.hasOwnProperty(h.symbol) && _mkt[h.symbol] === false);
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
-                if (prevClose != null && prevClose > 0) {
+                if (!marketNotOpened && prevClose != null && prevClose > 0) {
                     const dayChange = h.currentPrice - prevClose;
                     dayChangePct = (dayChange / prevClose) * 100;
                     const dayPnlNative = dayChange * h.quantity;
@@ -3683,103 +3683,6 @@
             window._prevCloseCache     = pc;
             window._prevPrevCloseCache = ppc;
         }
-        // v15.901：missing prevClose 輕量補正（取代重跑整個 loadAnalysis）
-        let _prevCloseRepairTimer = null;
-        let _prevCloseRepairLastRun = 0;
-        const _PREV_CLOSE_REPAIR_COOLDOWN = 120000; // 2 分鐘
-
-        function _hasMissingPrevCloseForHoldings() {
-            if (!Array.isArray(holdings) || holdings.length === 0) return false;
-            return holdings.some(h => {
-                const pc = window._prevCloseCache?.[h.symbol];
-                return pc == null || !(pc > 0);
-            });
-        }
-
-        function _scheduleMissingPrevCloseRepair(reason) {
-            if (!_hasMissingPrevCloseForHoldings()) return;
-            if (Date.now() - _prevCloseRepairLastRun < _PREV_CLOSE_REPAIR_COOLDOWN) return;
-            clearTimeout(_prevCloseRepairTimer);
-            _prevCloseRepairTimer = setTimeout(() => _repairMissingPrevCloseForHoldings(reason), 1500);
-        }
-
-        // v15.902 hotfix：repair 只服務顯示用 cache，不污染 baseline / price_cache / analysis cache
-        // 用 _marketSession status 決定 prevClose 語意（對齊 baseline）：
-        //   open 盤中：prevClose = previous trading close（closes[len-2]）
-        //   closed/not_open/closed_or_holiday：prevClose = close[lastCompletedTradingDate]
-        async function _repairMissingPrevCloseForHoldings(reason) {
-            if (!_hasMissingPrevCloseForHoldings()) return;
-            _prevCloseRepairLastRun = Date.now();
-            const missing = holdings.filter(h => {
-                const pc = window._prevCloseCache?.[h.symbol];
-                return pc == null || !(pc > 0);
-            });
-            if (missing.length === 0) return;
-            console.log(`[PrevClose Repair v15.902] ${reason}: ${missing.length} symbols missing`);
-            const pc  = window._prevCloseCache     || {};
-            const ppc = window._prevPrevCloseCache || {};
-            const now = new Date();
-            let repaired = 0;
-            for (const h of missing) {
-                try {
-                    const sym = h.symbol;
-                    const mk = _holdingMarketKey(h);
-                    const session = _marketSession(mk, now);
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=10d`;
-                    const data = await yfFetch(url);
-                    const ch = data?.chart?.result?.[0];
-                    if (!ch) continue;
-                    const tss = ch.timestamp || [];
-                    const closes = (ch.indicators?.quote?.[0]?.close || []);
-                    const tz = _exchangeTz(sym);
-                    // 把 timestamps 轉成市場本地日期 + close，filter null
-                    const bars = closes.map((c, i) => {
-                        if (c == null || tss[i] == null) return null;
-                        const d = new Date(tss[i] * 1000);
-                        return { date: d.toLocaleDateString('en-CA', { timeZone: tz }), close: c };
-                    }).filter(b => b != null);
-                    if (bars.length === 0) continue;
-
-                    let cTarget = null, cPrev = null;
-                    if (session.status === 'open') {
-                        // 盤中：prevClose = previous trading close（排除 today bar 之後最新那根）
-                        const noToday = bars.filter(b => b.date !== session.localDate);
-                        if (noToday.length >= 1) cTarget = noToday[noToday.length - 1].close;
-                        if (noToday.length >= 2) cPrev   = noToday[noToday.length - 2].close;
-                    } else {
-                        // 收盤/未開/休市：prevClose = close[lastCompletedTradingDate]
-                        const target = session.lastCompletedTradingDate;
-                        if (target) {
-                            const matchTarget = bars.find(b => b.date === target);
-                            if (matchTarget) cTarget = matchTarget.close;
-                            // prevTrading
-                            try {
-                                const prevTrading = _previousTradingDate(mk, target);
-                                if (prevTrading) {
-                                    const matchPrev = bars.find(b => b.date === prevTrading);
-                                    if (matchPrev) cPrev = matchPrev.close;
-                                }
-                            } catch(_) {}
-                        }
-                    }
-                    if (cTarget != null && cTarget > 0) {
-                        pc[sym] = cTarget;
-                        if (cPrev != null && cPrev > 0) ppc[sym] = cPrev;
-                        repaired++;
-                    }
-                } catch(e) {
-                    _recordAppError('prev_close_repair', e, { symbol: h.symbol, reason });
-                }
-            }
-            window._prevCloseCache     = pc;
-            window._prevPrevCloseCache = ppc;
-            // 不寫 _marketOpenedToday、不寫 _dailyPnlBaselines、不寫 _dailyPnlPriceCache、不寫 analysis cache
-            if (repaired > 0) {
-                console.log(`[PrevClose Repair v15.902] ${reason}: repaired ${repaired}/${missing.length} (display-only)`);
-                renderAll();
-            }
-        }
-
         // 從雲端 payload merge system data 進 memory（pull 路徑共用）
         // v15.080 hotfix P1-2：用 merge 取代覆蓋，避免本機 partial 洗掉雲端較完整資料
         function _applySystemDataFromPayload(saved) {
@@ -5303,7 +5206,11 @@
                 // v15.080 hotfix P2：與 silent pull 對齊的後處理 — hydrate cache + 1.5s 後背景跑 loadAnalysis +
                 // 8s 後若 baselines 仍空就 backfill（避免新瀏覽器 manual pull 後今日損益卡住直到下小時 timer）
                 try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
-                _scheduleMissingPrevCloseRepair('gist-pull-manual');
+                try {
+                    if (typeof loadAnalysis === 'function' && holdings.length > 0) {
+                        setTimeout(() => loadAnalysis(false, true), 1500);
+                    }
+                } catch(_) {}
                 setTimeout(() => {
                     try {
                         if (Array.isArray(holdings) && holdings.length > 0) {
@@ -5498,7 +5405,11 @@
                 //   讓新裝置不用等 1hr 就能看到今日/昨日損益
                 try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
                 renderAll();
-                _scheduleMissingPrevCloseRepair('gist-pull-silent');
+                try {
+                    if (typeof loadAnalysis === 'function' && holdings.length > 0) {
+                        setTimeout(() => loadAnalysis(false, true), 1500);
+                    }
+                } catch(_) {}
                 const _depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
                 showImportToast(`☁️ 已從雲端載入 ${holdings.length} 筆庫存${_depNote}`, 3000);
 
@@ -6313,7 +6224,18 @@
             if (updatedMarkets.size > 0) {
                 try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-manual'); } catch(_) {}
             }
-            _scheduleMissingPrevCloseRepair('csv-manual');
+            // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
+            // （避免 currentPrice 已新但 prevClose 為空，今日漲幅顯示「-」過久）
+            try {
+                const _missingBaseline = holdings.some(h => {
+                    const pc = window._prevCloseCache?.[h.symbol];
+                    return pc == null || !(pc > 0);
+                });
+                if (_missingBaseline && typeof loadAnalysis === 'function') {
+                    clearTimeout(window._missingBaselineTimer);
+                    window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
+                }
+            } catch(_) {}
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
         }
@@ -7803,8 +7725,6 @@
 
             if (fundFresh && techFresh) {
                 // ── 快取完全有效 → 直接渲染，不發任何 API 請求 ──
-                // v15.901：cache fresh 但缺 prevClose 時排輕量補正
-                _scheduleMissingPrevCloseRepair('analysis-fresh');
                 // （直接 fall through 到 Render 區塊）
 
             } else if (fundFresh && !techFresh) {
@@ -8207,8 +8127,6 @@
                     }
                 } catch(_) {}
             }, 8000);
-            // v15.901：啟動後排一次 prevClose repair
-            _scheduleMissingPrevCloseRepair('startup');
             // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
             // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
             // 權限過期時：只顯示 status 提示，user 必須到設定 Tab → 本地同步 → 主動點「拉取」按鈕重新授權
@@ -9322,7 +9240,17 @@
                     if (updatedMarkets.size > 0) {
                         try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-silent'); } catch(_) {}
                     }
-                    _scheduleMissingPrevCloseRepair('csv-silent');
+                    // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
+                    try {
+                        const _missingBaseline = holdings.some(h => {
+                            const pc = window._prevCloseCache?.[h.symbol];
+                            return pc == null || !(pc > 0);
+                        });
+                        if (_missingBaseline && typeof loadAnalysis === 'function') {
+                            clearTimeout(window._missingBaselineTimer);
+                            window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
+                        }
+                    } catch(_) {}
                     renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
