@@ -5287,11 +5287,7 @@
                 // v15.080 hotfix P2：與 silent pull 對齊的後處理 — hydrate cache + 1.5s 後背景跑 loadAnalysis +
                 // 8s 後若 baselines 仍空就 backfill（避免新瀏覽器 manual pull 後今日損益卡住直到下小時 timer）
                 try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
-                try {
-                    if (typeof loadAnalysis === 'function' && holdings.length > 0) {
-                        setTimeout(() => loadAnalysis(false, true), 1500);
-                    }
-                } catch(_) {}
+                _scheduleMissingPrevCloseRepair('gist-pull-manual');
                 setTimeout(() => {
                     try {
                         if (Array.isArray(holdings) && holdings.length > 0) {
