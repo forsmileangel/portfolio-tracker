@@ -3742,10 +3742,7 @@
 
                     let cTarget = null, cPrev = null;
                     if (session.status === 'open') {
-                        // 盤中：prevClose = previous trading close（today bar 之前那根）
-                        const todayStr = bars[bars.length - 1].date === session.localDate
-                                       ? session.localDate
-                                       : null;
+                        // 盤中：prevClose = previous trading close（排除 today bar 之後最新那根）
                         const noToday = bars.filter(b => b.date !== session.localDate);
                         if (noToday.length >= 1) cTarget = noToday[noToday.length - 1].close;
                         if (noToday.length >= 2) cPrev   = noToday[noToday.length - 2].close;
