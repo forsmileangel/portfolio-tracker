@@ -3680,6 +3680,90 @@
             window._prevCloseCache     = pc;
             window._prevPrevCloseCache = ppc;
         }
+        // v15.901：missing prevClose 輕量補正（取代重跑整個 loadAnalysis）
+        let _prevCloseRepairTimer = null;
+        let _prevCloseRepairLastRun = 0;
+        const _PREV_CLOSE_REPAIR_COOLDOWN = 120000; // 2 分鐘
+
+        function _hasMissingPrevCloseForHoldings() {
+            if (!Array.isArray(holdings) || holdings.length === 0) return false;
+            return holdings.some(h => {
+                const pc = window._prevCloseCache?.[h.symbol];
+                return pc == null || !(pc > 0);
+            });
+        }
+
+        function _scheduleMissingPrevCloseRepair(reason) {
+            if (!_hasMissingPrevCloseForHoldings()) return;
+            if (Date.now() - _prevCloseRepairLastRun < _PREV_CLOSE_REPAIR_COOLDOWN) return;
+            clearTimeout(_prevCloseRepairTimer);
+            _prevCloseRepairTimer = setTimeout(() => _repairMissingPrevCloseForHoldings(reason), 1500);
+        }
+
+        async function _repairMissingPrevCloseForHoldings(reason) {
+            if (!_hasMissingPrevCloseForHoldings()) return;
+            _prevCloseRepairLastRun = Date.now();
+            const missing = holdings.filter(h => {
+                const pc = window._prevCloseCache?.[h.symbol];
+                return pc == null || !(pc > 0);
+            });
+            if (missing.length === 0) return;
+            console.log(`[PrevClose Repair] ${reason}: ${missing.length} symbols missing`);
+            const pc  = window._prevCloseCache     || {};
+            const ppc = window._prevPrevCloseCache || {};
+            const mot = window._marketOpenedToday  || {};
+            let repaired = 0;
+            for (const h of missing) {
+                try {
+                    const sym = h.symbol;
+                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5d`;
+                    const data = await yfFetch(url);
+                    const ch = data?.chart?.result?.[0];
+                    if (!ch) continue;
+                    const tss = ch.timestamp || [];
+                    const closes = (ch.indicators?.quote?.[0]?.close || []);
+                    const pairs = closes.map((c, i) => ({ ts: tss[i], close: c })).filter(p => p.close != null);
+                    if (pairs.length === 0) continue;
+                    const cls = pairs.map(p => p.close);
+                    const tz = _exchangeTz(sym);
+                    const todayStr = new Date().toLocaleDateString('en-US', { timeZone: tz });
+                    const barStr = new Date(pairs[pairs.length - 1].ts * 1000).toLocaleDateString('en-US', { timeZone: tz });
+                    const opened = (todayStr === barStr);
+                    mot[sym] = opened;
+                    const adjC = cls.slice();
+                    if (!opened) { while (adjC.length >= 2 && adjC[adjC.length - 1] === adjC[adjC.length - 2]) adjC.pop(); }
+                    if (opened) {
+                        if (adjC.length >= 2) pc[sym]  = adjC[adjC.length - 2];
+                        if (adjC.length >= 3) ppc[sym] = adjC[adjC.length - 3];
+                    } else {
+                        if (adjC.length >= 1) pc[sym]  = adjC[adjC.length - 1];
+                        if (adjC.length >= 2) ppc[sym] = adjC[adjC.length - 2];
+                    }
+                    // 同步更新 analysis cache
+                    try {
+                        const raw = _loadCacheRaw();
+                        if (raw && raw.data) {
+                            if (!raw.data[sym]) raw.data[sym] = {};
+                            raw.data[sym].prevClose = pc[sym] ?? null;
+                            raw.data[sym].prevPrevClose = ppc[sym] ?? null;
+                            raw.data[sym].marketOpenedToday = opened;
+                            localStorage.setItem(_CACHE_KEY, JSON.stringify(raw));
+                        }
+                    } catch(_) {}
+                    repaired++;
+                } catch(e) {
+                    _recordAppError('prev_close_repair', e, { symbol: h.symbol, reason });
+                }
+            }
+            window._prevCloseCache     = pc;
+            window._prevPrevCloseCache = ppc;
+            window._marketOpenedToday  = mot;
+            if (repaired > 0) {
+                console.log(`[PrevClose Repair] ${reason}: repaired ${repaired}/${missing.length}`);
+                renderAll();
+            }
+        }
+
         // 從雲端 payload merge system data 進 memory（pull 路徑共用）
         // v15.080 hotfix P1-2：用 merge 取代覆蓋，避免本機 partial 洗掉雲端較完整資料
         function _applySystemDataFromPayload(saved) {
