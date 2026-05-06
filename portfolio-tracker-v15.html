@@ -3701,6 +3701,10 @@
             _prevCloseRepairTimer = setTimeout(() => _repairMissingPrevCloseForHoldings(reason), 1500);
         }
 
+        // v15.902 hotfix：repair 只服務顯示用 cache，不污染 baseline / price_cache / analysis cache
+        // 用 _marketSession status 決定 prevClose 語意（對齊 baseline）：
+        //   open 盤中：prevClose = previous trading close（closes[len-2]）
+        //   closed/not_open/closed_or_holiday：prevClose = close[lastCompletedTradingDate]
         async function _repairMissingPrevCloseForHoldings(reason) {
             if (!_hasMissingPrevCloseForHoldings()) return;
             _prevCloseRepairLastRun = Date.now();
@@ -3709,58 +3713,70 @@
                 return pc == null || !(pc > 0);
             });
             if (missing.length === 0) return;
-            console.log(`[PrevClose Repair] ${reason}: ${missing.length} symbols missing`);
+            console.log(`[PrevClose Repair v15.902] ${reason}: ${missing.length} symbols missing`);
             const pc  = window._prevCloseCache     || {};
             const ppc = window._prevPrevCloseCache || {};
-            const mot = window._marketOpenedToday  || {};
+            const now = new Date();
             let repaired = 0;
             for (const h of missing) {
                 try {
                     const sym = h.symbol;
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5d`;
+                    const mk = _holdingMarketKey(h);
+                    const session = _marketSession(mk, now);
+                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=10d`;
                     const data = await yfFetch(url);
                     const ch = data?.chart?.result?.[0];
                     if (!ch) continue;
                     const tss = ch.timestamp || [];
                     const closes = (ch.indicators?.quote?.[0]?.close || []);
-                    const pairs = closes.map((c, i) => ({ ts: tss[i], close: c })).filter(p => p.close != null);
-                    if (pairs.length === 0) continue;
-                    const cls = pairs.map(p => p.close);
                     const tz = _exchangeTz(sym);
-                    const todayStr = new Date().toLocaleDateString('en-US', { timeZone: tz });
-                    const barStr = new Date(pairs[pairs.length - 1].ts * 1000).toLocaleDateString('en-US', { timeZone: tz });
-                    const opened = (todayStr === barStr);
-                    mot[sym] = opened;
-                    const adjC = cls.slice();
-                    if (!opened) { while (adjC.length >= 2 && adjC[adjC.length - 1] === adjC[adjC.length - 2]) adjC.pop(); }
-                    if (opened) {
-                        if (adjC.length >= 2) pc[sym]  = adjC[adjC.length - 2];
-                        if (adjC.length >= 3) ppc[sym] = adjC[adjC.length - 3];
+                    // 把 timestamps 轉成市場本地日期 + close，filter null
+                    const bars = closes.map((c, i) => {
+                        if (c == null || tss[i] == null) return null;
+                        const d = new Date(tss[i] * 1000);
+                        return { date: d.toLocaleDateString('en-CA', { timeZone: tz }), close: c };
+                    }).filter(b => b != null);
+                    if (bars.length === 0) continue;
+
+                    let cTarget = null, cPrev = null;
+                    if (session.status === 'open') {
+                        // 盤中：prevClose = previous trading close（today bar 之前那根）
+                        const todayStr = bars[bars.length - 1].date === session.localDate
+                                       ? session.localDate
+                                       : null;
+                        const noToday = bars.filter(b => b.date !== session.localDate);
+                        if (noToday.length >= 1) cTarget = noToday[noToday.length - 1].close;
+                        if (noToday.length >= 2) cPrev   = noToday[noToday.length - 2].close;
                     } else {
-                        if (adjC.length >= 1) pc[sym]  = adjC[adjC.length - 1];
-                        if (adjC.length >= 2) ppc[sym] = adjC[adjC.length - 2];
-                    }
-                    // 同步更新 analysis cache
-                    try {
-                        const raw = _loadCacheRaw();
-                        if (raw && raw.data) {
-                            if (!raw.data[sym]) raw.data[sym] = {};
-                            raw.data[sym].prevClose = pc[sym] ?? null;
-                            raw.data[sym].prevPrevClose = ppc[sym] ?? null;
-                            raw.data[sym].marketOpenedToday = opened;
-                            localStorage.setItem(_CACHE_KEY, JSON.stringify(raw));
+                        // 收盤/未開/休市：prevClose = close[lastCompletedTradingDate]
+                        const target = session.lastCompletedTradingDate;
+                        if (target) {
+                            const matchTarget = bars.find(b => b.date === target);
+                            if (matchTarget) cTarget = matchTarget.close;
+                            // prevTrading
+                            try {
+                                const prevTrading = _previousTradingDate(mk, target);
+                                if (prevTrading) {
+                                    const matchPrev = bars.find(b => b.date === prevTrading);
+                                    if (matchPrev) cPrev = matchPrev.close;
+                                }
+                            } catch(_) {}
                         }
-                    } catch(_) {}
-                    repaired++;
+                    }
+                    if (cTarget != null && cTarget > 0) {
+                        pc[sym] = cTarget;
+                        if (cPrev != null && cPrev > 0) ppc[sym] = cPrev;
+                        repaired++;
+                    }
                 } catch(e) {
                     _recordAppError('prev_close_repair', e, { symbol: h.symbol, reason });
                 }
             }
             window._prevCloseCache     = pc;
             window._prevPrevCloseCache = ppc;
-            window._marketOpenedToday  = mot;
+            // 不寫 _marketOpenedToday、不寫 _dailyPnlBaselines、不寫 _dailyPnlPriceCache、不寫 analysis cache
             if (repaired > 0) {
-                console.log(`[PrevClose Repair] ${reason}: repaired ${repaired}/${missing.length}`);
+                console.log(`[PrevClose Repair v15.902] ${reason}: repaired ${repaired}/${missing.length} (display-only)`);
                 renderAll();
             }
         }
