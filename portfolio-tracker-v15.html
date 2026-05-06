@@ -8191,6 +8191,8 @@
                     }
                 } catch(_) {}
             }, 8000);
+            // v15.901：啟動後排一次 prevClose repair
+            _scheduleMissingPrevCloseRepair('startup');
             // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
             // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
             // 權限過期時：只顯示 status 提示，user 必須到設定 Tab → 本地同步 → 主動點「拉取」按鈕重新授權
