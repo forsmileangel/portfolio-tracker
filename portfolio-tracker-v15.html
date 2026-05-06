@@ -1913,11 +1913,8 @@
                     totalPrevDayPnLTWD += prevDayPnlTWD;
                     hasPrevDayPnL = true;
                 }
-                // 當日損益：若 _marketOpenedToday 明確為 false（槓桿 ETF 今日未開盤）則跳過
-                const _mkt = window._marketOpenedToday;
-                const marketNotOpened = (_mkt != null && _mkt.hasOwnProperty(h.symbol) && _mkt[h.symbol] === false);
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
-                if (!marketNotOpened && prevClose != null && prevClose > 0) {
+                if (prevClose != null && prevClose > 0) {
                     const dayChange = h.currentPrice - prevClose;
                     dayChangePct = (dayChange / prevClose) * 100;
                     const dayPnlNative = dayChange * h.quantity;
