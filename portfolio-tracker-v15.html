@@ -1583,6 +1583,104 @@
         }
 
         // ────────────────────────────────────────────────────────
+        // v15.902：close pair cache — 前次收盤損益單一資料來源
+        // 結構：{ updatedAt, symbols: { sym: { market, targetDate, close, prevDate, prevClose, fetchedAt, source } } }
+        // 純本機，不寫 Gist。每 symbol 只存最新一筆。
+        // 公式：dayChange = close − prevClose；× quantity = 該檔 pnl；加總 = 該市場前次收盤損益
+        // ────────────────────────────────────────────────────────
+        function _loadClosePair() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.closePairCache) || '{}');
+                if (!raw.symbols) raw.symbols = {};
+                return raw;
+            } catch { return { symbols: {} }; }
+        }
+        function _saveClosePair(data) {
+            try { localStorage.setItem(STORAGE_KEYS.closePairCache, JSON.stringify(data)); } catch {}
+        }
+
+        // 從 Yahoo chart 5d 抓 close pair：找 target 日期的 bar + 前一個交易日的 bar
+        // 失敗（chart 沒資料 / 找不到 target / 沒有前一筆）→ return null
+        async function _fetchClosePairFromYahoo(symbol, marketKey) {
+            try {
+                const session = _marketSession(marketKey, new Date());
+                const target = session.lastCompletedTradingDate;
+                if (!target) return null;
+
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+                const data = await yfFetch(url);
+                const ch = data?.chart?.result?.[0];
+                if (!ch) return null;
+                const tss = ch.timestamp || [];
+                const closes = ch.indicators?.quote?.[0]?.close || [];
+
+                const tz = _exchangeTz(symbol);
+                // zip + filter null（v15.081 對齊規則）
+                const dated = closes
+                    .map((c, i) => ({ ts: tss[i], close: c }))
+                    .filter(p => p.close != null && p.ts != null)
+                    .map(p => ({
+                        date: new Date(p.ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }),
+                        close: p.close
+                    }));
+
+                const idx = dated.findIndex(d => d.date === target);
+                if (idx <= 0) return null;   // 找不到 target，或沒有前一筆
+
+                return {
+                    market: marketKey,
+                    targetDate: target,
+                    close:     dated[idx].close,
+                    prevDate:  dated[idx - 1].date,
+                    prevClose: dated[idx - 1].close,
+                    fetchedAt: new Date().toISOString(),
+                    source:    'yahoo-chart-5d'
+                };
+            } catch(e) {
+                _recordAppError('close_pair_fetch', e, { symbol, marketKey });
+                return null;
+            }
+        }
+
+        // 對所有 active holdings 補抓 close pair（同 symbol + targetDate 已有 → skip；全域 3min cooldown）
+        let _closePairRefreshLastRun = 0;
+        let _closePairRefreshTimer = null;
+        const _CLOSE_PAIR_COOLDOWN_MS = 3 * 60 * 1000;
+        function _scheduleRefreshClosePair(reason) {
+            if (Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS) return;
+            clearTimeout(_closePairRefreshTimer);
+            _closePairRefreshTimer = setTimeout(() => _refreshClosePairForActiveHoldings(reason), 1500);
+        }
+        async function _refreshClosePairForActiveHoldings(reason) {
+            if (!Array.isArray(holdings) || holdings.length === 0) return;
+            _closePairRefreshLastRun = Date.now();
+            const data = _loadClosePair();
+            if (!data.symbols) data.symbols = {};
+            let fetched = 0;
+            for (const h of holdings) {
+                try {
+                    const mk = _holdingMarketKey(h);
+                    const session = _marketSession(mk, new Date());
+                    const target = session.lastCompletedTradingDate;
+                    if (!target) continue;
+                    const existing = data.symbols[h.symbol];
+                    if (existing && existing.targetDate === target) continue;   // cache hit
+                    const pair = await _fetchClosePairFromYahoo(h.symbol, mk);
+                    if (pair) {
+                        data.symbols[h.symbol] = pair;
+                        fetched++;
+                    }
+                } catch(_) {}
+            }
+            if (fetched > 0) {
+                data.updatedAt = new Date().toISOString();
+                _saveClosePair(data);
+                console.log(`[ClosePair] ${reason}: refreshed ${fetched} symbols`);
+                renderAll();
+            }
+        }
+
+        // ────────────────────────────────────────────────────────
         // v15.069：當日收盤快照（凍結）
         // 結構：pt_daily_pnl_snapshots_v1 = { version, markets: { TW: {marketDate, closedAt, source, pnlTWD, pnlUSD, holdings:[]}, HK:..., US:... } }
         // 不寫進 Gist；只在本機 localStorage
