@@ -2052,47 +2052,75 @@
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0)
             };
 
-            // v15.070 (P1)：昨日損益從 snapshot 讀，依 lastCompleteDate gating，避免日期混搭
-            const _snap = _loadDailyPnlSnapshots();
-            // v15.074/080：fresh 判定 — fresh_after_close + 真交易日 + complete（v15.080 新增；undefined 為向下相容視為 true）
-            const _isFresh = (mk, s) =>
-                !!s && !!s.marketDate
-                && (s.quoteStatus || 'fresh_after_close') === 'fresh_after_close'
-                && _isTradingDay(mk, s.marketDate) !== false   // false=明確假日/週末；true 或 null 都接受
-                && s.complete !== false;                        // v15.080：partial 不顯示為昨日損益
+            // v15.901：前次收盤損益直接由「每檔 dayChange × 持股數」加總得出
+            // 取消 snapshot 系統作為主要顯示來源（snapshot 僅保留作備份 / 跨裝置 system push 通道）
+            // 來源優先序：CSV dayChange → CSV dayChangePct 反推 → cache prevClose-based fallback
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
-                const slot = (_snap.markets && _snap.markets[mk]) || { current: null, previous: null };
-                // v15.074：per-market 各取自己 latest fresh（不再用三市場最舊 lastCompleteDate gating）
-                // 從 [current, previous] 篩 fresh 候選，依 marketDate 取最新（避免 current 反而比 previous 舊）
-                const candidates = [slot.current, slot.previous]
-                    .filter(s => _isFresh(mk, s))
-                    .sort((a, b) => b.marketDate.localeCompare(a.marketDate));
-                const chosen = candidates[0] || null;
-                yesterdayPnlByMarket[mk] = chosen ? {
-                    status: 'snapshot',
-                    marketDate: chosen.marketDate,
-                    closedAt: chosen.closedAt,
-                    source: chosen.source || 'live-close',
-                    pnlUSD: chosen.pnlUSD || 0,
-                    pnlTWD: chosen.pnlTWD || 0,
-                    holdingsCount: Array.isArray(chosen.holdings) ? chosen.holdings.length : 0
-                } : {
-                    status: 'no_snapshot', pnlUSD: null, pnlTWD: null, marketDate: null
-                };
+                const session = _marketSession(mk, _now);
+                const marketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
+                const expectedHoldingsCount = marketHoldings.length;
+
+                if (expectedHoldingsCount === 0) {
+                    yesterdayPnlByMarket[mk] = { status: 'no_holdings', pnlUSD: 0, pnlTWD: 0, marketDate: null, holdingsCount: 0, withData: 0 };
+                    continue;
+                }
+
+                let pnlUSD = 0, pnlTWD = 0, withData = 0;
+                for (const h of marketHoldings) {
+                    // 1) CSV dayChange / dayChangePct（最準）
+                    let dc = _getCsvDayChange(h.symbol, h.currentPrice);
+                    // 2) Fallback：依 session 狀態決定公式
+                    if (dc == null) {
+                        if (session.status === 'open') {
+                            // 盤中：「最近完成交易日」是昨天 → prevClose - prevPrevClose
+                            if (h.prevClose != null && h.prevClose > 0 && h.prevPrevClose != null && h.prevPrevClose > 0) {
+                                dc = h.prevClose - h.prevPrevClose;
+                            }
+                        } else {
+                            // 收盤後：「最近完成交易日」是今天，currentPrice = 今日收盤 → currentPrice - prevClose
+                            if (h.prevClose != null && h.prevClose > 0 && h.currentPrice > 0) {
+                                dc = h.currentPrice - h.prevClose;
+                            }
+                        }
+                    }
+                    if (dc == null) continue;
+
+                    const _isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
+                    const dRaw = dc * h.quantity;
+                    let dUSD, dTWD;
+                    if (_isHK_HKD)              { dUSD = dRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD; dTWD = dRaw * exchangeRates.HKD_TWD; }
+                    else if (h.market === 'TW'){ dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
+                    else                        { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
+                    pnlUSD += dUSD; pnlTWD += dTWD; withData++;
+                }
+
+                if (withData === 0) {
+                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: null, holdingsCount: expectedHoldingsCount, withData: 0 };
+                } else if (withData < expectedHoldingsCount) {
+                    yesterdayPnlByMarket[mk] = {
+                        status: 'partial',
+                        marketDate: session.lastCompletedTradingDate || null,
+                        pnlUSD: null, pnlTWD: null,
+                        holdingsCount: expectedHoldingsCount, withData
+                    };
+                } else {
+                    yesterdayPnlByMarket[mk] = {
+                        status: 'snapshot',
+                        marketDate: session.lastCompletedTradingDate || null,
+                        pnlUSD, pnlTWD,
+                        holdingsCount: expectedHoldingsCount, withData
+                    };
+                }
             }
-            const _lastComplete = _snap.lastCompleteDate || null;
-            // v15.074：complete 只看「使用者實際有持倉的市場」— 沒港股的使用者不會永遠 incomplete
             const _activeMarkets = _MARKETS.filter(mk => (holdingsByMarket[mk]?.count || 0) > 0);
-            // v15.075：加總範圍與 complete 一致用 _activeMarkets，避免使用者沒持有的市場（如 HK count=0）
-            // 仍把歷史 snapshot 算進 headline 總額
             const yesterdayPnlTotal = {
                 pnlUSD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
                 pnlTWD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
                 complete: _activeMarkets.length > 0
                           && _activeMarkets.every(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
                 hasAny:   _activeMarkets.some(mk => yesterdayPnlByMarket[mk].status === 'snapshot'),
-                lastCompleteDate: _lastComplete   // 仍保留供 UI 參考（最舊共同日期，純診斷）
+                lastCompleteDate: null   // v15.901：不再依賴 snapshot 系統的 lastCompleteDate
             };
 
             return {
