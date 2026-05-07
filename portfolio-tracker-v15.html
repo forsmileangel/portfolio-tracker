@@ -6562,6 +6562,7 @@
                     window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
                 }
             } catch(_) {}
+            _scheduleRefreshClosePair('csv-manual');   // v15.902
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
         }
