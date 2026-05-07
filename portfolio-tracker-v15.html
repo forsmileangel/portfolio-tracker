@@ -2399,8 +2399,17 @@
                             +   '<span class="mono" style="color:' + col + ';">' + pv(fmtPnl(v, currency)) + '</span>'   // v15.076：套 pv()
                             + '</div>';
                     }
+                    // v15.901：partial / no_data 新狀態（取代舊的 no_snapshot）
+                    if (m.status === 'partial') {
+                        const dateShort = m.marketDate ? m.marketDate.slice(5) : '';
+                        const dateNote = dateShort ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">(${dateShort})</span>` : '';
+                        return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
+                            +   '<span style="color:#7e93a6;">' + label + dateNote + '</span>'
+                            +   '<span class="mono" style="color:#fbbf24;">資料不足 (' + (m.withData||0) + '/' + (m.holdingsCount||0) + ')</span>'
+                            + '</div>';
+                    }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
-                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無快照</span></span>'
+                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無資料</span></span>'
                         +   '<span class="mono" style="color:#607585;">-</span>'
                         + '</div>';
                 };
