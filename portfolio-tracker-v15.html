@@ -5743,6 +5743,7 @@
                         setTimeout(() => loadAnalysis(false, true), 1500);
                     }
                 } catch(_) {}
+                _scheduleRefreshClosePair('gist-pull-silent');   // v15.902
                 const _depNote = deposits.length > 0 ? ` + ${deposits.length} 筆存款` : '';
                 showImportToast(`☁️ 已從雲端載入 ${holdings.length} 筆庫存${_depNote}`, 3000);
 
