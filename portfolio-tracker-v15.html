@@ -1389,37 +1389,80 @@
 
         // ────────────────────────────────────────────────────────
         // v15.901：CSV 報價漲跌記錄（quote moves cache）
-        // CSV 可選提供 dayChange / dayChangePct 欄位；若有，前次收盤損益優先使用
-        // 結構：pt_quote_moves_v1 = { updatedAt, symbols: { sym: { price, dayChange, dayChangePct, quoteAt, source } } }
+        // 結構（v15.901 hotfix 升級為按市場+日期分桶，防跨日污染）：
+        // pt_quote_moves_v1 = {
+        //   updatedAt,
+        //   markets: { TW: { 'YYYY-MM-DD': { symbols: { sym: { price, dayChange, dayChangePct, quoteAt, source } } } }, HK: ..., US: ... }
+        // }
         // 純本機 cache（system data，不算 user dirty / pending）
         // ────────────────────────────────────────────────────────
+        const _QUOTE_MOVES_KEEP_DAYS = 7;   // 每市場保留近 7 天
+
         function _loadQuoteMoves() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.quoteMovesCache) || '{}'); } catch { return {}; }
+            try {
+                const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.quoteMovesCache) || '{}');
+                // 偵測 v15.901 ship 版舊結構（flat symbols map），有就清掉重建
+                if (raw && raw.symbols && !raw.markets) {
+                    return { markets: {} };
+                }
+                if (!raw.markets) raw.markets = {};
+                return raw;
+            } catch { return { markets: {} }; }
         }
         function _saveQuoteMoves(data) {
             try { localStorage.setItem(STORAGE_KEYS.quoteMovesCache, JSON.stringify(data)); } catch {}
         }
+        function _pruneQuoteMoves(data) {
+            // 保留最近 N 天，每市場單獨判斷
+            try {
+                Object.keys(data.markets || {}).forEach(mk => {
+                    const dates = Object.keys(data.markets[mk]).sort();
+                    if (dates.length > _QUOTE_MOVES_KEEP_DAYS) {
+                        const drop = dates.slice(0, dates.length - _QUOTE_MOVES_KEEP_DAYS);
+                        drop.forEach(d => delete data.markets[mk][d]);
+                    }
+                });
+            } catch(_) {}
+        }
+        // 寫入 quote moves（依各 symbol 自己的 market session 決定寫入哪個 marketDate 桶；盤中不寫）
         function _recordQuoteMoves(moves, source) {
             if (!moves || Object.keys(moves).length === 0) return;
-            const cur = _loadQuoteMoves();
-            if (!cur.symbols) cur.symbols = {};
-            const ts = new Date().toISOString();
+            const data = _loadQuoteMoves();
+            if (!data.markets) data.markets = {};
+            const now = new Date();
+            const ts = now.toISOString();
+            let recorded = 0;
             Object.entries(moves).forEach(([sym, m]) => {
-                cur.symbols[sym] = {
+                // 找 holding 對應 market（用既有 holdings 中該 symbol 的 market；找不到就 fallback symbol suffix）
+                const h = (Array.isArray(holdings) ? holdings : []).find(x => x.symbol === sym);
+                const mk = h ? _holdingMarketKey(h) : (sym.endsWith('.HK') ? 'HK' : sym.endsWith('.TW') || /^\d{4,6}[A-Z]?$/i.test(sym) ? 'TW' : 'US');
+                const session = _marketSession(mk, now);
+                // 盤中不寫入 quote moves（避免把今天 intraday 寫成「上個交易日」桶）
+                if (session.status === 'open') return;
+                const targetDate = session.lastCompletedTradingDate;
+                if (!targetDate) return;
+                if (!data.markets[mk]) data.markets[mk] = {};
+                if (!data.markets[mk][targetDate]) data.markets[mk][targetDate] = { symbols: {} };
+                data.markets[mk][targetDate].symbols[sym] = {
                     price: m.price,
-                    dayChange: (typeof m.dayChange === 'number' && isFinite(m.dayChange)) ? m.dayChange : null,
+                    dayChange:    (typeof m.dayChange    === 'number' && isFinite(m.dayChange))    ? m.dayChange    : null,
                     dayChangePct: (typeof m.dayChangePct === 'number' && isFinite(m.dayChangePct)) ? m.dayChangePct : null,
                     quoteAt: ts,
                     source: source || 'csv'
                 };
+                recorded++;
             });
-            cur.updatedAt = ts;
-            _saveQuoteMoves(cur);
+            if (recorded > 0) {
+                data.updatedAt = ts;
+                _pruneQuoteMoves(data);
+                _saveQuoteMoves(data);
+            }
         }
-        // 取得指定 symbol 的當日漲跌額（優先 CSV 提供值，無則 null）
-        function _getCsvDayChange(symbol, currentPrice) {
+        // 取得指定 symbol 的當日漲跌額（依 marketKey + targetMarketDate 嚴格 match）
+        function _getCsvDayChange(symbol, currentPrice, marketKey, targetMarketDate) {
+            if (!marketKey || !targetMarketDate) return null;
             const data = _loadQuoteMoves();
-            const m = data?.symbols?.[symbol];
+            const m = data?.markets?.[marketKey]?.[targetMarketDate]?.symbols?.[symbol];
             if (!m) return null;
             if (typeof m.dayChange === 'number' && isFinite(m.dayChange)) return m.dayChange;
             if (typeof m.dayChangePct === 'number' && isFinite(m.dayChangePct) && currentPrice > 0) {
@@ -1427,6 +1470,82 @@
                 return currentPrice * m.dayChangePct / (100 + m.dayChangePct);
             }
             return null;
+        }
+
+        // ────────────────────────────────────────────────────────
+        // v15.901 hotfix：CSV 共用 parser
+        // - Header detection：col[2] / col[3] 是 dayChange 還是 dayChangePct
+        //   * 含 %, pct, percent, 漲跌幅 → dayChangePct
+        //   * 含 漲跌點, 漲跌額, change（且不含 % / pct / percent / 幅）→ dayChange
+        // - Header 不明 → 值偵測（含 % 字元當 dayChangePct）
+        // - 完全無法判斷 → 不存 quote move（只更新 price）
+        // 回傳 { prices, sheetRates, quoteMoves }
+        // ────────────────────────────────────────────────────────
+        function _parseQuoteCsv(csvText) {
+            const prices = {};
+            const sheetRates = {};
+            const quoteMoves = {};
+            if (!csvText) return { prices, sheetRates, quoteMoves };
+
+            const lines = csvText.trim().split(/\r?\n/);
+            if (lines.length === 0) return { prices, sheetRates, quoteMoves };
+
+            // 解析 header（第一行）
+            const firstCols = lines[0].split(',').map(c => c.replace(/"/g,'').trim());
+            // 檢查第一行是否真為 header（值無法 parseFloat）
+            const firstValIsNumeric = !isNaN(parseFloat(firstCols[1]));
+            const headerCols = firstValIsNumeric ? null : firstCols;
+            const dataLines = headerCols ? lines.slice(1) : lines;
+
+            // 判定 col[i] 語意：'pct' / 'change' / 'unknown'
+            function _colSemantic(headerText) {
+                if (!headerText) return 'unknown';
+                const lc = headerText.toLowerCase();
+                const hasPct = /%|pct|percent|漲跌幅/.test(lc) || headerText.includes('漲跌幅');
+                if (hasPct) return 'pct';
+                const hasChange = /漲跌點|漲跌額|change/i.test(headerText);
+                if (hasChange) return 'change';
+                return 'unknown';
+            }
+            const col2Sem = headerCols ? _colSemantic(headerCols[2] || '') : 'unknown';
+            const col3Sem = headerCols ? _colSemantic(headerCols[3] || '') : 'unknown';
+
+            dataLines.forEach(line => {
+                const cols = line.trim().split(',').map(c => c.replace(/"/g,'').trim());
+                const val = parseFloat(cols[1]);
+                if (cols.length < 2 || !cols[0] || isNaN(val) || val <= 0) return;
+                if (cols[0] === 'USD_TWD') { sheetRates.USD_TWD = val; return; }
+                if (cols[0] === 'HKD_TWD') { sheetRates.HKD_TWD = val; return; }
+                prices[cols[0]] = val;
+
+                // 解析 col[2] / col[3] 為 dayChange / dayChangePct
+                let dayChange = null, dayChangePct = null;
+                const tryFields = [
+                    { idx: 2, sem: col2Sem },
+                    { idx: 3, sem: col3Sem }
+                ];
+                tryFields.forEach(f => {
+                    const raw = cols[f.idx];
+                    if (raw == null || raw === '') return;
+                    let sem = f.sem;
+                    // 值偵測 fallback：header 不明時，看值含不含 %
+                    if (sem === 'unknown') {
+                        if (raw.includes('%')) sem = 'pct';
+                        else if (!isNaN(parseFloat(raw))) sem = 'change'; // 純數字假設為 change
+                        else return;
+                    }
+                    const num = parseFloat(raw);
+                    if (isNaN(num) || !isFinite(num)) return;
+                    if (sem === 'pct' && dayChangePct == null) dayChangePct = num;
+                    if (sem === 'change' && dayChange == null) dayChange = num;
+                });
+
+                if (dayChange != null || dayChangePct != null) {
+                    quoteMoves[cols[0]] = { price: val, dayChange, dayChangePct };
+                }
+            });
+
+            return { prices, sheetRates, quoteMoves };
         }
 
         // ────────────────────────────────────────────────────────
