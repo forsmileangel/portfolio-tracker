@@ -9282,14 +9282,27 @@
                 if (csvText.trim().startsWith('<')) return;
 
                 const prices = {}, sheetRates = {};
+                const quoteMoves = {};   // v15.901
                 csvText.trim().split(/\r?\n/).forEach(line => {
                     const cols = line.trim().split(',').map(c => c.replace(/"/g,'').trim());
                     const val  = parseFloat(cols[1]);
                     if (!cols[0] || isNaN(val) || val <= 0) return;
                     if      (cols[0] === 'USD_TWD') sheetRates.USD_TWD = val;
                     else if (cols[0] === 'HKD_TWD') sheetRates.HKD_TWD = val;
-                    else prices[cols[0]] = val;
+                    else {
+                        prices[cols[0]] = val;
+                        const dc = cols.length >= 3 ? parseFloat(cols[2]) : NaN;
+                        const dcp = cols.length >= 4 ? parseFloat(cols[3]) : NaN;
+                        if (isFinite(dc) || isFinite(dcp)) {
+                            quoteMoves[cols[0]] = {
+                                price: val,
+                                dayChange: isFinite(dc) ? dc : null,
+                                dayChangePct: isFinite(dcp) ? dcp : null
+                            };
+                        }
+                    }
                 });
+                _recordQuoteMoves(quoteMoves, 'csv-silent');
 
                 // 更新匯率（Sheet 指定 > 快取/即時 API）
                 const fx = await fxPromise;
