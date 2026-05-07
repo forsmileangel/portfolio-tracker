@@ -1522,8 +1522,8 @@
                 prices[cols[0]] = val;
 
                 // 解析 col[2] / col[3] 為 dayChange / dayChangePct
-                // hotfix v2：嚴格驗證 raw 必須是「乾淨數字字串」(可選負號 / 小數點 / 結尾 %)
-                // 否則 parseFloat("2026-05-07 09:00") 會回 2026 把 timestamp 當 dayChange ❌
+                // hotfix v3：嚴格 regex + header 黑名單（時間/日期欄位 skip）+ unknown 一律不 numeric fallback
+                // 防止 parseFloat("2026/5/7 下午 2:49:39") 回 2026 把 timestamp 當 dayChange
                 const cleanNumRegex = /^[+-]?\d+(\.\d+)?%?$/;
                 let dayChange = null, dayChangePct = null;
                 const tryFields = [
@@ -1531,20 +1531,27 @@
                     { idx: 3, sem: col3Sem }
                 ];
                 tryFields.forEach(f => {
+                    if (f.sem === 'skip') return;            // header 是時間/日期欄 → 直接跳過
                     const raw = cols[f.idx];
                     if (raw == null || raw === '') return;
-                    if (!cleanNumRegex.test(raw)) return;   // 拒絕 timestamp / 任何非純數字
+                    if (!cleanNumRegex.test(raw)) return;    // 拒絕含 / : - 空格等非純數字字串
                     let sem = f.sem;
                     if (sem === 'unknown') {
-                        if (raw.includes('%')) sem = 'pct';
-                        else sem = 'change';
+                        // header 已存在但這欄看不出語意 → 不准 numeric fallback（除非值帶 %）
+                        // 沒 header 才允許從值推斷
+                        if (headerCols) {
+                            if (raw.includes('%')) sem = 'pct';
+                            else return;     // unknown + 有 header + 純數字 → 不信任，跳過
+                        } else {
+                            if (raw.includes('%')) sem = 'pct';
+                            else sem = 'change';
+                        }
                     }
                     const num = parseFloat(raw);
                     if (isNaN(num) || !isFinite(num)) return;
-                    // 合理性檢查：dayChange 絕對值不該超過 currentPrice 的 5 倍（漲停 / 跌停級）
-                    if (sem === 'change' && Math.abs(num) > val * 5) return;
-                    // dayChangePct 絕對值不該超過 200%
-                    if (sem === 'pct' && Math.abs(num) > 200) return;
+                    // 合理性檢查
+                    if (sem === 'change' && Math.abs(num) > val * 5) return;     // dayChange 不該 > 價格 × 5
+                    if (sem === 'pct' && Math.abs(num) > 200) return;            // dayChangePct 不該 > 200%
                     if (sem === 'pct'    && dayChangePct == null) dayChangePct = num;
                     if (sem === 'change' && dayChange    == null) dayChange    = num;
                 });
