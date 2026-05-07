@@ -1497,10 +1497,13 @@
             const headerCols = firstValIsNumeric ? null : firstCols;
             const dataLines = headerCols ? lines.slice(1) : lines;
 
-            // 判定 col[i] 語意：'pct' / 'change' / 'unknown'
+            // 判定 col[i] 語意：'pct' / 'change' / 'skip' / 'unknown'
+            // hotfix v3：加 timestamp / 日期欄位黑名單 → 'skip'，禁止 numeric fallback
             function _colSemantic(headerText) {
                 if (!headerText) return 'unknown';
                 const lc = headerText.toLowerCase();
+                // 黑名單：時間 / 日期 / 更新 / time / date / timestamp / update → skip（不可當 dayChange）
+                if (/時間|日期|更新|time|date|timestamp|update/i.test(headerText)) return 'skip';
                 const hasPct = /%|pct|percent|漲跌幅/.test(lc) || headerText.includes('漲跌幅');
                 if (hasPct) return 'pct';
                 const hasChange = /漲跌點|漲跌額|change/i.test(headerText);
