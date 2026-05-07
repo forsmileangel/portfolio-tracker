@@ -9572,6 +9572,7 @@
                             window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
                         }
                     } catch(_) {}
+                    _scheduleRefreshClosePair('csv-silent');   // v15.902
                     renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
