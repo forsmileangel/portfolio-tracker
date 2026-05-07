@@ -5543,6 +5543,7 @@
                         setTimeout(() => loadAnalysis(false, true), 1500);
                     }
                 } catch(_) {}
+                _scheduleRefreshClosePair('gist-pull-manual');   // v15.902
                 setTimeout(() => {
                     try {
                         if (Array.isArray(holdings) && holdings.length > 0) {
