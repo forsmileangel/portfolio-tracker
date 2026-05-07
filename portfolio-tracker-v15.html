@@ -8445,6 +8445,7 @@
             _updatePendingPushIndicator();
             _renderRollbackCard();   // v15.079：若本機有 master rollback summary 則顯示卡片
             _gistSilentPull();
+            _scheduleRefreshClosePair('startup');   // v15.902：啟動排一次 close pair refresh
             // v15.080：啟動 + silent pull 後 8 秒，若本機今日損益仍缺 prevClose（_dailyPnlBaselines 為空），啟動 backfill
             //   只在有 holdings 時觸發；fail-safe：cooldown 已自帶
             setTimeout(() => {
