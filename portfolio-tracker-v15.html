@@ -6207,6 +6207,7 @@
 
                 const prices = {};
                 const sheetRates = {};
+                const quoteMoves = {};   // v15.901：可選 CSV dayChange / dayChangePct
                 csvText.trim().split(/\r?\n/).forEach(line => {
                     const cols = line.trim().split(',').map(c => c.replace(/"/g,'').trim());
                     const val = parseFloat(cols[1]);
@@ -6214,8 +6215,22 @@
                     // 特殊 key：匯率覆蓋
                     if (cols[0] === 'USD_TWD') sheetRates.USD_TWD = val;
                     else if (cols[0] === 'HKD_TWD') sheetRates.HKD_TWD = val;
-                    else prices[cols[0]] = val;
+                    else {
+                        prices[cols[0]] = val;
+                        // v15.901：可選 col[2]=dayChange、col[3]=dayChangePct
+                        const dc = cols.length >= 3 ? parseFloat(cols[2]) : NaN;
+                        const dcp = cols.length >= 4 ? parseFloat(cols[3]) : NaN;
+                        if (isFinite(dc) || isFinite(dcp)) {
+                            quoteMoves[cols[0]] = {
+                                price: val,
+                                dayChange: isFinite(dc) ? dc : null,
+                                dayChangePct: isFinite(dcp) ? dcp : null
+                            };
+                        }
+                    }
                 });
+                // v15.901：寫入 quote moves cache（CSV 有提供 dayChange / dayChangePct 才會記）
+                _recordQuoteMoves(quoteMoves, 'csv-manual');
 
                 // 套用匯率：Sheet 指定 > 即時 API > 維持現值
                 const fx = await fxPromise;
