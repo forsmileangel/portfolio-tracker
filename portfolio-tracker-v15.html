@@ -2225,16 +2225,21 @@
                     // 1) CSV dayChange / dayChangePct（最準）— hotfix：要求 marketKey + targetMarketDate 嚴格 match
                     let dc = _getCsvDayChange(h.symbol, h.currentPrice, mk, _target);
                     // 2) Fallback：依 session 狀態決定公式
+                    // hotfix v4：原本 if (status==='open') / else 二分錯誤
+                    //   - 'open' 用 prevClose - prevPrevClose ✓（昨日 full pnl）
+                    //   - 'closed' 用 currentPrice - prevClose ✓（今日剛收盤的 pnl）
+                    //   - 'not_open' / 'closed_or_holiday' 也該用 prevClose - prevPrevClose（最近完成交易日 pnl）
+                    //     因為 Yahoo `marketOpenedToday=false` 時 prevClose = 最近完成交易日 close
+                    //     若用 currentPrice - prevClose 會 = 0（Sheet 顯示的 currentPrice 跟 Yahoo 的 prevClose 都是同一天）
                     if (dc == null) {
-                        if (session.status === 'open') {
-                            // 盤中：「最近完成交易日」是昨天 → prevClose - prevPrevClose
-                            if (h.prevClose != null && h.prevClose > 0 && h.prevPrevClose != null && h.prevPrevClose > 0) {
-                                dc = h.prevClose - h.prevPrevClose;
-                            }
-                        } else {
-                            // 收盤後：「最近完成交易日」是今天，currentPrice = 今日收盤 → currentPrice - prevClose
+                        if (session.status === 'closed') {
                             if (h.prevClose != null && h.prevClose > 0 && h.currentPrice > 0) {
                                 dc = h.currentPrice - h.prevClose;
+                            }
+                        } else {
+                            // 'open' / 'not_open' / 'closed_or_holiday'
+                            if (h.prevClose != null && h.prevClose > 0 && h.prevPrevClose != null && h.prevPrevClose > 0) {
+                                dc = h.prevClose - h.prevPrevClose;
                             }
                         }
                     }
