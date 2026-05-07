@@ -1519,6 +1519,9 @@
                 prices[cols[0]] = val;
 
                 // 解析 col[2] / col[3] 為 dayChange / dayChangePct
+                // hotfix v2：嚴格驗證 raw 必須是「乾淨數字字串」(可選負號 / 小數點 / 結尾 %)
+                // 否則 parseFloat("2026-05-07 09:00") 會回 2026 把 timestamp 當 dayChange ❌
+                const cleanNumRegex = /^[+-]?\d+(\.\d+)?%?$/;
                 let dayChange = null, dayChangePct = null;
                 const tryFields = [
                     { idx: 2, sem: col2Sem },
@@ -1527,17 +1530,20 @@
                 tryFields.forEach(f => {
                     const raw = cols[f.idx];
                     if (raw == null || raw === '') return;
+                    if (!cleanNumRegex.test(raw)) return;   // 拒絕 timestamp / 任何非純數字
                     let sem = f.sem;
-                    // 值偵測 fallback：header 不明時，看值含不含 %
                     if (sem === 'unknown') {
                         if (raw.includes('%')) sem = 'pct';
-                        else if (!isNaN(parseFloat(raw))) sem = 'change'; // 純數字假設為 change
-                        else return;
+                        else sem = 'change';
                     }
                     const num = parseFloat(raw);
                     if (isNaN(num) || !isFinite(num)) return;
-                    if (sem === 'pct' && dayChangePct == null) dayChangePct = num;
-                    if (sem === 'change' && dayChange == null) dayChange = num;
+                    // 合理性檢查：dayChange 絕對值不該超過 currentPrice 的 5 倍（漲停 / 跌停級）
+                    if (sem === 'change' && Math.abs(num) > val * 5) return;
+                    // dayChangePct 絕對值不該超過 200%
+                    if (sem === 'pct' && Math.abs(num) > 200) return;
+                    if (sem === 'pct'    && dayChangePct == null) dayChangePct = num;
+                    if (sem === 'change' && dayChange    == null) dayChange    = num;
                 });
 
                 if (dayChange != null || dayChangePct != null) {
