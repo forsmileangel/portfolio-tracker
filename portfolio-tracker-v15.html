@@ -8053,6 +8053,7 @@
             if (fundFresh && techFresh) {
                 // ── 快取完全有效 → 直接渲染，不發任何 API 請求 ──
                 // （直接 fall through 到 Render 區塊）
+                _scheduleRefreshClosePair('analysis-fresh');   // v15.902：仍排一次 close pair refresh
 
             } else if (fundFresh && !techFresh) {
                 // ── 技術面過期 → 只重抓 KD/MACD/RSI + prevClose ──
