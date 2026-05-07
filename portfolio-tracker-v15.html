@@ -81,8 +81,6 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-  v15.904 - 美股前次收盤損益修補（C+A，跳過 abandoned v15.901/902）：(C) backfill snapshot 對齊 v15.082 capture 語意 — _backfillDailyPnlSystemData 內 usedHoldings.push 從 prevClose:cPrev/prevPrevClose:cPrevPrev 改為 prevClose:cTarget/prevPrevClose:cPrev；basisField 從 'prevClose' 改 'closePair'。解決 _isSnapshotEquivalent 跨來源（capture 'live-close' / backfill 'backfill-price-history'）的 holdings[i].prevClose / basisField 永不等價問題 → snapshot 不再反覆覆寫 → system push 不再空轉。pnl 計算式 (cTarget - cPrev) * h.quantity 完全沒動。(A) backfill TTL 改 target-based — 新增 _isPriceCacheFreshFor(sym, target) helper（closes 含 close[target] 才視為 fresh，帶 if (!target) return false defensive guard），取代舊版 _BACKFILL_SYMBOL_TTL 24hr 牆鐘檢查；解決美股 NY 盤後重開時（白天已抓過 D-1 但 NY 收盤後 close[D] 還沒進 cache）被 24hr TTL 鎖住、baseline 卡 D-1、_hydratePrevCloseFromBaselines 因 marketDate guard 跳過、_prevCloseCache 退回 Yahoo chart「previousClose」(close[D-1]) → 前次收盤損益算成 close[D-1]-close[D-2] 的根因。全域 cooldown _BACKFILL_COOLDOWN_MS（3min）仍守住，單裝置不會雪崩 Yahoo rate limit。順手清 _BACKFILL_SYMBOL_TTL dead code 與舊註解。設計約束：不升 PT_SCHEMA_VERSION、不動 STORAGE_KEYS、不動 _normalizeHoldingForHash 白名單、不動 user push / pull / master / rollback / FSA / loadAnalysis / capture / v15.903 migration IIFE 流程；sync-invariants §8 八條 checklist 零違反；§0 未觸發例外；獨立 Code Review APPROVE。v15.901/v15.902 改的方向（_repairMissingPrevCloseForHoldings、loadAnalysis(false,true) 取代、_marketSession 收緊、移除 capture stats fallback）本版完全沒碰。退路：git checkout v15.900。
-  v15.903 - v15.900 自我修復 migration（一次性）：清除 v15.901/v15.902 在使用者 localStorage 留下的污染（v15.901/v15.902 已 rollback，但 repair function 寫進 pf_analysis_v8.data[sym].prevClose 的錯誤值 + 透過 stats fallback 寫進 daily_pnl_snapshots 的錯誤 pnl 仍殘留 → 美股前次收盤損益顯示錯誤）。STORAGE_KEYS 新增 migrationMarkerV15_900，IIFE 清除 analysisCache / dailyPnlSnapshots / marketQuoteMeta / marketAnalysisMeta 並設 marker，下次啟動不再執行。Gist 同步、user data、UI 設定全不動。版號 v15.901/v15.902 留作已退回（abandon），跳到 v15.903 避免混淆。
   v15.900 - v15 系列終版凍結（Stable Final）：把 v15.082 的內容鎖死成 v15.9 終版；功能基本穩定（Gist 同步 + system sync channel + userDataHash + master/staging/cancel + FSA + 兩倍漲幅 + capture basis + preflight 誤擋全部修補完成），未來 v15 不再進版，所有開發轉往 v16。本版作為 rollback target — 後續若 v16 改壞，可直接 `git checkout v15.900` 回到此版。git tag: v15.900。
   v15.082 - 修補 v15.081 後 capture basis 語意未跟上 + 收盤後今日損益仍浮動：(P1) 美股收盤後（NY localDate === target）_captureDailyPnlSnapshot 仍用 `isToday ? h.prevClose : h.prevPrevClose` 模糊語意，但 v15.081 已把 baseline 語意改成「prevClose = close[target]」→ isToday=true 時 basis = close[target] ≈ currentPrice → snapshot pnlTWD ≈ 0（看到「美股 +247」而非「+203,482」）；同 marketDate 已有 complete fresh snapshot 時又只看 lastQuoteAt 較新就允許覆蓋 → 一鍵更新刷新 quote meta 後錯誤的 snapshot 蓋掉正確的。修法：capture 改用明確 `close[target] - close[prevTrading]` 公式，來源優先 baseline.marketDate===target → price_cache → stats fallback；basisField 從 'prevClose'/'prevPrevClose' 改 'closePair'；snapshot.holdings[i] 寫入 `prevClose:cTarget, prevPrevClose:cPrev`（明確）；同 target complete snapshot 比對若 pnlTWD 變化 > 5% 印 console.warn（提早發現 basis 語意回歸）。(P2) 今日損益 'closed' 狀態仍計入今日總額且卡片顯示金額 → 收盤後數值持續浮動誤導；`_eligibleTodayStatus` 從 `s === 'open' || s === 'closed'` 收緊為僅 `s === 'open'`；UI mkRow 'closed' 狀態顯示「已收盤，見前次收盤」灰色文字（與 'not_open' / 'closed_or_holiday' 一致風格）。設計約束：不升 PT_SCHEMA_VERSION、不動 STORAGE_KEYS / 同步通道 / user push / pull / master / rollback 流程；snapshot.holdings 欄位語意改變但向下相容（舊 snapshot.holdings[i].prevClose 仍可讀）。
   v15.081 - 修補 v15.080 hotfix 殘洞：(A) loadAnalysis 結尾整包覆蓋 window._prevCloseCache 的 race condition — 即使先前已寫入經 marketDate guard 驗證的 system baseline，也會被 fundamentals.json (f.prev_close) / chart=5d 補抓的舊值整批洗掉，造成「打開時昨日/今日漲跌正確、按完一鍵更新後變兩倍」反覆復發；改為 merge 既有值（不整包賦值）+ 結尾立刻呼叫 _hydratePrevCloseFromBaselines() 讓 system baseline 重新覆蓋（marketDate guard 過的優先於 analysis）。(B) Yahoo chart 三處（fetchSymbolDataFromYahoo 主路徑 / 補抓 / 槓桿 ETF）原本對 closes 做 .filter(v => v != null) 但 timestamps 沒同步 filter → 盤中 close=null 時 tss[last] 仍指向今天但 closes 已少一筆 → opened 誤判 true → prevClose 取 closes[len-2] 變「真.前一交易日」(其實是 prevPrevClose) → 兩倍漲幅 bug；三處統一改 zip + filter 對齊 timestamp 與 close。(C) preflight 新增 cloud_user_same_system_newer state — system sync push 讓 Gist revision 變動但 sync_meta.userDataHash 不變時，B 改 holdings 後 preflight 不再誤判 dirty_cloud_newer_conflict reject；放行條件 cloudHash === lastUserDataHash。(D) hash_match 順手清 dirty / pending（使用者改了又改回原值的情境）；preflight merge 範圍擴大至 baselines + price_cache（不只 snapshots）。(E) _backfillDailyPnlSystemData 寫 baseline 改 prevClose=cTarget / prevPrevClose=cPrev（對齊 runAnalysis 未開盤路徑語意）；snapshot pnl 計算（cTarget - cPrev）不動。(F) _hydratePrevCloseFromBaselines 加 marketDate guard — baseline.marketDate 必須等於該市場 lastCompletedTradingDate 才寫入 _prevCloseCache。(G) silentRefreshPrices / directApplyPrices 後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正；(H) sync-invariants.md §1 補第 4 條 baseline.prevClose 語意；§9 表格加 v15.080 後續修補三條（A merge guard / B chart filter 對齊 / C cloud_user_same_system_newer）；本版同步通道、user push / pull / master / rollback 流程完全不動。
@@ -385,7 +383,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.904</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.900</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1058,7 +1056,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.904';
+        const APP_VERSION = 'v15.900';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1122,26 +1120,7 @@
             macroCache:       'pf_macro_v1',
             // 後端
             backendUrl:       'backend_url',
-            // Migration markers（一次性自我修復標記）
-            migrationMarkerV15_900: 'pt_v15_900_clean_v1',  // 清除 v15.901/v15.902 留下的污染
         });
-
-        // ────────────────────────────────────────────────────────
-        // v15.900 自我修復 migration（一次性）
-        // 清除 v15.901/v15.902 repair function 寫進 pf_analysis_v8 的錯誤 prevClose
-        // 與透過 stats fallback 寫進 daily_pnl_snapshots 的錯誤 pnl
-        // ────────────────────────────────────────────────────────
-        (function _v15900CleanMigration() {
-            try {
-                if (localStorage.getItem(STORAGE_KEYS.migrationMarkerV15_900)) return;
-                localStorage.removeItem(STORAGE_KEYS.analysisCache);
-                localStorage.removeItem(STORAGE_KEYS.dailyPnlSnapshots);
-                localStorage.removeItem(STORAGE_KEYS.marketQuoteMeta);
-                localStorage.removeItem(STORAGE_KEYS.marketAnalysisMeta);
-                localStorage.setItem(STORAGE_KEYS.migrationMarkerV15_900, '1');
-                console.log('[v15.900 Migration] cleaned v15.901/902 polluted caches');
-            } catch(_) {}
-        })();
 
         // ────────────────────────────────────────────────────────
         // _freshnessColor — 依資料年齡決定顯示色（v15.063 起）
@@ -3838,10 +3817,11 @@
         }
 
         // v15.080：補近期收盤價（新裝置 / 雲端缺料時用 Yahoo chart 補 baseline）
-        //   • 全域 cooldown 3min；單 symbol 已抓到 close[target] 才不重抓（v15.904 改 target-based，舊版 24hr 牆鐘已移除）
+        //   • 全域 cooldown 3min；單 symbol 24hr 內有 close history 不重抓
         //   • 全部 active holdings 都有 close 才產生 complete=true snapshot
         //   • 失敗只 _recordAppError，不彈 toast、不增 pending
         const _BACKFILL_COOLDOWN_MS = 3 * 60 * 1000;
+        const _BACKFILL_SYMBOL_TTL  = 24 * 60 * 60 * 1000;
         async function _backfillDailyPnlSystemData(reason) {
             const now = Date.now();
             if (now - _systemSyncCooldownTs < _BACKFILL_COOLDOWN_MS) return false;
@@ -3877,12 +3857,10 @@
                     // step 1：對每 symbol 抓 / 用 cache 補近 10 個交易日 close
                     for (const h of list) {
                         const sym = h.symbol;
-                        // v15.904：把 24hr 牆鐘 TTL 改成「以 target 為鎖」
-                        // 原本（v15.080-v15.082）用 fetchedAt < 24hr 判斷 fresh → 美股盤後重開（白天已抓過 D-1 但 NY 收盤後 close[D] 還沒進 cache）
-                        // 會被 24hr TTL 擋住,baseline 卡在 D-1,_hydratePrevCloseFromBaselines 因 marketDate guard 跳過
-                        // → _prevCloseCache 退回 Yahoo chart「previousClose」(= close[D-1]) → 前次收盤損益算成 close[D-1]−close[D-2]
-                        // 改後：closes 已含 close[target] 才視為 fresh;否則重抓
-                        if (_isPriceCacheFreshFor(sym, target)) continue;
+                        const cached = _dailyPnlPriceCache.symbols[sym];
+                        const recent = cached?.closes?.[cached.closes.length - 1];
+                        const cacheFresh = !!(recent && recent.fetchedAt && (now - new Date(recent.fetchedAt).getTime() < _BACKFILL_SYMBOL_TTL));
+                        if (cacheFresh) continue;     // 24hr 內已抓過，跳過
                         try {
                             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1mo`;
                             const data = await yfFetch(url);
@@ -3940,10 +3918,7 @@
                         else if (h.market === 'TW') { dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
                         else                       { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
                         pnlUSD += dUSD; pnlTWD += dTWD; withData++;
-                        // v15.904：對齊 v15.082 capture 語意 — holdings[i].prevClose = cTarget（close[target] = 今日 PnL basis）
-                        // 原本 backfill 寫 prevClose:cPrev / prevPrevClose:cPrevPrev,與 capture 寫 prevClose:cTarget / prevPrevClose:cPrev 語意不一致
-                        // → _isSnapshotEquivalent 比對 holdings[i].prevClose 永不等價 → snapshot 反覆覆寫 → system push 空轉
-                        usedHoldings.push({ symbol: sym, quantity: h.quantity, currentPrice: cTarget, prevClose: cTarget, prevPrevClose: cPrev });
+                        usedHoldings.push({ symbol: sym, quantity: h.quantity, currentPrice: cTarget, prevClose: cPrev, prevPrevClose: cPrevPrev });
                     }
 
                     const complete = (withData === expectedHoldingsCount) && expectedHoldingsCount > 0;
@@ -3965,7 +3940,7 @@
                         holdings: usedHoldings,
                         quoteStatus: 'fresh_after_close',
                         lastQuoteAt: null,
-                        basisField: 'closePair',     // v15.904：對齊 v15.082 capture 語意（明確 close[target] − close[prevTrading]）
+                        basisField: 'prevClose',
                         complete: true,
                         expectedHoldingsCount,
                         withData,
@@ -3996,16 +3971,6 @@
             if (!Array.isArray(closes) || !targetDate) return null;
             const hit = closes.find(c => c.marketDate === targetDate);
             return hit ? hit.close : null;
-        }
-        // v15.904：以 target marketDate 判斷 price cache 是否 fresh
-        // 取代舊版 24hr 牆鐘 TTL（_BACKFILL_SYMBOL_TTL）— 牆鐘會在美股盤後鎖死(白天已抓過 D-1,NY 收盤後 close[D] 還沒進 cache 但 24hr 還沒過,backfill 跳過)
-        // 改後：closes 已含 target 那筆 close 才視為 fresh,否則允許重抓
-        // 全域 cooldown _BACKFILL_COOLDOWN_MS（3min）仍守在 _backfillDailyPnlSystemData 開頭,單裝置最多每 3min 一次,不會雪崩
-        function _isPriceCacheFreshFor(sym, target) {
-            if (!target) return false;     // defensive guard：target 為 falsy 一律視為不 fresh
-            const cache = _dailyPnlPriceCache?.symbols?.[sym];
-            if (!cache || !Array.isArray(cache.closes)) return false;
-            return cache.closes.some(c => c && c.marketDate === target);
         }
         // v15.079：啟動 / pull 完成後呼叫，依 rollbackSummary 顯示 #rollback-card
         function _renderRollbackCard() {
