@@ -1118,9 +1118,30 @@
             analysisCache:    'pf_analysis_v8',
             qsCache:          'pf_qs_v5',
             macroCache:       'pf_macro_v1',
+            quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
             // 後端
             backendUrl:       'backend_url',
+            // Migration markers
+            migrationMarker_v15_901: 'pt_v15_901_migrated',  // v15.901：清除 v15.901-904 era 污染
         });
+
+        // ────────────────────────────────────────────────────────
+        // v15.901 一次性 migration：清除 v15.901-904 era 留下的污染快取
+        // 使用者 rollback 到 v15.900 後，localStorage 仍可能含 v15.901-904 寫入的錯誤
+        // prevClose / snapshot pnl 值。新版改用 CSV dayChange 為主要來源；migration
+        // 確保 cache 重新由 v15.082 邏輯（v15.900）建立，無遺留污染。
+        // ────────────────────────────────────────────────────────
+        (function _v15901CleanMigration() {
+            try {
+                if (localStorage.getItem(STORAGE_KEYS.migrationMarker_v15_901)) return;
+                localStorage.removeItem(STORAGE_KEYS.analysisCache);
+                localStorage.removeItem(STORAGE_KEYS.dailyPnlSnapshots);
+                localStorage.removeItem(STORAGE_KEYS.marketQuoteMeta);
+                localStorage.removeItem(STORAGE_KEYS.marketAnalysisMeta);
+                localStorage.setItem(STORAGE_KEYS.migrationMarker_v15_901, '1');
+                console.log('[v15.901 Migration] cleaned v15.901-904 era polluted caches');
+            } catch(_) {}
+        })();
 
         // ────────────────────────────────────────────────────────
         // _freshnessColor — 依資料年齡決定顯示色（v15.063 起）
