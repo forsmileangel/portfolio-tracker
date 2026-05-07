@@ -2187,9 +2187,10 @@
                 }
 
                 let pnlUSD = 0, pnlTWD = 0, withData = 0;
+                const _target = session.lastCompletedTradingDate || null;
                 for (const h of marketHoldings) {
-                    // 1) CSV dayChange / dayChangePct（最準）
-                    let dc = _getCsvDayChange(h.symbol, h.currentPrice);
+                    // 1) CSV dayChange / dayChangePct（最準）— hotfix：要求 marketKey + targetMarketDate 嚴格 match
+                    let dc = _getCsvDayChange(h.symbol, h.currentPrice, mk, _target);
                     // 2) Fallback：依 session 狀態決定公式
                     if (dc == null) {
                         if (session.status === 'open') {
