@@ -2304,9 +2304,10 @@
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0)
             };
 
-            // v15.901：前次收盤損益直接由「每檔 dayChange × 持股數」加總得出
-            // 取消 snapshot 系統作為主要顯示來源（snapshot 僅保留作備份 / 跨裝置 system push 通道）
-            // 來源優先序：CSV dayChange → CSV dayChangePct 反推 → cache prevClose-based fallback
+            // v15.902：前次收盤損益單一來源 = pt_close_pair_v1（Yahoo chart 5d 抓的 close pair）
+            // 公式 dayChange = pair.close − pair.prevClose；× quantity；加總
+            // 不再讀 _getCsvDayChange / h.prevClose / h.prevPrevClose / snapshot / baseline
+            const _closePairData = _loadClosePair();
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
                 const session = _marketSession(mk, _now);
@@ -2318,32 +2319,15 @@
                     continue;
                 }
 
-                let pnlUSD = 0, pnlTWD = 0, withData = 0;
                 const _target = session.lastCompletedTradingDate || null;
+                let pnlUSD = 0, pnlTWD = 0, withData = 0;
                 for (const h of marketHoldings) {
-                    // 1) CSV dayChange / dayChangePct（最準）— hotfix：要求 marketKey + targetMarketDate 嚴格 match
-                    let dc = _getCsvDayChange(h.symbol, h.currentPrice, mk, _target);
-                    // 2) Fallback：依 session 狀態決定公式
-                    // hotfix v4：原本 if (status==='open') / else 二分錯誤
-                    //   - 'open' 用 prevClose - prevPrevClose ✓（昨日 full pnl）
-                    //   - 'closed' 用 currentPrice - prevClose ✓（今日剛收盤的 pnl）
-                    //   - 'not_open' / 'closed_or_holiday' 也該用 prevClose - prevPrevClose（最近完成交易日 pnl）
-                    //     因為 Yahoo `marketOpenedToday=false` 時 prevClose = 最近完成交易日 close
-                    //     若用 currentPrice - prevClose 會 = 0（Sheet 顯示的 currentPrice 跟 Yahoo 的 prevClose 都是同一天）
-                    if (dc == null) {
-                        if (session.status === 'closed') {
-                            if (h.prevClose != null && h.prevClose > 0 && h.currentPrice > 0) {
-                                dc = h.currentPrice - h.prevClose;
-                            }
-                        } else {
-                            // 'open' / 'not_open' / 'closed_or_holiday'
-                            if (h.prevClose != null && h.prevClose > 0 && h.prevPrevClose != null && h.prevPrevClose > 0) {
-                                dc = h.prevClose - h.prevPrevClose;
-                            }
-                        }
-                    }
-                    if (dc == null) continue;
+                    const pair = _closePairData?.symbols?.[h.symbol];
+                    if (!pair || pair.targetDate !== _target) continue;
+                    if (typeof pair.close !== 'number' || typeof pair.prevClose !== 'number') continue;
+                    if (pair.close <= 0 || pair.prevClose <= 0) continue;
 
+                    const dc = pair.close - pair.prevClose;
                     const _isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
                     const dRaw = dc * h.quantity;
                     let dUSD, dTWD;
@@ -2354,21 +2338,11 @@
                 }
 
                 if (withData === 0) {
-                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: null, holdingsCount: expectedHoldingsCount, withData: 0 };
+                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: _target, holdingsCount: expectedHoldingsCount, withData: 0 };
                 } else if (withData < expectedHoldingsCount) {
-                    yesterdayPnlByMarket[mk] = {
-                        status: 'partial',
-                        marketDate: session.lastCompletedTradingDate || null,
-                        pnlUSD: null, pnlTWD: null,
-                        holdingsCount: expectedHoldingsCount, withData
-                    };
+                    yesterdayPnlByMarket[mk] = { status: 'partial', marketDate: _target, pnlUSD: null, pnlTWD: null, holdingsCount: expectedHoldingsCount, withData };
                 } else {
-                    yesterdayPnlByMarket[mk] = {
-                        status: 'snapshot',
-                        marketDate: session.lastCompletedTradingDate || null,
-                        pnlUSD, pnlTWD,
-                        holdingsCount: expectedHoldingsCount, withData
-                    };
+                    yesterdayPnlByMarket[mk] = { status: 'snapshot', marketDate: _target, pnlUSD, pnlTWD, holdingsCount: expectedHoldingsCount, withData };
                 }
             }
             const _activeMarkets = _MARKETS.filter(mk => (holdingsByMarket[mk]?.count || 0) > 0);
