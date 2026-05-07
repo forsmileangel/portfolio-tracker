@@ -1144,6 +1144,17 @@
                 console.log('[v15.901 Migration] cleaned v15.901-904 era polluted caches');
             } catch(_) {}
         })();
+        // v15.901 hotfix v3 一次性 migration：清除 quote_moves cache（之前 timestamp parser bug 把
+        // "2026/5/7 ..." parseFloat 成 2026 寫進 dayChange 爆量。雖然新 parser 已 reject，但舊 cache
+        // 可能仍含污染值；強制清掉一次讓使用者重新從 CSV 寫入正確值。）
+        (function _v15901QmHotfixV3Migration() {
+            try {
+                if (localStorage.getItem(STORAGE_KEYS.migrationMarker_v15_901_qm_v3)) return;
+                localStorage.removeItem(STORAGE_KEYS.quoteMovesCache);
+                localStorage.setItem(STORAGE_KEYS.migrationMarker_v15_901_qm_v3, '1');
+                console.log('[v15.901 hotfix v3] cleaned quote_moves cache (timestamp pollution)');
+            } catch(_) {}
+        })();
 
         // ────────────────────────────────────────────────────────
         // _freshnessColor — 依資料年齡決定顯示色（v15.063 起）
