@@ -1459,13 +1459,18 @@
             }
         }
         // 取得指定 symbol 的當日漲跌額（依 marketKey + targetMarketDate 嚴格 match）
+        // hotfix v3：加合理性檢查防爆量殘留 cache（dayChange > price × 5 視為污染拒絕；pct > 200 同上）
         function _getCsvDayChange(symbol, currentPrice, marketKey, targetMarketDate) {
             if (!marketKey || !targetMarketDate) return null;
             const data = _loadQuoteMoves();
             const m = data?.markets?.[marketKey]?.[targetMarketDate]?.symbols?.[symbol];
             if (!m) return null;
-            if (typeof m.dayChange === 'number' && isFinite(m.dayChange)) return m.dayChange;
+            if (typeof m.dayChange === 'number' && isFinite(m.dayChange)) {
+                if (currentPrice > 0 && Math.abs(m.dayChange) > currentPrice * 5) return null;  // 拒絕污染
+                return m.dayChange;
+            }
             if (typeof m.dayChangePct === 'number' && isFinite(m.dayChangePct) && currentPrice > 0) {
+                if (Math.abs(m.dayChangePct) > 200) return null;
                 // current = prev * (1 + pct/100)，反推 dayChange = current - prev = current * pct / (100 + pct)
                 return currentPrice * m.dayChangePct / (100 + m.dayChangePct);
             }
