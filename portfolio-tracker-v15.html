@@ -1653,7 +1653,45 @@
             }
         }
 
+        // v15.903：從 fundamentals.json 解析 close pair（優先來源，比打 Yahoo 快）
+        // 後端 update_fund.py 已寫入 recent_closes（最近 7 個交易日 (date, close)，最新在前）
+        // 找 target = session.lastCompletedTradingDate match 的 bar，取它與下一筆當 close pair
+        function _resolveClosePairFromFundamentals(symbol, marketKey) {
+            try {
+                const session = _marketSession(marketKey, new Date());
+                const target = session.lastCompletedTradingDate;
+                if (!target) return null;
+
+                const f = window._fundJsonCache?.data?.[symbol];
+                const closes = f?.recent_closes;
+                if (!Array.isArray(closes) || closes.length < 2) return null;
+
+                // closes 後端已降冪（最新在前）：找 target → 取 idx + (idx+1) 為 prev
+                const idx = closes.findIndex(c => c && c.date === target);
+                if (idx < 0 || idx >= closes.length - 1) return null;
+
+                const tBar = closes[idx];
+                const pBar = closes[idx + 1];
+                if (typeof tBar.close !== 'number' || typeof pBar.close !== 'number') return null;
+                if (tBar.close <= 0 || pBar.close <= 0) return null;
+
+                return {
+                    market: marketKey,
+                    targetDate: target,
+                    close:     tBar.close,
+                    prevDate:  pBar.date,
+                    prevClose: pBar.close,
+                    fetchedAt: new Date().toISOString(),
+                    source:    'fundamentals-json'
+                };
+            } catch(e) {
+                _recordAppError('close_pair_resolve_fund', e, { symbol, marketKey });
+                return null;
+            }
+        }
+
         // 對所有 active holdings 補抓 close pair（同 symbol + targetDate 已有 → skip；全域 3min cooldown）
+        // v15.903：優先讀 fundamentals.json（後端集中抓），缺值才 fallback Yahoo chart 5d
         let _closePairRefreshLastRun = 0;
         let _closePairRefreshTimer = null;
         const _CLOSE_PAIR_COOLDOWN_MS = 3 * 60 * 1000;
@@ -1667,7 +1705,7 @@
             _closePairRefreshLastRun = Date.now();
             const data = _loadClosePair();
             if (!data.symbols) data.symbols = {};
-            let fetched = 0;
+            let resolved = 0, fetched = 0, missing = 0;
             for (const h of holdings) {
                 try {
                     const mk = _holdingMarketKey(h);
@@ -1676,17 +1714,23 @@
                     if (!target) continue;
                     const existing = data.symbols[h.symbol];
                     if (existing && existing.targetDate === target) continue;   // cache hit
-                    const pair = await _fetchClosePairFromYahoo(h.symbol, mk);
+
+                    // v15.903：優先 fundamentals.json，缺值才 fallback Yahoo
+                    let pair = _resolveClosePairFromFundamentals(h.symbol, mk);
                     if (pair) {
-                        data.symbols[h.symbol] = pair;
-                        fetched++;
+                        resolved++;
+                    } else {
+                        pair = await _fetchClosePairFromYahoo(h.symbol, mk);
+                        if (pair) fetched++;
+                        else missing++;
                     }
+                    if (pair) data.symbols[h.symbol] = pair;
                 } catch(_) {}
             }
-            if (fetched > 0) {
+            if (resolved + fetched > 0) {
                 data.updatedAt = new Date().toISOString();
                 _saveClosePair(data);
-                console.log(`[ClosePair] ${reason}: refreshed ${fetched} symbols`);
+                console.log(`[ClosePair v15.903] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
                 renderAll();
             }
         }
