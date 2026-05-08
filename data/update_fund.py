@@ -438,6 +438,7 @@ for sym in symbols:
             'earnings_history': earnings_history,   # 季度 EPS 歷史
             'prev_close':      safe_float(prev_close),
             'prev_prev_close': prev_prev_close,
+            'recent_closes':   recent_closes,   # v15.903：(date, close) 序列，最近 7 個交易日，最新在前
             # 技術面（日/週/小時）
             'daily_k':  daily_k,  'daily_d':  daily_d,  'daily_cross':  daily_cross,
             'weekly_k': weekly_k, 'weekly_d': weekly_d, 'weekly_cross': weekly_cross,
