@@ -363,6 +363,7 @@ for sym in symbols:
                 pass
 
         prev_prev_close = None
+        recent_closes = []   # v15.903：(date, close) 對，給前端 close pair 用
         try:
             d10 = t.history(period='10d', interval='1d')
             if not d10.empty:
@@ -392,6 +393,20 @@ for sym in symbols:
                         prev_close = safe_float(closes10[-1])
                     if len(closes10) >= 2:
                         prev_prev_close = safe_float(closes10[-2])
+
+                # v15.903：構造 recent_closes 給前端 close pair 用
+                # yfinance index 已是市場時區（如 Asia/Taipei），strftime 直接拿日期
+                for idx, row in d10.iterrows():
+                    c = row.get('Close')
+                    if c is None or pd.isna(c):
+                        continue
+                    recent_closes.append({
+                        'date': idx.strftime('%Y-%m-%d'),
+                        'close': safe_float(c)
+                    })
+                # 降冪（最新在前），最多保留 7 筆
+                recent_closes.sort(key=lambda x: x['date'], reverse=True)
+                recent_closes = recent_closes[:7]
         except Exception:
             pass
 
