@@ -7630,6 +7630,8 @@
                                                .replace(/:\s*Infinity/g, ': null')
                                                .replace(/:\s*-Infinity/g, ': null');
                             window._fundJsonCache = JSON.parse(cleaned);
+                            // v15.903：fundamentals.json 載入即排一次 close pair refresh，讓開頁第一秒就有 close pair
+                            try { _scheduleRefreshClosePair('fundamentals-loaded'); } catch(_) {}
                         } else {
                             window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
                             // v15.064：記錄 HTTP 失敗
