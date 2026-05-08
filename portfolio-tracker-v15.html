@@ -1121,12 +1121,13 @@
             qsCache:          'pf_qs_v5',
             macroCache:       'pf_macro_v1',
             quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
-            closePairCache:   'pt_close_pair_v1',   // v15.902：每 symbol 最新 close pair（純本機、單一來源）
+            closePairCache:   'pt_close_pair_v2',   // v15.903：close pair cache（資料源改為 fundamentals.json + Yahoo fallback）
             // 後端
             backendUrl:       'backend_url',
             // Migration markers
             migrationMarker_v15_901: 'pt_v15_901_migrated',  // v15.901：清除 v15.901-904 era 污染
             migrationMarker_v15_901_qm_v3: 'pt_v15_901_qm_v3_migrated',  // v15.901 hotfix v3：清 quote_moves（曾被 timestamp parser bug 寫入 dayChange=2026 等爆量值）
+            migrationMarker_v15_903: 'pt_v15_903_migrated',  // v15.903：close pair 改讀 fundamentals.json（清 v1 cache）
         });
 
         // ────────────────────────────────────────────────────────
