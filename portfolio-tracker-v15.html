@@ -1158,6 +1158,15 @@
                 console.log('[v15.901 hotfix v3] cleaned quote_moves cache (timestamp pollution)');
             } catch(_) {}
         })();
+        // v15.903 一次性 migration：close pair cache 從 v1 升 v2（資料源改 fundamentals.json）
+        (function _v15903ClosePairMigration() {
+            try {
+                if (localStorage.getItem(STORAGE_KEYS.migrationMarker_v15_903)) return;
+                localStorage.removeItem('pt_close_pair_v1');   // 清舊 v1 cache（不再使用）
+                localStorage.setItem(STORAGE_KEYS.migrationMarker_v15_903, '1');
+                console.log('[v15.903] cleared pt_close_pair_v1 (source: yahoo-chart-5d → fundamentals.json + yahoo fallback)');
+            } catch(_) {}
+        })();
 
         // ────────────────────────────────────────────────────────
         // _freshnessColor — 依資料年齡決定顯示色（v15.063 起）
