@@ -3675,6 +3675,29 @@
         function _manualRealizedTotalTWD() {
             return manualRealizedEntries.reduce((s, e) => s + _manualRealizedToTWD(e), 0);
         }
+        // v15.905 hotfix：按 overlap 天數攤分，計算指定 [fromTs, toTs] 區間的補錄總額（TWD）
+        // entry 完全落在區間外 → portion = 0（skip，不誤算）
+        // entry 完全落在區間內 → portion = amount（整筆計入）
+        // entry 跨區間 → portion = amount × (overlap / totalDays)
+        function _manualRealizedInRange(fromTs, toTs) {
+            return manualRealizedEntries.reduce((sum, e) => {
+                if (!e || !e.startDate || !e.endDate) return sum;
+                const eStart = new Date(e.startDate + 'T00:00:00').getTime();
+                const eEnd   = new Date(e.endDate   + 'T23:59:59').getTime();
+                if (isNaN(eStart) || isNaN(eEnd)) return sum;
+                const ovStart = Math.max(fromTs, eStart);
+                const ovEnd   = Math.min(toTs,   eEnd);
+                if (ovEnd < ovStart) return sum;
+                const overlapDays = Math.floor((ovEnd - ovStart) / 86400000) + 1;
+                const totalDays   = Math.floor((eEnd - eStart) / 86400000) + 1;
+                if (totalDays <= 0) return sum;
+                const portion = (parseFloat(e.amount) || 0) * (overlapDays / totalDays);
+                const fx = e.currency === 'USD' ? exchangeRates.USD_TWD
+                        : e.currency === 'HKD' ? exchangeRates.HKD_TWD
+                        : 1;
+                return sum + portion * fx;
+            }, 0);
+        }
         // ==================== 市值快照 & 期間報酬率 ====================
         const PT_SNAPSHOTS_KEY = 'pt_snapshots';
 
