@@ -3304,7 +3304,8 @@
                 return b.value - a.value;
             });
 
-            const colors    = ['#3b82f6','#8b5cf6','#10b981','#3b82f6','#ef4444','#06b6d4','#ec4899','#14b8a6','#f97316','#6366f1'];
+            // v15.904：藍青冷色系（Cool Tech Cyan）取代原九色花俏配色，跟頁面藍黑色系一致
+            const colors    = ['#1e3a8a','#2563eb','#3b82f6','#60a5fa','#06b6d4','#0891b2','#475569','#67e8f9'];
             const pieColors = pieData.map((d, i) => d.isCash ? cashColor : d.isCrypto ? cryptoColor : d.isMoxa ? moxaColor : colors[i % colors.length]);
 
             if (chartInstance) chartInstance.destroy();
