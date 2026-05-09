@@ -5199,7 +5199,10 @@
                 else if (s.market === 'HK') totHK += s.totalPL;
                 else totUS += s.totalPL;
             });
-            const totTWD = totUS * exchangeRates.USD_TWD + totTW + totHK * exchangeRates.HKD_TWD;
+            // v15.905：合併 tradeHistory 累計與期間補錄累計
+            const tradeHistoryTotTWD = totUS * exchangeRates.USD_TWD + totTW + totHK * exchangeRates.HKD_TWD;
+            const manualRealizedTotTWD = _manualRealizedTotalTWD();
+            const totTWD = tradeHistoryTotTWD + manualRealizedTotTWD;
             const totColor = totTWD >= 0 ? '#10b981' : '#ef4444';
             const fmt2 = (n) => Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const fmtSign = (n) => n >= 0 ? '+' : '-';
