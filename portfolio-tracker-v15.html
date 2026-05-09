@@ -3926,6 +3926,7 @@
                 watchlist,
                 tradeHistory,
                 deposits,
+                manualRealizedEntries: manualRealizedEntries || [],   // v15.905
                 currency,
                 sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
                 cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
@@ -3942,6 +3943,7 @@
                 watchlist:     payload.watchlist    || [],
                 tradeHistory:  payload.tradeHistory || [],
                 deposits:      payload.deposits     || {},
+                manualRealizedEntries: Array.isArray(payload.manual_realized_entries) ? payload.manual_realized_entries : [],   // v15.905
                 currency:      payload.currency     || 'USD',
                 sheet_url:     payload.sheet_url    || '',
                 cash_pie_cb:   payload.cash_pie_cb  ?? false,
