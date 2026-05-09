@@ -957,6 +957,7 @@
         let watchlist = []; // 觀察清單
         let _watchlistHidden = true; // 觀察清單預設隱藏
         let tradeHistory = []; // 已實現損益紀錄
+        let manualRealizedEntries = []; // v15.905：手動補錄期間總報酬（不細分標的）
         let _realizedExpanded = {}; // 已實現損益 per-symbol 展開狀態
         let _realizedCurrency = 'native'; // 'native' = 原幣, 'TWD' = 全部轉台幣
         let _realizedDateFrom = ''; // 篩選起始日
