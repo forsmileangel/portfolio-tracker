@@ -5230,6 +5230,24 @@
             const totColor = totTWD >= 0 ? '#10b981' : '#ef4444';
             const fmt2 = (n) => Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
             const fmtSign = (n) => n >= 0 ? '+' : '-';
+
+            // v15.905 hotfix：當年已實現（自動跟系統時間切換，2026 → 2027 跨年無感）
+            // 不受 _realizedDateFrom/To 篩選影響（總是固定當年範圍）
+            const currentYear = new Date().getFullYear();
+            const yearStartTs = new Date(currentYear, 0, 1, 0, 0, 0).getTime();
+            const yearEndTs   = new Date(currentYear, 11, 31, 23, 59, 59).getTime();
+            let yrUS = 0, yrTW = 0, yrHK = 0;
+            tradeHistory.forEach(t => {
+                const ts = new Date(t.date).getTime();
+                if (isNaN(ts) || ts < yearStartTs || ts > yearEndTs) return;
+                if (t.market === 'TW') yrTW += (t.realizedPL || 0);
+                else if (t.market === 'HK') yrHK += (t.realizedPL || 0);
+                else yrUS += (t.realizedPL || 0);
+            });
+            const yearTradeHistoryTWD  = yrUS * exchangeRates.USD_TWD + yrTW + yrHK * exchangeRates.HKD_TWD;
+            const yearManualRealizedTWD = _manualRealizedInRange(yearStartTs, yearEndTs);
+            const yearTotTWD = yearTradeHistoryTWD + yearManualRealizedTWD;
+            const yearColor  = yearTotTWD >= 0 ? '#10b981' : '#ef4444';
             // ── 總計卡片（標題 → 累計 → 篩選列）──
             const ccyBtnBg  = showTWD ? 'rgba(16,185,129,0.15)' : 'rgba(30,58,110,0.2)';
             const ccyBtnClr = showTWD ? '#10b981' : '#60a5fa';
