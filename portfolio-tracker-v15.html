@@ -5303,8 +5303,105 @@
                     </div>` : ''}
                 </div>`;
             }).join('');
-            pane.innerHTML = summaryHtml + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsHtml) + '<div id="return-analysis-section"></div>';
+            pane.innerHTML = summaryHtml + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsHtml) + '<div id="return-analysis-section"></div><div id="manual-realized-section"></div>';
             renderReturnAnalysis();
+            _renderManualRealizedSection();   // v15.905
+        }
+
+        // v15.905：渲染期間補錄區塊（list + 新增 form）
+        function _renderManualRealizedSection() {
+            const container = document.getElementById('manual-realized-section');
+            if (!container) return;
+            const fmtAmt = (v, cur) => cur === 'TWD'
+                ? Math.round(v).toLocaleString('en-US')
+                : v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const ccySym = (cur) => cur === 'TWD' ? 'NT$' : cur === 'HKD' ? 'HK$' : '$';
+            const rowsHtml = manualRealizedEntries.length === 0
+                ? `<div style="text-align:center;padding:1rem;color:#607585;font-size:0.85rem;">尚無補錄紀錄，可在下方填寫</div>`
+                : manualRealizedEntries.map(e => {
+                    const amt = parseFloat(e.amount) || 0;
+                    const isPos = amt >= 0;
+                    const color = isPos ? '#10b981' : '#ef4444';
+                    const twd = _manualRealizedToTWD(e);
+                    const twdStr = e.currency !== 'TWD'
+                        ? `<span style="color:#607585;font-size:0.72rem;margin-left:0.4rem;">≈ ${pv((twd >= 0 ? '+' : '-') + 'NT$' + Math.abs(Math.round(twd)).toLocaleString('en-US'))}</span>`
+                        : '';
+                    return `
+                    <div style="display:grid;grid-template-columns:1fr auto auto;gap:0.5rem 0.85rem;align-items:center;padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <div>
+                            <div style="color:#e2e8f0;font-weight:600;font-size:0.85rem;">${e.startDate} ~ ${e.endDate}</div>
+                            ${e.note ? `<div style="color:#7e93a6;font-size:0.73rem;margin-top:0.18rem;">${e.note}</div>` : ''}
+                        </div>
+                        <div class="mono" style="text-align:right;font-weight:700;font-size:0.92rem;color:${color};">
+                            ${pv(`${isPos ? '+' : '-'}${ccySym(e.currency)}${fmtAmt(Math.abs(amt), e.currency)}`)}${twdStr}
+                        </div>
+                        <button onclick="removeManualRealizedEntry(${e.id})" style="padding:0.25rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">×</button>
+                    </div>`;
+                }).join('');
+            const inpStyle  = 'padding:0.32rem 0.5rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;';
+            const lblStyle  = 'color:#7e93a6;font-size:0.75rem;display:block;margin-bottom:0.2rem;';
+            container.innerHTML = `
+            <div class="glass-card" style="margin-top:0.75rem;">
+                <div style="padding:1rem 1.25rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+                        <span style="color:#f1f5f9;font-weight:600;font-size:0.9rem;">◈ 期間補錄（不分標的）</span>
+                        <span style="color:#607585;font-size:0.71rem;">補錄金額僅在「年」報酬模式顯示，跨年自動按天數攤分</span>
+                    </div>
+                </div>
+                <div style="padding:0.4rem 1.25rem 0.6rem;">${rowsHtml}</div>
+                <div style="padding:0.85rem 1.25rem 1.1rem;border-top:1px solid rgba(255,255,255,0.06);background:rgba(6,13,26,0.25);">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:0.55rem 0.75rem;align-items:end;">
+                        <div><label style="${lblStyle}">起始日</label><input type="date" id="mr-start" style="${inpStyle};width:100%;"></div>
+                        <div><label style="${lblStyle}">結束日</label><input type="date" id="mr-end" style="${inpStyle};width:100%;"></div>
+                        <div><label style="${lblStyle}">金額（可正可負）</label><input type="number" step="any" id="mr-amount" placeholder="1000000" style="${inpStyle};width:100%;"></div>
+                        <div><label style="${lblStyle}">幣別</label>
+                            <select id="mr-currency" style="${inpStyle};width:100%;cursor:pointer;">
+                                <option value="TWD">TWD</option>
+                                <option value="USD">USD</option>
+                                <option value="HKD">HKD</option>
+                            </select>
+                        </div>
+                        <div style="grid-column:1 / -1;"><label style="${lblStyle}">備註（可選）</label><input type="text" id="mr-note" placeholder="例如：開始追蹤前歷史補錄" style="${inpStyle};width:100%;"></div>
+                        <div style="grid-column:1 / -1;">
+                            <button onclick="addManualRealizedEntry()" style="padding:0.5rem 1.1rem;background:rgba(56,139,253,0.15);border:1.5px solid rgba(96,165,250,0.45);border-radius:8px;color:#60a5fa;font-size:0.85rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;width:100%;">+ 新增補錄</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // v15.905：新增 / 刪除期間補錄
+        function addManualRealizedEntry() {
+            const start = document.getElementById('mr-start')?.value;
+            const end   = document.getElementById('mr-end')?.value;
+            const amt   = document.getElementById('mr-amount')?.value;
+            const cur   = document.getElementById('mr-currency')?.value || 'TWD';
+            const note  = (document.getElementById('mr-note')?.value || '').trim();
+            if (!start || !end) { showWarnToast('請選擇起始與結束日期', 2500); return; }
+            if (start > end) { showWarnToast('起始日不可晚於結束日', 2500); return; }
+            const amount = parseFloat(amt);
+            if (isNaN(amount) || amount === 0) { showWarnToast('請填入金額（不可為 0）', 2500); return; }
+            if (!['TWD','USD','HKD'].includes(cur)) { showWarnToast('幣別不支援', 2500); return; }
+            manualRealizedEntries.push({
+                id: Date.now(),
+                startDate: start,
+                endDate: end,
+                amount,
+                currency: cur,
+                note
+            });
+            saveManualRealizedEntries();
+            _markAndAutoPush(['manualRealizedEntries']);
+            renderRealizedTab();
+            renderAll();
+        }
+        function removeManualRealizedEntry(id) {
+            if (!confirm('確定刪除這筆期間補錄？')) return;
+            manualRealizedEntries = manualRealizedEntries.filter(e => e.id !== id);
+            saveManualRealizedEntries();
+            _markAndAutoPush(['manualRealizedEntries']);
+            renderRealizedTab();
+            renderAll();
         }
 
         // 合併持倉 + 觀察清單（供分析管線使用）
