@@ -7411,6 +7411,9 @@
                 if (Array.isArray(saved.watchlist)) { watchlist = saved.watchlist; saveWatchlist(); renderWatchlist(); }
                 tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
                 saveTradeHistory();
+                // v15.905：FSA pull 還原期間補錄
+                manualRealizedEntries = Array.isArray(saved.manual_realized_entries) ? saved.manual_realized_entries : [];
+                saveManualRealizedEntries();
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
