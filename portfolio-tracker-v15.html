@@ -4436,6 +4436,7 @@
                 if (Array.isArray(before.watchlist)) { watchlist = before.watchlist; saveWatchlist(); }
                 if (Array.isArray(before.tradeHistory)) { tradeHistory = before.tradeHistory; saveTradeHistory(); }
                 if (Array.isArray(before.deposits)) { deposits = before.deposits; saveDeposits(); }
+                if (Array.isArray(before.manual_realized_entries)) { manualRealizedEntries = before.manual_realized_entries; saveManualRealizedEntries(); }   // v15.905
                 if (Array.isArray(before.marketSnapshots)) { marketSnapshots = before.marketSnapshots; saveSnapshots(); }
                 if (before.currency) currency = before.currency;
                 if (before.exchangeRates) { exchangeRates = before.exchangeRates; try { syncRateInputs(); } catch(_) {} }
