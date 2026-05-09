@@ -5802,6 +5802,13 @@
                         console.log('[Auto-pull] 本地已實現損益較新，跳過 Gist 覆蓋');
                     }
                 }
+                // v15.905：還原期間補錄（auto-pull 套用 master / cloud_newer 時跟隨 saved）
+                if (Array.isArray(saved.manual_realized_entries)) {
+                    if (_gistIsNewer || manualRealizedEntries.length === 0) {
+                        manualRealizedEntries = saved.manual_realized_entries;
+                        saveManualRealizedEntries();
+                    }
+                }
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 // v15.071/080：merge 雲端 daily_pnl_snapshots 進本機（傳本機 hash 給 priority 用）
