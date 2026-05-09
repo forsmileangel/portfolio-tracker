@@ -5274,6 +5274,12 @@
                     ${!showTWD && totUS !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">美股 USD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totUS>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totUS)}$${fmt2(totUS)}`)}</div></div>` : ''}
                     ${!showTWD && totTW !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">台股 TWD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totTW>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totTW)}NT$${fmt2(totTW)}`)}</div></div>` : ''}
                     ${!showTWD && totHK !== 0 ? `<div><div style="color:#7e93a6;font-size:0.71rem;margin-bottom:0.18rem;">港股 HKD</div><div class="mono" style="font-size:0.93rem;font-weight:700;color:${totHK>=0?'#10b981':'#ef4444'};">${pv(`${fmtSign(totHK)}HK$${fmt2(totHK)}`)}</div></div>` : ''}
+                    <!-- v15.905 hotfix：當年已實現（並排顯示，自動跟系統時間切換）-->
+                    <div style="border-left:1px solid rgba(255,255,255,0.08); padding-left:1.5rem;">
+                        <div style="color:#7e93a6; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">當年 ${currentYear} 已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
+                        <div class="mono" style="font-size:1.4rem; font-weight:800; color:${yearColor}; line-height:1;">${pv(`${fmtSign(yearTotTWD)}NT$${Math.abs(Math.round(yearTotTWD)).toLocaleString('en-US')}`)}</div>
+                        ${yearManualRealizedTWD !== 0 ? `<div style="color:#7e93a6; font-size:0.7rem; margin-top:0.3rem;">(含期間補錄 ${pv(`${yearManualRealizedTWD >= 0 ? '+' : '-'}NT$${Math.abs(Math.round(yearManualRealizedTWD)).toLocaleString('en-US')}`)})</div>` : ''}
+                    </div>
                 </div>
                 <!-- 篩選列：桌機一行，手機自動換兩行 -->
                 <div style="display:flex; gap:0.5rem 0.75rem; align-items:center; flex-wrap:wrap;">
