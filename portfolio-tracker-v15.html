@@ -3656,6 +3656,23 @@
         function loadTradeHistory() {
             try { tradeHistory = JSON.parse(localStorage.getItem(PT_TRADE_HISTORY_KEY)) || []; } catch(_) { tradeHistory = []; }
         }
+        // v15.905：期間補錄總報酬（不細分標的）
+        function saveManualRealizedEntries() {
+            try { localStorage.setItem(PT_MANUAL_REALIZED_KEY, JSON.stringify(manualRealizedEntries)); } catch(_) {}
+        }
+        function loadManualRealizedEntries() {
+            try { manualRealizedEntries = JSON.parse(localStorage.getItem(PT_MANUAL_REALIZED_KEY)) || []; } catch(_) { manualRealizedEntries = []; }
+        }
+        // 補錄金額換算 TWD（依 currency + exchangeRates）
+        function _manualRealizedToTWD(e) {
+            const amt = parseFloat(e.amount) || 0;
+            if (e.currency === 'USD') return amt * exchangeRates.USD_TWD;
+            if (e.currency === 'HKD') return amt * exchangeRates.HKD_TWD;
+            return amt;   // TWD
+        }
+        function _manualRealizedTotalTWD() {
+            return manualRealizedEntries.reduce((s, e) => s + _manualRealizedToTWD(e), 0);
+        }
         // ==================== 市值快照 & 期間報酬率 ====================
         const PT_SNAPSHOTS_KEY = 'pt_snapshots';
 
