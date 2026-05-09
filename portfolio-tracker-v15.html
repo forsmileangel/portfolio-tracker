@@ -4966,9 +4966,31 @@
                 .sort((a, b) => b.key.localeCompare(a.key));
         }
 
+        // v15.905：由 period key + mode 反推 [start, end] 日期 (Date 物件，含時)
+        function _periodRange(key, mode) {
+            if (mode === 'year') {
+                const y = parseInt(key, 10);
+                return [new Date(y, 0, 1), new Date(y, 11, 31, 23, 59, 59)];
+            }
+            if (mode === 'quarter') {
+                // key 格式 'YYYY-QN'
+                const [y, qPart] = key.split('-Q');
+                const yy = parseInt(y, 10);
+                const q  = parseInt(qPart, 10);
+                const startMonth = (q - 1) * 3;        // Q1 → 0, Q2 → 3, ...
+                return [new Date(yy, startMonth, 1), new Date(yy, startMonth + 3, 0, 23, 59, 59)];
+            }
+            // month: key 格式 'YYYY-MM'
+            const [y, m] = key.split('-');
+            const yy = parseInt(y, 10);
+            const mm = parseInt(m, 10) - 1;
+            return [new Date(yy, mm, 1), new Date(yy, mm + 1, 0, 23, 59, 59)];
+        }
+
         // 計算某 period key 的已實現損益（TWD）
         function _realizedInPeriod(key, mode) {
             let total = 0;
+            // ── 既有 tradeHistory FIFO 累計（不動）──
             tradeHistory.forEach(t => {
                 const d = (t.date || '').slice(0, 10);
                 if (!d) return;
@@ -4983,6 +5005,25 @@
                     total += (t.realizedPL || 0) * fx;
                 }
             });
+            // ── v15.905：manualRealizedEntries 只在 year 模式計入（month / quarter 跳過）──
+            if (mode !== 'year') return total;
+            const [pStart, pEnd] = _periodRange(key, mode);
+            for (const e of manualRealizedEntries) {
+                if (!e || !e.startDate || !e.endDate) continue;
+                const eStart = new Date(e.startDate + 'T00:00:00');
+                const eEnd   = new Date(e.endDate   + 'T23:59:59');
+                if (isNaN(eStart) || isNaN(eEnd)) continue;
+                const ovStart = Math.max(pStart.getTime(), eStart.getTime());
+                const ovEnd   = Math.min(pEnd.getTime(),   eEnd.getTime());
+                if (ovEnd < ovStart) continue;
+                const overlapDays = Math.floor((ovEnd - ovStart) / 86400000) + 1;
+                const totalDays   = Math.floor((eEnd.getTime() - eStart.getTime()) / 86400000) + 1;
+                if (totalDays <= 0) continue;
+                const portion = (parseFloat(e.amount) || 0) * (overlapDays / totalDays);
+                total += portion * (e.currency === 'USD' ? exchangeRates.USD_TWD
+                                  : e.currency === 'HKD' ? exchangeRates.HKD_TWD
+                                  : 1);
+            }
             return total;
         }
 
