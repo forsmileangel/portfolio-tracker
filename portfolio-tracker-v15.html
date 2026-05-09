@@ -5165,13 +5165,15 @@
         function renderRealizedTab() {
             const pane = document.getElementById('tab-pane-6');
             if (!pane) return;
-            if (tradeHistory.length === 0) {
+            // v15.905：tradeHistory 與 manualRealizedEntries 都空才顯示「尚無紀錄」；任一有資料就走完整 summary 流程
+            if (tradeHistory.length === 0 && manualRealizedEntries.length === 0) {
                 pane.innerHTML = `<div class="glass-card" style="padding:2.5rem 2rem; text-align:center; margin-top:0.5rem;">
                     <div style="font-size:2.2rem; color:#1e3a5f; margin-bottom:0.75rem;">◈</div>
                     <div style="color:#7e93a6; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
-                    <div style="color:#607585; font-size:0.82rem; margin-top:0.35rem;">完成賣出交易後將自動記錄於此</div>
-                </div><div id="return-analysis-section"></div>`;
+                    <div style="color:#607585; font-size:0.82rem; margin-top:0.35rem;">完成賣出交易後將自動記錄於此，或在下方新增「期間補錄」</div>
+                </div><div id="return-analysis-section"></div><div id="manual-realized-section"></div>`;
                 renderReturnAnalysis();
+                _renderManualRealizedSection();
                 return;
             }
             // ── 日期篩選 ──
