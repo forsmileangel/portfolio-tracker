@@ -7358,7 +7358,7 @@
             if (saved.sync_source != null && saved.sync_source !== 'local_fsa' && saved.sync_source !== '') {
                 return { ok: false, reason: `sync_source 非預期：${saved.sync_source}` };
             }
-            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots']) {
+            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries']) {
                 if (saved[k] != null && !Array.isArray(saved[k])) {
                     return { ok: false, reason: `${k} 欄位存在但不是 array` };
                 }
