@@ -5187,14 +5187,15 @@
             _realizedCurrency = _realizedCurrency === 'native' ? 'TWD' : 'native';
             renderRealizedTab();
         }
-        // v15.905 hotfix #2：全部摺疊 / 展開所有標的卡片
-        function _collapseAllRealized() {
-            _realizedExpanded = {};
-            renderRealizedTab();
-        }
-        function _expandAllRealized() {
-            const symbols = new Set(tradeHistory.map(t => t.symbol));
-            symbols.forEach(s => { _realizedExpanded[s] = true; });
+        // v15.905 hotfix #2 / #4：單顆按鈕切換全部展開 / 全部摺疊
+        function _toggleAllRealized() {
+            const symbols = Array.from(new Set(tradeHistory.map(t => t.symbol)));
+            const anyExpanded = symbols.some(s => _realizedExpanded[s] === true);
+            if (anyExpanded) {
+                _realizedExpanded = {};   // 任一展開 → 全收起
+            } else {
+                symbols.forEach(s => { _realizedExpanded[s] = true; });   // 全部收 → 全展開
+            }
             renderRealizedTab();
         }
         // v15.905 hotfix #3：標的明細區整體顯示/隱藏
