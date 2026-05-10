@@ -5264,8 +5264,8 @@
                         <button onclick="clearTradeHistory()" style="padding:0.32rem 0.7rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.28);border-radius:8px;color:#f87171;font-size:0.76rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;">清除紀錄</button>
                     </div>
                 </div>
-                <!-- 累計損益（標題正下方） -->
-                <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-end; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <!-- 累計損益（標題正下方）— v15.905 hotfix：align-items: flex-start 讓三欄標題頂部對齊 -->
+                <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-start; padding-bottom:0.9rem; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
                         <div style="color:#7e93a6; font-size:0.72rem; margin-bottom:0.25rem; letter-spacing:0.04em;">累計已實現${showTWD ? '（TWD）' : '（約合 TWD）'}</div>
                         <div class="mono" style="font-size:1.9rem; font-weight:800; color:${totColor}; line-height:1;">${pv(`${fmtSign(totTWD)}NT$${Math.abs(Math.round(totTWD)).toLocaleString('en-US')}`)}</div>
