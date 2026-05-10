@@ -5197,6 +5197,11 @@
             symbols.forEach(s => { _realizedExpanded[s] = true; });
             renderRealizedTab();
         }
+        // v15.905 hotfix #3：標的明細區整體顯示/隱藏
+        function _toggleRealizedSymbolsVisible() {
+            _realizedSymbolsHidden = !_realizedSymbolsHidden;
+            renderRealizedTab();
+        }
         function renderRealizedTab() {
             const pane = document.getElementById('tab-pane-6');
             if (!pane) return;
