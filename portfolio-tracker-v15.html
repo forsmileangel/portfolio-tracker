@@ -5389,17 +5389,20 @@
                     </div>` : ''}
                 </div>`;
             }).join('');
-            // v15.905 hotfix #2 / #3：標的明細列表上方加 toolbar — 顯示/隱藏 + 全部展開/摺疊
+            // v15.905 hotfix #2 / #3 / #4：標的明細列表上方加 toolbar — 顯示/隱藏 + 單顆全展/全收切換按鈕
             const _toolbarBtnStyle = 'padding:0.25rem 0.6rem;background:rgba(30,58,110,0.2);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#a8bdd0;font-size:0.74rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;';
             const _toolbarBtnVisible = 'padding:0.25rem 0.6rem;background:rgba(56,139,253,0.18);border:1.5px solid rgba(96,165,250,0.45);border-radius:6px;color:#60a5fa;font-size:0.74rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;';
-            const _toolbarBtnDisabled = 'opacity:0.35;pointer-events:none;';
+            const _toolbarBtnDisabled = 'opacity:0.35;pointer-events:none;cursor:not-allowed;filter:grayscale(0.6);';
+            // 任一 symbol 已展開 → 按鈕顯示「全部摺疊」；否則「全部展開」
+            const _symbolKeys = Object.keys(bySymbol);
+            const _anyExpanded = _symbolKeys.some(s => _realizedExpanded[s] === true);
+            const _toggleAllText = _anyExpanded ? '▲ 全部摺疊' : '▼ 全部展開';
             const symbolsToolbar = filtered.length === 0 ? '' : `
                 <div style="display:flex;justify-content:space-between;align-items:center;margin:0.5rem 0 0.45rem;padding:0 0.25rem;">
-                    <span style="color:#7e93a6;font-size:0.76rem;">標的明細（${Object.keys(bySymbol).length} 個）</span>
+                    <span style="color:#7e93a6;font-size:0.76rem;">標的明細（${_symbolKeys.length} 個）</span>
                     <div style="display:flex;gap:0.4rem;">
                         <button onclick="_toggleRealizedSymbolsVisible()" style="${_toolbarBtnVisible}">${_realizedSymbolsHidden ? '▼ 顯示明細' : '▲ 隱藏明細'}</button>
-                        <button onclick="_expandAllRealized()" style="${_toolbarBtnStyle}${_realizedSymbolsHidden ? _toolbarBtnDisabled : ''}">▼ 全部展開</button>
-                        <button onclick="_collapseAllRealized()" style="${_toolbarBtnStyle}${_realizedSymbolsHidden ? _toolbarBtnDisabled : ''}">▲ 全部摺疊</button>
+                        <button onclick="_toggleAllRealized()" style="${_toolbarBtnStyle}${_realizedSymbolsHidden ? _toolbarBtnDisabled : ''}">${_toggleAllText}</button>
                     </div>
                 </div>`;
             const symbolsRendered = _realizedSymbolsHidden ? '' : symbolsHtml;
