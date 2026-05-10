@@ -5186,6 +5186,16 @@
             _realizedCurrency = _realizedCurrency === 'native' ? 'TWD' : 'native';
             renderRealizedTab();
         }
+        // v15.905 hotfix #2：全部摺疊 / 展開所有標的卡片
+        function _collapseAllRealized() {
+            _realizedExpanded = {};
+            renderRealizedTab();
+        }
+        function _expandAllRealized() {
+            const symbols = new Set(tradeHistory.map(t => t.symbol));
+            symbols.forEach(s => { _realizedExpanded[s] = true; });
+            renderRealizedTab();
+        }
         function renderRealizedTab() {
             const pane = document.getElementById('tab-pane-6');
             if (!pane) return;
