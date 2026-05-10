@@ -4980,7 +4980,7 @@
         function recordSnapshot() {
             const today = new Date().toISOString().slice(0, 10);
             if (marketSnapshots.some(s => s.date === today)) return;
-            const stockTWD = _currentStockValueTWD();
+            const stockTWD = _closingStockValueTWD();   // v15.905 hotfix #5：改用前一交易日收盤價算市值
             if (stockTWD <= 0) return;
             marketSnapshots.push({ date: today, stockTWD });
             marketSnapshots.sort((a, b) => a.date.localeCompare(b.date));
