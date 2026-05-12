@@ -6252,6 +6252,30 @@
             ) + ')';
         }
 
+        // hotfix #6 — 自訂買賣確認 modal（避免原生 confirm 顯示 origin 字樣）
+        let _pendingTradeConfirmCb = null;
+        function _showTradeConfirmModal(msg, isBuy, onConfirm) {
+            const content = document.getElementById('trade-confirm-content');
+            const okBtn = document.getElementById('trade-confirm-ok-btn');
+            content.textContent = msg;
+            // 買進綠、賣出紅，跟 buy-btn / sell-btn 一致的色系
+            okBtn.style.background = isBuy
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            okBtn.textContent = isBuy ? '確認買入' : '確認賣出';
+            _pendingTradeConfirmCb = onConfirm;
+            document.getElementById('trade-confirm-modal').style.display = 'flex';
+        }
+        function _hideTradeConfirmModal() {
+            document.getElementById('trade-confirm-modal').style.display = 'none';
+            _pendingTradeConfirmCb = null;
+        }
+        function _confirmTradeOK() {
+            const cb = _pendingTradeConfirmCb;
+            _hideTradeConfirmModal();
+            if (typeof cb === 'function') cb();
+        }
+
         function addHolding() {
             let symbol = document.getElementById('form-symbol').value.trim().toUpperCase();
             const quantity  = parseFloat(document.getElementById('form-quantity').value);
@@ -6280,8 +6304,10 @@
                     _confirmMsg += `\n\n目前持有:${_held} 股\n賣出後剩餘:${(_held - quantity).toFixed(4)} 股`;
                 }
             }
-            if (!confirm(_confirmMsg)) return;
+            _showTradeConfirmModal(_confirmMsg, isBuy, () => _executeAddHolding(symbol, quantity, costPrice, market, isBuy));
+        }
 
+        function _executeAddHolding(symbol, quantity, costPrice, market, isBuy) {
             saveHistory();
             const existingIndex = holdings.findIndex(h => h.symbol === symbol);
 
