@@ -6252,6 +6252,26 @@
             const isBuy = tradeType === 'buy';
             if (!symbol || !quantity) return alert('請填寫所有必要欄位');
             if (!costPrice) return alert(isBuy ? '請填寫買入價格' : '請填寫賣出價格');
+
+            // hotfix #6 — 送出前確認，避免按錯
+            const _actionLabel = isBuy ? '買進' : '賣出';
+            const _marketLabel = market === 'US' ? '美股' : (market === 'TW' ? '台股' : '港股');
+            const _ccy = market === 'US' ? 'USD' : (market === 'TW' ? 'TWD' : 'HKD');
+            const _totalAmount = quantity * costPrice;
+            let _confirmMsg = `確認${_actionLabel} ${_marketLabel} ${symbol}\n\n` +
+                              `數量:${quantity} 股\n` +
+                              `價位:${_ccy} ${costPrice}\n` +
+                              `總額:${_ccy} ${_totalAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+            if (!isBuy) {
+                const _existingForConfirm = holdings.find(h => h.symbol === symbol);
+                if (_existingForConfirm) {
+                    _ensureLots(_existingForConfirm);
+                    const _held = _existingForConfirm.lots.reduce((s, l) => s + l.qty, 0);
+                    _confirmMsg += `\n\n目前持有:${_held} 股\n賣出後剩餘:${(_held - quantity).toFixed(4)} 股`;
+                }
+            }
+            if (!confirm(_confirmMsg)) return;
+
             saveHistory();
             const existingIndex = holdings.findIndex(h => h.symbol === symbol);
 
