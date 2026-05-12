@@ -6292,7 +6292,7 @@
             const _marketLabel = market === 'US' ? '美股' : (market === 'TW' ? '台股' : '港股');
             const _ccy = market === 'US' ? 'USD' : (market === 'TW' ? 'TWD' : 'HKD');
             const _totalAmount = quantity * costPrice;
-            let _confirmMsg = `親愛的主人，幫您${_actionLabel} ${_marketLabel} ${symbol}\n\n` +
+            let _confirmMsg = `親愛的主人，幫您${_actionLabel}\n${_marketLabel} ${symbol}\n\n` +
                               `數量:${quantity} 股\n` +
                               `價位:${_ccy} ${costPrice}\n` +
                               `總額:${_ccy} ${_totalAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
