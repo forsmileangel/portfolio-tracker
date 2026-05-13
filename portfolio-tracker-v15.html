@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+  v15.909 - Hotfix: close pair 加 final 標記；收盤後 closed_retained 今日損益只接受 final target close，避免港股盤中暫存 close pair 污染收盤後今日損益。
   v15.908 - Hotfix: marketSnapshots / 月季年報酬的 _closingStockValueTWD 改用 close pair v3 多日期讀法，避免 v15.907 後每日快照退回盤中 currentPrice。
   v15.907 - Portfolio day 08:00 rollover：今日/前交易日損益改用台灣時間 08:00 換日，close pair cache 升級為 v3 多日期；可單 commit 回退到 v15.906。
   v15.906 - Hotfix: holding table 今日漲跌改用 market-level open status，不再被 stale per-symbol marketOpenedToday=false 擋住；CSV refresh 會清除開盤市場的 stale false flag。
@@ -391,7 +392,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.908</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.909</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1076,7 +1077,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.908';
+        const APP_VERSION = 'v15.909';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1722,6 +1723,9 @@
             if (slot.targetDate === targetDate) return slot;
             return null;
         }
+        function _isFinalClosePair(pair) {
+            return !!(pair && pair.final === true);
+        }
         function _setClosePairForDate(data, symbol, pair) {
             if (!data.symbols) data.symbols = {};
             if (!data.symbols[symbol] || !data.symbols[symbol].byDate) {
@@ -1733,13 +1737,14 @@
 
         // 從 Yahoo chart 5d 抓 close pair：找 target 日期的 bar + 前一個交易日的 bar
         // 失敗（chart 沒資料 / 找不到 target / 沒有前一筆）→ return null
-        async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate) {
+        async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate, options) {
             try {
                 const session = _marketSession(marketKey, new Date());
                 const target = targetDate || session.lastCompletedTradingDate;
                 if (!target) return null;
+                const final = !!(options && options.final);
 
-                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=10d`;
                 const data = await yfFetch(url);
                 const ch = data?.chart?.result?.[0];
                 if (!ch) return null;
@@ -1766,7 +1771,8 @@
                     prevDate:  dated[idx - 1].date,
                     prevClose: dated[idx - 1].close,
                     fetchedAt: new Date().toISOString(),
-                    source:    'yahoo-chart-5d'
+                    source:    final ? 'yahoo-chart-10d-final' : 'yahoo-chart-10d',
+                    final
                 };
             } catch(e) {
                 _recordAppError('close_pair_fetch', e, { symbol, marketKey });
@@ -1777,11 +1783,12 @@
         // v15.903：從 fundamentals.json 解析 close pair（優先來源，比打 Yahoo 快）
         // 後端 update_fund.py 已寫入 recent_closes（最近 7 個交易日 (date, close)，最新在前）
         // 找 target = session.lastCompletedTradingDate match 的 bar，取它與下一筆當 close pair
-        function _resolveClosePairFromFundamentals(symbol, marketKey, targetDate) {
+        function _resolveClosePairFromFundamentals(symbol, marketKey, targetDate, options) {
             try {
                 const session = _marketSession(marketKey, new Date());
                 const target = targetDate || session.lastCompletedTradingDate;
                 if (!target) return null;
+                const final = !!(options && options.final);
 
                 const f = window._fundJsonCache?.data?.[symbol];
                 const closes = f?.recent_closes;
@@ -1803,7 +1810,8 @@
                     prevDate:  pBar.date,
                     prevClose: pBar.close,
                     fetchedAt: new Date().toISOString(),
-                    source:    'fundamentals-json'
+                    source:    'fundamentals-json',
+                    final
                 };
             } catch(e) {
                 _recordAppError('close_pair_resolve_fund', e, { symbol, marketKey });
@@ -1833,19 +1841,26 @@
                 try {
                     const mk = _holdingMarketKey(h);
                     const pdState = _marketPortfolioDayStatus(mk, pd, now);
-                    const targets = new Set();
-                    if (pdState.targetDate) targets.add(pdState.targetDate);
-                    if (pdState.previousTradingDate) targets.add(pdState.previousTradingDate);
-                    if (targets.size === 0) continue;
+                    const jobs = [];
+                    if (pdState.status === 'open') {
+                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: false, refreshIfNotFinal: false });
+                    } else if (pdState.status === 'closed_retained') {
+                        if (pdState.targetDate) jobs.push({ target: pdState.targetDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
+                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: false, refreshIfNotFinal: false });
+                    } else {
+                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: false, refreshIfNotFinal: false });
+                    }
+                    if (jobs.length === 0) continue;
 
                     // v15.903：優先 fundamentals.json，缺值才 fallback Yahoo
-                    for (const target of targets) {
-                        if (_getClosePairForDate(data, h.symbol, target)) continue;
-                        let pair = _resolveClosePairFromFundamentals(h.symbol, mk, target);
+                    for (const job of jobs) {
+                        const existing = _getClosePairForDate(data, h.symbol, job.target);
+                        if (existing && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
+                        let pair = job.forceYahoo ? null : _resolveClosePairFromFundamentals(h.symbol, mk, job.target, { final: job.final });
                         if (pair) {
                             resolved++;
                         } else {
-                            pair = await _fetchClosePairFromYahoo(h.symbol, mk, target);
+                            pair = await _fetchClosePairFromYahoo(h.symbol, mk, job.target, { final: job.final });
                             if (pair) fetched++;
                             else missing++;
                         }
@@ -1856,7 +1871,7 @@
             if (resolved + fetched > 0) {
                 data.updatedAt = new Date().toISOString();
                 _saveClosePair(data);
-                console.log(`[ClosePair v15.907] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
+                console.log(`[ClosePair v15.909] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
                 renderAll();
             }
         }
@@ -2347,6 +2362,7 @@
             const _validClosePair = (pair) => pair
                 && typeof pair.close === 'number' && typeof pair.prevClose === 'number'
                 && pair.close > 0 && pair.prevClose > 0;
+            const _validFinalClosePair = (pair) => _validClosePair(pair) && _isFinalClosePair(pair);
             const _nativePnlToCcy = (nativePnl, h) => {
                 const isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
                 if (isHK_HKD) return {
@@ -2432,13 +2448,16 @@
                 // v15.906: row-level today PnL follows market session, not stale per-symbol marketOpenedToday.
                 const _todayMarketStatus = _todayState.status || null;
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
-                if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _validClosePair(_todayPair)) {
-                    const dayChange = h.currentPrice - _todayPair.prevClose;
-                    dayChangePct = (dayChange / _todayPair.prevClose) * 100;
+                const _todayBasisClose = _validClosePair(_todayPair)
+                    ? _todayPair.prevClose
+                    : (_validClosePair(_prevPair) ? _prevPair.close : null);
+                if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
+                    const dayChange = h.currentPrice - _todayBasisClose;
+                    dayChangePct = (dayChange / _todayBasisClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
                     dayPnlUSD = conv.usd;
                     dayPnlTWD = conv.twd;
-                } else if (_todayMarketStatus === 'closed_retained' && _validClosePair(_todayPair)) {
+                } else if (_todayMarketStatus === 'closed_retained' && _validFinalClosePair(_todayPair)) {
                     const dayChange = _todayPair.close - _todayPair.prevClose;
                     dayChangePct = (dayChange / _todayPair.prevClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
