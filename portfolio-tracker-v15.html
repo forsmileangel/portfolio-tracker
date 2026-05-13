@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+  v15.907 - Portfolio day 08:00 rollover：今日/前交易日損益改用台灣時間 08:00 換日，close pair cache 升級為 v3 多日期；可單 commit 回退到 v15.906。
   v15.906 - Hotfix: holding table 今日漲跌改用 market-level open status，不再被 stale per-symbol marketOpenedToday=false 擋住；CSV refresh 會清除開盤市場的 stale false flag。
   v15.905 - 已實現損益分頁新增「期間補錄」功能（手動輸入區間總報酬，補開始追蹤前歷史）：(1) 新增資料集 manualRealizedEntries = [{id, startDate, endDate, amount, currency('TWD'|'USD'|'HKD'), note}]，純使用者手動管理，跟 deposits / tradeHistory 同等地位；STORAGE_KEYS 加 manualRealizedEntries: 'pt_manual_realized_entries'，新增 PT_MANUAL_REALIZED_KEY 常數 + saveManualRealizedEntries / loadManualRealizedEntries / _manualRealizedToTWD / _manualRealizedTotalTWD helper。(2) Sync 通道對齊 v15.079 規則：_buildLocalUserPayload 加 manualRealizedEntries 進 userDataHash 白名單；_extractUserDataFromGistPayload 解析 payload.manual_realized_entries；_gistSilentPush / gistPush payload 加 manual_realized_entries: manualRealizedEntries；_gistSilentPull / 手動 gistPull / FSA _applyLocalSyncPayload / rollbackToBeforeMaster 五個 apply 點都加 saved.manual_realized_entries 還原；_buildLocalSyncPayload (FSA) 加欄位 + _validateLocalSyncPayload 加 array 驗證；init 載入 loadManualRealizedEntries。(3) 計算邏輯：新增 _periodRange(key, mode) helper 由 'YYYY' / 'YYYY-QN' / 'YYYY-MM' 反推 [start, end] Date pair；_realizedInPeriod 既有 tradeHistory FIFO 邏輯不動，後段加「mode === 'year' 才計入 manualRealizedEntries」分支，按天數比例分配（overlap days / total days × amount × FX → TWD），單年補錄整筆計入、跨年自動按各年 overlap 比例攤分；月 / 季模式完全跳過。(4) UI：renderRealizedTab 上方累計損益區加副標「(含期間補錄 +NT$X)」當 manualRealizedTotalTWD !== 0；底部新增 manual-realized-section glass-card（list + 5 欄位 form：起始日 / 結束日 / 金額 / 幣別 / 備註 + 新增按鈕），_renderManualRealizedSection 渲染；addManualRealizedEntry / removeManualRealizedEntry 走 _markAndAutoPush(['manualRealizedEntries']) 觸發 user push；tradeHistory 與 manualRealizedEntries 都空才顯示「尚無紀錄」訊息。(5) 不影響原機制：holdings / lots / FIFO / tradeHistory / 總損益 / 今日損益 / 前次收盤損益 / close pair / fundamentals.json / snapshot / baseline / 圓餅圖 / 持倉表全部不動；CSV / quote refresh / system sync channel 完全不動；不升 PT_SCHEMA_VERSION（payload additive）。
   v15.904 - 持倉分佈圓餅圖配色改藍青冷色系（Cool Tech Cyan）：renderPie() 內 const colors 從原九色花俏（含紫 #8b5cf6 / 紅 #ef4444 / 粉紅 #ec4899 / 橘 #f97316 等暖/破壞色）改為 8 色全冷色系 ['#1e3a8a','#2563eb','#3b82f6','#60a5fa','#06b6d4','#0891b2','#475569','#67e8f9']，跟頁面藍黑色系（主色 #60a5fa / #2563eb）視覺一致。配色按色相梯度排序：深海藍 → 皇家藍 → 亮藍 → 天藍 → 青 → 深青 → 鋼藍 → 雪青；持倉佔比大的 slice 自然落在深色端，視覺重量較穩。cash/crypto/moxa 三個資產類別仍保留 #22c55e 綠色（流動資金 = 綠的視覺常識），與圓餅主色形成單點突出。glass-card / .ic 徽章 / chart border #060d1a 全不動。
@@ -389,7 +390,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.906</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.907</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1074,7 +1075,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.906';
+        const APP_VERSION = 'v15.907';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1138,7 +1139,7 @@
             qsCache:          'pf_qs_v5',
             macroCache:       'pf_macro_v1',
             quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
-            closePairCache:   'pt_close_pair_v2',   // v15.903：close pair cache（資料源改為 fundamentals.json + Yahoo fallback）
+            closePairCache:   'pt_close_pair_v3',   // v15.907：close pair cache 多日期（保留 pt_close_pair_v2 供 rollback）
             // 後端
             backendUrl:       'backend_url',
             // Migration markers
@@ -1408,6 +1409,66 @@
         // 保留 _marketClock 為 alias，避免改太多既有 callers
         function _marketClock(marketKey, now) { return _marketSession(marketKey, now); }
 
+        // v15.907: portfolio day = user-facing investment day, rolling over at 08:00 Asia/Taipei.
+        function _portfolioDay(now) {
+            now = now || new Date();
+            const fmt = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Taipei',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+            });
+            const parts = {};
+            for (const p of fmt.formatToParts(now)) parts[p.type] = p.value;
+            const date = `${parts.year}-${parts.month}-${parts.day}`;
+            const minutes = parseInt(parts.hour, 10) * 60 + parseInt(parts.minute, 10);
+            return minutes < 8 * 60 ? _shiftDate(date, -1) : date;
+        }
+
+        function _portfolioPreviousTradingDate(marketKey, portfolioDay) {
+            return _previousTradingDate(marketKey, portfolioDay) || _previousNonWeekendDate(portfolioDay);
+        }
+
+        function _marketPortfolioDayStatus(marketKey, portfolioDay, now) {
+            const session = _marketSession(marketKey, now || new Date());
+            const trading = _isTradingDay(marketKey, portfolioDay);
+            const targetIsTrading = trading === null ? true : trading;
+            const previousTradingDate = _portfolioPreviousTradingDate(marketKey, portfolioDay);
+            if (!targetIsTrading) {
+                return {
+                    market: marketKey,
+                    status: 'closed_or_holiday',
+                    portfolioDay,
+                    targetDate: null,
+                    previousTradingDate,
+                    localDate: session.localDate,
+                    lastCompletedTradingDate: previousTradingDate
+                };
+            }
+            let status;
+            if (session.localDate < portfolioDay) {
+                status = 'not_open';
+            } else if (session.localDate > portfolioDay) {
+                status = 'closed_retained';
+            } else if (session.status === 'open') {
+                status = 'open';
+            } else if (session.status === 'closed') {
+                status = 'closed_retained';
+            } else if (session.status === 'closed_or_holiday') {
+                status = 'closed_or_holiday';
+            } else {
+                status = 'not_open';
+            }
+            return {
+                market: marketKey,
+                status,
+                portfolioDay,
+                targetDate: portfolioDay,
+                previousTradingDate,
+                localDate: session.localDate,
+                lastCompletedTradingDate: previousTradingDate
+            };
+        }
+
         // 從 pf_analysis_v8 cache hydrate prevClose / prevPrevClose（v15.069 抽成函式）
         // 注意：marketOpenedToday 不 hydrate（時間敏感狀態，runAnalysis 會更新）
         function _hydrateDailyPnlCachesFromAnalysisCache() {
@@ -1616,23 +1677,65 @@
         // 純本機，不寫 Gist。每 symbol 只存最新一筆。
         // 公式：dayChange = close − prevClose；× quantity = 該檔 pnl；加總 = 該市場前次收盤損益
         // ────────────────────────────────────────────────────────
+        function _normalizeClosePairCache(raw) {
+            const out = { version: 3, updatedAt: raw?.updatedAt || null, symbols: {} };
+            const src = raw && typeof raw === 'object' && raw.symbols && typeof raw.symbols === 'object'
+                ? raw.symbols : {};
+            for (const [sym, val] of Object.entries(src)) {
+                if (!val || typeof val !== 'object') continue;
+                if (val.byDate && typeof val.byDate === 'object') {
+                    out.symbols[sym] = { market: val.market || null, byDate: { ...val.byDate } };
+                } else if (val.targetDate) {
+                    out.symbols[sym] = { market: val.market || null, byDate: { [val.targetDate]: val } };
+                }
+            }
+            return out;
+        }
         function _loadClosePair() {
             try {
                 const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.closePairCache) || '{}');
-                if (!raw.symbols) raw.symbols = {};
-                return raw;
-            } catch { return { symbols: {} }; }
+                const normalized = _normalizeClosePairCache(raw);
+                // v15.907: read-only migration from v15.903/v15.906 flat cache for rollback safety.
+                const legacy = JSON.parse(localStorage.getItem('pt_close_pair_v2') || '{}');
+                const old = _normalizeClosePairCache(legacy);
+                for (const [sym, slot] of Object.entries(old.symbols || {})) {
+                    if (!normalized.symbols[sym]) normalized.symbols[sym] = slot;
+                    else {
+                        normalized.symbols[sym].byDate = {
+                            ...(slot.byDate || {}),
+                            ...(normalized.symbols[sym].byDate || {})
+                        };
+                    }
+                }
+                return normalized;
+            } catch { return { version: 3, symbols: {} }; }
         }
         function _saveClosePair(data) {
-            try { localStorage.setItem(STORAGE_KEYS.closePairCache, JSON.stringify(data)); } catch {}
+            try { localStorage.setItem(STORAGE_KEYS.closePairCache, JSON.stringify(_normalizeClosePairCache(data))); } catch {}
+        }
+        function _getClosePairForDate(data, symbol, targetDate) {
+            if (!data || !symbol || !targetDate) return null;
+            const slot = data.symbols?.[symbol];
+            if (!slot) return null;
+            if (slot.byDate && slot.byDate[targetDate]) return slot.byDate[targetDate];
+            if (slot.targetDate === targetDate) return slot;
+            return null;
+        }
+        function _setClosePairForDate(data, symbol, pair) {
+            if (!data.symbols) data.symbols = {};
+            if (!data.symbols[symbol] || !data.symbols[symbol].byDate) {
+                data.symbols[symbol] = { market: pair.market || null, byDate: {} };
+            }
+            data.symbols[symbol].market = pair.market || data.symbols[symbol].market || null;
+            data.symbols[symbol].byDate[pair.targetDate] = pair;
         }
 
         // 從 Yahoo chart 5d 抓 close pair：找 target 日期的 bar + 前一個交易日的 bar
         // 失敗（chart 沒資料 / 找不到 target / 沒有前一筆）→ return null
-        async function _fetchClosePairFromYahoo(symbol, marketKey) {
+        async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate) {
             try {
                 const session = _marketSession(marketKey, new Date());
-                const target = session.lastCompletedTradingDate;
+                const target = targetDate || session.lastCompletedTradingDate;
                 if (!target) return null;
 
                 const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
@@ -1673,10 +1776,10 @@
         // v15.903：從 fundamentals.json 解析 close pair（優先來源，比打 Yahoo 快）
         // 後端 update_fund.py 已寫入 recent_closes（最近 7 個交易日 (date, close)，最新在前）
         // 找 target = session.lastCompletedTradingDate match 的 bar，取它與下一筆當 close pair
-        function _resolveClosePairFromFundamentals(symbol, marketKey) {
+        function _resolveClosePairFromFundamentals(symbol, marketKey, targetDate) {
             try {
                 const session = _marketSession(marketKey, new Date());
-                const target = session.lastCompletedTradingDate;
+                const target = targetDate || session.lastCompletedTradingDate;
                 if (!target) return null;
 
                 const f = window._fundJsonCache?.data?.[symbol];
@@ -1723,31 +1826,36 @@
             const data = _loadClosePair();
             if (!data.symbols) data.symbols = {};
             let resolved = 0, fetched = 0, missing = 0;
+            const now = new Date();
+            const pd = _portfolioDay(now);
             for (const h of holdings) {
                 try {
                     const mk = _holdingMarketKey(h);
-                    const session = _marketSession(mk, new Date());
-                    const target = session.lastCompletedTradingDate;
-                    if (!target) continue;
-                    const existing = data.symbols[h.symbol];
-                    if (existing && existing.targetDate === target) continue;   // cache hit
+                    const pdState = _marketPortfolioDayStatus(mk, pd, now);
+                    const targets = new Set();
+                    if (pdState.targetDate) targets.add(pdState.targetDate);
+                    if (pdState.previousTradingDate) targets.add(pdState.previousTradingDate);
+                    if (targets.size === 0) continue;
 
                     // v15.903：優先 fundamentals.json，缺值才 fallback Yahoo
-                    let pair = _resolveClosePairFromFundamentals(h.symbol, mk);
-                    if (pair) {
-                        resolved++;
-                    } else {
-                        pair = await _fetchClosePairFromYahoo(h.symbol, mk);
-                        if (pair) fetched++;
-                        else missing++;
+                    for (const target of targets) {
+                        if (_getClosePairForDate(data, h.symbol, target)) continue;
+                        let pair = _resolveClosePairFromFundamentals(h.symbol, mk, target);
+                        if (pair) {
+                            resolved++;
+                        } else {
+                            pair = await _fetchClosePairFromYahoo(h.symbol, mk, target);
+                            if (pair) fetched++;
+                            else missing++;
+                        }
+                        if (pair) _setClosePairForDate(data, h.symbol, pair);
                     }
-                    if (pair) data.symbols[h.symbol] = pair;
                 } catch(_) {}
             }
             if (resolved + fetched > 0) {
                 data.updatedAt = new Date().toISOString();
                 _saveClosePair(data);
-                console.log(`[ClosePair v15.903] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
+                console.log(`[ClosePair v15.907] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
                 renderAll();
             }
         }
@@ -2233,11 +2341,34 @@
             // v15.069：今日損益 byMarket（卡片 / strip 用，不受 v15.052 marketOpenedToday 限制）
             const _MARKETS = ['TW', 'HK', 'US'];
             const _now = new Date();
+            const _portfolioDayValue = _portfolioDay(_now);
+            const _closePairData = _loadClosePair();
+            const _validClosePair = (pair) => pair
+                && typeof pair.close === 'number' && typeof pair.prevClose === 'number'
+                && pair.close > 0 && pair.prevClose > 0;
+            const _nativePnlToCcy = (nativePnl, h) => {
+                const isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
+                if (isHK_HKD) return {
+                    usd: nativePnl * exchangeRates.HKD_TWD / exchangeRates.USD_TWD,
+                    twd: nativePnl * exchangeRates.HKD_TWD
+                };
+                if (h.market === 'TW') return {
+                    usd: nativePnl / exchangeRates.USD_TWD,
+                    twd: nativePnl
+                };
+                return {
+                    usd: nativePnl,
+                    twd: nativePnl * exchangeRates.USD_TWD
+                };
+            };
             const todayPnlByMarket = {};
             for (const mk of _MARKETS) {
-                const clock = _marketClock(mk, _now);
+                const clock = _marketPortfolioDayStatus(mk, _portfolioDayValue, _now);
                 todayPnlByMarket[mk] = {
                     status: clock.status, localDate: clock.localDate,
+                    portfolioDay: _portfolioDayValue,
+                    targetDate: clock.targetDate || null,
+                    previousTradingDate: clock.previousTradingDate || null,
                     lastCompletedTradingDate: clock.lastCompletedTradingDate || null,   // v15.073：UI 顯示「沿用 MM-DD 快照」
                     pnlUSD: 0, pnlTWD: 0,
                     count: 0, withData: 0
@@ -2281,69 +2412,49 @@
                 // 當日損益：從 _prevCloseCache 取昨收價；昨日漲跌：從 _prevPrevCloseCache 取前日收盤
                 const prevClose     = window._prevCloseCache?.[h.symbol]     ?? null;
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
+                const _mkKey = _holdingMarketKey(h);
+                const _todayState = todayPnlByMarket[_mkKey] || {};
+                const _todayPair = _getClosePairForDate(_closePairData, h.symbol, _todayState.targetDate);
+                const _prevPair  = _getClosePairForDate(_closePairData, h.symbol, _todayState.previousTradingDate);
                 let prevDayChangePct = null;
                 let prevDayPnlUSD = null, prevDayPnlTWD = null;
-                if (prevClose != null && prevClose > 0 && prevPrevClose != null && prevPrevClose > 0) {
-                    prevDayChangePct = (prevClose - prevPrevClose) / prevPrevClose * 100;
-                    const prevDayPnlNative = (prevClose - prevPrevClose) * h.quantity;
-                    if (_isHK_HKD) {
-                        prevDayPnlUSD = prevDayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
-                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.HKD_TWD;
-                    } else if (h.market === 'TW') {
-                        prevDayPnlUSD = prevDayPnlNative / exchangeRates.USD_TWD;
-                        prevDayPnlTWD = prevDayPnlNative;
-                    } else {
-                        prevDayPnlUSD = prevDayPnlNative;
-                        prevDayPnlTWD = prevDayPnlNative * exchangeRates.USD_TWD;
-                    }
-                    totalPrevDayPnLUSD += prevDayPnlUSD;
-                    totalPrevDayPnLTWD += prevDayPnlTWD;
+                if (_validClosePair(_prevPair)) {
+                    prevDayChangePct = (_prevPair.close - _prevPair.prevClose) / _prevPair.prevClose * 100;
+                    const prevDayPnlNative = (_prevPair.close - _prevPair.prevClose) * h.quantity;
+                    const conv = _nativePnlToCcy(prevDayPnlNative, h);
+                    prevDayPnlUSD = conv.usd;
+                    prevDayPnlTWD = conv.twd;
+                    totalPrevDayPnLUSD += conv.usd;
+                    totalPrevDayPnLTWD += conv.twd;
                     hasPrevDayPnL = true;
                 }
                 // v15.906: row-level today PnL follows market session, not stale per-symbol marketOpenedToday.
-                const _mkKey = _holdingMarketKey(h);
-                const _todayMarketStatus = todayPnlByMarket[_mkKey]?.status || null;
-                const marketOpenForTodayPnl = (_todayMarketStatus === 'open');
+                const _todayMarketStatus = _todayState.status || null;
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
-                if (marketOpenForTodayPnl && h.currentPrice != null && h.currentPrice > 0 && prevClose != null && prevClose > 0) {
-                    const dayChange = h.currentPrice - prevClose;
-                    dayChangePct = (dayChange / prevClose) * 100;
-                    const dayPnlNative = dayChange * h.quantity;
-                    if (_isHK_HKD) {
-                        dayPnlUSD = dayPnlNative * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
-                        dayPnlTWD = dayPnlNative * exchangeRates.HKD_TWD;
-                    } else if (h.market === 'TW') {
-                        dayPnlUSD = dayPnlNative / exchangeRates.USD_TWD;
-                        dayPnlTWD = dayPnlNative;
-                    } else {
-                        dayPnlUSD = dayPnlNative;
-                        dayPnlTWD = dayPnlNative * exchangeRates.USD_TWD;
-                    }
-                    totalDayPnLUSD += dayPnlUSD;
-                    totalDayPnLTWD += dayPnlTWD;
-                    hasDayPnL = true;
+                if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _validClosePair(_todayPair)) {
+                    const dayChange = h.currentPrice - _todayPair.prevClose;
+                    dayChangePct = (dayChange / _todayPair.prevClose) * 100;
+                    const conv = _nativePnlToCcy(dayChange * h.quantity, h);
+                    dayPnlUSD = conv.usd;
+                    dayPnlTWD = conv.twd;
+                } else if (_todayMarketStatus === 'closed_retained' && _validClosePair(_todayPair)) {
+                    const dayChange = _todayPair.close - _todayPair.prevClose;
+                    dayChangePct = (dayChange / _todayPair.prevClose) * 100;
+                    const conv = _nativePnlToCcy(dayChange * h.quantity, h);
+                    dayPnlUSD = conv.usd;
+                    dayPnlTWD = conv.twd;
                 }
 
                 // v15.069：byMarket 累計（不管 marketNotOpened，卡片用，盤前盤後也算數字；UI 看 status 決定怎麼顯示）
                 if (todayPnlByMarket[_mkKey]) {
                     todayPnlByMarket[_mkKey].count++;
-                    if (prevClose != null && prevClose > 0) {
+                    if (dayPnlUSD != null && dayPnlTWD != null) {
                         todayPnlByMarket[_mkKey].withData++;
-                        const _dcRaw  = h.currentPrice - prevClose;
-                        const _dpRaw  = _dcRaw * h.quantity;
-                        let _dpUSD, _dpTWD;
-                        if (_isHK_HKD) {
-                            _dpUSD = _dpRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD;
-                            _dpTWD = _dpRaw * exchangeRates.HKD_TWD;
-                        } else if (h.market === 'TW') {
-                            _dpUSD = _dpRaw / exchangeRates.USD_TWD;
-                            _dpTWD = _dpRaw;
-                        } else {
-                            _dpUSD = _dpRaw;
-                            _dpTWD = _dpRaw * exchangeRates.USD_TWD;
-                        }
-                        todayPnlByMarket[_mkKey].pnlUSD += _dpUSD;
-                        todayPnlByMarket[_mkKey].pnlTWD += _dpTWD;
+                        todayPnlByMarket[_mkKey].pnlUSD += dayPnlUSD;
+                        todayPnlByMarket[_mkKey].pnlTWD += dayPnlTWD;
+                        totalDayPnLUSD += dayPnlUSD;
+                        totalDayPnLTWD += dayPnlTWD;
+                        hasDayPnL = true;
                     }
                 }
 
@@ -2366,7 +2477,7 @@
 
             // v15.082：今日總計只算「盤中」市場（'open'）；'closed' 已收盤的市場數值已凍進前次收盤損益，不再進今日總額
             // 'not_open' / 'closed_or_holiday' 同樣排除（既有行為）
-            const _eligibleTodayStatus = (s) => s === 'open';
+            const _eligibleTodayStatus = (s) => s === 'open' || s === 'closed_retained';
             const todayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) =>
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlUSD || 0) : s, 0),
@@ -2379,10 +2490,9 @@
             // v15.902：前次收盤損益單一來源 = pt_close_pair_v1（Yahoo chart 5d 抓的 close pair）
             // 公式 dayChange = pair.close − pair.prevClose；× quantity；加總
             // 不再讀 _getCsvDayChange / h.prevClose / h.prevPrevClose / snapshot / baseline
-            const _closePairData = _loadClosePair();
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
-                const session = _marketSession(mk, _now);
+                const session = todayPnlByMarket[mk] || _marketPortfolioDayStatus(mk, _portfolioDayValue, _now);
                 const marketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
                 const expectedHoldingsCount = marketHoldings.length;
 
@@ -2391,21 +2501,16 @@
                     continue;
                 }
 
-                const _target = session.lastCompletedTradingDate || null;
+                const _target = session.previousTradingDate || null;
                 let pnlUSD = 0, pnlTWD = 0, withData = 0;
                 for (const h of marketHoldings) {
-                    const pair = _closePairData?.symbols?.[h.symbol];
-                    if (!pair || pair.targetDate !== _target) continue;
-                    if (typeof pair.close !== 'number' || typeof pair.prevClose !== 'number') continue;
-                    if (pair.close <= 0 || pair.prevClose <= 0) continue;
+                    const pair = _getClosePairForDate(_closePairData, h.symbol, _target);
+                    if (!_validClosePair(pair)) continue;
 
                     const dc = pair.close - pair.prevClose;
-                    const _isHK_HKD = (h.market === 'HK' || h.symbol.endsWith('.HK')) && !HK_USD_PRICED.has(h.symbol);
                     const dRaw = dc * h.quantity;
-                    let dUSD, dTWD;
-                    if (_isHK_HKD)              { dUSD = dRaw * exchangeRates.HKD_TWD / exchangeRates.USD_TWD; dTWD = dRaw * exchangeRates.HKD_TWD; }
-                    else if (h.market === 'TW'){ dUSD = dRaw / exchangeRates.USD_TWD; dTWD = dRaw; }
-                    else                        { dUSD = dRaw; dTWD = dRaw * exchangeRates.USD_TWD; }
+                    const conv = _nativePnlToCcy(dRaw, h);
+                    const dUSD = conv.usd, dTWD = conv.twd;
                     pnlUSD += dUSD; pnlTWD += dTWD; withData++;
                 }
 
@@ -3006,7 +3111,7 @@
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">持有股數</th>
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">成本價</th>
                 <th style="padding:0.6rem 0.75rem;text-align:right;color:#60a5fa;">現價</th>
-                ${thBtn('prevDayPct','昨日漲跌')}
+                ${thBtn('prevDayPct','前交易日漲跌')}
                 ${thBtn('dayPct','今日漲跌')}
                 ${thBtn('dayPnl','今日損益')}
                 ${thBtn('value','市值 ('+currency+')')}
