@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+  v15.911 - final close pair 跨裝置共享：新增 daily_pnl_close_pairs system 欄位，把桌機抓到的 final close pair 發布到 Gist 供 iPhone / Android 合併讀取；桌機優先、iPhone 只補洞、Android 只讀不寫；不進 userDataHash / pending / master flag。
   v15.910 - Hotfix: 前次收盤 / 前交易日 close pair 也必須使用 final 資料；若本機已有盤中寫入的非 final previousTradingDate pair，強制重抓 Yahoo 10d 覆蓋，避免美股前次收盤損益被盤中舊值壓低。
   v15.909 - Hotfix: close pair 加 final 標記；收盤後 closed_retained 今日損益只接受 final target close，避免港股盤中暫存 close pair 污染收盤後今日損益。
   v15.908 - Hotfix: marketSnapshots / 月季年報酬的 _closingStockValueTWD 改用 close pair v3 多日期讀法，避免 v15.907 後每日快照退回盤中 currentPrice。
@@ -393,7 +394,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.910</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.911</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1078,7 +1079,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.910';
+        const APP_VERSION = 'v15.911';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1736,6 +1737,170 @@
             data.symbols[symbol].byDate[pair.targetDate] = pair;
         }
 
+        // v15.911: final close pair system mirror (Gist additive field).
+        // This is public quote data, not user data: no dirty domains, no pending count, no master flag.
+        function _isClosePairDateKey(s) {
+            return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+        }
+        function _deviceClassForSystemData() {
+            const ua = navigator.userAgent || '';
+            if (/Android/i.test(ua)) return 'android';
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+            if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return 'ios';
+            if (/Mobi|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return 'unknown';
+            return 'desktop';
+        }
+        function _sourceRankForClosePair(deviceClass) {
+            if (deviceClass === 'desktop') return 30;
+            if (deviceClass === 'ios') return 20;
+            if (deviceClass === 'android') return 10;
+            return 0;
+        }
+        function _closePairTimeValue(pair) {
+            const ts = pair && (pair.publishedAt || pair.fetchedAt);
+            const t = ts ? new Date(ts).getTime() : 0;
+            return Number.isFinite(t) ? t : 0;
+        }
+        function _closePairRank(pair) {
+            if (!pair) return 0;
+            if (typeof pair.sourceRank === 'number') return pair.sourceRank;
+            if (pair.final === true && !pair.sourceDeviceClass) return _sourceRankForClosePair(_deviceClassForSystemData());
+            return _sourceRankForClosePair(pair.sourceDeviceClass || 'unknown');
+        }
+        function _sanitizeFinalClosePair(pair, symbol, dateKey) {
+            if (!pair || typeof pair !== 'object' || pair.final !== true) return null;
+            const targetDate = pair.targetDate || dateKey;
+            if (!_isClosePairDateKey(targetDate)) return null;
+            if (dateKey && targetDate !== dateKey) return null;
+            if (!_isClosePairDateKey(pair.prevDate)) return null;
+            const close = Number(pair.close);
+            const prevClose = Number(pair.prevClose);
+            if (!Number.isFinite(close) || close <= 0) return null;
+            if (!Number.isFinite(prevClose) || prevClose <= 0) return null;
+            const cls = ['desktop', 'ios', 'android', 'unknown'].includes(pair.sourceDeviceClass)
+                ? pair.sourceDeviceClass : 'unknown';
+            return {
+                market: typeof pair.market === 'string' ? pair.market : '',
+                targetDate,
+                close,
+                prevDate: pair.prevDate,
+                prevClose,
+                fetchedAt: typeof pair.fetchedAt === 'string' ? pair.fetchedAt : null,
+                source: typeof pair.source === 'string' ? pair.source : 'system-close-pair',
+                final: true,
+                sourceDeviceClass: cls,
+                sourceRank: _sourceRankForClosePair(cls),
+                sourceDeviceId: typeof pair.sourceDeviceId === 'string' ? pair.sourceDeviceId : null,
+                publishedAt: typeof pair.publishedAt === 'string' ? pair.publishedAt : null
+            };
+        }
+        function _decorateClosePairForPublish(pair, deviceClass, nowIso) {
+            return {
+                ...pair,
+                final: true,
+                sourceDeviceClass: deviceClass,
+                sourceRank: _sourceRankForClosePair(deviceClass),
+                sourceDeviceId: _getDeviceId(),
+                publishedAt: nowIso
+            };
+        }
+        function _chooseClosePair(a, b) {
+            if (!a) return b || null;
+            if (!b) return a || null;
+            const af = _isFinalClosePair(a);
+            const bf = _isFinalClosePair(b);
+            if (af !== bf) return af ? a : b;
+            if (af && bf) {
+                const ar = _closePairRank(a);
+                const br = _closePairRank(b);
+                if (ar !== br) return ar > br ? a : b;
+            }
+            return _closePairTimeValue(a) >= _closePairTimeValue(b) ? a : b;
+        }
+        function _mergeClosePairCache(local, remote) {
+            const out = _normalizeClosePairCache(local || {});
+            const r = _normalizeClosePairCache(remote || {});
+            if (!out.symbols) out.symbols = {};
+            Object.entries(r.symbols || {}).forEach(([sym, slot]) => {
+                if (!slot || typeof slot !== 'object') return;
+                if (!out.symbols[sym] || !out.symbols[sym].byDate) {
+                    out.symbols[sym] = { market: slot.market || null, byDate: {} };
+                }
+                out.symbols[sym].market = out.symbols[sym].market || slot.market || null;
+                Object.entries(slot.byDate || {}).forEach(([date, pair]) => {
+                    if (!_isClosePairDateKey(date) || !pair) return;
+                    const existing = out.symbols[sym].byDate[date];
+                    out.symbols[sym].byDate[date] = _chooseClosePair(existing, pair);
+                });
+            });
+            out.version = 3;
+            out.updatedAt = new Date().toISOString();
+            return out;
+        }
+        function _validateClosePairSystemPayload(payload) {
+            if (!payload || typeof payload !== 'object' || !payload.symbols || typeof payload.symbols !== 'object') return null;
+            const out = {
+                version: 1,
+                updatedAt: typeof payload.updatedAt === 'string' ? payload.updatedAt : null,
+                userDataHash: typeof payload.userDataHash === 'string' ? payload.userDataHash : null,
+                symbols: {}
+            };
+            Object.entries(payload.symbols).forEach(([sym, slot]) => {
+                if (!slot || typeof slot !== 'object' || !slot.byDate || typeof slot.byDate !== 'object') return;
+                const byDate = {};
+                Object.entries(slot.byDate).forEach(([date, pair]) => {
+                    const clean = _sanitizeFinalClosePair(pair, sym, date);
+                    if (clean) byDate[date] = clean;
+                });
+                if (Object.keys(byDate).length) {
+                    out.symbols[sym] = {
+                        market: typeof slot.market === 'string' ? slot.market : (Object.values(byDate)[0]?.market || ''),
+                        byDate
+                    };
+                }
+            });
+            return Object.keys(out.symbols).length ? out : null;
+        }
+        function _buildClosePairSystemPayload(userDataHash) {
+            const deviceClass = _deviceClassForSystemData();
+            if (deviceClass === 'android' || _sourceRankForClosePair(deviceClass) <= 0) return null;
+            const local = _loadClosePair();
+            const nowIso = new Date().toISOString();
+            const out = { version: 1, updatedAt: nowIso, userDataHash: userDataHash || null, symbols: {} };
+            Object.entries(local.symbols || {}).forEach(([sym, slot]) => {
+                if (!slot || !slot.byDate) return;
+                const byDate = {};
+                Object.entries(slot.byDate).forEach(([date, pair]) => {
+                    if (!_isFinalClosePair(pair)) return;
+                    const clean = _sanitizeFinalClosePair(_decorateClosePairForPublish(pair, deviceClass, nowIso), sym, date);
+                    if (clean) byDate[date] = clean;
+                });
+                if (Object.keys(byDate).length) out.symbols[sym] = { market: slot.market || Object.values(byDate)[0]?.market || '', byDate };
+            });
+            return Object.keys(out.symbols).length ? out : null;
+        }
+        function _mergeClosePairSystemPayloadForPush(remotePayload, localPayload, deviceClass) {
+            const remote = _validateClosePairSystemPayload(remotePayload) || { version: 1, updatedAt: null, userDataHash: null, symbols: {} };
+            const local = _validateClosePairSystemPayload(localPayload);
+            const out = JSON.parse(JSON.stringify(remote));
+            if (!local || deviceClass === 'android') return Object.keys(out.symbols || {}).length ? out : null;
+            Object.entries(local.symbols || {}).forEach(([sym, slot]) => {
+                if (!slot || !slot.byDate) return;
+                if (!out.symbols[sym]) out.symbols[sym] = { market: slot.market || '', byDate: {} };
+                Object.entries(slot.byDate).forEach(([date, pair]) => {
+                    const existing = out.symbols[sym].byDate[date];
+                    if (deviceClass === 'ios' && existing) return; // iPhone only fills holes.
+                    out.symbols[sym].byDate[date] = (deviceClass === 'desktop')
+                        ? _chooseClosePair(existing, pair)
+                        : (existing || pair);
+                });
+            });
+            out.version = 1;
+            out.updatedAt = new Date().toISOString();
+            out.userDataHash = local.userDataHash || remote.userDataHash || null;
+            return Object.keys(out.symbols || {}).length ? out : null;
+        }
+
         // 從 Yahoo chart 5d 抓 close pair：找 target 日期的 bar + 前一個交易日的 bar
         // 失敗（chart 沒資料 / 找不到 target / 沒有前一筆）→ return null
         async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate, options) {
@@ -1835,7 +2000,7 @@
             _closePairRefreshLastRun = Date.now();
             const data = _loadClosePair();
             if (!data.symbols) data.symbols = {};
-            let resolved = 0, fetched = 0, missing = 0;
+            let resolved = 0, fetched = 0, missing = 0, finalSaved = 0;
             const now = new Date();
             const pd = _portfolioDay(now);
             for (const h of holdings) {
@@ -1865,14 +2030,18 @@
                             if (pair) fetched++;
                             else missing++;
                         }
-                        if (pair) _setClosePairForDate(data, h.symbol, pair);
+                        if (pair) {
+                            _setClosePairForDate(data, h.symbol, pair);
+                            if (_isFinalClosePair(pair)) finalSaved++;
+                        }
                     }
                 } catch(_) {}
             }
             if (resolved + fetched > 0) {
                 data.updatedAt = new Date().toISOString();
                 _saveClosePair(data);
-                console.log(`[ClosePair v15.909] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
+                console.log(`[ClosePair v15.911] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing}`);
+                if (finalSaved > 0) _scheduleClosePairSystemPush('close_pair_final');
                 renderAll();
             }
         }
@@ -4212,11 +4381,12 @@
         let _dailyPnlPriceCache = null;    // { version, updatedAt, symbols: { sym: { market, closes: [{ marketDate, close, fetchedAt, source }] (≤10) } } }
         let _systemSyncCooldownTs = 0;     // backfill 全域 cooldown 起算時間（3min）
         let _systemPushTimer = null;       // _scheduleSystemSyncPush debounce timer
+        let _closePairSystemPushTimer = null; // v15.911 final close pair system push debounce timer
 
         // 嚴格驗證雲端 system payload — 失敗只忽略 system 區塊，不影響 user data pull
         function _validateSystemPayload(payload) {
-            if (!payload || typeof payload !== 'object') return { baselines: null, priceCache: null };
-            const out = { baselines: null, priceCache: null };
+            if (!payload || typeof payload !== 'object') return { baselines: null, priceCache: null, closePairs: null };
+            const out = { baselines: null, priceCache: null, closePairs: null };
             // baselines
             try {
                 const b = payload.daily_pnl_baselines;
@@ -4250,6 +4420,10 @@
                     out.priceCache = { ...c, symbols };
                 }
             } catch(e) { _recordAppError('system_payload_validate', e, { section: 'priceCache' }); }
+            // v15.911 close pairs
+            try {
+                out.closePairs = _validateClosePairSystemPayload(payload.daily_pnl_close_pairs);
+            } catch(e) { _recordAppError('system_payload_validate', e, { section: 'closePairs' }); }
             return out;
         }
         // hydrate window._prevCloseCache / _prevPrevCloseCache 從 baselines memory
@@ -4281,7 +4455,15 @@
             const v = _validateSystemPayload(saved);
             if (v.baselines)  _dailyPnlBaselines  = _mergeBaselines(_dailyPnlBaselines, v.baselines);
             if (v.priceCache) _dailyPnlPriceCache = _mergePriceCache(_dailyPnlPriceCache, v.priceCache);
+            if (v.closePairs) _saveClosePair(_mergeClosePairCache(_loadClosePair(), v.closePairs));
             _hydratePrevCloseFromBaselines();
+        }
+        function _applyClosePairSystemDataFromPayload(saved) {
+            if (!saved) return false;
+            const closePairs = _validateClosePairSystemPayload(saved.daily_pnl_close_pairs);
+            if (!closePairs) return false;
+            _saveClosePair(_mergeClosePairCache(_loadClosePair(), closePairs));
+            return true;
         }
         // baselines per-symbol merge：fetchedAt 較新優先；本機沒有就拿 remote 的
         function _mergeBaselines(local, remote) {
@@ -4367,6 +4549,14 @@
                 payload.daily_pnl_baselines = _mergeBaselines(_dailyPnlBaselines, state.saved.daily_pnl_baselines);
                 // 4c. price_cache：per-symbol merge close arrays（dedupe by marketDate, keep latest fetchedAt, slice last 10）
                 payload.daily_pnl_price_cache = _mergePriceCache(_dailyPnlPriceCache, state.saved.daily_pnl_price_cache);
+                // v15.911 final close pairs: system mirror, not user dirty/pending.
+                const localClosePairs = _buildClosePairSystemPayload(localHash);
+                const mergedClosePairs = _mergeClosePairSystemPayloadForPush(
+                    state.saved.daily_pnl_close_pairs,
+                    localClosePairs,
+                    _deviceClassForSystemData()
+                );
+                if (mergedClosePairs) payload.daily_pnl_close_pairs = mergedClosePairs;
                 payload.system_meta = {
                     version: 1,
                     userDataHash: localHash,
@@ -4379,6 +4569,7 @@
                     if (payload.daily_pnl_snapshots && payload.daily_pnl_snapshots.markets) _saveDailyPnlSnapshots(payload.daily_pnl_snapshots);
                     if (payload.daily_pnl_baselines)  _dailyPnlBaselines  = payload.daily_pnl_baselines;
                     if (payload.daily_pnl_price_cache) _dailyPnlPriceCache = payload.daily_pnl_price_cache;
+                    if (payload.daily_pnl_close_pairs) _saveClosePair(_mergeClosePairCache(_loadClosePair(), payload.daily_pnl_close_pairs));
                 } catch(_) {}
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
@@ -4411,6 +4602,85 @@
         //   • 全域 cooldown 3min；單 symbol 24hr 內有 close history 不重抓
         //   • 全部 active holdings 都有 close 才產生 complete=true snapshot
         //   • 失敗只 _recordAppError，不彈 toast、不增 pending
+        // v15.911: independent final close pair system push.
+        // Desktop may publish/overwrite mobile pairs; iPhone only fills missing pairs; Android never publishes.
+        function _scheduleClosePairSystemPush(reason) {
+            if (_isApplyingCloudPull) return;
+            const cls = _deviceClassForSystemData();
+            if (cls === 'android' || _sourceRankForClosePair(cls) <= 0) return;
+            clearTimeout(_closePairSystemPushTimer);
+            _closePairSystemPushTimer = setTimeout(() => _closePairSystemPush(reason), 2000);
+        }
+        async function _closePairSystemPush(reason) {
+            const deviceClass = _deviceClassForSystemData();
+            if (deviceClass === 'android' || _sourceRankForClosePair(deviceClass) <= 0) return false;
+            const token  = localStorage.getItem(GIST_TOKEN_KEY);
+            const gistId = localStorage.getItem(GIST_ID_KEY);
+            if (!token || !gistId) return false;
+            try {
+                const localHash = await _userDataHash(_buildLocalUserPayload());
+                const localPayload = _buildClosePairSystemPayload(localHash);
+                if (!localPayload) return false;
+
+                const state = await _fetchGistState(token, gistId);
+                if (!state?.saved) return false;
+                let cloudHash = state.saved.sync_meta?.userDataHash || null;
+                if (!cloudHash) {
+                    try { cloudHash = await _userDataHash(_extractUserDataFromGistPayload(state.saved)); } catch(_) {}
+                }
+                if (!cloudHash || localHash !== cloudHash) {
+                    _recordAppError('close_pair_system_hash_mismatch', new Error('local hash != cloud hash, abort close pair push'), {
+                        reason,
+                        cloudHash: (cloudHash || 'null').slice(0, 12),
+                        localHash: (localHash || 'null').slice(0, 12)
+                    });
+                    return false;
+                }
+
+                const payload = { ...state.saved };
+                const mergedClosePairs = _mergeClosePairSystemPayloadForPush(
+                    state.saved.daily_pnl_close_pairs,
+                    localPayload,
+                    deviceClass
+                );
+                if (!mergedClosePairs) return false;
+                payload.daily_pnl_close_pairs = mergedClosePairs;
+                payload.system_meta = {
+                    ...(payload.system_meta || {}),
+                    version: 1,
+                    userDataHash: localHash,
+                    updatedAt: new Date().toISOString(),
+                    sourceDeviceId: _getDeviceId(),
+                    reason
+                };
+
+                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        description: 'Portfolio Tracker data',
+                        public: false,
+                        files: { [GIST_FILENAME]: { content: JSON.stringify(payload, null, 2) } }
+                    })
+                });
+                if (!res.ok) {
+                    const e = new Error(`HTTP ${res.status}`);
+                    e.status = res.status;
+                    throw e;
+                }
+                _saveClosePair(_mergeClosePairCache(_loadClosePair(), mergedClosePairs));
+                console.log(`[ClosePairSystemSync] push ok (reason=${reason}, device=${deviceClass})`);
+                return true;
+            } catch(e) {
+                _recordAppError(`close_pair_system_sync_${reason}`, e);
+                return false;
+            }
+        }
+
         const _BACKFILL_COOLDOWN_MS = 3 * 60 * 1000;
         const _BACKFILL_SYMBOL_TTL  = 24 * 60 * 60 * 1000;
         async function _backfillDailyPnlSystemData(reason) {
@@ -6077,6 +6347,9 @@
                 }
 
                 // v15.079：hash-first + master flag detection
+                // v15.911: close pairs are public system quote data, so merge them even when user data later conflicts.
+                try { _applyClosePairSystemDataFromPayload(saved); } catch(_) {}
+
                 const v2 = await _classifyCloudSyncStateV2(gistState);
                 const _localHashV = v2.localHash;
                 const _cloudHashV = v2.cloudHash;
