@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.913 - Hotfix：新增標的補資料提示只在 canonical symbol 真缺 symbols.json 時顯示；close pair 缺資料改背景補，不再反覆彈窗；補 symbols 成功後加 12hr 本機 ack 避免部署/CDN 空窗重跳；排除 USD/TWD/HKD/CASH/BTC-USD pseudo symbol。
         v15.912 - 新增標的補資料中心：TW/HK canonical symbol helper（00631L→00631L.TW、9747→9747.HK）、fundamentals / close pair alias lookup、持倉掃描提示補 symbols.json；不改 Gist/userDataHash/pending/損益公式。
         v15.911 - final close pair 跨裝置共享：新增 daily_pnl_close_pairs system 欄位，把桌機抓到的 final close pair 發布到 Gist 供 iPhone / Android 合併讀取；桌機優先、iPhone 只補洞、Android 只讀不寫；不進 userDataHash / pending / master flag。
   v15.910 - Hotfix: 前次收盤 / 前交易日 close pair 也必須使用 final 資料；若本機已有盤中寫入的非 final previousTradingDate pair，強制重抓 Yahoo 10d 覆蓋，避免美股前次收盤損益被盤中舊值壓低。
@@ -395,7 +396,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.912</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.913</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1080,7 +1081,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.912';
+        const APP_VERSION = 'v15.913';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1146,6 +1147,7 @@
             quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
             closePairCache:   'pt_close_pair_v3',   // v15.907：close pair cache 多日期（保留 pt_close_pair_v2 供 rollback）
             // 後端
+            symbolSyncAck:    'pt_symbol_sync_ack_v1', // v15.913：補 symbols 後 12hr 本機 ack，避免部署/CDN 空窗重複提醒
             backendUrl:       'backend_url',
             // Migration markers
             migrationMarker_v15_901: 'pt_v15_901_migrated',  // v15.901：清除 v15.901-904 era 污染
@@ -2088,6 +2090,37 @@
             return (Array.isArray(holdings) ? holdings : [])
                 .filter(h => h && h.symbol && Number(h.quantity || 0) > 0);
         }
+        function _isPseudoQuoteSymbol(symbol) {
+            return ['USD', 'TWD', 'HKD', 'CASH', 'BTC-USD'].includes(_cleanSymbolKey(symbol));
+        }
+        function _loadSymbolSyncAck() {
+            const now = Date.now();
+            const maxAge = 12 * 60 * 60 * 1000;
+            try {
+                const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.symbolSyncAck) || '{}');
+                const symbols = raw && typeof raw.symbols === 'object' ? raw.symbols : {};
+                const kept = {};
+                Object.entries(symbols).forEach(([sym, ts]) => {
+                    const t = new Date(ts).getTime();
+                    if (Number.isFinite(t) && now - t < maxAge) kept[_cleanSymbolKey(sym)] = ts;
+                });
+                if (Object.keys(kept).length !== Object.keys(symbols).length) {
+                    localStorage.setItem(STORAGE_KEYS.symbolSyncAck, JSON.stringify({ symbols: kept }));
+                }
+                return kept;
+            } catch { return {}; }
+        }
+        function _rememberSymbolSyncAck(symbols) {
+            try {
+                const ack = _loadSymbolSyncAck();
+                const ts = new Date().toISOString();
+                (symbols || []).forEach(sym => {
+                    sym = _cleanSymbolKey(sym);
+                    if (sym && !_isPseudoQuoteSymbol(sym)) ack[sym] = ts;
+                });
+                localStorage.setItem(STORAGE_KEYS.symbolSyncAck, JSON.stringify({ symbols: ack }));
+            } catch(_) {}
+        }
         async function _scanSymbolDataCompleteness(reason) {
             const active = _activeHoldingListForSymbolScan();
             if (active.length === 0) {
@@ -2104,7 +2137,7 @@
             }
 
             const symbolSet = new Set(currentSymbols.map(_cleanSymbolKey));
-            const fundData = window._fundJsonCache?.data || null;
+            const ack = _loadSymbolSyncAck();
             const closePairData = _loadClosePair();
             const now = new Date();
             const pd = _portfolioDay(now);
@@ -2116,27 +2149,27 @@
                 const mk = _holdingMarketKey(h);
                 const raw = _cleanSymbolKey(h.symbol);
                 const canonical = _canonicalYahooSymbol(raw, mk);
+                if (_isPseudoQuoteSymbol(raw) || _isPseudoQuoteSymbol(canonical)) continue;
                 if (!raw || !canonical) continue;
                 const aliases = _symbolLookupAliases(raw, mk);
                 const symbolKnown = aliases.some(a => symbolSet.has(a));
-                const canonicalKnown = symbolSet.has(canonical);
-                const fundKnown = !fundData || aliases.some(a => !!fundData[a]);
+                const canonicalKnown = symbolSet.has(canonical) || !!ack[canonical];
                 const state = _marketPortfolioDayStatus(mk, pd, now);
                 const targets = [state.targetDate, state.previousTradingDate].filter(Boolean);
                 const closeMissing = targets.some(t => !_getClosePairForDate(closePairData, raw, t, mk));
 
-                if (!canonicalKnown) addSet.add(canonical);
-                if (!symbolKnown || !fundKnown || closeMissing) {
+                if (closeMissing) needsCloseRefresh = true;
+                if (!canonicalKnown) {
+                    addSet.add(canonical);
                     issues.push({
                         symbol: raw,
                         canonical,
                         market: mk,
-                        needSymbol: !symbolKnown || !canonicalKnown,
-                        needFund: !fundKnown,
-                        needClosePair: closeMissing
+                        needSymbol: !symbolKnown || !symbolSet.has(canonical),
+                        needFund: false,
+                        needClosePair: false
                     });
                 }
-                if (closeMissing) needsCloseRefresh = true;
             }
 
             if (needsCloseRefresh) _scheduleRefreshClosePair('symbol-data-scan');
@@ -2167,7 +2200,7 @@
             }).join('');
             const more = issues.length > 8 ? `<div style="color:#7e93a6;">另有 ${issues.length - 8} 個標的待檢查</div>` : '';
             const btn = addList.length > 0
-                ? `<button id="sync-symbols-btn" onclick="_syncSymbols(${JSON.stringify(mergedSymbols).replace(/"/g,'&quot;')})"
+                ? `<button id="sync-symbols-btn" onclick="_syncSymbols(${JSON.stringify(mergedSymbols).replace(/"/g,'&quot;')}, ${JSON.stringify(addList).replace(/"/g,'&quot;')})"
                         style="padding:0.5rem 0.8rem;background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#06111f;font-weight:800;border:none;border-radius:8px;cursor:pointer;font-size:0.84rem;">
                         補上 ${_escapeHtml(addList.join(', '))}
                    </button>`
@@ -9726,26 +9759,30 @@
             try {
                 const currentSymbols = await _fetchSymbolsJsonList();
                 const symbolSet = new Set(currentSymbols.map(_cleanSymbolKey));
+                const ack = _loadSymbolSyncAck();
                 const issues = [];
                 const addSet = new Set();
                 (missingSymbols || []).forEach(sym => {
                     const raw = _cleanSymbolKey(sym);
-                    if (!raw || raw === 'BTC-USD') return;
+                    if (!raw || _isPseudoQuoteSymbol(raw)) return;
                     const holding = (Array.isArray(holdings) ? holdings : [])
                         .find(h => _cleanSymbolKey(h?.symbol) === raw || _symbolLookupAliases(h?.symbol || '', _holdingMarketKey(h)).includes(raw));
                     const mk = holding ? _holdingMarketKey(holding) : _inferSymbolMarketKey(raw);
                     const canonical = _canonicalYahooSymbol(raw, mk);
+                    if (!canonical || _isPseudoQuoteSymbol(canonical) || ack[canonical]) return;
                     const aliases = _symbolLookupAliases(raw, mk);
                     const known = aliases.some(a => symbolSet.has(a));
-                    if (!symbolSet.has(canonical)) addSet.add(canonical);
-                    issues.push({
-                        symbol: raw,
-                        canonical,
-                        market: mk,
-                        needSymbol: !known,
-                        needFund: true,
-                        needClosePair: false
-                    });
+                    if (!symbolSet.has(canonical)) {
+                        addSet.add(canonical);
+                        issues.push({
+                            symbol: raw,
+                            canonical,
+                            market: mk,
+                            needSymbol: !known || !symbolSet.has(canonical),
+                            needFund: false,
+                            needClosePair: false
+                        });
+                    }
                 });
                 const toAdd = [...addSet].filter(s => s && !symbolSet.has(s));
                 if (issues.length > 0) _renderSymbolDataNotice(issues, [...new Set([...currentSymbols, ...toAdd])], toAdd);
@@ -9754,7 +9791,7 @@
             }
         }
 
-        async function _syncSymbols(merged) {
+        async function _syncSymbols(merged, ackSymbols) {
             const btn = document.getElementById('sync-symbols-btn');
             // 優先用 Cloudflare Worker（寫死），沒有才退回 backend_url
             const WORKER_URL = 'https://syncsymbols.forsmileangel.workers.dev';
@@ -9773,8 +9810,8 @@
                 if (result.ok) {
                     document.getElementById('missing-fund-notice')?.remove();
                     document.getElementById('symbol-data-notice')?.remove();
+                    _rememberSymbolSyncAck(Array.isArray(ackSymbols) ? ackSymbols : []);
                     _scheduleRefreshClosePair('symbols-updated');
-                    _scheduleSymbolDataScan('symbols-updated');
                     showImportToast('✅ 清單已更新', 2500);
                 } else {
                     showImportToast('❌ 更新失敗：' + (result.error || '未知錯誤'), 4000);
