@@ -110,7 +110,7 @@
       "eps_next_q2": null,
       "eps_cur_y": null,
       "eps_next_y": null,
-      "fetched_at": 1779239424024
+      "fetched_at": 1779239424047
     }
   },
   "earnings": {
@@ -1018,82 +1018,550 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7403.0498046875,
-        "chg1d": -0.07356678561787136,
-        "chg7d": -0.13206867096628686
+        "price": 7353.60986328125,
+        "chg1d": -0.6678320788135907,
+        "chg7d": -0.6397831890209555
       },
       {
         "symbol": "^IXIC",
         "name": "Nasdaq",
         "cat": "股市",
-        "price": 26090.734375,
-        "chg1d": -0.512509167908418,
-        "chg7d": -0.6980116120931985
+        "price": 25870.708984375,
+        "chg1d": -0.8432936925186103,
+        "chg7d": -0.8336728516650025
       },
       {
         "symbol": "^SOX",
         "name": "費城半導體",
         "cat": "股市",
-        "price": 11302.5166015625,
-        "chg1d": -2.467483689281068,
-        "chg7d": -6.444175625465555
+        "price": null,
+        "chg1d": null,
+        "chg7d": null
       },
       {
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 17.81999969482422,
-        "chg1d": -3.3098242010351635,
-        "chg7d": -3.046787222589982
+        "price": 18.059999465942383,
+        "chg1d": 1.3468000854560704,
+        "chg7d": 0.38910336695278314
       },
       {
         "symbol": "^TNX",
         "name": "10年期美債殖利率",
         "cat": "利率",
-        "price": 4.623000144958496,
-        "chg1d": 0.6093657463622616,
-        "chg7d": 4.8299388869906705
+        "price": 4.666999816894531,
+        "chg1d": 0.951755798321096,
+        "chg7d": 4.570916522082326
       },
       {
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.09200286865234,
-        "chg1d": 0.12327134125941361,
-        "chg7d": 0.8159547722603631
+        "price": 99.3740005493164,
+        "chg1d": 0.07451912918877181,
+        "chg7d": 0.9077956558780618
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4557.39990234375,
-        "chg1d": 0.10763102347611203,
-        "chg7d": -3.418320433431727
+        "price": 4485.5,
+        "chg1d": -0.4615717015957045,
+        "chg7d": -4.106808911529298
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 102.58000183105469,
-        "chg1d": -5.595436799322355,
-        "chg7d": 4.598758183200536
+        "price": 103.54000091552734,
+        "chg1d": -3.925021675140979,
+        "chg7d": 1.3309851304459954
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 76789.8828125,
-        "chg1d": -0.8258738283295952,
-        "chg7d": -4.582162384494345
+        "price": 76684.8984375,
+        "chg1d": -0.3499140214742257,
+        "chg7d": -3.2698196427464534
       }
     ],
     "news": [
+      {
+        "uuid": "11aac782-3642-357a-afe1-bcb8dc184364",
+        "title": "Why Intel Stock Climbed Today",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/11aac782-3642-357a-afe1-bcb8dc184364/why-intel-stock-climbed-today.html",
+        "providerPublishTime": 1779239081,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/fBaSGPek0VsyN7KTB0kDcg--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7ebc2a884ef6bbf0cff904fa90fc1f15",
+              "width": 1400,
+              "height": 840,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/8b1TASC8fd.OJ0Iez8T.9Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7ebc2a884ef6bbf0cff904fa90fc1f15",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "INTC",
+          "NVDA",
+          "TSM",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "英特爾股價爲何今日攀升"
+      },
+      {
+        "uuid": "39457ab0-eedd-3d75-9bcf-eaf766bf58f9",
+        "title": "Meta Begins 8,000 Global Job Cuts in Asian Hub of Singapore",
+        "publisher": "Bloomberg",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/meta-begins-8-000-global-004153394.html",
+        "providerPublishTime": 1779237713,
+        "type": "STORY",
+        "relatedTickers": [
+          "META",
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Meta開始在新加坡亞洲中心進行8,000次全球裁員"
+      },
+      {
+        "uuid": "0592b437-3100-34f2-89b8-02a90a7e6953",
+        "title": "Blackstone and Google's joint venture funds computing power, not just data centers",
+        "publisher": "Pitchbook",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/blackstone-googles-joint-venture-funds-231818102.html",
+        "providerPublishTime": 1779232698,
+        "type": "STORY",
+        "relatedTickers": [
+          "BX",
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Blackstone和Google的合資企業為計算能力提供資金，而不僅僅是數據中心"
+      },
+      {
+        "uuid": "4c8c74f2-dec1-3c4b-9ab0-e46791073688",
+        "title": "Analyst Report: GLOBALFOUNDRIES Inc.",
+        "publisher": "Morningstar Research",
+        "link": "https://finance.yahoo.com/m/4c8c74f2-dec1-3c4b-9ab0-e46791073688/analyst-report%3A.html",
+        "providerPublishTime": 1779230838,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/SVKRhvYIgdoUv2HlogaP.A--~B/aD0wO3c9MDthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/uc/fin/img/non-sub-report-thumb.png",
+              "width": 0,
+              "height": 0,
+              "tag": "original"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GFS",
+          "AMD",
+          "IBM"
+        ],
+        "_sym": "AMD",
+        "titleZh": "分析師報告： GLOBALFOUNDRIES INC."
+      },
+      {
+        "uuid": "46f51fc2-e987-30d7-8397-cafbb433480b",
+        "title": "Alphabet AI Data Center Venture Raises Questions On Valuation And Growth",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/alphabet-ai-data-center-venture-221339110.html",
+        "providerPublishTime": 1779228819,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VTfDtc_pApg1_vVDy_b8eQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Kv5RbP0mE9EpcenlZ1w2hg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Alphabet AI Data Center Venture對估值和增長提出質疑"
+      },
+      {
+        "uuid": "1fcbbf7c-9103-3bc3-b0b8-9b53a5d1c6d8",
+        "title": "Google’s I/O conference showed how the company is being completely rebuilt for AI—for better or for worse",
+        "publisher": "Fortune",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/google-o-conference-showed-company-221035016.html",
+        "providerPublishTime": 1779228635,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/jqn0qtf4w8VSqit9qmupvw--~B/aD0xMzY1O3c9MjA0ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/fortune_175/f34c0fca2c8924c2ebfed44a8c58bc21",
+              "width": 2048,
+              "height": 1365,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/xCTOalPhsLe6NHqXVnP1Zg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/fortune_175/f34c0fca2c8924c2ebfed44a8c58bc21",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "谷歌的I/O會議展示了公司如何為人工智能而徹底重建-無論是好是壞"
+      },
+      {
+        "uuid": "ce2db18d-49bc-3102-b58d-1faad4b58d71",
+        "title": "3 Large-Cap Stocks with Promising Prospects",
+        "publisher": "StockStory",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/3-large-cap-stocks-promising-220455893.html",
+        "providerPublishTime": 1779228295,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VDojLxK.MXMK6GVV1A9jmA--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/7f88826d522aae116f6dcfe313b7417c",
+              "width": 1400,
+              "height": 700,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/QPSdTqfOIXR_LNZK09.Xwg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/7f88826d522aae116f6dcfe313b7417c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SE",
+          "URI",
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "3只前景看好的大型股"
+      },
+      {
+        "uuid": "55a996c4-acc3-34bf-80a9-43b7cbdbbc4d",
+        "title": "Cracks Are Starting to Appear in the Chip Stock Rally",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/55a996c4-acc3-34bf-80a9-43b7cbdbbc4d/cracks-are-starting-to-appear.html",
+        "providerPublishTime": 1779226620,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/SCBnud0YBqP8F0EHF.2Z4Q--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/88d1e6f68a2b85c8ba3a23a654b4e64b",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/mEmXeNPgtQbIaVuzJPZcZQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/88d1e6f68a2b85c8ba3a23a654b4e64b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "BAC",
+          "INTC",
+          "GOOG",
+          "AAPL",
+          "NVDA"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "籌碼庫存反彈開始出現裂縫"
+      },
+      {
+        "uuid": "7850892c-db6c-3a80-a87b-e18c182fb593",
+        "title": "Stock Market Today, May 19: Soaring Treasury Yields Pressure Markets",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/7850892c-db6c-3a80-a87b-e18c182fb593/stock-market-today%2C-may-19%3A.html",
+        "providerPublishTime": 1779226269,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Km.fdPwQRJxwS96FJ5tifg--~B/aD03MTQ7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/5589a785fe2c636a0f46a19208368fc1",
+              "width": 800,
+              "height": 714,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/3RWQRmKQec8akkvJVJsKhg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5589a785fe2c636a0f46a19208368fc1",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "CL=F",
+          "^GSPC",
+          "^DJI",
+          "SNDK",
+          "AMD",
+          "^IXIC",
+          "HD",
+          "NVDA",
+          "WMT",
+          "TGT"
+        ],
+        "_sym": "AMD",
+        "titleZh": "今日股市， 5月19日：國庫券收益率飆升壓力市場"
+      },
+      {
+        "uuid": "7d13e32e-63ed-3387-b577-d62c5c5adad7",
+        "title": "Stock Market Today, May 19: Poet Technologies Falls After $400 Million Offering Sparks Dilution Concerns",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/7d13e32e-63ed-3387-b577-d62c5c5adad7/stock-market-today%2C-may-19%3A.html",
+        "providerPublishTime": 1779225796,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/lHX5f9_WA.772MqtOZyaHg--~B/aD0yMDA7dz0yMDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/44108f481967b6b8d31e96d1e24908fa",
+              "width": 200,
+              "height": 200,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/a5oHhznsp9TKFEw75HXXzA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/44108f481967b6b8d31e96d1e24908fa",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AAOI",
+          "^IXIC",
+          "^GSPC",
+          "POET",
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "今日股市， 5月19日： Poet Technologies在4億$的發行後下跌，引發稀釋疑慮"
+      },
+      {
+        "uuid": "b4ff35eb-15aa-3167-a917-40783b249c0c",
+        "title": "Stock Market Today: Dow, Nasdaq End In The Red As Yields Jump; Alphabet Drops On I/O Day (Live Coverage)",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/b4ff35eb-15aa-3167-a917-40783b249c0c/stock-market-today%3A-dow%2C.html",
+        "providerPublishTime": 1779223835,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_I95PC7R_S2ZCY0uYN_eeA--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/efdd2096566747a1c5895ff0ab582f7b",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/x8PtLTiuZXgWbHLVFSlobQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/efdd2096566747a1c5895ff0ab582f7b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "^GSPC",
+          "^IXIC",
+          "^DJI",
+          "LITE",
+          "HD",
+          "MU",
+          "SNDK"
+        ],
+        "_sym": "LITE",
+        "titleZh": "今日股市：道瓊斯指數、納斯達克指數隨著孳息率上漲而下跌； I/O日下跌（即時報導）"
+      },
+      {
+        "uuid": "9a8496d1-f18c-3965-8b17-e293b736d94e",
+        "title": "How AMD (AMD) Is Bringing AI Acceleration Into Existing Data Center Racks",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/amd-amd-bringing-ai-acceleration-202448155.html",
+        "providerPublishTime": 1779222288,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/IeSE6wm0KaBvCDjrOiUreg--~B/aD00ODM7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/c21fbacb6c2f871b98f480a40a563913",
+              "width": 768,
+              "height": 483,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/xt71JPyV2oz62M2s.zuo_Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/c21fbacb6c2f871b98f480a40a563913",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "DELL"
+        ],
+        "_sym": "AMD",
+        "titleZh": "AMD (AMD)如何將AI加速帶入現有資料中心機架"
+      },
+      {
+        "uuid": "e39dec74-5fec-3c06-b4c6-27abdcb8891b",
+        "title": "How Broadcom (AVGO) Is Bringing VMware Into Production AI Infrastructure",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/broadcom-avgo-bringing-vmware-production-202441278.html",
+        "providerPublishTime": 1779222281,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/rMm6.kIUFAyTiTECFpbqBQ--~B/aD02NjY7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/8a0625664bc27d63e64f060c8f46dcea",
+              "width": 1000,
+              "height": 666,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/x8YBmR8d44b.FKUc.f478Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/8a0625664bc27d63e64f060c8f46dcea",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AVGO",
+          "AMD",
+          "INTC",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Broadcom (AVGO)如何將VMware引入生產AI基礎架構"
+      },
+      {
+        "uuid": "510b54c8-5870-3d46-91ce-b79b5ee3f7d4",
+        "title": "Lumentum Just Joined the Nasdaq 100. LITE Stock Is Falling Anyway.",
+        "publisher": "Barchart",
+        "link": "https://finance.yahoo.com/m/510b54c8-5870-3d46-91ce-b79b5ee3f7d4/lumentum-just-joined-the.html",
+        "providerPublishTime": 1779203431,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wtcLq71MQNoTsI0GqMhKXg--~B/aD0xMDY3O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/f9df380cb8ea3ca8566dad8cc4a3cae4",
+              "width": 1600,
+              "height": 1067,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/lPktQgASkxat9wvjGFV1xg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f9df380cb8ea3ca8566dad8cc4a3cae4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "$IUXX",
+          "ZNM26"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum剛剛加入納斯達克100指數。無論如何，精簡版庫存正在下降。"
+      },
+      {
+        "uuid": "b2e74018-5e33-3d0f-b9f2-c7474965efd0",
+        "title": "Coherent (COHR) Gains from AI Infrastructure Investment",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/coherent-cohr-gains-ai-infrastructure-140108629.html",
+        "providerPublishTime": 1779199268,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nm2DLDtxbW0V1xT.tA18kg--~B/aD00MzA7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/f6cbcaa580b43d5aec7eea1f0379ef39",
+              "width": 768,
+              "height": 430,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/rIDlVJBwSj2PIR_G5JmXdw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/f6cbcaa580b43d5aec7eea1f0379ef39",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "AI基礎設施投資的一致性（ COHR ）收益"
+      },
+      {
+        "uuid": "93ff59bd-8972-399f-aaa7-b0ec9ce99305",
+        "title": "3 Stocks Backed By Broker Rating Upgrades Worth Betting On",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/3-stocks-backed-broker-rating-133100760.html",
+        "providerPublishTime": 1779197460,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/1B0Wv5.GeO3s2IoP2NEKVA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d8dde2ece7fb0eaba39175c95098b013",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Jki4ehrfRINPnukYsNUNIA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d8dde2ece7fb0eaba39175c95098b013",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "ARW",
+          "DOW"
+        ],
+        "_sym": "LITE",
+        "titleZh": "3隻由經紀商評級支持的股票升級值得投注"
+      },
       {
         "uuid": "bdce288d-bb33-379d-941c-eb88f39f3701",
         "title": "Dow Jones Futures: Trump Iran Delay Saves Dow, But Sandisk, Bloom Energy, AI Leaders Sell Off",
         "publisher": "Investor's Business Daily",
         "link": "https://finance.yahoo.com/m/bdce288d-bb33-379d-941c-eb88f39f3701/dow-jones-futures%3A-trump-iran.html",
-        "providerPublishTime": 1779156491,
+        "providerPublishTime": 1779193225,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -1112,38 +1580,33 @@
           ]
         },
         "relatedTickers": [
-          "^DJI",
-          "BE",
-          "CL=F",
-          "CRWD",
-          "NOW",
-          "VRT",
-          "^GSPC",
           "LITE",
-          "^IXIC",
+          "BE",
+          "CRWD",
           "SNDK",
-          "AAOI"
+          "AAOI",
+          "VRT"
         ],
         "_sym": "LITE",
         "titleZh": "道瓊斯期貨：特朗普伊朗延遲拯救道瓊斯，但Sandisk ， Bloom Energy ， AI領導者拋售"
       },
       {
-        "uuid": "8f13edb7-b742-3dd4-88b5-4078a393a3c3",
-        "title": "Semiconductor Exposure in S&P 500 Hits 18%. That’s More Than Double the Tech Bubble Peak.",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/8f13edb7-b742-3dd4-88b5-4078a393a3c3/semiconductor-exposure-in-s%26p.html",
-        "providerPublishTime": 1779155797,
+        "uuid": "4254656d-1cdf-3868-a5de-39c8d1e070a0",
+        "title": "Coherent Stock: Is Wall Street Bullish or Bearish?",
+        "publisher": "Barchart",
+        "link": "https://finance.yahoo.com/m/4254656d-1cdf-3868-a5de-39c8d1e070a0/coherent-stock%3A-is-wall.html",
+        "providerPublishTime": 1779164875,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4OSPvAYKdgxb.yd_nTURDg--~B/aD04NDM7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/136c2213e94f7ffc0cabe5e99d570e94",
-              "width": 1500,
-              "height": 843,
+              "url": "https://s.yimg.com/uu/api/res/1.2/voioX353IM9I9v9wLW32iw--~B/aD0xMjAwO3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/f4f4b1a3bc289b12c88421747826d3c1",
+              "width": 1600,
+              "height": 1200,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QzwjX_uLvdMVyuipC9ZW.w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/136c2213e94f7ffc0cabe5e99d570e94",
+              "url": "https://s.yimg.com/uu/api/res/1.2/eU0TnfnnY.kMQjw0pukZPw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f4f4b1a3bc289b12c88421747826d3c1",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1151,293 +1614,12 @@
           ]
         },
         "relatedTickers": [
-          "NVDA",
-          "^GSPC",
-          "TSM",
-          "MU",
-          "SNDK",
-          "AMD",
-          "SPY"
+          "$SPX",
+          "COHR",
+          "XLK"
         ],
-        "_sym": "AMD",
-        "titleZh": "標準普爾500指數中的半導體風險敞口達18%。這超過科技泡沫峯值的兩倍。"
-      },
-      {
-        "uuid": "1c9c4498-c163-3848-8b80-0d8fa3ab09f1",
-        "title": "Blackstone Announces Joint Venture with Google to Create New TPU Cloud",
-        "publisher": "Business Wire",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/blackstone-announces-joint-venture-google-010500700.html",
-        "providerPublishTime": 1779152700,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5NS_QAGMdRjCgWqcK.XTWQ--~B/aD02NDY7dz0xNjUxO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/4b6fd411313368919a7f643f8318e67f",
-              "width": 1651,
-              "height": 646,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/HQ1depfNNcfx5hpjTIq2mg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/4b6fd411313368919a7f643f8318e67f",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "BX"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "Blackstone宣布與谷歌合資建立新的TPU雲"
-      },
-      {
-        "uuid": "8b575d73-a545-3bf2-8d09-918fd2cbaed0",
-        "title": "Citi revamps AMD stock price target ahead of key announcement",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/8b575d73-a545-3bf2-8d09-918fd2cbaed0/citi-revamps-amd-stock-price.html",
-        "providerPublishTime": 1779152580,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/exOpi4X.ydBwia7v9jKv3w--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/fc3ca69af4ae9ccc5749aba8f2ef7ec3",
-              "width": 1200,
-              "height": 675,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/O96BTiEWgQV7O_cO7nl6jA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/fc3ca69af4ae9ccc5749aba8f2ef7ec3",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "C",
-          "INTC",
-          "WSFX.BO"
-        ],
-        "_sym": "AMD",
-        "titleZh": "花旗在關鍵公告前重新調整AMD股價目標"
-      },
-      {
-        "uuid": "afcb2c58-1c52-3f78-923f-229fd70c8c5f",
-        "title": "The American Rebellion Against AI Is Gaining Steam",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/afcb2c58-1c52-3f78-923f-229fd70c8c5f/the-american-rebellion.html",
-        "providerPublishTime": 1779152400,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Cv7CN91eSxp6AIcPHidZIQ--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/3c377cb616319ba8b9a41b3fce7f3c2c",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/AHMiNDu93dZuzPRz4Zg2mw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/3c377cb616319ba8b9a41b3fce7f3c2c",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "ORCL",
-          "ORCL-PD"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "美國反對人工智慧的叛亂正在獲得動力"
-      },
-      {
-        "uuid": "26e08d96-0d6a-36a8-8e09-79e1ba79d7db",
-        "title": "Trump's Trading Disclosure Shows Activity In Nvidia, AMD, Microsoft, Oracle And Other Major Stocks",
-        "publisher": "Benzinga",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/trumps-trading-disclosure-shows-activity-003125567.html",
-        "providerPublishTime": 1779150685,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/onWF2vkI66WPUbeMcowYTA--~B/aD02ODU7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/benzinga_79/822e1f8fc9f0774ff6915df6ce2509d9",
-              "width": 1024,
-              "height": 685,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/62c.EaMVhnEGl_yRBi1khg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/benzinga_79/822e1f8fc9f0774ff6915df6ce2509d9",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "MSFT",
-          "NVDA",
-          "ORCL"
-        ],
-        "_sym": "AMD",
-        "titleZh": "特朗普的交易披露顯示Nvidia、AMD、Microsoft、Oracle和其他主要股票的活動"
-      },
-      {
-        "uuid": "0105dbd4-1449-3955-9925-59f850b86a4a",
-        "title": "Google, Blackstone to create new AI cloud company, WSJ reports",
-        "publisher": "Reuters",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/google-blackstone-create-ai-cloud-001303808.html",
-        "providerPublishTime": 1779149583,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/HCgCpnV3I.rU0st5v70WdA--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters.com/f78c37c73a202370b8392929bdb257cd",
-              "width": 800,
-              "height": 533,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fEhKOg5HrGPVtGWYMqqboQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/reuters.com/f78c37c73a202370b8392929bdb257cd",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "《華爾街日報》報導， Google、Blackstone將成立新的人工智慧雲端公司"
-      },
-      {
-        "uuid": "2327d1ce-25fb-3d53-9e2f-0d85dd834f8a",
-        "title": "Google, Blackstone plan AI cloud venture with $5 billion backing, WSJ reports",
-        "publisher": "Reuters",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/google-blackstone-create-ai-cloud-001303521.html",
-        "providerPublishTime": 1779149583,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QSOW1rLXwgjKTcwdO1pikw--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/f0acdca872f97bc1255bf998c60cba24",
-              "width": 800,
-              "height": 533,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/X9hgtNlg3jcl4hozgqd7RQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/reuters-finance.com/f0acdca872f97bc1255bf998c60cba24",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "BX",
-          "ANTH.PVT"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "據《華爾街日報》報導， Google、Blackstone計劃投資50億$的人工智能雲計劃"
-      },
-      {
-        "uuid": "2e7bd500-8693-3f6b-a5bc-a27f9c53c53d",
-        "title": "Google and Blackstone to Create New AI Cloud Company",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/2e7bd500-8693-3f6b-a5bc-a27f9c53c53d/google-and-blackstone-to.html",
-        "providerPublishTime": 1779148800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Wn73d1LZ6466UncnvTVrLQ--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/4443180c6e3f3a6f526448a25d160ed1",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/eVBqQ_gbsjRxWjbelm1y0w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/4443180c6e3f3a6f526448a25d160ed1",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "NVDA",
-          "CRWV",
-          "BX"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "谷歌和黑石將成立新的人工智慧雲端公司"
-      },
-      {
-        "uuid": "3c8cffd3-58e4-3251-a80f-f38b32e407d1",
-        "title": "OpenAI whistleblower ditches Nvidia, AMD for crypto miners",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/3c8cffd3-58e4-3251-a80f-f38b32e407d1/openai-whistleblower-ditches.html",
-        "providerPublishTime": 1779147570,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/gcmHgpcdpFduwkzO8mWV4g--~B/aD0xMTU3O3c9MTUzNjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/5d808a4961cbaa97f661952b73f5d174",
-              "width": 1536,
-              "height": 1157,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/DLCTz7NCD0hsdKi6dWeuXA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/5d808a4961cbaa97f661952b73f5d174",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "OpenAI告密者為加密貨幣礦工丟棄NVIDIA、AMD"
-      },
-      {
-        "uuid": "3e33ba7a-463c-3626-bfe0-269c7f1bbef1",
-        "title": "Intel Is Stuck in a Losing Streak After Fifth Straight Daily Decline",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/3e33ba7a-463c-3626-bfe0-269c7f1bbef1/intel-is-stuck-in-a-losing.html",
-        "providerPublishTime": 1779141960,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/h5yWUprvbvFnoOeKbhBvJg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/efb9eb9abbaeb51a7e28c011b62ac4d1",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/22p6a4NRyHVETK4HlTQU7w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/efb9eb9abbaeb51a7e28c011b62ac4d1",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "INTC",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "情報在連續第五天每日下降後陷入連敗"
+        "_sym": "COHR",
+        "titleZh": "一致性股票：華爾街是看漲還是看跌？"
       },
       {
         "uuid": "7cf43099-c1d9-315f-bb3d-5f1c67f36bf8",
@@ -1510,169 +1692,8 @@
         ],
         "_sym": "COHR",
         "titleZh": "POET Technologies獲得4億$的戰略投資"
-      },
-      {
-        "uuid": "74b75755-9711-335a-9505-70a335700edb",
-        "title": "How Nvidia Stock Can Hit $300 After Earnings",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/74b75755-9711-335a-9505-70a335700edb/how-nvidia-stock-can-hit-%24300.html",
-        "providerPublishTime": 1779137640,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ZVO9V9_cXefK3xg0Do_RUg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/f0391d9ff5b7c08cfe842f20fe50ede3",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/evqVhaogMU.Ze0QxyD5x_A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/f0391d9ff5b7c08cfe842f20fe50ede3",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "CBRS",
-          "COHR",
-          "LITE",
-          "NDAQ",
-          "NVDA"
-        ],
-        "_sym": "COHR",
-        "titleZh": "Nvidia股票如何在盈利後達到300 $"
-      },
-      {
-        "uuid": "44aa7f22-4434-346a-bdb3-e7c8bf87f899",
-        "title": "Top Analyst Reports for Broadcom, Berkshire Hathaway & Exxon Mobil",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/top-analyst-reports-broadcom-berkshire-201300194.html",
-        "providerPublishTime": 1779135180,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ntncj2VYf2GtNhy4.FlsOA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/2a623db7972a6cb5e38e982bb92f6b84",
-              "width": 635,
-              "height": 400,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/kUph6DUplvgdoblznhOHsQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/2a623db7972a6cb5e38e982bb92f6b84",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AVGO",
-          "BRK.A",
-          "XOM",
-          "BRK-B",
-          "EMR",
-          "COHR",
-          "WEYS"
-        ],
-        "_sym": "COHR",
-        "titleZh": "博通、伯克希爾哈撒韋和埃克森美孚的頂級分析報告"
-      },
-      {
-        "uuid": "f786554f-364e-3c04-af40-8fae39fad149",
-        "title": "Lumentum Stock Is Up 163% in 2026. Tiger Global Added a New Stake in Q1.",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/f786554f-364e-3c04-af40-8fae39fad149/lumentum-stock-is-up-163%25-in.html",
-        "providerPublishTime": 1779134151,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/pD_piBDH0qYAAOvjXymG9A--~B/aD0xMDY1O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/96fd7b9ff4a55f68ad276840fc638841",
-              "width": 1600,
-              "height": 1065,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1IXf6x295Dg1USBFXdrPFw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/96fd7b9ff4a55f68ad276840fc638841",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "LITE",
-          "$NDXT",
-          "$SPX"
-        ],
-        "_sym": "LITE",
-        "titleZh": "2026年Lumentum股價上漲163%。Tiger Global在第一季度增加了新的股份。"
-      },
-      {
-        "uuid": "61bd797a-996c-3c4e-bd0e-1188c6c964cd",
-        "title": "AXTI Surges More Than 650% YTD: What's Driving the Strong Uptrend?",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/axti-surges-more-650-ytd-181600813.html",
-        "providerPublishTime": 1779128160,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/mYQcKrBErD723LN8P5V9xQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
-              "width": 635,
-              "height": 400,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4sRxY11S5IcQIY38NXtlew--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "COHR",
-          "AMKR"
-        ],
-        "_sym": "COHR",
-        "titleZh": "AXTI年初至今飆升超過650% ：是什麼推動了強勁的上升趨勢？"
-      },
-      {
-        "uuid": "8a9f654a-5b02-3ca8-8788-c122d2d03384",
-        "title": "Applied Optoelectronics Slumps 10%, Lumentum Dives 9%, Coherent Drops 6% as AI Optics Profit-Takers Strike",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/8a9f654a-5b02-3ca8-8788-c122d2d03384/applied-optoelectronics.html",
-        "providerPublishTime": 1779122490,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5TRGp3OBelryNK2yguVP8A--~B/aD01OTk7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/83c597fdd93a0ae3e24978750aa03289",
-              "width": 1500,
-              "height": 599,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fHdq4Kt6DT9UQcr5ZCTK8A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/83c597fdd93a0ae3e24978750aa03289",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "LITE",
-          "COHR",
-          "AAOI"
-        ],
-        "_sym": "LITE",
-        "titleZh": "應用光電衰退10 ％ ， Lumentum潛水9 ％ ，相幹下降6 ％ ，因為AI光學獲利者罷工"
       }
     ],
-    "fetched_at": 1779157491739
+    "fetched_at": 1779243179480
   }
 }
