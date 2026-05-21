@@ -110,7 +110,7 @@
       "eps_next_q2": null,
       "eps_cur_y": null,
       "eps_next_y": null,
-      "fetched_at": 1779377119850
+      "fetched_at": 1779338662794
     }
   },
   "earnings": {
@@ -1018,93 +1018,168 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7353.60986328125,
-        "chg1d": -0.6678320788135907,
-        "chg7d": -0.6397831890209555
+        "price": 7453.27978515625,
+        "chg1d": 0.27323626659960903,
+        "chg7d": -0.6393669276044196
       },
       {
         "symbol": "^IXIC",
         "name": "Nasdaq",
         "cat": "股市",
-        "price": 25870.7109375,
-        "chg1d": -0.8432862066224129,
-        "chg7d": -0.8336653650424738
+        "price": 26347.140625,
+        "chg1d": 0.292273314209277,
+        "chg7d": -1.0815757126097354
       },
       {
         "symbol": "^SOX",
         "name": "費城半導體",
         "cat": "股市",
-        "price": 11305.5,
-        "chg1d": 0.026369950007689796,
-        "chg7d": -3.514130213558824
+        "price": 11958.9736328125,
+        "chg1d": 1.2332177849546935,
+        "chg7d": -0.9508756828843106
       },
       {
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 18.059999465942383,
-        "chg1d": 1.3468000854560704,
-        "chg7d": 0.38910336695278314
+        "price": 16.899999618530273,
+        "chg1d": -3.096335429995003,
+        "chg7d": -2.085750901376927
       },
       {
         "symbol": "^TNX",
         "name": "10年期美債殖利率",
         "cat": "利率",
-        "price": 4.666999816894531,
-        "chg1d": 0.951755798321096,
-        "chg7d": 4.570916522082326
+        "price": 4.567999839782715,
+        "chg1d": -0.08749315172359631,
+        "chg7d": 2.3985625406516773
       },
       {
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.38099670410156,
-        "chg1d": 0.08156460206907944,
-        "chg7d": 0.9148997933137594
+        "price": 99.17500305175781,
+        "chg1d": 0.06558615781045693,
+        "chg7d": 0.29834729625222184
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4474.89990234375,
-        "chg1d": -0.6968001177171456,
-        "chg7d": -4.742752489634535
+        "price": 4544.89990234375,
+        "chg1d": 0.30013678728962245,
+        "chg7d": -2.8473139208635985
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 103.83999633789062,
-        "chg1d": -3.646655310004248,
-        "chg7d": 2.7915262210788954
+        "price": 98.30999755859375,
+        "chg1d": 0.050880746261297835,
+        "chg7d": -2.8269256322171756
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77147.4375,
-        "chg1d": 0.2511437915463891,
-        "chg7d": -2.686373777269233
+        "price": 77736.953125,
+        "chg1d": 0.3604282373611832,
+        "chg7d": -4.089137274255487
       }
     ],
     "news": [
       {
-        "uuid": "5c27c675-9073-37d7-aa27-62a6cde144b7",
-        "title": "“4,000% or 5,000% Over Five or Six Years”: Why Patient Investors in NVDA, AMD, and LLY Are Winning",
+        "uuid": "b7108c8e-2f6a-30a3-b1da-243fc1193a54",
+        "title": "AMD's $10 Billion Taiwan Push Puts AI Chip Race In Focus",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/amds-10-billion-taiwan-push-173540821.html",
+        "providerPublishTime": 1779384940,
+        "type": "STORY",
+        "relatedTickers": [
+          "AMD",
+          "ASX",
+          "6239.TW",
+          "2356.TW",
+          "NVDA",
+          "SANM"
+        ],
+        "_sym": "AMD",
+        "titleZh": "AMD $ 100億臺灣推動AI晶片競賽"
+      },
+      {
+        "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
+        "title": "Market Chatter: Musk, CEOs Trump's China Trip Pressed Beijing on Export, Supply Issues",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/market-chatter-musk-ceos-trump-171601387.html",
+        "providerPublishTime": 1779383761,
+        "type": "STORY",
+        "relatedTickers": [
+          "COHR",
+          "TSLA",
+          "BA",
+          "AAPL",
+          "NVDA"
+        ],
+        "_sym": "COHR",
+        "titleZh": "市場喋喋不休：馬斯克、特朗普的中國之行在出口、供應問題上向北京施壓"
+      },
+      {
+        "uuid": "9a2c3bab-8c08-356f-bf68-a63f28e31277",
+        "title": "Quantum Computing and Robotics Are Arriving Faster Than Most Investors Realize and After Years of Covering This Space These 3 ETFs Stand Out",
         "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/5c27c675-9073-37d7-aa27-62a6cde144b7/%E2%80%9C4%2C000%25-or-5%2C000%25-over-five.html",
-        "providerPublishTime": 1779254525,
+        "link": "https://finance.yahoo.com/m/9a2c3bab-8c08-356f-bf68-a63f28e31277/quantum-computing-and.html",
+        "providerPublishTime": 1779383504,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4fJvTVzN5zvUnK_Mk90RUg--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b957ae4dc1d2e69b737a455ad4872d40",
+              "url": "https://s.yimg.com/uu/api/res/1.2/cEc6xYLBUbT0pxtEuQjbaw--~B/aD03NTk7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/21b6daec93c480054cdcf0ad805519ca",
+              "width": 1500,
+              "height": 759,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/0qz0lvesDkOWMS4R9Cl8ow--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/21b6daec93c480054cdcf0ad805519ca",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "IBM",
+          "GOOG",
+          "AMD",
+          "ADI",
+          "TER",
+          "BOTZ",
+          "ROBO",
+          "INTC",
+          "QTUM",
+          "KEYS",
+          "ISRG"
+        ],
+        "_sym": "AMD",
+        "titleZh": "量子計算和機器人比大多數投資者意識到的更快到達，經過多年的覆蓋這一領域，這3個ETF脫穎而出"
+      },
+      {
+        "uuid": "58a6cf23-3dad-35b4-b5c1-a8d2e6248fac",
+        "title": "$1 Trillion in Spending Has Been Defeated by an Almond",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/58a6cf23-3dad-35b4-b5c1-a8d2e6248fac/%241-trillion-in-spending-has.html",
+        "providerPublishTime": 1779381503,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/R_Kncvf3BD829lBgnV0WcQ--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b49cbef136023beaafdd0f305ea9a3b0",
               "width": 1366,
               "height": 768,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jAKgR2NxIzH5cHjSNe.gUw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b957ae4dc1d2e69b737a455ad4872d40",
+              "url": "https://s.yimg.com/uu/api/res/1.2/FSoMw2iEJnGNMZZavLpazw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b49cbef136023beaafdd0f305ea9a3b0",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1112,165 +1187,115 @@
           ]
         },
         "relatedTickers": [
-          "AMD",
-          "NVDA",
-          "LLY"
-        ],
-        "_sym": "AMD",
-        "titleZh": "「五年或六年內4,000%或5,000%」：為什麼NVDA、AMD和LLY的患者投資者獲勝"
-      },
-      {
-        "uuid": "22ca03a1-acba-303f-aa33-70513daddcd1",
-        "title": "CleanSpark (CLSK) Climbs 9.3% as Analyst ‘Highly Optimistic’",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/cleanspark-clsk-climbs-9-3-032548061.html",
-        "providerPublishTime": 1779247548,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/NWbm7acxEKbeZ6Tt6.wzxw--~B/aD0zMDc7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/c76e6e6fa57246a4f822c5e83b96e39a",
-              "width": 768,
-              "height": 307,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/qHfgBJv7g.gx5WcpanETJQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/c76e6e6fa57246a4f822c5e83b96e39a",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "CLSK",
+          "COST",
+          "MSFT",
           "GOOG",
-          "IREN",
-          "RIOT",
-          "CORZ",
-          "BTC-USD"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "CleanSpark (CLSK)攀升9.3% ，成為分析師「高度樂觀」"
-      },
-      {
-        "uuid": "11aac782-3642-357a-afe1-bcb8dc184364",
-        "title": "Why Intel Stock Climbed Today",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/11aac782-3642-357a-afe1-bcb8dc184364/why-intel-stock-climbed-today.html",
-        "providerPublishTime": 1779239081,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fBaSGPek0VsyN7KTB0kDcg--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7ebc2a884ef6bbf0cff904fa90fc1f15",
-              "width": 1400,
-              "height": 840,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/8b1TASC8fd.OJ0Iez8T.9Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7ebc2a884ef6bbf0cff904fa90fc1f15",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "INTC",
-          "NVDA",
-          "TSM",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "英特爾股價爲何今日攀升"
-      },
-      {
-        "uuid": "39457ab0-eedd-3d75-9bcf-eaf766bf58f9",
-        "title": "Meta Begins 8,000 Global Job Cuts in Asian Hub of Singapore",
-        "publisher": "Bloomberg",
-        "link": "https://finance.yahoo.com/news/meta-begins-8000-global-job-cuts-in-asian-hub-of-singapore-004153264.html",
-        "providerPublishTime": 1779237713,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Uf86kLwx.Y8q8RCZ4iL3dg--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_markets_video_2/e0defbf6ff93b7664191b0224db7e4d9",
-              "width": 1280,
-              "height": 720,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/38x8FqRzgcWxCTb3c47rog--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_markets_video_2/e0defbf6ff93b7664191b0224db7e4d9",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
+          "ORCL-PD",
+          "AMZN",
           "META",
-          "GOOG"
+          "ORCL"
         ],
         "_sym": "GOOGL",
-        "titleZh": "Meta開始在新加坡亞洲中心進行8,000次全球裁員"
+        "titleZh": "1萬億$的支出被杏仁擊敗"
       },
       {
-        "uuid": "0592b437-3100-34f2-89b8-02a90a7e6953",
-        "title": "Blackstone and Google's joint venture funds computing power, not just data centers",
-        "publisher": "Pitchbook",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/blackstone-googles-joint-venture-funds-231818102.html",
-        "providerPublishTime": 1779232698,
+        "uuid": "bc4567b2-bf59-37b0-a9fa-5398272b8fc1",
+        "title": "Zillow Faces Listings Fragmentation, New Competitive Risks, RBC Says",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/zillow-faces-listings-fragmentation-competitive-162238733.html",
+        "providerPublishTime": 1779380558,
         "type": "STORY",
         "relatedTickers": [
-          "BX",
-          "GOOG"
+          "Z",
+          "GOOGL",
+          "ZG",
+          "GOOG",
+          "COMP"
         ],
         "_sym": "GOOGL",
-        "titleZh": "Blackstone和Google的合資企業為計算能力提供資金，而不僅僅是數據中心"
+        "titleZh": "RBC表示， Zillow面臨房源分散、新的競爭風險"
       },
       {
-        "uuid": "4c8c74f2-dec1-3c4b-9ab0-e46791073688",
-        "title": "Analyst Report: GLOBALFOUNDRIES Inc.",
-        "publisher": "Morningstar Research",
-        "link": "https://finance.yahoo.com/m/4c8c74f2-dec1-3c4b-9ab0-e46791073688/analyst-report%3A.html",
-        "providerPublishTime": 1779230838,
+        "uuid": "c6e58b11-9ab0-3ade-960e-d402225c62aa",
+        "title": "Alphabet (GOOGL): Moving Beyond Search in the AI Revolution",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/alphabet-googl-moving-beyond-search-161938467.html",
+        "providerPublishTime": 1779380378,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/SVKRhvYIgdoUv2HlogaP.A--~B/aD0wO3c9MDthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/uc/fin/img/non-sub-report-thumb.png",
-              "width": 0,
-              "height": 0,
+              "url": "https://s.yimg.com/uu/api/res/1.2/PblMlSwtkhETwCay0St0sg--~B/aD01MDA7dz03NTA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/722fa6e1a067b1274b73f466479e4aad",
+              "width": 750,
+              "height": 500,
               "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/OxfzNY7gD_JV2DSkDNQ0Mw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/722fa6e1a067b1274b73f466479e4aad",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
             }
           ]
         },
         "relatedTickers": [
-          "GFS",
-          "AMD",
-          "IBM"
+          "GOOG"
         ],
-        "_sym": "AMD",
-        "titleZh": "分析師報告： GLOBALFOUNDRIES INC."
+        "_sym": "GOOGL",
+        "titleZh": "Alphabet （ GOOGL ） ：在人工智能革命中超越搜索"
       },
       {
-        "uuid": "46f51fc2-e987-30d7-8397-cafbb433480b",
-        "title": "Alphabet AI Data Center Venture Raises Questions On Valuation And Growth",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/alphabet-ai-data-center-venture-221339110.html",
-        "providerPublishTime": 1779228819,
+        "uuid": "e2c0b21e-91db-350f-aced-fbd5c48e0367",
+        "title": "ASML (ASML): AI Stock With The Widest Moat?",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/asml-asml-ai-stock-widest-161633693.html",
+        "providerPublishTime": 1779380193,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/VTfDtc_pApg1_vVDy_b8eQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "url": "https://s.yimg.com/uu/api/res/1.2/2uHzqT7acR_p51NIDhXadQ--~B/aD01MDA7dz03NTA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/7041028dd8dd2704bb71fde1d09bae48",
+              "width": 750,
+              "height": 500,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/PkmSQDH1WVwX5Z5XJnMZ6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/7041028dd8dd2704bb71fde1d09bae48",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "ASML",
+          "NVDA",
+          "AMD",
+          "AAPL",
+          "TSM",
+          "INTC",
+          "005930.KS"
+        ],
+        "_sym": "AMD",
+        "titleZh": "ASML （ ASML ） ：護城河最寬的人工智能股票？"
+      },
+      {
+        "uuid": "e90fac28-d8ba-3683-836e-7ab8438ba3fb",
+        "title": "How Investors May Respond To Berkshire Hathaway (BRK.A) Portfolio Overhaul Under New CEO Greg Abel",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/investors-may-respond-berkshire-hathaway-161446447.html",
+        "providerPublishTime": 1779380086,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/F21gzimp8iK0yknfukzcpA--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/68bc84512dd242df54712b90bf389fa0",
               "width": 1194,
               "height": 432,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Kv5RbP0mE9EpcenlZ1w2hg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "url": "https://s.yimg.com/uu/api/res/1.2/CDDzjArq6gKFJuR3utPg6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/68bc84512dd242df54712b90bf389fa0",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1278,333 +1303,61 @@
           ]
         },
         "relatedTickers": [
-          "GOOG"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "Alphabet AI Data Center Venture對估值和增長提出質疑"
-      },
-      {
-        "uuid": "1fcbbf7c-9103-3bc3-b0b8-9b53a5d1c6d8",
-        "title": "Google’s I/O conference showed how the company is being completely rebuilt for AI—for better or for worse",
-        "publisher": "Fortune",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/google-o-conference-showed-company-221035016.html",
-        "providerPublishTime": 1779228635,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jqn0qtf4w8VSqit9qmupvw--~B/aD0xMzY1O3c9MjA0ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/fortune_175/f34c0fca2c8924c2ebfed44a8c58bc21",
-              "width": 2048,
-              "height": 1365,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/xCTOalPhsLe6NHqXVnP1Zg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/fortune_175/f34c0fca2c8924c2ebfed44a8c58bc21",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "谷歌的I/O會議展示了公司如何為人工智能而徹底重建-無論是好是壞"
-      },
-      {
-        "uuid": "ce2db18d-49bc-3102-b58d-1faad4b58d71",
-        "title": "3 Large-Cap Stocks with Promising Prospects",
-        "publisher": "StockStory",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/3-large-cap-stocks-promising-220455893.html",
-        "providerPublishTime": 1779228295,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/VDojLxK.MXMK6GVV1A9jmA--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/7f88826d522aae116f6dcfe313b7417c",
-              "width": 1400,
-              "height": 700,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QPSdTqfOIXR_LNZK09.Xwg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/7f88826d522aae116f6dcfe313b7417c",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SE",
-          "URI",
-          "COHR"
-        ],
-        "_sym": "COHR",
-        "titleZh": "3只前景看好的大型股"
-      },
-      {
-        "uuid": "7850892c-db6c-3a80-a87b-e18c182fb593",
-        "title": "Stock Market Today, May 19: Soaring Treasury Yields Pressure Markets",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/7850892c-db6c-3a80-a87b-e18c182fb593/stock-market-today%2C-may-19%3A.html",
-        "providerPublishTime": 1779226269,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Km.fdPwQRJxwS96FJ5tifg--~B/aD03MTQ7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/5589a785fe2c636a0f46a19208368fc1",
-              "width": 800,
-              "height": 714,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/3RWQRmKQec8akkvJVJsKhg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5589a785fe2c636a0f46a19208368fc1",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "CL=F",
-          "^GSPC",
-          "^DJI",
-          "SNDK",
-          "AMD",
-          "^IXIC",
-          "HD",
-          "NVDA",
-          "WMT",
-          "TGT"
-        ],
-        "_sym": "AMD",
-        "titleZh": "今日股市， 5月19日：國庫券收益率飆升壓力市場"
-      },
-      {
-        "uuid": "7d13e32e-63ed-3387-b577-d62c5c5adad7",
-        "title": "Stock Market Today, May 19: Poet Technologies Falls After $400 Million Offering Sparks Dilution Concerns",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/7d13e32e-63ed-3387-b577-d62c5c5adad7/stock-market-today%2C-may-19%3A.html",
-        "providerPublishTime": 1779225796,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/lHX5f9_WA.772MqtOZyaHg--~B/aD0yMDA7dz0yMDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/44108f481967b6b8d31e96d1e24908fa",
-              "width": 200,
-              "height": 200,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/a5oHhznsp9TKFEw75HXXzA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/44108f481967b6b8d31e96d1e24908fa",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AAOI",
-          "^IXIC",
-          "^GSPC",
-          "POET",
-          "LITE"
-        ],
-        "_sym": "LITE",
-        "titleZh": "今日股市， 5月19日： Poet Technologies在4億$的發行後下跌，引發稀釋疑慮"
-      },
-      {
-        "uuid": "b4ff35eb-15aa-3167-a917-40783b249c0c",
-        "title": "Stock Market Today: Dow, Nasdaq End In The Red As Yields Jump; Alphabet Drops On I/O Day (Live Coverage)",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/b4ff35eb-15aa-3167-a917-40783b249c0c/stock-market-today%3A-dow%2C.html",
-        "providerPublishTime": 1779223835,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_I95PC7R_S2ZCY0uYN_eeA--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/efdd2096566747a1c5895ff0ab582f7b",
-              "width": 1000,
-              "height": 563,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/x8PtLTiuZXgWbHLVFSlobQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/efdd2096566747a1c5895ff0ab582f7b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
+          "BRK-B",
+          "V",
+          "MA",
+          "UNH",
+          "AMZN",
           "GOOG",
-          "^GSPC",
-          "^IXIC",
-          "^DJI",
-          "LITE",
-          "HD",
-          "MU",
-          "SNDK"
+          "DAL",
+          "M"
         ],
-        "_sym": "LITE",
-        "titleZh": "今日股市：道瓊斯指數、納斯達克指數隨著孳息率上漲而下跌； I/O日下跌（即時報導）"
+        "_sym": "GOOGL",
+        "titleZh": "在新任首席執行官Greg Abel領導下，投資者如何應對伯克希爾哈撒韋(BRK.A)的投資組合大修"
       },
       {
-        "uuid": "b6478220-ba36-381e-9fad-e404ff0ed3f5",
-        "title": "Stocks Settle Lower on Rising Bond Yields",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/b6478220-ba36-381e-9fad-e404ff0ed3f5/stocks-settle-lower-on-rising.html",
-        "providerPublishTime": 1779222958,
+        "uuid": "f53b3f30-3346-3bbd-8e97-fefd087206ea",
+        "title": "Will AMD Stock Reach $600 This Year? The Answer May Not Surprise You",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/f53b3f30-3346-3bbd-8e97-fefd087206ea/will-amd-stock-reach-%24600.html",
+        "providerPublishTime": 1779378524,
         "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/cAtew_nI3ETzWlCo_eImxA--~B/aD0xMjAwO3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/970c77b774bc04c7a2f5571e5f8ff0df",
-              "width": 1600,
-              "height": 1200,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/OE1G.ia27.najJ8DaG9oug--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/970c77b774bc04c7a2f5571e5f8ff0df",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
         "relatedTickers": [
-          "MCHP",
-          "ADI",
-          "CL*0",
-          "QQQ",
-          "CDE",
-          "HL",
-          "XP",
-          "ARM",
-          "AVGO",
-          "SNDK",
-          "AGYS",
-          "RCL",
-          "AMAT",
-          "$IUXX",
-          "ZN*0",
-          "DIA",
-          "MU",
-          "CCL",
-          "ES*0",
-          "AMD",
-          "SITM",
-          "LUV",
-          "NCLH",
-          "STUB",
-          "LRCX",
-          "AAL",
-          "$DOWI",
-          "ALK",
-          "SCCO",
-          "NEM",
-          "STX",
-          "AS",
-          "FCX",
-          "DAL",
-          "MRVL",
-          "CRWV",
-          "UAL",
-          "CIEN",
-          "SPY",
-          "ASML",
-          "AKAM",
-          "DASH",
-          "NVDA",
-          "B",
-          "INTC",
-          "$SPX",
-          "QCOM",
-          "AU",
-          "NQ*0"
+          "AMD"
         ],
         "_sym": "AMD",
-        "titleZh": "債券孳息率上升導致股票結算走低"
+        "titleZh": "AMD今年的股價會達到600 $嗎？答案可能不會讓你感到驚訝"
       },
       {
-        "uuid": "510b54c8-5870-3d46-91ce-b79b5ee3f7d4",
-        "title": "Lumentum Just Joined the Nasdaq 100. LITE Stock Is Falling Anyway.",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/510b54c8-5870-3d46-91ce-b79b5ee3f7d4/lumentum-just-joined-the.html",
-        "providerPublishTime": 1779203431,
+        "uuid": "b3c46093-56b8-3328-baa2-755f2c78faeb",
+        "title": "AMD Commits $10 billion to Taiwan AI Expansion Strategy",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/amd-commits-10-billion-taiwan-151359120.html",
+        "providerPublishTime": 1779376678,
         "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/wtcLq71MQNoTsI0GqMhKXg--~B/aD0xMDY3O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/f9df380cb8ea3ca8566dad8cc4a3cae4",
-              "width": 1600,
-              "height": 1067,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/lPktQgASkxat9wvjGFV1xg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f9df380cb8ea3ca8566dad8cc4a3cae4",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
         "relatedTickers": [
-          "LITE",
-          "$IUXX",
-          "ZNM26"
+          "AMD"
         ],
-        "_sym": "LITE",
-        "titleZh": "Lumentum剛剛加入納斯達克100指數。無論如何，精簡版庫存正在下降。"
+        "_sym": "AMD",
+        "titleZh": "AMD承諾向臺灣AI擴張策略投入$ 100億美元"
       },
       {
-        "uuid": "b2e74018-5e33-3d0f-b9f2-c7474965efd0",
-        "title": "Coherent (COHR) Gains from AI Infrastructure Investment",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/coherent-cohr-gains-ai-infrastructure-140108629.html",
-        "providerPublishTime": 1779199268,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/nm2DLDtxbW0V1xT.tA18kg--~B/aD00MzA7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/f6cbcaa580b43d5aec7eea1f0379ef39",
-              "width": 768,
-              "height": 430,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/rIDlVJBwSj2PIR_G5JmXdw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/f6cbcaa580b43d5aec7eea1f0379ef39",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "COHR"
-        ],
-        "_sym": "COHR",
-        "titleZh": "AI基礎設施投資的一致性（ COHR ）收益"
-      },
-      {
-        "uuid": "93ff59bd-8972-399f-aaa7-b0ec9ce99305",
-        "title": "3 Stocks Backed By Broker Rating Upgrades Worth Betting On",
+        "uuid": "0092fd37-825e-37e6-907a-1be3f664430a",
+        "title": "Applied Optoelectronics Up 635.5% in 6 Months: How to Play the Stock",
         "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/3-stocks-backed-broker-rating-133100760.html",
-        "providerPublishTime": 1779197460,
+        "link": "https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-635-5-6-150100143.html",
+        "providerPublishTime": 1779375660,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1B0Wv5.GeO3s2IoP2NEKVA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d8dde2ece7fb0eaba39175c95098b013",
+              "url": "https://s.yimg.com/uu/api/res/1.2/LElGwYdyr5Ayaak_5JBF1w--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/b5cbbaf3d80bfc38e91dd12d71dafabb",
               "width": 635,
               "height": 400,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Jki4ehrfRINPnukYsNUNIA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d8dde2ece7fb0eaba39175c95098b013",
+              "url": "https://s.yimg.com/uu/api/res/1.2/_tcX.xB4yYKnZG3aJHCsxw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/b5cbbaf3d80bfc38e91dd12d71dafabb",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1612,95 +1365,186 @@
           ]
         },
         "relatedTickers": [
-          "LITE",
-          "ARW",
-          "DOW"
-        ],
-        "_sym": "LITE",
-        "titleZh": "3隻由經紀商評級支持的股票升級值得投注"
-      },
-      {
-        "uuid": "bdce288d-bb33-379d-941c-eb88f39f3701",
-        "title": "Dow Jones Futures: Trump Iran Delay Saves Dow, But Sandisk, Bloom Energy, AI Leaders Sell Off",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/bdce288d-bb33-379d-941c-eb88f39f3701/dow-jones-futures%3A-trump-iran.html",
-        "providerPublishTime": 1779193225,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/g0DK63pdqlpPaRsusDELeQ--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3b36c68ab90de51a3850f1efd2f78a43",
-              "width": 1000,
-              "height": 563,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jFIzsSkUX7wsPjZOxZZcVw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3b36c68ab90de51a3850f1efd2f78a43",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "LITE",
-          "BE",
-          "CRWD",
-          "SNDK",
           "AAOI",
-          "VRT"
-        ],
-        "_sym": "LITE",
-        "titleZh": "道瓊斯期貨：特朗普伊朗延遲拯救道瓊斯，但Sandisk ， Bloom Energy ， AI領導者拋售"
-      },
-      {
-        "uuid": "4254656d-1cdf-3868-a5de-39c8d1e070a0",
-        "title": "Coherent Stock: Is Wall Street Bullish or Bearish?",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/4254656d-1cdf-3868-a5de-39c8d1e070a0/coherent-stock%3A-is-wall.html",
-        "providerPublishTime": 1779164875,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/voioX353IM9I9v9wLW32iw--~B/aD0xMjAwO3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/f4f4b1a3bc289b12c88421747826d3c1",
-              "width": 1600,
-              "height": 1200,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/eU0TnfnnY.kMQjw0pukZPw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f4f4b1a3bc289b12c88421747826d3c1",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "$SPX",
-          "COHR",
-          "XLK"
+          "COHR"
         ],
         "_sym": "COHR",
-        "titleZh": "一致性股票：華爾街是看漲還是看跌？"
+        "titleZh": "應用光電在6個月內上漲635.5% ：如何玩股票"
       },
       {
-        "uuid": "7cf43099-c1d9-315f-bb3d-5f1c67f36bf8",
-        "title": "These Stocks Are Today’s Movers: Dominion Energy, ServiceNow, Ford, Tesla, Lumentum, Micron, UnitedHealth, and More",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/7cf43099-c1d9-315f-bb3d-5f1c67f36bf8/these-stocks-are-today%E2%80%99s.html",
-        "providerPublishTime": 1779139200,
+        "uuid": "e54ce375-7427-3ab8-ae84-b9cea77fb4dc",
+        "title": "Zacks.com featured highlights include Dow, Arrow Electronics and Lumentum",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/zacks-com-featured-highlights-dow-145500627.html",
+        "providerPublishTime": 1779375300,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/VkOqhW7fToph4HS2kcGq8g--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/502c2ea013017df935563d227f19378a",
+              "url": "https://s.yimg.com/uu/api/res/1.2/DDCPG5FxkUdjRiLFFrwYkA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/493c3feda6e0e15fef3a8f66cc933696",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_Z4HXTvO5PmxwHaceZE9VA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/493c3feda6e0e15fef3a8f66cc933696",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "DOW",
+          "LITE",
+          "ARW"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Zacks.com的亮點包括Dow、Arrow Electronics和Lumentum"
+      },
+      {
+        "uuid": "aeee48e8-4b59-3048-bbaf-a4d91d4df51e",
+        "title": "CRDO vs. COHR: Which AI Connectivity Stock Is the Better Buy?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/crdo-vs-cohr-ai-connectivity-134400067.html",
+        "providerPublishTime": 1779371040,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hb34T5JpqfOKFdxuauyatA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WGxO6Lux22KyfhfK1ELLQA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "CRDO",
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "CRDO與COHR ：哪種AI連接性股票更適合購買？"
+      },
+      {
+        "uuid": "346be7df-b273-34ae-b7c2-1e7f95923392",
+        "title": "America's Greatest Opportunities: JDS Uniphase's Incredible Run",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/346be7df-b273-34ae-b7c2-1e7f95923392/america%27s-greatest.html",
+        "providerPublishTime": 1779364838,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ho_pbozeiCxGjbmviKIOvw--~B/aD01MzM7dz05NDU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/ibd.com/9aaea8bc620a59585d098836d96e5a0b",
+              "width": 945,
+              "height": 533,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/XkrSsBPJNGumge3VcDkvOw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/9aaea8bc620a59585d098836d96e5a0b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^GSPC",
+          "VIAV",
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "美國最大的機會： JDS Uniphase令人難以置信的運行"
+      },
+      {
+        "uuid": "d175608b-893b-3d2a-832a-2d870a1c6025",
+        "title": "REX Shares Launches T-REX 2X ASTS (ASUP) & 2X LITE (LITU) ETFs",
+        "publisher": "Business Wire",
+        "link": "https://finance.yahoo.com/markets/options/articles/rex-shares-launches-t-rex-120000327.html",
+        "providerPublishTime": 1779364800,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_yz22S0jGy1vfNW9NjBxqg--~B/aD0zMTc7dz0yMjE7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/32d48e8e091ebe152693e201a7866d8a",
+              "width": 221,
+              "height": 317,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7eOzYD0K7rmVGOuHK8atew--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/32d48e8e091ebe152693e201a7866d8a",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "ASUP",
+          "ITU",
+          "ASTS",
+          "T",
+          "VZ",
+          "VOD",
+          "4755.T"
+        ],
+        "_sym": "LITE",
+        "titleZh": "REX股份推出T-REX 2X ASTS （ ASUP ）和2X LITU （ LITU ） ETF"
+      },
+      {
+        "uuid": "02e19809-1927-3043-bc23-1f6b23708b0e",
+        "title": "Does Lumentum (LITE) Joining the Nasdaq-100 Recast Its AI Infrastructure Investment Narrative?",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/does-lumentum-lite-joining-nasdaq-231549258.html",
+        "providerPublishTime": 1779318949,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/d4E4P3C1gbs8FgjLBwQDxQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/1NhR10SDcMRWs7cFC1fJiA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum （ LITE ）是否加入納斯達克100指數，重塑其AI基礎設施投資敘事？"
+      },
+      {
+        "uuid": "4cbaaca3-9d96-3246-8612-d7c9bf809167",
+        "title": "Astera Labs Stock Notches Record High. It’s Up Double Digits for a Second Day.",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/4cbaaca3-9d96-3246-8612-d7c9bf809167/astera-labs-stock-notches.html",
+        "providerPublishTime": 1779310620,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/QHlNpTGm_3laA0Z5UPauSA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/bd1650d8921cdf620353f87a1b9bd079",
               "width": 1280,
               "height": 640,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/NSJ8VSx9_AqSaGmouAjf6w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/502c2ea013017df935563d227f19378a",
+              "url": "https://s.yimg.com/uu/api/res/1.2/SGfpBQGsClPYPsgLqpwImQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/bd1650d8921cdf620353f87a1b9bd079",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1708,38 +1552,31 @@
           ]
         },
         "relatedTickers": [
-          "MU",
-          "NOW",
-          "CRM",
+          "ALAB",
+          "NVDA",
           "COHR",
-          "REGN",
-          "CL=F",
-          "005930.KS",
-          "D",
-          "F",
-          "TSLA",
-          "UNH"
+          "LITE"
         ],
         "_sym": "COHR",
-        "titleZh": "這些股票是當今的推動者： Dominion Energy、ServiceNow、Ford、Tesla、Lumentum、Micron、UnitedHealth等"
+        "titleZh": "Astera Labs庫存創下歷史新高。第二天可以達到兩位數。"
       },
       {
-        "uuid": "b57fdcdb-74f2-33db-bcca-fff6cdc74091",
-        "title": "POET Technologies Secures US$400M Strategic Investment",
-        "publisher": "IPO-Edge.com",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/poet-technologies-secures-us-400m-211901619.html",
-        "providerPublishTime": 1779139141,
+        "uuid": "8e50157c-56f2-390e-8b96-99136f6e0bc5",
+        "title": "Nvidia Might Have Just Revealed the AI Sleeper Stock That Investors Missed",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/8e50157c-56f2-390e-8b96-99136f6e0bc5/nvidia-might-have-just.html",
+        "providerPublishTime": 1779289005,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/MwFikOBXaAg4EnIqPX.wQg--~B/aD02NzQ7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ipo_edge_com_346/df5db6ed0345d8e7fcb8e267c58738db",
-              "width": 1200,
-              "height": 674,
+              "url": "https://s.yimg.com/uu/api/res/1.2/Eycb2ZfksJFlwwv3EoeXNQ--~B/aD03Njc7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/5d1e359faf1200ee06e0a0c304ba6ca9",
+              "width": 1366,
+              "height": 767,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/X37bDbfAuJGVyCMROB5wpA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ipo_edge_com_346/df5db6ed0345d8e7fcb8e267c58738db",
+              "url": "https://s.yimg.com/uu/api/res/1.2/jHXkg.pmqM2Z6X9McNJvVA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/5d1e359faf1200ee06e0a0c304ba6ca9",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1747,16 +1584,14 @@
           ]
         },
         "relatedTickers": [
-          "POET",
-          "MRVL",
-          "LITE",
-          "AAOI",
+          "NVDA",
+          "GLW",
           "COHR"
         ],
         "_sym": "COHR",
-        "titleZh": "POET Technologies獲得4億$的戰略投資"
+        "titleZh": "Nvidia可能剛剛揭示了投資者錯過的人工智慧睡眠股"
       }
     ],
-    "fetched_at": 1779257339344
+    "fetched_at": 1779385572569
   }
 }
