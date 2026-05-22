@@ -1042,9 +1042,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 16.760000228881836,
-        "chg1d": -3.8990841992684926,
-        "chg7d": -2.896871340495873
+        "price": 16.799999237060547,
+        "chg1d": 0.2386575634395413,
+        "chg7d": -8.84428128662306
       },
       {
         "symbol": "^TNX",
@@ -1058,36 +1058,102 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.22799682617188,
-        "chg1d": 0.03830465150766493,
-        "chg7d": -0.04230867161761384
+        "price": 99.29199981689453,
+        "chg1d": 0.10283029839477359,
+        "chg7d": 0.022164978918292156
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4533.89990234375,
-        "chg1d": -0.12995952679803516,
-        "chg7d": -0.4807037903908115
+        "price": 4520.5,
+        "chg1d": -0.4251245763650698,
+        "chg7d": -0.7748322182897444
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 97.73999786376953,
-        "chg1d": 1.4426563691350562,
-        "chg7d": -7.2851455497730795
+        "price": 98.7699966430664,
+        "chg1d": 2.511674319948543,
+        "chg7d": -6.30810248660948
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77521.578125,
-        "chg1d": 0.08237351097044307,
-        "chg7d": -1.9529352920292633
+        "price": 77372.1015625,
+        "chg1d": -0.21546569103076327,
+        "chg7d": -2.1419889536063126
       }
     ],
     "news": [
+      {
+        "uuid": "69c8736b-e6d1-39a3-8869-c93b04de0a33",
+        "title": "Stocks making big moves yesterday: Cloudflare, Pinterest, AMD, Agilysys, and Intel",
+        "publisher": "StockStory",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/stocks-making-big-moves-yesterday-055655094.html",
+        "providerPublishTime": 1779429415,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/0KImQ8A8TAtksH9GdwiLYQ--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/2cf42b33206efa0659932c6c55323339",
+              "width": 1400,
+              "height": 700,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Utbk5Kmxl80a_nH7HjloCQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/2cf42b33206efa0659932c6c55323339",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NET",
+          "PINS",
+          "AMD",
+          "AGYS",
+          "INTC",
+          "ANTH.PVT",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "昨日股市大動作： Cloudflare、Pinterest、AMD、Agilysys和Intel"
+      },
+      {
+        "uuid": "3349c3ee-d81b-34d0-94b6-14e8f36170f9",
+        "title": "OpenAI Is Going Public But Is It for the Wrong Reasons?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/3349c3ee-d81b-34d0-94b6-14e8f36170f9/openai-is-going-public-but-is.html",
+        "providerPublishTime": 1779429000,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/vKYVimXH18rupFHnnYKOBw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6f5088aea14ecf166ecd73a46b55fe4d",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/S1EPww6n0zeuOm_AIJ2Qtg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6f5088aea14ecf166ecd73a46b55fe4d",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "SPAX.PVT",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "OpenAI正在上市，但這是出於錯誤的原因嗎？"
+      },
       {
         "uuid": "8e9438e1-01a5-37dc-8233-6b2498bbaf19",
         "title": "Will Deeper Google and Royal Caribbean Integrations Change Affirm Holdings' (AFRM) Narrative",
@@ -1242,13 +1308,13 @@
           ]
         },
         "relatedTickers": [
+          "GYG.AX",
+          "AAPL",
           "GOOG",
-          "C",
-          "C-PR",
           "MS",
           "MS-PQ",
-          "GYG.AX",
-          "AAPL"
+          "C",
+          "C-PR"
         ],
         "_sym": "GOOGL",
         "titleZh": "Guzman y Gomez放棄失敗的美國業務；股票飆升"
@@ -1339,75 +1405,6 @@
         ],
         "_sym": "AMD",
         "titleZh": "股票重點回顧： Nvidia、Spotify Stellantis、Intuit"
-      },
-      {
-        "uuid": "24545f32-723e-3dc7-ac8f-2804bae10614",
-        "title": "The Path to 'Peak' Nvidia: Why the AI Giant's Future Will Inevitably Include Stiff Competition",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/24545f32-723e-3dc7-ac8f-2804bae10614/the-path-to-%27peak%27-nvidia%3A.html",
-        "providerPublishTime": 1779395108,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/H.C.geGpwvh36Gj_VZcwjg--~B/aD04MzY7dz0xMjU0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/828805b72adb05952504a4fefd6c1a8a",
-              "width": 1254,
-              "height": 836,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/d9xiCg6jNyOs3DLfYGh4oQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/828805b72adb05952504a4fefd6c1a8a",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "META",
-          "AMD",
-          "MSFT",
-          "NVDA",
-          "CBRS",
-          "AMZN",
-          "GOOGL"
-        ],
-        "_sym": "AMD",
-        "titleZh": "通往「巔峯」的NVIDIA之路：為什麼AI巨頭的未來將不可避免地包括激烈的競爭"
-      },
-      {
-        "uuid": "eb611f05-7c98-3ca7-b073-e63e0c08649a",
-        "title": "Nvidia Tells Skeptical Investors AI Is Ready to Go Mainstream",
-        "publisher": "Bloomberg",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/nvidia-gets-tepid-reaction-forecast-210054064.html",
-        "providerPublishTime": 1779394216,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/9aRHt7oac1in08rk9hiaZg--~B/aD0xMzM0O3c9MjAwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/bloomberg_holding_pen_162/ed936fc50e15db1e07274c769aa47a0b",
-              "width": 2000,
-              "height": 1334,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fBM8GYS9eeMzC_HnWrYeeQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/ed936fc50e15db1e07274c769aa47a0b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "INTC",
-          "AMD",
-          "AVGO",
-          "AMZN",
-          "CBRS"
-        ],
-        "_sym": "AMD",
-        "titleZh": "NVIDIA告訴持懷疑態度的投資者AI已準備好成為主流"
       },
       {
         "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
@@ -1677,6 +1674,6 @@
         "titleZh": "Nvidia可能剛剛揭示了投資者錯過的人工智慧睡眠股"
       }
     ],
-    "fetched_at": 1779428927831
+    "fetched_at": 1779436150826
   }
 }
