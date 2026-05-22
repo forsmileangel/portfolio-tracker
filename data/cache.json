@@ -1042,9 +1042,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 16.799999237060547,
-        "chg1d": 0.2386575634395413,
-        "chg7d": -8.84428128662306
+        "price": 17.049999237060547,
+        "chg1d": 1.7303043211119251,
+        "chg7d": -7.487797315595716
       },
       {
         "symbol": "^TNX",
@@ -1058,53 +1058,102 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.29199981689453,
-        "chg1d": 0.10283029839477359,
-        "chg7d": 0.022164978918292156
+        "price": 99.31400299072266,
+        "chg1d": 0.1250131528020237,
+        "chg7d": 0.04432995783658431
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4520.5,
-        "chg1d": -0.4251245763650698,
-        "chg7d": -0.7748322182897444
+        "price": 4524.5,
+        "chg1d": -0.33701496422160343,
+        "chg7d": -0.6870320477053309
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 98.7699966430664,
-        "chg1d": 2.511674319948543,
-        "chg7d": -6.30810248660948
+        "price": 98.05000305175781,
+        "chg1d": 1.7644054017222714,
+        "chg7d": -6.991078775562489
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77372.1015625,
-        "chg1d": -0.21546569103076327,
-        "chg7d": -2.1419889536063126
+        "price": 77188.25,
+        "chg1d": -0.45257366891371636,
+        "chg7d": -2.374519127541017
       }
     ],
     "news": [
       {
-        "uuid": "69c8736b-e6d1-39a3-8869-c93b04de0a33",
-        "title": "Stocks making big moves yesterday: Cloudflare, Pinterest, AMD, Agilysys, and Intel",
-        "publisher": "StockStory",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/stocks-making-big-moves-yesterday-055655094.html",
-        "providerPublishTime": 1779429415,
+        "uuid": "2eb01021-50b5-3cc8-83ae-bc70bb331f3a",
+        "title": "Disney+, Netflix, Spotify Face Damages From Italian Piracy Ring",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/disney-netflix-spotify-face-damages-093014879.html",
+        "providerPublishTime": 1779442214,
+        "type": "STORY",
+        "relatedTickers": [
+          "NFLX",
+          "SPOT",
+          "DIS",
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Disney +、Netflix、Spotify臉部損壞來自義大利盜版戒指"
+      },
+      {
+        "uuid": "e9f6c7bd-b750-3f6a-b4c3-c756ecdcba77",
+        "title": "3M Joins AI Optics Alliance As Shares Screen Undervalued",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/3m-joins-ai-optics-alliance-091543739.html",
+        "providerPublishTime": 1779441343,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/0KImQ8A8TAtksH9GdwiLYQ--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/2cf42b33206efa0659932c6c55323339",
+              "url": "https://s.yimg.com/uu/api/res/1.2/GSZo_VwSbZMTY5f6cyk4bw--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/2f661dc7cd6da8f9d40c74292ac9075d",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nz61lK_FCT0rzhBKZEKBYA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/2f661dc7cd6da8f9d40c74292ac9075d",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "MMM",
+          "CSCO",
+          "META",
+          "ORCL"
+        ],
+        "_sym": "AMD",
+        "titleZh": "3M加入人工智能光學聯盟，分享屏幕被低估"
+      },
+      {
+        "uuid": "af68cd97-ced8-336c-88ae-6a9fb1da1cf6",
+        "title": "Photronics, IPG Photonics, AMD, KLA Corporation, and MACOM Stocks Trade Up, What You Need To Know",
+        "publisher": "StockStory",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/photronics-ipg-photonics-amd-kla-090855975.html",
+        "providerPublishTime": 1779440935,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/vm1lnqI85rWPPrzNghK5lg--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/91f2d86590084c5f552e4dae19eb574d",
               "width": 1400,
               "height": 700,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Utbk5Kmxl80a_nH7HjloCQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/2cf42b33206efa0659932c6c55323339",
+              "url": "https://s.yimg.com/uu/api/res/1.2/OMqMJW2MASC2c2qI7a5ZdQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/91f2d86590084c5f552e4dae19eb574d",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1112,34 +1161,127 @@
           ]
         },
         "relatedTickers": [
-          "NET",
-          "PINS",
           "AMD",
-          "AGYS",
-          "INTC",
-          "ANTH.PVT",
-          "NVDA"
+          "PLAB",
+          "KLAC",
+          "MTSI",
+          "IPGP"
         ],
         "_sym": "AMD",
-        "titleZh": "昨日股市大動作： Cloudflare、Pinterest、AMD、Agilysys和Intel"
+        "titleZh": "Photronics、IPG Photonics、AMD、KLA Corporation和MACOM股票交易，您需要了解的信息"
       },
       {
-        "uuid": "3349c3ee-d81b-34d0-94b6-14e8f36170f9",
-        "title": "OpenAI Is Going Public But Is It for the Wrong Reasons?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/3349c3ee-d81b-34d0-94b6-14e8f36170f9/openai-is-going-public-but-is.html",
-        "providerPublishTime": 1779429000,
+        "uuid": "4a17eccb-ae1d-361c-8bdb-46c882227925",
+        "title": "AMD Expands Taiwan Capacity as AI Tightens CPU Supply",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/amd-expands-taiwan-capacity-ai-085445463.html",
+        "providerPublishTime": 1779440085,
+        "type": "STORY",
+        "relatedTickers": [
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "隨著AI收緊CPU供應， AMD擴大臺灣產能"
+      },
+      {
+        "uuid": "81e5d1dd-6d2c-3361-8f29-f87282ebed92",
+        "title": "TSMC Trails 140% AI Rallies As Investors Broaden Chip Bets",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/tsmc-trails-140-ai-rallies-085139388.html",
+        "providerPublishTime": 1779439899,
+        "type": "STORY",
+        "relatedTickers": [
+          "TSM",
+          "GOOG",
+          "NVDA",
+          "2454.TW",
+          "005930.KS"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "隨著投資者擴大籌碼投資，臺積公司落後140%的人工智能反彈"
+      },
+      {
+        "uuid": "12abfa96-8526-3d46-a9c7-152d05c358e4",
+        "title": "Nasdaq, S&P 500 Futures Rise As Quantum Stocks Stay Red-Hot, All Eyes On Warsh Fed Swearing-In: Why IBM, RGTI, QBTS, INFQ, AMD, RKLB Are In Focus",
+        "publisher": "Stocktwits",
+        "link": "https://finance.yahoo.com/m/12abfa96-8526-3d46-a9c7-152d05c358e4/nasdaq%2C-s%26p-500-futures-rise.html",
+        "providerPublishTime": 1779439783,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vKYVimXH18rupFHnnYKOBw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6f5088aea14ecf166ecd73a46b55fe4d",
+              "url": "https://s.yimg.com/uu/api/res/1.2/IZ30z4SoTXuKmYppZ5Dxrg--~B/aD02Njg7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/28104310f95a72f2b2eb6c3a5bea5945",
+              "width": 1000,
+              "height": 668,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/J2WJrPtU_R8EmlG45.05SA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/28104310f95a72f2b2eb6c3a5bea5945",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "IBM",
+          "^GSPC",
+          "RGTI",
+          "INFQ",
+          "AMD",
+          "RKLB",
+          "QBTS",
+          "CL=F"
+        ],
+        "_sym": "AMD",
+        "titleZh": "納斯達克，標準普爾500指數期貨上漲，量子股保持火熱，所有目光都集中在戰爭美聯儲宣誓就職：為什麼IBM ， RGTI ， QBTS ， INFQ ， AMD ， RKLB是焦點"
+      },
+      {
+        "uuid": "4e652147-a4e8-3e5e-91d6-533964814156",
+        "title": "Why Is AMD Stock Jumping Over 2% Premarket Today?",
+        "publisher": "Stocktwits",
+        "link": "https://finance.yahoo.com/m/4e652147-a4e8-3e5e-91d6-533964814156/why-is-amd-stock-jumping-over.html",
+        "providerPublishTime": 1779438162,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/l0sPQgZzUoMgXL3ORjuUmg--~B/aD05MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/a244aba6cfff83a66272e9fb6fdc7fa4",
+              "width": 1200,
+              "height": 900,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/LLa6q8YS1CkpkcsTC49VcQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/a244aba6cfff83a66272e9fb6fdc7fa4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "為什麼AMD股價今天上市前上漲超過2 ％ ？"
+      },
+      {
+        "uuid": "e3aebed2-3d27-3c10-9ac1-016d8037e43b",
+        "title": "Investors Look Beyond TSMC as AI Boom Spreads to New Winners",
+        "publisher": "Bloomberg",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/investors-look-beyond-tsmc-ai-053002545.html",
+        "providerPublishTime": 1779427802,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/XoWqGv_sKMba_OE8_qBA5w--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/2eb3b3c406c4b7e002805f342c8786c7",
               "width": 1200,
               "height": 675,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/S1EPww6n0zeuOm_AIJ2Qtg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6f5088aea14ecf166ecd73a46b55fe4d",
+              "url": "https://s.yimg.com/uu/api/res/1.2/CKrVUCuki6Cn7bQx3PKdDg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/2eb3b3c406c4b7e002805f342c8786c7",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1147,12 +1289,20 @@
           ]
         },
         "relatedTickers": [
+          "TSM",
+          "005930.KS",
+          "GOOG",
+          "285A.T",
+          "2360.TW",
+          "INTC",
+          "ASX",
+          "005935.KS",
+          "000660.KS",
           "NVDA",
-          "SPAX.PVT",
-          "AMD"
+          "2454.TW"
         ],
-        "_sym": "AMD",
-        "titleZh": "OpenAI正在上市，但這是出於錯誤的原因嗎？"
+        "_sym": "GOOGL",
+        "titleZh": "投資者將目光投向臺積公司以外，因為人工智能熱潮擴散到新的贏家"
       },
       {
         "uuid": "8e9438e1-01a5-37dc-8233-6b2498bbaf19",
@@ -1221,190 +1371,6 @@
         ],
         "_sym": "GOOGL",
         "titleZh": "SpaceX將永遠改變IPO遊戲。遊戲風險由您自行承擔。"
-      },
-      {
-        "uuid": "87700893-d5cd-378b-9005-1d8e77a8534e",
-        "title": "Mitsubishi Electric Engineer Earns Kaggle Competitions Master Title in World’s Largest AI Competition",
-        "publisher": "Business Wire",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/mitsubishi-electric-engineer-earns-kaggle-030000063.html",
-        "providerPublishTime": 1779418800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ZVzFw00zD7_c0dLktZna2A--~B/aD0yMDA7dz00ODA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/efa9d82ca5cdd348483a079668e99af3",
-              "width": 480,
-              "height": 200,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/G6e8ZVpNVFpOBPvk3Zwt2w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/efa9d82ca5cdd348483a079668e99af3",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "6503.T"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "三菱電機工程師在全球最大的人工智能競賽中贏得Kaggle比賽大師頭銜"
-      },
-      {
-        "uuid": "0c1c639b-b162-349e-9731-75753ffe2344",
-        "title": "AMD ramping up Taiwan capacity as global CPU market tightens",
-        "publisher": "Reuters",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/amd-asking-partners-ramp-production-021329204.html",
-        "providerPublishTime": 1779416009,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/hBUU_qq2a6ppMFXqjxG70A--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/6bef524ea35c146b38f70cb174cc572d",
-              "width": 800,
-              "height": 533,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/typxRX_hwDdnC_qVYcYxyQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/reuters-finance.com/6bef524ea35c146b38f70cb174cc572d",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA",
-          "AAPL",
-          "TSM"
-        ],
-        "_sym": "AMD",
-        "titleZh": "隨著全球CPU市場緊縮， AMD提升臺灣產能"
-      },
-      {
-        "uuid": "25b825ef-27db-3ccb-b5f0-aa553c82794c",
-        "title": "Guzman y Gomez Gives Up on Failing US Business; Shares Soar",
-        "publisher": "Bloomberg",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/guzman-y-gomez-gives-failing-002438299.html",
-        "providerPublishTime": 1779415967,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TsBEwZ.odau_UG8TQOTBAQ--~B/aD0xMzM0O3c9MjAwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/bloomberg_holding_pen_162/80cfd1389670a912f0977fc29c7f0551",
-              "width": 2000,
-              "height": 1334,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/0rmpCuHzM7IV58zVHtvHNQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/80cfd1389670a912f0977fc29c7f0551",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GYG.AX",
-          "AAPL",
-          "GOOG",
-          "MS",
-          "MS-PQ",
-          "C",
-          "C-PR"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "Guzman y Gomez放棄失敗的美國業務；股票飆升"
-      },
-      {
-        "uuid": "a629ce95-d5eb-3d18-b6f0-53c9ee03c770",
-        "title": "Waymo pauses freeway robotaxi routes after safety and software concerns",
-        "publisher": "Fox Business",
-        "link": "https://finance.yahoo.com/m/a629ce95-d5eb-3d18-b6f0-53c9ee03c770/waymo-pauses-freeway-robotaxi.html",
-        "providerPublishTime": 1779415589,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/A5t1neLhpEkfKQ2vTm3sEg--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/fox_business_text_367/f53c7fe1f7b1769bbb87ea714f9fa6db",
-              "width": 1280,
-              "height": 720,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jL1rBF0Lqpwxk5EgLe9f8Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/fox_business_text_367/f53c7fe1f7b1769bbb87ea714f9fa6db",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "Waymo在安全和軟體問題後暫停高速公路機器人計程車路線"
-      },
-      {
-        "uuid": "1a7b97c8-44d2-3980-801c-a820f7cc25e3",
-        "title": "Analyst Report: GLOBALFOUNDRIES Inc.",
-        "publisher": "Morningstar Research",
-        "link": "https://finance.yahoo.com/m/1a7b97c8-44d2-3980-801c-a820f7cc25e3/analyst-report%3A.html",
-        "providerPublishTime": 1779403835,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/SVKRhvYIgdoUv2HlogaP.A--~B/aD0wO3c9MDthcHBpZD15dGFjaHlvbg--/https://s.yimg.com/uc/fin/img/non-sub-report-thumb.png",
-              "width": 0,
-              "height": 0,
-              "tag": "original"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GFS",
-          "AMD",
-          "IBM"
-        ],
-        "_sym": "AMD",
-        "titleZh": "分析師報告： GLOBALFOUNDRIES INC."
-      },
-      {
-        "uuid": "818e69bd-7c31-3dc0-bdfb-766fb6975d3f",
-        "title": "Stocks to Watch Recap: Nvidia, Spotify Stellantis, Intuit",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/818e69bd-7c31-3dc0-bdfb-766fb6975d3f/stocks-to-watch-recap%3A.html",
-        "providerPublishTime": 1779395451,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/8VbNi8i5QXpLgrNRyMP0hQ--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/014a5870b7c9604d38a1ff9dd33c62f6",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vkL5Nbt_2GCHV1bERYjuNA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/014a5870b7c9604d38a1ff9dd33c62f6",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "INTU",
-          "AMD",
-          "WMT",
-          "STLA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "股票重點回顧： Nvidia、Spotify Stellantis、Intuit"
       },
       {
         "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
@@ -1674,6 +1640,6 @@
         "titleZh": "Nvidia可能剛剛揭示了投資者錯過的人工智慧睡眠股"
       }
     ],
-    "fetched_at": 1779436150826
+    "fetched_at": 1779443356823
   }
 }
