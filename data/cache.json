@@ -1042,9 +1042,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 17.049999237060547,
-        "chg1d": 1.7303043211119251,
-        "chg7d": -7.487797315595716
+        "price": 17.030000686645508,
+        "chg1d": 1.6109812295729622,
+        "chg7d": -7.596308167922847
       },
       {
         "symbol": "^TNX",
@@ -1058,51 +1058,234 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.31400299072266,
-        "chg1d": 0.1250131528020237,
-        "chg7d": 0.04432995783658431
+        "price": 99.3489990234375,
+        "chg1d": 0.16029496735336088,
+        "chg7d": 0.07958334143513013
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4524.5,
-        "chg1d": -0.33701496422160343,
-        "chg7d": -0.6870320477053309
+        "price": 4519.2001953125,
+        "chg1d": -0.45375589808454087,
+        "chg7d": -0.8033629866119744
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 98.05000305175781,
-        "chg1d": 1.7644054017222714,
-        "chg7d": -6.991078775562489
+        "price": 98.26000213623047,
+        "chg1d": 1.9823598260070425,
+        "chg7d": -6.791876453308496
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77188.25,
-        "chg1d": -0.45257366891371636,
-        "chg7d": -2.374519127541017
+        "price": 77329.1015625,
+        "chg1d": -0.27092153220136517,
+        "chg7d": -2.196374118155525
       }
     ],
     "news": [
       {
-        "uuid": "2eb01021-50b5-3cc8-83ae-bc70bb331f3a",
-        "title": "Disney+, Netflix, Spotify Face Damages From Italian Piracy Ring",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/disney-netflix-spotify-face-damages-093014879.html",
-        "providerPublishTime": 1779442214,
+        "uuid": "a6c85196-4d73-3506-af18-b888ee1a2efc",
+        "title": "Nvidia Stock Looks Even Cheaper After Earnings",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/a6c85196-4d73-3506-af18-b888ee1a2efc/nvidia-stock-looks-even.html",
+        "providerPublishTime": 1779449220,
         "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ScXhrWXR3D2XPIzsN2kfhg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/8b8ff1ecb127e7d18766f89de607ab0c",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ydOtob0Xr37RdseS9ZliRw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/8b8ff1ecb127e7d18766f89de607ab0c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
         "relatedTickers": [
-          "NFLX",
-          "SPOT",
-          "DIS",
-          "GOOG"
+          "INTC",
+          "AMD",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Nvidia股票在盈利後看起來更便宜"
+      },
+      {
+        "uuid": "614dab34-7076-3c70-8019-0c42242a8f99",
+        "title": "Stripe just created a new role for the AI era and will pay up to $198K a year for a ‘forward deployed AI accelerator’",
+        "publisher": "Moneywise",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/stripe-just-created-role-ai-112000089.html",
+        "providerPublishTime": 1779448800,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/l6aDJ327TsDHEDyqjl0liQ--~B/aD0xNjAwO3c9Mjg0NDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/moneywise_327/186a7948306303db14daff8223051bff",
+              "width": 2844,
+              "height": 1600,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/FSIcUYw9hSqO7zgW3HImOw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/moneywise_327/186a7948306303db14daff8223051bff",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "STRI.PVT"
         ],
         "_sym": "GOOGL",
-        "titleZh": "Disney +、Netflix、Spotify臉部損壞來自義大利盜版戒指"
+        "titleZh": "Stripe剛剛為人工智慧時代創造了一個新角色，並將每年支付高達$ 198K的「前方部署人工智慧加速器」"
+      },
+      {
+        "uuid": "4f7902b9-6685-33af-b5d1-758371601a94",
+        "title": "Nvidia AI Outlook Lifts Asian Chip Suppliers",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/nvidia-ai-outlook-lifts-asian-103012226.html",
+        "providerPublishTime": 1779445812,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA",
+          "2317.TW",
+          "AMD",
+          "TSM",
+          "3436.T",
+          "4063.T",
+          "4062.T",
+          "6981.T"
+        ],
+        "_sym": "AMD",
+        "titleZh": "NVIDIA AI Outlook提升亞洲晶片供應商"
+      },
+      {
+        "uuid": "143cb4bf-8122-3403-8b9a-f6ee4890794c",
+        "title": "Prediction: Alphabet Will Join the $5 Trillion Club and the Dow Jones Industrial Average in June",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/143cb4bf-8122-3403-8b9a-f6ee4890794c/prediction%3A-alphabet-will.html",
+        "providerPublishTime": 1779444300,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/5u_qYKq_FrgymHmqqGVRTA--~B/aD02ODY7dz0xMjAxO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b2940a832ad0596246fe627060d8c0d4",
+              "width": 1201,
+              "height": 686,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/R_G7qyv3Oye8Uzx5Qs56hQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b2940a832ad0596246fe627060d8c0d4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^DJI",
+          "GOOG",
+          "NVDA",
+          "^GSPC",
+          "INTC",
+          "CRM",
+          "AMZN",
+          "XOM"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "預測： Alphabet將於6月加入$ 5兆俱樂部和道瓊斯工業平均指數"
+      },
+      {
+        "uuid": "38f3f3d3-d577-3bda-9f22-dec2e43cf37f",
+        "title": "Billionaire Bill Ackman Just Dumped Alphabet Stock to Buy These Two AI Stocks. Should Investors Follow Suit?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/38f3f3d3-d577-3bda-9f22-dec2e43cf37f/billionaire-bill-ackman-just.html",
+        "providerPublishTime": 1779443400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VNWdi0WfbVsbywEXbvP0jA--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b55c618de439f8362d39d5926e24ac8c",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/GtXcHfA7RF.OudFzg2it9A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b55c618de439f8362d39d5926e24ac8c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "NVDA",
+          "MSFT",
+          "AMZN",
+          "INTC",
+          "PS"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "億萬富翁Bill Ackman剛剛拋售Alphabet股票以購買這兩隻AI股票。投資者是否應該採取行動？"
+      },
+      {
+        "uuid": "7898234e-4529-32a6-b267-142e761707b5",
+        "title": "Update: Google, Meta, TikTok Face Allegations of Failing to Prevent Financial Fraud Ads",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/crypto/articles/google-meta-tiktok-face-allegations-093522312.html",
+        "providerPublishTime": 1779442522,
+        "type": "STORY",
+        "relatedTickers": [
+          "GOOG",
+          "GOOGL",
+          "META"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "更新： Google、Meta、TikTok面對未能防止金融詐騙廣告的指控"
+      },
+      {
+        "uuid": "d5c3996e-8a8d-32cd-85c3-263814a8c86f",
+        "title": "Nvidia's Latest AI Partner Was a Bargain Hiding in Plain Sight. Is It Still a Buy?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/d5c3996e-8a8d-32cd-85c3-263814a8c86f/nvidia%27s-latest-ai-partner.html",
+        "providerPublishTime": 1779442500,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/N2tiz5RuhQdX8PRhLRUCxA--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a11319cf3256b2823d399f249184c81b",
+              "width": 1400,
+              "height": 840,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/XKg4Ghz4WlrB0MX82X6SYg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a11319cf3256b2823d399f249184c81b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "GOOG",
+          "GLW",
+          "AMZN",
+          "INTC"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Nvidia最新的人工智能合作夥伴是隱藏在眼前的便宜貨。還在買嗎？"
       },
       {
         "uuid": "e9f6c7bd-b750-3f6a-b4c3-c756ecdcba77",
@@ -1171,52 +1354,22 @@
         "titleZh": "Photronics、IPG Photonics、AMD、KLA Corporation和MACOM股票交易，您需要了解的信息"
       },
       {
-        "uuid": "4a17eccb-ae1d-361c-8bdb-46c882227925",
-        "title": "AMD Expands Taiwan Capacity as AI Tightens CPU Supply",
-        "publisher": "GuruFocus.com",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/amd-expands-taiwan-capacity-ai-085445463.html",
-        "providerPublishTime": 1779440085,
-        "type": "STORY",
-        "relatedTickers": [
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "隨著AI收緊CPU供應， AMD擴大臺灣產能"
-      },
-      {
-        "uuid": "81e5d1dd-6d2c-3361-8f29-f87282ebed92",
-        "title": "TSMC Trails 140% AI Rallies As Investors Broaden Chip Bets",
-        "publisher": "GuruFocus.com",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/tsmc-trails-140-ai-rallies-085139388.html",
-        "providerPublishTime": 1779439899,
-        "type": "STORY",
-        "relatedTickers": [
-          "TSM",
-          "GOOG",
-          "NVDA",
-          "2454.TW",
-          "005930.KS"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "隨著投資者擴大籌碼投資，臺積公司落後140%的人工智能反彈"
-      },
-      {
-        "uuid": "12abfa96-8526-3d46-a9c7-152d05c358e4",
-        "title": "Nasdaq, S&P 500 Futures Rise As Quantum Stocks Stay Red-Hot, All Eyes On Warsh Fed Swearing-In: Why IBM, RGTI, QBTS, INFQ, AMD, RKLB Are In Focus",
-        "publisher": "Stocktwits",
-        "link": "https://finance.yahoo.com/m/12abfa96-8526-3d46-a9c7-152d05c358e4/nasdaq%2C-s%26p-500-futures-rise.html",
-        "providerPublishTime": 1779439783,
+        "uuid": "854e4cc5-bb75-3a7b-b9f9-27f6ce8fe63c",
+        "title": "Stocks to Watch: Estee Lauder, IBM, GloubalFoundries",
+        "publisher": "The Wall Street Journal",
+        "link": "https://finance.yahoo.com/m/854e4cc5-bb75-3a7b-b9f9-27f6ce8fe63c/stocks-to-watch%3A-estee.html",
+        "providerPublishTime": 1779440709,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/IZ30z4SoTXuKmYppZ5Dxrg--~B/aD02Njg7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/28104310f95a72f2b2eb6c3a5bea5945",
-              "width": 1000,
-              "height": 668,
+              "url": "https://s.yimg.com/uu/api/res/1.2/Fwf5HL4GsEGPbDfR3MJBPg--~B/aD02MzA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
+              "width": 1200,
+              "height": 630,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/J2WJrPtU_R8EmlG45.05SA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/28104310f95a72f2b2eb6c3a5bea5945",
+              "url": "https://s.yimg.com/uu/api/res/1.2/zIJaagDuCJitt1Cvcwyc7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -1224,153 +1377,20 @@
           ]
         },
         "relatedTickers": [
+          "EL",
           "IBM",
-          "^GSPC",
-          "RGTI",
-          "INFQ",
-          "AMD",
-          "RKLB",
-          "QBTS",
-          "CL=F"
-        ],
-        "_sym": "AMD",
-        "titleZh": "納斯達克，標準普爾500指數期貨上漲，量子股保持火熱，所有目光都集中在戰爭美聯儲宣誓就職：為什麼IBM ， RGTI ， QBTS ， INFQ ， AMD ， RKLB是焦點"
-      },
-      {
-        "uuid": "4e652147-a4e8-3e5e-91d6-533964814156",
-        "title": "Why Is AMD Stock Jumping Over 2% Premarket Today?",
-        "publisher": "Stocktwits",
-        "link": "https://finance.yahoo.com/m/4e652147-a4e8-3e5e-91d6-533964814156/why-is-amd-stock-jumping-over.html",
-        "providerPublishTime": 1779438162,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/l0sPQgZzUoMgXL3ORjuUmg--~B/aD05MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/a244aba6cfff83a66272e9fb6fdc7fa4",
-              "width": 1200,
-              "height": 900,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/LLa6q8YS1CkpkcsTC49VcQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/a244aba6cfff83a66272e9fb6fdc7fa4",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "為什麼AMD股價今天上市前上漲超過2 ％ ？"
-      },
-      {
-        "uuid": "e3aebed2-3d27-3c10-9ac1-016d8037e43b",
-        "title": "Investors Look Beyond TSMC as AI Boom Spreads to New Winners",
-        "publisher": "Bloomberg",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/investors-look-beyond-tsmc-ai-053002545.html",
-        "providerPublishTime": 1779427802,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/XoWqGv_sKMba_OE8_qBA5w--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/2eb3b3c406c4b7e002805f342c8786c7",
-              "width": 1200,
-              "height": 675,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/CKrVUCuki6Cn7bQx3PKdDg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/bloomberg_holding_pen_162/2eb3b3c406c4b7e002805f342c8786c7",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "TSM",
-          "005930.KS",
-          "GOOG",
-          "285A.T",
-          "2360.TW",
-          "INTC",
-          "ASX",
-          "005935.KS",
-          "000660.KS",
           "NVDA",
-          "2454.TW"
+          "INTC",
+          "0992.HK",
+          "80992.HK",
+          "PUIG.MC",
+          "CFR.SW",
+          "AMD",
+          "GFS",
+          "QBTS"
         ],
-        "_sym": "GOOGL",
-        "titleZh": "投資者將目光投向臺積公司以外，因為人工智能熱潮擴散到新的贏家"
-      },
-      {
-        "uuid": "8e9438e1-01a5-37dc-8233-6b2498bbaf19",
-        "title": "Will Deeper Google and Royal Caribbean Integrations Change Affirm Holdings' (AFRM) Narrative",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/deeper-google-royal-caribbean-integrations-043227624.html",
-        "providerPublishTime": 1779424347,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/KBUCiHZfz4dSjI0OMNVwSA--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/deae7123c305ae121db80b585a5fb9dd",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TgXSOgGf88hGELMb7zxtbg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/deae7123c305ae121db80b585a5fb9dd",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "RCL",
-          "AFRM"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "Deeper Google和Royal Caribbean Integrations將改變Affirm Holdings （ AFRM ）的敘述"
-      },
-      {
-        "uuid": "7f93412a-e164-3634-b9a6-c5af5dec79ae",
-        "title": "SpaceX Will Change the IPO Game Forever. Play at Your Own Risk.",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/7f93412a-e164-3634-b9a6-c5af5dec79ae/spacex-will-change-the-ipo.html",
-        "providerPublishTime": 1779424200,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/pe_TgCkFtVt.g_I.M8xMqA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/8eb54db4fe944cefbcd30617072f7d97",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/48qdaVO6OMSkcOT0H00ePw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/8eb54db4fe944cefbcd30617072f7d97",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SPAX.PVT",
-          "ANTH.PVT",
-          "META",
-          "PLTR",
-          "2223.SR",
-          "GOOG",
-          "CBRS",
-          "DATB.PVT",
-          "STRI.PVT"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "SpaceX將永遠改變IPO遊戲。遊戲風險由您自行承擔。"
+        "_sym": "AMD",
+        "titleZh": "值得關注的股票：雅詩蘭黛、IBM、GloubalFoundries"
       },
       {
         "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
@@ -1640,6 +1660,6 @@
         "titleZh": "Nvidia可能剛剛揭示了投資者錯過的人工智慧睡眠股"
       }
     ],
-    "fetched_at": 1779443356823
+    "fetched_at": 1779450535821
   }
 }
