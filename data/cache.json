@@ -1058,36 +1058,96 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.24099731445312,
-        "chg1d": 0.05141130334884185,
-        "chg7d": 0.36508906863129753
+        "price": 99.25,
+        "chg1d": 0.06048750591491506,
+        "chg7d": 0.3741937265974605
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4524.60009765625,
-        "chg1d": -0.33481007280443903,
-        "chg7d": -3.2812465914721285
+        "price": 4526.39990234375,
+        "chg1d": -0.2951650495670346,
+        "chg7d": -3.2427736077836924
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 98.11000061035156,
-        "chg1d": 1.8266758319702439,
-        "chg7d": -3.0246096807116807
+        "price": 97.45999908447266,
+        "chg1d": 1.152050470088695,
+        "chg7d": -3.6670941500634138
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77558.0078125,
-        "chg1d": 0.1294051849823417,
-        "chg7d": -1.9068600699556844
+        "price": 77711.2265625,
+        "chg1d": 0.32721457608707166,
+        "chg7d": -1.7130733971469723
       }
     ],
     "news": [
+      {
+        "uuid": "87700893-d5cd-378b-9005-1d8e77a8534e",
+        "title": "Mitsubishi Electric Engineer Earns Kaggle Competitions Master Title in World’s Largest AI Competition",
+        "publisher": "Business Wire",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/mitsubishi-electric-engineer-earns-kaggle-030000063.html",
+        "providerPublishTime": 1779418800,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZVzFw00zD7_c0dLktZna2A--~B/aD0yMDA7dz00ODA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/efa9d82ca5cdd348483a079668e99af3",
+              "width": 480,
+              "height": 200,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/G6e8ZVpNVFpOBPvk3Zwt2w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/efa9d82ca5cdd348483a079668e99af3",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "6503.T"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "三菱電機工程師在全球最大的人工智能競賽中贏得Kaggle比賽大師頭銜"
+      },
+      {
+        "uuid": "0c1c639b-b162-349e-9731-75753ffe2344",
+        "title": "AMD asking partners to ramp up production, CEO says",
+        "publisher": "Reuters",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/amd-asking-partners-ramp-production-021329204.html",
+        "providerPublishTime": 1779416009,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/FhTNKXQauUh6Noc0nahpFg--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters-finance.com/4d9f74c3e0b87e3f82d2bc6d8771170c",
+              "width": 800,
+              "height": 533,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/JJPpo1tu4EQN1Wj6yazXBA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/reuters-finance.com/4d9f74c3e0b87e3f82d2bc6d8771170c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "TSM"
+        ],
+        "_sym": "AMD",
+        "titleZh": "首席執行官表示， AMD要求合作夥伴提高產量"
+      },
       {
         "uuid": "cbda2368-ccda-3c04-90c8-b49f4e7b11f2",
         "title": "Lessons from GenXers on Stock Bubbles and Manias",
@@ -1196,7 +1256,7 @@
         "uuid": "b334650a-f0ec-3f07-8c43-4f049590aa0b",
         "title": "IBM Shares Soar on US Funding for $2 Billion Quantum Push",
         "publisher": "Bloomberg",
-        "link": "https://finance.yahoo.com/sectors/technology/articles/ibm-shares-soar-on-us-funding-for-2-billion-quantum-push-204755848.html",
+        "link": "https://finance.yahoo.com/news/ibm-shares-soar-on-us-funding-for-2-billion-quantum-push-204755848.html",
         "providerPublishTime": 1779396475,
         "type": "STORY",
         "thumbnail": {
@@ -1216,10 +1276,11 @@
           ]
         },
         "relatedTickers": [
-          "RGTI",
-          "QBTS",
           "IBM",
+          "GFS",
+          "QBTS",
           "MSFT",
+          "RGTI",
           "GOOG"
         ],
         "_sym": "GOOGL",
@@ -1259,38 +1320,6 @@
         "titleZh": "股票重點回顧： Nvidia、Spotify Stellantis、Intuit"
       },
       {
-        "uuid": "db555c50-ff9f-385e-b777-33e27c2d0875",
-        "title": "Why Applied Digital Stock Soared Today",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/db555c50-ff9f-385e-b777-33e27c2d0875/why-applied-digital-stock.html",
-        "providerPublishTime": 1779395050,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/swUt9k4GcFZI8Bb1RTf99Q--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34cf498717fd6603130376a3bf7e51e8",
-              "width": 1400,
-              "height": 787,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ja__Pi5eRf3FxnfwwAvEbw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34cf498717fd6603130376a3bf7e51e8",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "APLD",
-          "MSFT",
-          "GOOG",
-          "ORCL"
-        ],
-        "_sym": "GOOGL",
-        "titleZh": "爲什麼應用數字股票今天飆升"
-      },
-      {
         "uuid": "eb611f05-7c98-3ca7-b073-e63e0c08649a",
         "title": "Nvidia Tells Skeptical Investors AI Is Ready to Go Mainstream",
         "publisher": "Bloomberg",
@@ -1314,13 +1343,12 @@
           ]
         },
         "relatedTickers": [
-          "AMD",
           "NVDA",
           "INTC",
+          "AMD",
           "AVGO",
-          "CBRS",
-          "GOOG",
-          "AMZN"
+          "AMZN",
+          "CBRS"
         ],
         "_sym": "AMD",
         "titleZh": "NVIDIA告訴持懷疑態度的投資者AI已準備好成為主流"
@@ -1357,40 +1385,6 @@
         ],
         "_sym": "AMD",
         "titleZh": "在亞利桑那州收購更多土地後， Amkor與AMD合作開發先進包裝"
-      },
-      {
-        "uuid": "9b240790-1b20-3157-9cf0-937dbdd51dd9",
-        "title": "AMD makes a major $10 billion push in crucial tech hub",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/9b240790-1b20-3157-9cf0-937dbdd51dd9/amd-makes-a-major-%2410-billion.html",
-        "providerPublishTime": 1779389232,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/A338rAKCIipEkB7vrsd3YQ--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/5c5bee8e13b73730a75584058d766c68",
-              "width": 1200,
-              "height": 675,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/qENWQc894oALT9jnyYzw8A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/5c5bee8e13b73730a75584058d766c68",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "INTC",
-          "MRVL",
-          "MU",
-          "AVGO",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "AMD在關鍵技術中心取得了100億$的重大進展"
       },
       {
         "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
@@ -1660,6 +1654,6 @@
         "titleZh": "Nvidia可能剛剛揭示了投資者錯過的人工智慧睡眠股"
       }
     ],
-    "fetched_at": 1779414532828
+    "fetched_at": 1779421731829
   }
 }
