@@ -768,7 +768,11 @@
                 <div id="fund-backend-note" style="display:none; margin-bottom:0.75rem; padding:0.6rem 1rem; background:rgba(37,99,235,0.1); border:1px solid rgba(37,99,235,0.3); border-radius:8px; font-size:0.82rem; color:#3b82f6;">
                     ⚠ 基本面數據需要後端支援。請點「⚙ 後端設定」填入 Render.com 網址，或在本機執行 server.py。
                 </div>
-                <div id="fund-tag-toolbar"></div>
+                <div id="fund-tag-toolbar">
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(11,26,51,0.4); border:1px solid rgba(56,139,253,0.12); border-radius:10px; color:#7e93a6; font-size:0.76rem;">
+                        <span>標籤排序與篩選 toolbar 將於資料載入後出現（市場 / 持倉 / 財報 / 資料完整度 / 估值成長）</span>
+                    </div>
+                </div>
                 <div style="overflow-x:auto; overflow-y:auto; max-height:65vh;">
                     <table style="width:100%; border-collapse:collapse; font-size:0.85rem; min-width:1450px;">
                         <thead>
@@ -9198,7 +9202,10 @@
         function _renderFundTagToolbar(rows, allResults) {
             const bar = document.getElementById('fund-tag-toolbar');
             if (!bar) return;
-            if (!rows || rows.length === 0) { bar.innerHTML = ''; return; }
+            if (!rows || rows.length === 0) {
+                bar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(11,26,51,0.4); border:1px solid rgba(56,139,253,0.12); border-radius:10px; color:#7e93a6; font-size:0.76rem;"><span>標籤 toolbar 待持倉資料載入後啟用</span></div>';
+                return;
+            }
             const counts = _fundTagCounts(rows, allResults);
             const activeTag = _fundTagState.tag;
             const mode = _fundTagState.mode;
@@ -9334,6 +9341,12 @@
 
             const btn = document.getElementById('analysis-btn');
             btn.textContent = '載入中...'; btn.disabled = true;
+
+            // v15.915 hotfix #1：toolbar 載入中提示，避免使用者以為功能沒出現
+            const _fttBar = document.getElementById('fund-tag-toolbar');
+            if (_fttBar) {
+                _fttBar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(56,139,253,0.08); border:1px solid rgba(56,139,253,0.2); border-radius:10px; color:#94a3b8; font-size:0.76rem;"><span>基本面載入中…完成後可依市場 / 持倉 / 財報狀態整理表格</span></div>';
+            }
 
             // 使用本地暫存快取，分析完成前保留舊值讓自動更新仍可顯示損益
             // （只有在所有資料抓取完畢後才一次性替換全域快取）
