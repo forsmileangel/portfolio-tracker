@@ -9098,172 +9098,220 @@
             try { localStorage.setItem(_CACHE_KEY, JSON.stringify({...r, tech_ts:Date.now(), data})); } catch {}
         }
 
-        // ==================== v15.915 Fund Tag Toolbar ====================
-        // 純 UI 狀態：點 chip 改 _fundTagState 後重 render fund tbody + toolbar
+        // ==================== v15.916 Fund Compare + Sort ====================
+        // 純 UI 狀態：勾 checkbox 改 _fundCompareState.selected、點 th 改 _fundSortState
         // 不寫 localStorage、不入 Gist payload、不影響技術面表格
-        let _fundTagState = { tag: null, mode: 'sort' };  // mode: sort | filter
-        let _lastFundRows = [];
+        let _fundCompareState = { selected: [], mode: 'pin' };   // mode: pin | filter；selected 依勾選順序保存 r.holding
+        let _fundSortState    = { by: null, dir: 'desc' };        // by: null | symbol | earnings | pe | histPe | fpe | peg | ps | pb | revYoy | revFwd | grossMargin | operatingMargin | epsCurQ | epsNextQ | epsTtm | epsCurY | epsNextY
+        let _lastFundRows    = [];
         let _lastFundResults = {};
 
-        const _FUND_TAG_GROUPS = [
-            { label: '市場',   tags: ['TW', 'HK', 'US'] },
-            { label: '類型',   tags: ['持倉', '觀察清單', '槓桿/代理'] },
-            { label: '財報',   tags: ['7日內財報', '30日內財報', '財報代理', '近期無財報', '無財報日期'] },
-            { label: '資料',   tags: ['資料完整', '資料不足', '讀取中'] },
-            { label: '指標',   tags: ['PE可用', 'PE缺失', '營收成長正', '營收成長負', 'EPS成長正', 'EPS成長負'] }
-        ];
+        const _FUND_SORT_LABEL = {
+            symbol: '持倉代碼', earnings: '下次財報',
+            pe: 'PE', histPe: '歷史均PE', fpe: 'FPE', peg: 'PEG', ps: 'PS', pb: 'PB',
+            revYoy: '營收成長 YoY', revFwd: '營收成長 FWD',
+            grossMargin: '毛利率', operatingMargin: '營益率',
+            epsCurQ: 'EPS 本季', epsNextQ: 'EPS 下季', epsTtm: 'EPS 近4季',
+            epsCurY: 'EPS 全年', epsNextY: 'EPS 明年'
+        };
 
-        function _fundDaysToEarnings(d) {
-            const dateStr = d?.next_earnings_date;
-            if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) return null;
-            const today = new Date(); today.setHours(0, 0, 0, 0);
-            const [y, m, dd] = dateStr.substring(0, 10).split('-').map(n => parseInt(n, 10));
-            const target = new Date(y, (m || 1) - 1, dd || 1);
-            return Math.round((target - today) / 86400000);
+        function _fundMetricValue(r, d, by) {
+            if (by === 'symbol')   return r?.holding || '';
+            if (by === 'earnings') return d?.next_earnings_date || null;
+            const map = {
+                pe: 'pe', histPe: 'hist_avg_pe', fpe: 'fpe', peg: 'peg', ps: 'ps', pb: 'pb',
+                revYoy: 'rev_yoy', revFwd: 'rev_fwd',
+                grossMargin: 'gross_margin', operatingMargin: 'operating_margin',
+                epsCurQ: 'eps_cur_q', epsNextQ: 'eps_next_q', epsTtm: 'eps_ttm',
+                epsCurY: 'eps_cur_y', epsNextY: 'eps_next_y'
+            };
+            const key = map[by];
+            return key ? d?.[key] : null;
         }
 
-        function _fundHasTag(r, d, tag) {
-            // 市場
-            if (tag === 'TW' || tag === 'HK' || tag === 'US') {
-                return _inferSymbolMarketKey(r.holding, null) === tag;
+        function _compareFundRows(a, b, allResults, sortState) {
+            const by  = sortState.by;
+            const dir = sortState.dir === 'asc' ? 1 : -1;
+            const va  = _fundMetricValue(a, allResults?.[a.query], by);
+            const vb  = _fundMetricValue(b, allResults?.[b.query], by);
+            const isBad = v => (v == null || v === '' || v === '-' || (typeof v === 'number' && !isFinite(v)));
+            const aBad = isBad(va);
+            const bBad = isBad(vb);
+            if (aBad && bBad) return 0;
+            if (aBad) return 1;   // a 永遠排到底
+            if (bBad) return -1;  // b 永遠排到底
+            if (by === 'symbol' || by === 'earnings') {
+                return String(va).localeCompare(String(vb)) * dir;
             }
-            // 類型
-            if (tag === '持倉')      return !r.isWatchlist;
-            if (tag === '觀察清單')  return !!r.isWatchlist;
-            if (tag === '槓桿/代理') return !!r.isProxy;
-            // 資料狀態
-            if (tag === '讀取中')    return !!d?._pending;
-            if (tag === '資料不足') {
-                if (!d || d._error) return true;
-                if (d._pending) return false;
-                return (d.pe == null && d.eps_ttm == null && d.rev_yoy == null);
-            }
-            if (tag === '資料完整') {
-                if (!d || d._error || d._pending) return false;
-                return (d.pe != null || d.eps_ttm != null || d.rev_yoy != null);
-            }
-            // 財報
-            if (tag === '近期無財報') return d?.no_earnings === true;
-            if (tag === '財報代理')   return !!d?.earnings_proxy_symbol;
-            if (tag === '無財報日期') {
-                if (!d || d._pending) return false;
-                if (d.no_earnings === true) return false;
-                if (d.earnings_proxy_symbol) return false;
-                return _fundDaysToEarnings(d) == null;
-            }
-            if (tag === '7日內財報') {
-                const days = _fundDaysToEarnings(d);
-                return days != null && days >= 0 && days <= 7;
-            }
-            if (tag === '30日內財報') {
-                const days = _fundDaysToEarnings(d);
-                return days != null && days >= 0 && days <= 30;
-            }
-            // 指標
-            if (tag === 'PE可用')      return d?.pe != null;
-            if (tag === 'PE缺失')      return !!d && !d._pending && d.pe == null;
-            if (tag === '營收成長正')  return d?.rev_yoy != null && d.rev_yoy > 0;
-            if (tag === '營收成長負')  return d?.rev_yoy != null && d.rev_yoy < 0;
-            if (tag === 'EPS成長正') {
-                return d?.eps_next_y != null && d?.eps_cur_y != null && d.eps_cur_y > 0 && d.eps_next_y > d.eps_cur_y;
-            }
-            if (tag === 'EPS成長負') {
-                return d?.eps_next_y != null && d?.eps_cur_y != null && d.eps_cur_y > 0 && d.eps_next_y < d.eps_cur_y;
-            }
-            return false;
+            return (parseFloat(va) - parseFloat(vb)) * dir;
         }
 
-        function _fundTagCounts(rows, allResults) {
-            const counts = {};
-            _FUND_TAG_GROUPS.forEach(g => g.tags.forEach(t => { counts[t] = 0; }));
-            rows.forEach(r => {
-                const d = allResults?.[r.query];
-                Object.keys(counts).forEach(tag => {
-                    if (_fundHasTag(r, d, tag)) counts[tag]++;
-                });
-            });
-            return counts;
-        }
+        function _applyFundCompareRows(rows, allResults) {
+            const selectedSet    = new Set(_fundCompareState.selected);
+            const selectedRows   = rows.filter(r => selectedSet.has(r.holding));
+            const unselectedRows = rows.filter(r => !selectedSet.has(r.holding));
 
-        function _applyFundTagRows(rows, allResults) {
-            const tag = _fundTagState.tag;
-            if (!tag) return rows.slice();
-            if (_fundTagState.mode === 'filter') {
-                return rows.filter(r => _fundHasTag(r, allResults?.[r.query], tag));
+            if (_fundSortState.by) {
+                const cmp = (a, b) => _compareFundRows(a, b, allResults, _fundSortState);
+                selectedRows.sort(cmp);
+                unselectedRows.sort(cmp);
+            } else {
+                // 沒排序：selected 依 click 順序；unselected 維持原 rows 順序
+                const clickOrder = _fundCompareState.selected;
+                selectedRows.sort((a, b) => clickOrder.indexOf(a.holding) - clickOrder.indexOf(b.holding));
             }
-            // sort 模式：命中 row 排上方，未命中保留下方；群組內維持原順序
-            const hit = [], miss = [];
-            rows.forEach(r => {
-                if (_fundHasTag(r, allResults?.[r.query], tag)) hit.push(r);
-                else miss.push(r);
-            });
-            return hit.concat(miss);
+
+            if (_fundCompareState.mode === 'filter') return selectedRows;
+            return selectedRows.concat(unselectedRows);
         }
 
-        function _renderFundTagToolbar(rows, allResults) {
+        function _renderFundCompareToolbar(rows, allResults) {
             const bar = document.getElementById('fund-tag-toolbar');
             if (!bar) return;
             if (!rows || rows.length === 0) {
-                bar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(11,26,51,0.4); border:1px solid rgba(56,139,253,0.12); border-radius:10px; color:#7e93a6; font-size:0.76rem;"><span>標籤 toolbar 待持倉資料載入後啟用</span></div>';
+                bar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(11,26,51,0.4); border:1px solid rgba(56,139,253,0.12); border-radius:10px; color:#7e93a6; font-size:0.76rem;"><span>比較工具列待持倉資料載入後啟用</span></div>';
                 return;
             }
-            const counts = _fundTagCounts(rows, allResults);
-            const activeTag = _fundTagState.tag;
-            const mode = _fundTagState.mode;
+            const selected = _fundCompareState.selected;
+            const mode = _fundCompareState.mode;
             const modeBtnStyle = active => `padding:0.32rem 0.85rem; border-radius:6px; font-size:0.78rem; cursor:pointer; border:1px solid ${active ? '#3b82f6' : 'rgba(71,85,105,0.6)'}; background:${active ? 'rgba(59,130,246,0.25)' : 'rgba(30,41,59,0.4)'}; color:${active ? '#e0f2fe' : '#94a3b8'};`;
-            const chipStyle = active => `padding:0.25rem 0.65rem; border-radius:999px; font-size:0.72rem; cursor:pointer; border:1px solid ${active ? '#60a5fa' : 'rgba(71,85,105,0.4)'}; background:${active ? 'rgba(59,130,246,0.3)' : 'rgba(30,41,59,0.35)'}; color:${active ? '#e0f2fe' : '#94a3b8'}; white-space:nowrap; user-select:none;`;
-            const groupHtml = _FUND_TAG_GROUPS.map(g => {
-                const chips = g.tags.map(t => {
-                    const n = counts[t] || 0;
-                    const isActive = (t === activeTag);
-                    const safeTag = t.replace(/'/g, "\\'");
-                    return `<span onclick="_setFundTag('${safeTag}')" style="${chipStyle(isActive)}">${t} ${n}</span>`;
+            const chipStyle = `padding:0.25rem 0.65rem; border-radius:999px; font-size:0.72rem; border:1px solid #60a5fa; background:rgba(59,130,246,0.25); color:#e0f2fe; white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem;`;
+            const xBtnStyle = 'cursor:pointer; color:#cbd5e1; font-weight:bold; padding:0 0.2rem; user-select:none;';
+            const linkBtnStyle = 'padding:0.18rem 0.55rem; border-radius:6px; font-size:0.7rem; cursor:pointer; border:1px solid rgba(71,85,105,0.5); background:rgba(30,41,59,0.4); color:#94a3b8; user-select:none;';
+
+            const chipsHtml = selected.length === 0
+                ? '<span style="color:#7e93a6; font-size:0.72rem;">尚未勾選任何標的（點第一欄 checkbox 加入比較）</span>'
+                : selected.map(sym => {
+                    const safe = sym.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `<span style="${chipStyle}">${sym}<span onclick="_removeFundCompareSymbol('${safe}', event)" style="${xBtnStyle}" title="移除">×</span></span>`;
                 }).join('');
-                return `<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;"><span style="color:#7e93a6; font-size:0.7rem; margin-right:0.15rem;">${g.label}</span>${chips}</div>`;
-            }).join('');
+            const clearSelBtn = selected.length > 0
+                ? `<span onclick="_clearFundCompareSelection(event)" style="${linkBtnStyle}">清除選取</span>`
+                : '';
+
+            const sortBy  = _fundSortState.by;
+            const sortDir = _fundSortState.dir;
+            const sortText = sortBy
+                ? `<span style="color:#cbd5e1; font-size:0.72rem;">排序：${_FUND_SORT_LABEL[sortBy] || sortBy} ${sortDir === 'asc' ? '▲' : '▼'}</span>`
+                : `<span style="color:#7e93a6; font-size:0.72rem;">排序：尚未設定（點欄位表頭）</span>`;
+            const clearSortBtn = sortBy
+                ? `<span onclick="_clearFundSort(event)" style="${linkBtnStyle}">清除排序</span>`
+                : '';
+
             bar.innerHTML = `
                 <div style="display:flex; flex-wrap:wrap; gap:0.5rem 0.85rem; align-items:center; margin-bottom:0.75rem; padding:0.6rem 0.85rem; background:rgba(11,26,51,0.6); border:1px solid rgba(56,139,253,0.15); border-radius:10px;">
                     <div style="display:flex; gap:0.4rem; align-items:center;">
-                        <span style="color:#7e93a6; font-size:0.7rem; margin-right:0.1rem;">模式</span>
-                        <button onclick="_setFundTagMode('sort')" style="${modeBtnStyle(mode === 'sort')}">排序</button>
-                        <button onclick="_setFundTagMode('filter')" style="${modeBtnStyle(mode === 'filter')}">篩選</button>
+                        <span style="color:#7e93a6; font-size:0.7rem; margin-right:0.1rem;">比較標的</span>
+                        <button onclick="_setFundCompareMode('pin')" style="${modeBtnStyle(mode === 'pin')}">置頂比較</button>
+                        <button onclick="_setFundCompareMode('filter')" style="${modeBtnStyle(mode === 'filter')}">只看選取</button>
                     </div>
-                    ${groupHtml}
+                    <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+                        ${chipsHtml}
+                        ${clearSelBtn}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-left:auto;">
+                        ${sortText}
+                        ${clearSortBtn}
+                    </div>
                 </div>
             `;
         }
 
-        function _setFundTag(tag) {
-            _fundTagState.tag = (_fundTagState.tag === tag) ? null : tag;
+        function _toggleFundCompareSymbol(symbol, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const arr = _fundCompareState.selected;
+            const idx = arr.indexOf(symbol);
+            if (idx >= 0) arr.splice(idx, 1);
+            else arr.push(symbol);
             _rerenderFundTbody();
-            _renderFundTagToolbar(_lastFundRows, _lastFundResults);
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
         }
 
-        function _setFundTagMode(mode) {
-            if (mode !== 'sort' && mode !== 'filter') return;
-            if (_fundTagState.mode === mode) return;
-            _fundTagState.mode = mode;
+        function _removeFundCompareSymbol(symbol, event) {
+            if (event) event.stopPropagation();
+            const arr = _fundCompareState.selected;
+            const idx = arr.indexOf(symbol);
+            if (idx >= 0) arr.splice(idx, 1);
             _rerenderFundTbody();
-            _renderFundTagToolbar(_lastFundRows, _lastFundResults);
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
+        }
+
+        function _clearFundCompareSelection(event) {
+            if (event) event.stopPropagation();
+            _fundCompareState.selected = [];
+            _rerenderFundTbody();
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
+        }
+
+        function _setFundCompareMode(mode) {
+            if (mode !== 'pin' && mode !== 'filter') return;
+            if (_fundCompareState.mode === mode) return;
+            _fundCompareState.mode = mode;
+            _rerenderFundTbody();
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
+        }
+
+        function _setFundSort(by) {
+            if (!by) return;
+            if (_fundSortState.by === by) {
+                _fundSortState.dir = _fundSortState.dir === 'desc' ? 'asc' : 'desc';
+            } else {
+                _fundSortState.by = by;
+                _fundSortState.dir = (by === 'symbol' || by === 'earnings') ? 'asc' : 'desc';
+            }
+            _rerenderFundTbody();
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
+            _renderFundSortIndicators();
+        }
+
+        function _clearFundSort(event) {
+            if (event) event.stopPropagation();
+            _fundSortState.by = null;
+            _rerenderFundTbody();
+            _renderFundCompareToolbar(_lastFundRows, _lastFundResults);
+            _renderFundSortIndicators();
+        }
+
+        function _renderFundSortIndicators() {
+            const ths = document.querySelectorAll('th[data-fund-sort]');
+            ths.forEach(th => {
+                const ind = th.querySelector('.fund-sort-ind');
+                if (!ind) return;
+                if (th.getAttribute('data-fund-sort') === _fundSortState.by) {
+                    ind.textContent = _fundSortState.dir === 'asc' ? ' ▲' : ' ▼';
+                } else {
+                    ind.textContent = '';
+                }
+            });
         }
 
         function _rerenderFundTbody() {
             const tbody = document.getElementById('fund-tbody');
             if (!tbody) return;
-            const display = _applyFundTagRows(_lastFundRows, _lastFundResults);
+            const display = _applyFundCompareRows(_lastFundRows, _lastFundResults);
             if (display.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">沒有符合此標籤的基本面資料</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">請先勾選要比較的標的</td></tr>';
             } else {
                 tbody.innerHTML = display.map(r => _buildFundRowHtml(r, _lastFundResults?.[r.query])).join('');
             }
+            _renderFundSortIndicators();
             if (typeof _applyAnalysisRowSelection === 'function') _applyAnalysisRowSelection();
         }
 
         function _buildFundRowHtml(r, d) {
             const rowId = r.holding.replace(/[^a-zA-Z0-9]/g, '_');
-            const symTd = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
-                (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
-                (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
+            const isSelected = _fundCompareState.selected.includes(r.holding);
+            const safeHolding = r.holding.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const cellSelStyle = isSelected
+                ? 'background:rgba(59,130,246,0.12); border-left:3px solid #60a5fa;'
+                : 'border-left:3px solid transparent;';
+            const checkboxHtml = `<input type="checkbox" ${isSelected ? 'checked' : ''} onclick="_toggleFundCompareSymbol('${safeHolding}', event)" style="accent-color:#60a5fa; cursor:pointer; vertical-align:middle; margin-right:0.4rem;">`;
+            const symTd = `<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9; ${cellSelStyle}">${checkboxHtml}<span>${r.holding}</span>` +
+                (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem; margin-left:1.4rem;">' + r.query + ' (原型)</small>' : '') +
+                (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px; margin-left:1.4rem;">觀察中</small>' : '') + '</td>';
             const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
 
             if (d?._pending) {
@@ -9343,10 +9391,10 @@
             const btn = document.getElementById('analysis-btn');
             btn.textContent = '載入中...'; btn.disabled = true;
 
-            // v15.915 hotfix #1：toolbar 載入中提示，避免使用者以為功能沒出現
+            // v15.916：toolbar 載入中提示，避免使用者以為功能沒出現
             const _fttBar = document.getElementById('fund-tag-toolbar');
             if (_fttBar) {
-                _fttBar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(56,139,253,0.08); border:1px solid rgba(56,139,253,0.2); border-radius:10px; color:#94a3b8; font-size:0.76rem;"><span>基本面載入中…完成後可依市場 / 持倉 / 財報狀態整理表格</span></div>';
+                _fttBar.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; padding:0.55rem 0.85rem; background:rgba(56,139,253,0.08); border:1px solid rgba(56,139,253,0.2); border-radius:10px; color:#94a3b8; font-size:0.76rem;"><span>基本面載入中…完成後可勾選標的置頂比較，也可點表頭排序</span></div>';
             }
 
             // 使用本地暫存快取，分析完成前保留舊值讓自動更新仍可顯示損益
@@ -9508,17 +9556,18 @@
 
             // ── 毛利率/營益率：v8/chart events 不含此資訊；quoteSummary 需 crumb 已停用 ──
 
-            // ── Render ──（v15.915：fund 走 tag-aware 路徑、tech 維持原順序）
+            // ── Render ──（v15.916：fund 走 compare/sort 路徑、tech 維持原順序）
             _lastFundRows = rows;
             _lastFundResults = allResults;
-            const fundDisplayRows = _applyFundTagRows(rows, allResults);
+            const fundDisplayRows = _applyFundCompareRows(rows, allResults);
             const fundRowsHtml = fundDisplayRows.length === 0
-                ? '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">沒有符合此標籤的基本面資料</td></tr>'
+                ? '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">請先勾選要比較的標的</td></tr>'
                 : fundDisplayRows.map(r => _buildFundRowHtml(r, allResults[r.query])).join('');
             const techRowsHtml = rows.map(r => _buildTechRowHtml(r, allResults[r.query])).join('');
             fundTbody.innerHTML = fundRowsHtml;
             techTbody.innerHTML = techRowsHtml;
-            _renderFundTagToolbar(rows, allResults);
+            _renderFundCompareToolbar(rows, allResults);
+            _renderFundSortIndicators();
             _applyAnalysisRowSelection();
 
             btn.textContent = '↻ 更新分析數據'; btn.disabled = false;
