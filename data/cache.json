@@ -731,5 +731,664 @@
       },
       "fetched_at": 1779515587884
     }
+  },
+  "macro": {
+    "results": [
+      {
+        "symbol": "^GSPC",
+        "name": "S&P 500",
+        "cat": "股市",
+        "price": 7473.47021484375,
+        "chg1d": 0.37269732409066003,
+        "chg7d": 0.8769685475298643
+      },
+      {
+        "symbol": "^IXIC",
+        "name": "Nasdaq",
+        "cat": "股市",
+        "price": 26343.970703125,
+        "chg1d": 0.19347697496974275,
+        "chg7d": 0.4531151227144278
+      },
+      {
+        "symbol": "^SOX",
+        "name": "費城半導體",
+        "cat": "股市",
+        "price": 12202.5400390625,
+        "chg1d": 1.9931324379339261,
+        "chg7d": 5.299065451276075
+      },
+      {
+        "symbol": "^VIX",
+        "name": "恐慌指數 VIX",
+        "cat": "情緒",
+        "price": 16.700000762939453,
+        "chg1d": -0.35799203534011975,
+        "chg7d": -9.386866595712885
+      },
+      {
+        "symbol": "^TNX",
+        "name": "10年期美債殖利率",
+        "cat": "利率",
+        "price": 4.558000087738037,
+        "chg1d": -0.6105512023398085,
+        "chg7d": -0.8052166298808487
+      },
+      {
+        "symbol": "DX-Y.NYB",
+        "name": "美元指數",
+        "cat": "外匯",
+        "price": 99.31999969482422,
+        "chg1d": 0.13105882671467928,
+        "chg7d": 0.05037075999670138
+      },
+      {
+        "symbol": "GC=F",
+        "name": "黃金",
+        "cat": "商品",
+        "price": 4521,
+        "chg1d": -0.4141108748471365,
+        "chg7d": -0.7638571969666927
+      },
+      {
+        "symbol": "CL=F",
+        "name": "原油 (WTI)",
+        "cat": "商品",
+        "price": 96.5999984741211,
+        "chg1d": 0.2594706839223751,
+        "chg7d": -8.366533720375665
+      },
+      {
+        "symbol": "BTC-USD",
+        "name": "Bitcoin",
+        "cat": "加密",
+        "price": 74679.4296875,
+        "chg1d": -1.0714416928546922,
+        "chg7d": -4.418205939830558
+      }
+    ],
+    "news": [
+      {
+        "uuid": "2ee1f55f-c5ac-3c21-9123-c6bc2e8958fa",
+        "title": "AMD: Strong AI Sales, But the Win Is Already Priced In",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/amd-strong-ai-sales-win-092046703.html",
+        "providerPublishTime": 1779528046,
+        "type": "STORY",
+        "relatedTickers": [
+          "AMD",
+          "TSM",
+          "META"
+        ],
+        "_sym": "AMD",
+        "titleZh": "AMD ：強勁的人工智能銷售，但勝利已經定價"
+      },
+      {
+        "uuid": "285a7475-a547-3ce9-b12c-730757adb88f",
+        "title": "Billionaire Bill Ackman Sold Alphabet and Bought the Dip in This Magnificent Artificial Intelligence (AI) Stock Instead",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/285a7475-a547-3ce9-b12c-730757adb88f/billionaire-bill-ackman-sold.html",
+        "providerPublishTime": 1779519780,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/cEdyXCqvpQOj2UoCL7CHNQ--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/323b363741fa70814356adc25aee215e",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hOYQdnBlntsEyyiBsmYegQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/323b363741fa70814356adc25aee215e",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "PS",
+          "MSFT"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "億萬富翁比爾·阿克曼（ Bill Ackman ）賣出了Alphabet ，並買入了這支宏偉的人工智能（ AI ）股票"
+      },
+      {
+        "uuid": "7c3dc16a-9db9-377d-8677-9910d9efce2e",
+        "title": "How The Advanced Micro Devices (AMD) Story Is Shifting With AI Optimism And Valuation Concerns",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/advanced-micro-devices-amd-story-061431275.html",
+        "providerPublishTime": 1779516871,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/qQQ8mpCpMuvTPXTeKADXJQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/a882d53b581ebe737458ea1484ce4133",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/s22m4gTvBzH.4N9qkkNqSw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/a882d53b581ebe737458ea1484ce4133",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "C",
+          "BAC"
+        ],
+        "_sym": "AMD",
+        "titleZh": "先進微設備（ AMD ）的故事如何隨著人工智能樂觀和估值擔憂而發生變化"
+      },
+      {
+        "uuid": "f8178e19-f90b-3d31-a7fc-6c01f7cc90b3",
+        "title": "BofA says AI productivity boost visible in narrow tasks, not yet economy-wide",
+        "publisher": "Investing.com",
+        "link": "https://finance.yahoo.com/economy/articles/bofa-says-ai-productivity-boost-055813350.html",
+        "providerPublishTime": 1779515893,
+        "type": "STORY",
+        "relatedTickers": [
+          "GOOG",
+          "INTC",
+          "MSFT"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "美國銀行表示， AI生產力的提升在狹窄的任務中可見，但尚未在整個經濟範"
+      },
+      {
+        "uuid": "dca453ac-8213-3127-957f-14dc9ee1a238",
+        "title": "Alphabet’s Missouri Data Center Push Recasts AI Growth And Risk Story",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/alphabet-missouri-data-center-push-031726068.html",
+        "providerPublishTime": 1779506246,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VTfDtc_pApg1_vVDy_b8eQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Kv5RbP0mE9EpcenlZ1w2hg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/1fc7d8c4b041b0aaed5c1d373b17b5b4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "Alphabet的密蘇裏州數據中心推送重塑AI增長和風險故事"
+      },
+      {
+        "uuid": "879072fd-2d18-3074-b2ec-2e92c37a571e",
+        "title": "Dow Jones Futures: Stock Market Rebounds To Highs; Tesla, These Five AI Plays Are At Buy Points",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/879072fd-2d18-3074-b2ec-2e92c37a571e/dow-jones-futures%3A-stock.html",
+        "providerPublishTime": 1779501670,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Vfvm2EC3sNHYufRoi3EIlA--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/4deb748e91994e99e6e4e082c5f3bb56",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/DA_GwULEYQAS5nflcHs_uw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/4deb748e91994e99e6e4e082c5f3bb56",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GEV",
+          "LITE",
+          "ASML",
+          "VIAV",
+          "^DJI",
+          "MRVL",
+          "TSLA",
+          "CL=F",
+          "^GSPC",
+          "^IXIC",
+          "DELL",
+          "COST",
+          "ASML.AS",
+          "GLW"
+        ],
+        "_sym": "LITE",
+        "titleZh": "道瓊斯期貨：股市反彈至高點；特斯拉，這五個AI玩法處於買入點"
+      },
+      {
+        "uuid": "749dcd85-f776-3331-806c-82b38fea1e02",
+        "title": "Citi sees AI price effects as key issue for Warsh",
+        "publisher": "Investing.com",
+        "link": "https://finance.yahoo.com/economy/policy/articles/citi-sees-ai-price-effects-012920564.html",
+        "providerPublishTime": 1779499760,
+        "type": "STORY",
+        "relatedTickers": [
+          "C",
+          "MSFT",
+          "NVDA",
+          "GOOG"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "花旗將AI價格影響視為Warsh的關鍵問題"
+      },
+      {
+        "uuid": "1e73ffb2-c0c0-38dd-a447-1f9ad8c1e6d9",
+        "title": "Bank of America resets Google stock forecast after key event",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/1e73ffb2-c0c0-38dd-a447-1f9ad8c1e6d9/bank-of-america-resets-google.html",
+        "providerPublishTime": 1779498180,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/.Nwz8c1JokgPmOyn9njGAw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/1da175f844ce5571375b6c5f62b7a8a9",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/sk3Gu0orcdRzR98nGUv2cQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/1da175f844ce5571375b6c5f62b7a8a9",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOG",
+          "^GSPC"
+        ],
+        "_sym": "GOOGL",
+        "titleZh": "美國銀行在重大事件後重置Google股票預測"
+      },
+      {
+        "uuid": "84de7ca8-4c89-3e50-aa59-e87b466692a9",
+        "title": "Alphabet, AMD Removed From Value Stock Status as Russell Reconstitutes Indexes",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/84de7ca8-4c89-3e50-aa59-e87b466692a9/alphabet%2C-amd-removed-from.html",
+        "providerPublishTime": 1779497220,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/.CZRy7jlb5bvhag._8NqrQ--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/eeefccbb7f759a530dee4d33a0e18d54",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/psfWFMWDr9bVucoh1TMlGQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/eeefccbb7f759a530dee4d33a0e18d54",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GOOGL",
+          "AMD",
+          "AAPL",
+          "MU",
+          "GOOG",
+          "AMZN",
+          "MSFT",
+          "SNDK"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Alphabet ， AMD在Russell重建指數時從價值庫存狀態中移除"
+      },
+      {
+        "uuid": "73056e24-0757-35a9-be75-f66562282e40",
+        "title": "Meet the Biggest Threat to Intel's Stunning Stock Market Rally",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/73056e24-0757-35a9-be75-f66562282e40/meet-the-biggest-threat-to.html",
+        "providerPublishTime": 1779489780,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Wb4RcgPUuS9gTPU579_plg--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d3c28a19f0d88a18a02599afa2f2fdd9",
+              "width": 1400,
+              "height": 840,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/RboOuaBgkClrtX1if0D0Gw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d3c28a19f0d88a18a02599afa2f2fdd9",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "INTC",
+          "AMD",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "迎接英特爾驚人的股市反彈的最大威脅"
+      },
+      {
+        "uuid": "2903793f-4a58-3a77-a7ef-9a0c9676729e",
+        "title": "Lumentum’s AI Optics Expansion Meets New 2x Leveraged Trading Pressure",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/lumentum-ai-optics-expansion-meets-221116330.html",
+        "providerPublishTime": 1779487876,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/d4E4P3C1gbs8FgjLBwQDxQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/1NhR10SDcMRWs7cFC1fJiA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum的AI光學擴張符合新的2倍槓桿交易壓力"
+      },
+      {
+        "uuid": "516024ad-d294-3dad-b22d-f5dd551580a2",
+        "title": "Stock Market Today: S&P 500, Nasdaq Score Weekly Wins As Dow Logs Record High",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/516024ad-d294-3dad-b22d-f5dd551580a2/stock-market-today%3A-s%26p-500%2C.html",
+        "providerPublishTime": 1779482635,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/DIEhIoFnsXUM5iPvkou0LQ--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/b93082b62d669a716dcee1724ff49dd4",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/6B00yQ3tJw8OlbCKfMOrhA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/b93082b62d669a716dcee1724ff49dd4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MRK",
+          "^DJI",
+          "^GSPC",
+          "ROST",
+          "IBM",
+          "DELL",
+          "AMD",
+          "^IXIC"
+        ],
+        "_sym": "AMD",
+        "titleZh": "今日股市：標準普爾500指數、納斯達克指數每週獲勝，道指創下歷史新高"
+      },
+      {
+        "uuid": "e8154ba9-5eb3-38e2-8a64-c74db38b2ba0",
+        "title": "Lumentum, IBD Stock Of The Day, Focuses On 'Execution' Amid AI Optical Boom",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/e8154ba9-5eb3-38e2-8a64-c74db38b2ba0/lumentum%2C-ibd-stock-of-the.html",
+        "providerPublishTime": 1779481474,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Z39DJNoV5jTlo1AQF6v26Q--~B/aD00MzA7dz04MTY7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/ibd.com/a4d5b8a4418fdeb4477a7be667508d75",
+              "width": 816,
+              "height": 430,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/jKDX2rKxI9f_GsqGDgVWYg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/a4d5b8a4418fdeb4477a7be667508d75",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum ，當日IBD股票，專注於AI光學熱潮中的「執行」"
+      },
+      {
+        "uuid": "79a425c1-7131-35c7-8755-6d31645348bb",
+        "title": "Stock Market Leaders Respect The 21-Day Line. You Should Too.",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/79a425c1-7131-35c7-8755-6d31645348bb/stock-market-leaders-respect.html",
+        "providerPublishTime": 1779460348,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/9Z3c.YPFFhOiiLZjqX0rdw--~B/aD01NzI7dz0xMDEyO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/19841932cae852525c703af44eb4e7da",
+              "width": 1012,
+              "height": 572,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/YvytgiFedIeGzih60UtV4g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/19841932cae852525c703af44eb4e7da",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^GSPC",
+          "COHR",
+          "ETON",
+          "VSH",
+          "SITM",
+          "VLO"
+        ],
+        "_sym": "COHR",
+        "titleZh": "股市領導者尊重21天線。你也應該這樣做。"
+      },
+      {
+        "uuid": "9d5eeab8-7c85-3b50-b6ad-555e16a7798e",
+        "title": "Lumentum's AI Connectivity Portfolio Expands: Is Growth Durable?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/sectors/technology/articles/lumentums-ai-connectivity-portfolio-expands-131300103.html",
+        "providerPublishTime": 1779455580,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/SkVN942z.81Tf6_D8YTjxw--~B/aD0yOTE7dz02MjA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/b8a0616e313c812c7d60bdca55d31d23",
+              "width": 620,
+              "height": 291,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/17N7CAm31TKw0QBfUBQcDw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/b8a0616e313c812c7d60bdca55d31d23",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "MRVL",
+          "AVGO"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum的人工智能連接產品組合擴展：增長是否持久？"
+      },
+      {
+        "uuid": "b4b6e0fb-1a5a-3650-bbb5-17bbea4f224b",
+        "title": "Market Chatter: Musk, CEOs Trump's China Trip Pressed Beijing on Export, Supply Issues",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/market-chatter-musk-ceos-trump-171601387.html",
+        "providerPublishTime": 1779383761,
+        "type": "STORY",
+        "relatedTickers": [
+          "COHR",
+          "TSLA",
+          "BA",
+          "AAPL",
+          "NVDA"
+        ],
+        "_sym": "COHR",
+        "titleZh": "市場喋喋不休：馬斯克、特朗普的中國之行在出口、供應問題上向北京施壓"
+      },
+      {
+        "uuid": "78f24570-9575-339f-8f99-0555c6bccda7",
+        "title": "As Small-Cap Outperformance Continues, These 2 ETFs Provide Exposure",
+        "publisher": "MarketBeat",
+        "link": "https://finance.yahoo.com/m/78f24570-9575-339f-8f99-0555c6bccda7/as-small-cap-outperformance.html",
+        "providerPublishTime": 1779382200,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/920xgEs5VHaKjO0rU0yYoQ--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/marketbeat_955/fba7d3f8815a50d34d41d6329bdf4b5d",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/QPMmdK0X.96jIXX6lLo9PQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/marketbeat_955/fba7d3f8815a50d34d41d6329bdf4b5d",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "IJR",
+          "^GSPC",
+          "NAESX",
+          "VB",
+          "VSCIX",
+          "VSCPX",
+          "VSMAX",
+          "COHR",
+          "NVDA"
+        ],
+        "_sym": "COHR",
+        "titleZh": "隨著小型股優異表現的持續，這兩隻ETF提供曝險"
+      },
+      {
+        "uuid": "0092fd37-825e-37e6-907a-1be3f664430a",
+        "title": "Applied Optoelectronics Up 635.5% in 6 Months: How to Play the Stock",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/applied-optoelectronics-635-5-6-150100143.html",
+        "providerPublishTime": 1779375660,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/LElGwYdyr5Ayaak_5JBF1w--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/b5cbbaf3d80bfc38e91dd12d71dafabb",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_tcX.xB4yYKnZG3aJHCsxw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/b5cbbaf3d80bfc38e91dd12d71dafabb",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AAOI",
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "應用光電在6個月內上漲635.5% ：如何玩股票"
+      },
+      {
+        "uuid": "e54ce375-7427-3ab8-ae84-b9cea77fb4dc",
+        "title": "Zacks.com featured highlights include Dow, Arrow Electronics and Lumentum",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/zacks-com-featured-highlights-dow-145500627.html",
+        "providerPublishTime": 1779375300,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/DDCPG5FxkUdjRiLFFrwYkA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/493c3feda6e0e15fef3a8f66cc933696",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_Z4HXTvO5PmxwHaceZE9VA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/493c3feda6e0e15fef3a8f66cc933696",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "DOW",
+          "LITE",
+          "ARW"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Zacks.com的亮點包括Dow、Arrow Electronics和Lumentum"
+      },
+      {
+        "uuid": "aeee48e8-4b59-3048-bbaf-a4d91d4df51e",
+        "title": "CRDO vs. COHR: Which AI Connectivity Stock Is the Better Buy?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/crdo-vs-cohr-ai-connectivity-134400067.html",
+        "providerPublishTime": 1779371040,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hb34T5JpqfOKFdxuauyatA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WGxO6Lux22KyfhfK1ELLQA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "CRDO",
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "CRDO與COHR ：哪種AI連接性股票更適合購買？"
+      }
+    ],
+    "fetched_at": 1779532603899
   }
 }
