@@ -778,23 +778,23 @@
                     <table style="width:100%; border-collapse:collapse; font-size:0.85rem; min-width:1450px;">
                         <thead>
                             <tr style="border-bottom:2px solid rgba(56,139,253,0.35);">
-                                <th style="padding:0.55rem 0.6rem; text-align:left; color:#60a5fa; white-space:nowrap;">持倉代碼</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:center; color:#60a5fa; white-space:nowrap;">下次財報</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">本益比 (PE)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">歷史均PE</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">預期本益比 (FPE)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">PEG</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">市銷率 (PS)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">股價淨值比 (PB)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">營收成長 (YoY)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">營收成長 (FWD)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">毛利率</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">營益率</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">EPS (本季預估)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">EPS (下季預估)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">EPS (近4季)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">EPS (全年預估)</th>
-                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap;">EPS (明年預估)</th>
+                                <th style="padding:0.55rem 0.6rem; text-align:left; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="symbol" onclick="_setFundSort('symbol')">持倉代碼<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:center; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="earnings" onclick="_setFundSort('earnings')">下次財報<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="pe" onclick="_setFundSort('pe')">本益比 (PE)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="histPe" onclick="_setFundSort('histPe')">歷史均PE<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="fpe" onclick="_setFundSort('fpe')">預期本益比 (FPE)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="peg" onclick="_setFundSort('peg')">PEG<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="ps" onclick="_setFundSort('ps')">市銷率 (PS)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="pb" onclick="_setFundSort('pb')">股價淨值比 (PB)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="revYoy" onclick="_setFundSort('revYoy')">營收成長 (YoY)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="revFwd" onclick="_setFundSort('revFwd')">營收成長 (FWD)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="grossMargin" onclick="_setFundSort('grossMargin')">毛利率<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="operatingMargin" onclick="_setFundSort('operatingMargin')">營益率<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="epsCurQ" onclick="_setFundSort('epsCurQ')">EPS (本季預估)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="epsNextQ" onclick="_setFundSort('epsNextQ')">EPS (下季預估)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="epsTtm" onclick="_setFundSort('epsTtm')">EPS (近4季)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="epsCurY" onclick="_setFundSort('epsCurY')">EPS (全年預估)<span class="fund-sort-ind"></span></th>
+                                <th style="padding:0.55rem 0.6rem; text-align:right; color:#60a5fa; white-space:nowrap; cursor:pointer; user-select:none;" data-fund-sort="epsNextY" onclick="_setFundSort('epsNextY')">EPS (明年預估)<span class="fund-sort-ind"></span></th>
                             </tr>
                         </thead>
                         <tbody id="fund-tbody">
