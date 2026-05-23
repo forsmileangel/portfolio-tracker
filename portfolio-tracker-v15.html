@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.915 - 基本面 Tab 新增標籤排序與篩選：可依市場、持倉/觀察、財報狀態、資料完整度、估值/成長狀態快速整理基本面表格；純前端 UI 狀態，不影響 Gist / FSA / 損益計算。
         v15.914 - Hotfix：9747.HK USD 計價一致化；統一 HK_USD_PRICED 幣別 helper，修正買賣確認、快照市值、已實現損益仍以 HKD 換算的殘留判斷。
         v15.913 - Hotfix：新增標的補資料提示只在 canonical symbol 真缺 symbols.json 時顯示；close pair 缺資料改背景補，不再反覆彈窗；補 symbols 成功後加 12hr 本機 ack 避免部署/CDN 空窗重跳；排除 USD/TWD/HKD/CASH/BTC-USD pseudo symbol。
         v15.912 - 新增標的補資料中心：TW/HK canonical symbol helper（00631L→00631L.TW、9747→9747.HK）、fundamentals / close pair alias lookup、持倉掃描提示補 symbols.json；不改 Gist/userDataHash/pending/損益公式。
@@ -397,7 +398,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.914</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.915</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -767,6 +768,7 @@
                 <div id="fund-backend-note" style="display:none; margin-bottom:0.75rem; padding:0.6rem 1rem; background:rgba(37,99,235,0.1); border:1px solid rgba(37,99,235,0.3); border-radius:8px; font-size:0.82rem; color:#3b82f6;">
                     ⚠ 基本面數據需要後端支援。請點「⚙ 後端設定」填入 Render.com 網址，或在本機執行 server.py。
                 </div>
+                <div id="fund-tag-toolbar"></div>
                 <div style="overflow-x:auto; overflow-y:auto; max-height:65vh;">
                     <table style="width:100%; border-collapse:collapse; font-size:0.85rem; min-width:1450px;">
                         <thead>
@@ -1082,7 +1084,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.914';
+        const APP_VERSION = 'v15.915';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -9091,6 +9093,241 @@
             try { localStorage.setItem(_CACHE_KEY, JSON.stringify({...r, tech_ts:Date.now(), data})); } catch {}
         }
 
+        // ==================== v15.915 Fund Tag Toolbar ====================
+        // 純 UI 狀態：點 chip 改 _fundTagState 後重 render fund tbody + toolbar
+        // 不寫 localStorage、不入 Gist payload、不影響技術面表格
+        let _fundTagState = { tag: null, mode: 'sort' };  // mode: sort | filter
+        let _lastFundRows = [];
+        let _lastFundResults = {};
+
+        const _FUND_TAG_GROUPS = [
+            { label: '市場',   tags: ['TW', 'HK', 'US'] },
+            { label: '類型',   tags: ['持倉', '觀察清單', '槓桿/代理'] },
+            { label: '財報',   tags: ['7日內財報', '30日內財報', '財報代理', '近期無財報', '無財報日期'] },
+            { label: '資料',   tags: ['資料完整', '資料不足', '讀取中'] },
+            { label: '指標',   tags: ['PE可用', 'PE缺失', '營收成長正', '營收成長負', 'EPS成長正', 'EPS成長負'] }
+        ];
+
+        function _fundDaysToEarnings(d) {
+            const dateStr = d?.next_earnings_date;
+            if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) return null;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const [y, m, dd] = dateStr.substring(0, 10).split('-').map(n => parseInt(n, 10));
+            const target = new Date(y, (m || 1) - 1, dd || 1);
+            return Math.round((target - today) / 86400000);
+        }
+
+        function _fundHasTag(r, d, tag) {
+            // 市場
+            if (tag === 'TW' || tag === 'HK' || tag === 'US') {
+                return _inferSymbolMarketKey(r.holding, null) === tag;
+            }
+            // 類型
+            if (tag === '持倉')      return !r.isWatchlist;
+            if (tag === '觀察清單')  return !!r.isWatchlist;
+            if (tag === '槓桿/代理') return !!r.isProxy;
+            // 資料狀態
+            if (tag === '讀取中')    return !!d?._pending;
+            if (tag === '資料不足') {
+                if (!d || d._error) return true;
+                if (d._pending) return false;
+                return (d.pe == null && d.eps_ttm == null && d.rev_yoy == null);
+            }
+            if (tag === '資料完整') {
+                if (!d || d._error || d._pending) return false;
+                return (d.pe != null || d.eps_ttm != null || d.rev_yoy != null);
+            }
+            // 財報
+            if (tag === '近期無財報') return d?.no_earnings === true;
+            if (tag === '財報代理')   return !!d?.earnings_proxy_symbol;
+            if (tag === '無財報日期') {
+                if (!d || d._pending) return false;
+                if (d.no_earnings === true) return false;
+                if (d.earnings_proxy_symbol) return false;
+                return _fundDaysToEarnings(d) == null;
+            }
+            if (tag === '7日內財報') {
+                const days = _fundDaysToEarnings(d);
+                return days != null && days >= 0 && days <= 7;
+            }
+            if (tag === '30日內財報') {
+                const days = _fundDaysToEarnings(d);
+                return days != null && days >= 0 && days <= 30;
+            }
+            // 指標
+            if (tag === 'PE可用')      return d?.pe != null;
+            if (tag === 'PE缺失')      return !!d && !d._pending && d.pe == null;
+            if (tag === '營收成長正')  return d?.rev_yoy != null && d.rev_yoy > 0;
+            if (tag === '營收成長負')  return d?.rev_yoy != null && d.rev_yoy < 0;
+            if (tag === 'EPS成長正') {
+                return d?.eps_next_y != null && d?.eps_cur_y != null && d.eps_cur_y > 0 && d.eps_next_y > d.eps_cur_y;
+            }
+            if (tag === 'EPS成長負') {
+                return d?.eps_next_y != null && d?.eps_cur_y != null && d.eps_cur_y > 0 && d.eps_next_y < d.eps_cur_y;
+            }
+            return false;
+        }
+
+        function _fundTagCounts(rows, allResults) {
+            const counts = {};
+            _FUND_TAG_GROUPS.forEach(g => g.tags.forEach(t => { counts[t] = 0; }));
+            rows.forEach(r => {
+                const d = allResults?.[r.query];
+                Object.keys(counts).forEach(tag => {
+                    if (_fundHasTag(r, d, tag)) counts[tag]++;
+                });
+            });
+            return counts;
+        }
+
+        function _applyFundTagRows(rows, allResults) {
+            const tag = _fundTagState.tag;
+            if (!tag) return rows.slice();
+            if (_fundTagState.mode === 'filter') {
+                return rows.filter(r => _fundHasTag(r, allResults?.[r.query], tag));
+            }
+            // sort 模式：命中 row 排上方，未命中保留下方；群組內維持原順序
+            const hit = [], miss = [];
+            rows.forEach(r => {
+                if (_fundHasTag(r, allResults?.[r.query], tag)) hit.push(r);
+                else miss.push(r);
+            });
+            return hit.concat(miss);
+        }
+
+        function _renderFundTagToolbar(rows, allResults) {
+            const bar = document.getElementById('fund-tag-toolbar');
+            if (!bar) return;
+            if (!rows || rows.length === 0) { bar.innerHTML = ''; return; }
+            const counts = _fundTagCounts(rows, allResults);
+            const activeTag = _fundTagState.tag;
+            const mode = _fundTagState.mode;
+            const modeBtnStyle = active => `padding:0.32rem 0.85rem; border-radius:6px; font-size:0.78rem; cursor:pointer; border:1px solid ${active ? '#3b82f6' : 'rgba(71,85,105,0.6)'}; background:${active ? 'rgba(59,130,246,0.25)' : 'rgba(30,41,59,0.4)'}; color:${active ? '#e0f2fe' : '#94a3b8'};`;
+            const chipStyle = active => `padding:0.25rem 0.65rem; border-radius:999px; font-size:0.72rem; cursor:pointer; border:1px solid ${active ? '#60a5fa' : 'rgba(71,85,105,0.4)'}; background:${active ? 'rgba(59,130,246,0.3)' : 'rgba(30,41,59,0.35)'}; color:${active ? '#e0f2fe' : '#94a3b8'}; white-space:nowrap; user-select:none;`;
+            const groupHtml = _FUND_TAG_GROUPS.map(g => {
+                const chips = g.tags.map(t => {
+                    const n = counts[t] || 0;
+                    const isActive = (t === activeTag);
+                    const safeTag = t.replace(/'/g, "\\'");
+                    return `<span onclick="_setFundTag('${safeTag}')" style="${chipStyle(isActive)}">${t} ${n}</span>`;
+                }).join('');
+                return `<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;"><span style="color:#7e93a6; font-size:0.7rem; margin-right:0.15rem;">${g.label}</span>${chips}</div>`;
+            }).join('');
+            bar.innerHTML = `
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem 0.85rem; align-items:center; margin-bottom:0.75rem; padding:0.6rem 0.85rem; background:rgba(11,26,51,0.6); border:1px solid rgba(56,139,253,0.15); border-radius:10px;">
+                    <div style="display:flex; gap:0.4rem; align-items:center;">
+                        <span style="color:#7e93a6; font-size:0.7rem; margin-right:0.1rem;">模式</span>
+                        <button onclick="_setFundTagMode('sort')" style="${modeBtnStyle(mode === 'sort')}">排序</button>
+                        <button onclick="_setFundTagMode('filter')" style="${modeBtnStyle(mode === 'filter')}">篩選</button>
+                    </div>
+                    ${groupHtml}
+                </div>
+            `;
+        }
+
+        function _setFundTag(tag) {
+            _fundTagState.tag = (_fundTagState.tag === tag) ? null : tag;
+            _rerenderFundTbody();
+            _renderFundTagToolbar(_lastFundRows, _lastFundResults);
+        }
+
+        function _setFundTagMode(mode) {
+            if (mode !== 'sort' && mode !== 'filter') return;
+            if (_fundTagState.mode === mode) return;
+            _fundTagState.mode = mode;
+            _rerenderFundTbody();
+            _renderFundTagToolbar(_lastFundRows, _lastFundResults);
+        }
+
+        function _rerenderFundTbody() {
+            const tbody = document.getElementById('fund-tbody');
+            if (!tbody) return;
+            const display = _applyFundTagRows(_lastFundRows, _lastFundResults);
+            if (display.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">沒有符合此標籤的基本面資料</td></tr>';
+            } else {
+                tbody.innerHTML = display.map(r => _buildFundRowHtml(r, _lastFundResults?.[r.query])).join('');
+            }
+            if (typeof _applyAnalysisRowSelection === 'function') _applyAnalysisRowSelection();
+        }
+
+        function _buildFundRowHtml(r, d) {
+            const rowId = r.holding.replace(/[^a-zA-Z0-9]/g, '_');
+            const symTd = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
+                (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
+                (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
+            const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
+
+            if (d?._pending) {
+                return `<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">⏳ 資料同步中，待下次 Actions 更新</td></tr>`;
+            }
+            if (!d || d._error) {
+                const errMsg = '❌ ' + (d?._error || '無數據').split('\n')[0];
+                return `<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`;
+            }
+
+            const fmt  = v => (v != null && !isNaN(v)) ? parseFloat(v).toFixed(2) : '-';
+            const fmtp = v => (v != null && !isNaN(v)) ? (parseFloat(v) * 100).toFixed(1) + '%' : '-';
+            const tr   = (v, a) => '<td style="padding:0.5rem 0.6rem; text-align:' + (a || 'right') + '; color:#e2e8f0;">' + v + '</td>';
+            const buildNextEarningsTd = (dateStr, noEarnings, proxySymbol) => {
+                if (noEarnings === true) return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#7e93a6; font-size:0.82rem;">近期無財報</td>';
+                if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#607585;">-</td>';
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const [y, m, dd] = dateStr.substring(0, 10).split('-').map(n => parseInt(n, 10));
+                const target = new Date(y, (m || 1) - 1, dd || 1);
+                const days = Math.round((target - today) / 86400000);
+                let color, label;
+                if (days < 0)        { color = '#607585'; label = `${Math.abs(days)} 天前`; }
+                else if (days === 0) { color = '#ef4444'; label = '今日'; }
+                else if (days <= 7)  { color = '#ef4444'; label = `剩 ${days} 天`; }
+                else if (days <= 14) { color = '#fbbf24'; label = `剩 ${days} 天`; }
+                else if (days <= 30) { color = '#e2e8f0'; label = `剩 ${days} 天`; }
+                else                 { color = '#607585'; label = `剩 ${days} 天`; }
+                const proxyHint = proxySymbol ? `<div style="color:#7e93a6; font-size:0.7rem; margin-top:0.05rem;">財報：${proxySymbol}</div>` : '';
+                return `<td style="padding:0.5rem 0.6rem; text-align:center; line-height:1.35;"><div style="color:#e2e8f0; font-weight:600;">${dateStr}</div><div style="color:${color}; font-size:0.76rem; margin-top:0.1rem;">${label}</div>${proxyHint}</td>`;
+            };
+
+            return `<tr id="arow-${rowId}" ${rowStyle}>${symTd}` +
+                buildNextEarningsTd(d.next_earnings_date, d.no_earnings, d.earnings_proxy_symbol) +
+                tr(fmt(d.pe)) + tr(fmt(d.hist_avg_pe)) + tr(fmt(d.fpe)) +
+                tr(fmt(d.peg)) + tr(fmt(d.ps)) + tr(fmt(d.pb)) +
+                tr(fmtp(d.rev_yoy)) + tr(fmtp(d.rev_fwd)) +
+                tr(fmtp(d.gross_margin)) + tr(fmtp(d.operating_margin)) +
+                tr(fmt(d.eps_cur_q)) + tr(fmt(d.eps_next_q)) + tr(fmt(d.eps_ttm)) + tr(fmt(d.eps_cur_y)) + tr(fmt(d.eps_next_y)) + '</tr>';
+        }
+
+        function _buildTechRowHtml(r, d) {
+            const rowId = r.holding.replace(/[^a-zA-Z0-9]/g, '_');
+            const symTd = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
+                (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
+                (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
+            const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
+
+            if (d?._pending) {
+                return `<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">⏳ 資料同步中，待下次 Actions 更新</td></tr>`;
+            }
+            if (!d || d._error) {
+                const errMsg = '❌ ' + (d?._error || '無數據').split('\n')[0];
+                return `<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`;
+            }
+
+            const trc = v => '<td style="padding:0.5rem 0.6rem; text-align:center;">' + v + '</td>';
+            const buildKD = (k, dv, cross) => {
+                if (k == null) return '<span class="kd-neu">-</span>';
+                const up = cross === 'golden', dn = cross === 'death';
+                const lbl = up ? '▲ 黃金交叉' : dn ? '▼ 死亡交叉' : (parseFloat(k) > parseFloat(dv) ? 'K>D' : 'K<D');
+                return '<span class="' + (up ? 'kd-up' : dn ? 'kd-down' : 'kd-neu') + '">' + lbl + '</span><br><small style="color:#7e93a6;font-size:0.75rem;">K:' + parseFloat(k).toFixed(1) + ' D:' + parseFloat(dv).toFixed(1) + '</small>';
+            };
+
+            return `<tr id="trow-${rowId}" ${rowStyle}>${symTd}` +
+                trc(buildKD(d.hourly_k, d.hourly_d, d.hourly_cross)) +
+                trc(buildKD(d.daily_k,  d.daily_d,  d.daily_cross))  +
+                trc(buildKD(d.weekly_k, d.weekly_d, d.weekly_cross)) +
+                trc(macdBadge(d.hourly_macd)) + trc(macdBadge(d.daily_macd)) + trc(macdBadge(d.weekly_macd)) +
+                trc(rsiBadge(d.hourly_rsi))   + trc(rsiBadge(d.daily_rsi))   + trc(rsiBadge(d.weekly_rsi)) +
+                '<td style="padding:0.5rem 0.6rem; text-align:center; background:rgba(56,139,253,0.04);">' + techSummaryBadge(d) + '</td></tr>';
+        }
+
         // ==================== Main Analysis Loader ====================
         async function loadAnalysis(forceRefresh, silent = false) {
             if (holdings.length === 0) { if (!silent) alert('請先匯入持倉數據'); return; }
@@ -9257,82 +9494,17 @@
 
             // ── 毛利率/營益率：v8/chart events 不含此資訊；quoteSummary 需 crumb 已停用 ──
 
-            // ── Render ──（全量重建表格，支援快取直接命中時表格為空的情況）
-            const fmt  = v => (v != null && !isNaN(v)) ? parseFloat(v).toFixed(2) : '-';
-            const fmtp = v => (v != null && !isNaN(v)) ? (parseFloat(v)*100).toFixed(1) + '%' : '-';
-            const tr   = (v, a) => '<td style="padding:0.5rem 0.6rem; text-align:' + (a||'right') + '; color:#e2e8f0;">' + v + '</td>';
-            const trc  = v => '<td style="padding:0.5rem 0.6rem; text-align:center;">' + v + '</td>';
-            const buildNextEarningsTd = (dateStr, noEarnings, proxySymbol) => {
-                if (noEarnings === true) {
-                    return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#7e93a6; font-size:0.82rem;">近期無財報</td>';
-                }
-                if (!dateStr || typeof dateStr !== 'string' || dateStr.length < 10) {
-                    return '<td style="padding:0.5rem 0.6rem; text-align:center; color:#607585;">-</td>';
-                }
-                // 以「本地日期 00:00」為基準計算剩餘天數，避免時區漂移
-                const today = new Date(); today.setHours(0,0,0,0);
-                const [y,m,dd] = dateStr.substring(0,10).split('-').map(n => parseInt(n, 10));
-                const target = new Date(y, (m||1)-1, dd||1);
-                const days = Math.round((target - today) / 86400000);
-                let color, label;
-                if (days < 0)        { color = '#607585'; label = `${Math.abs(days)} 天前`; }
-                else if (days === 0) { color = '#ef4444'; label = '今日'; }
-                else if (days <= 7)  { color = '#ef4444'; label = `剩 ${days} 天`; }
-                else if (days <= 14) { color = '#fbbf24'; label = `剩 ${days} 天`; }
-                else if (days <= 30) { color = '#e2e8f0'; label = `剩 ${days} 天`; }
-                else                 { color = '#607585'; label = `剩 ${days} 天`; }
-                const proxyHint = proxySymbol ? `<div style="color:#7e93a6; font-size:0.7rem; margin-top:0.05rem;">財報：${proxySymbol}</div>` : '';
-                return `<td style="padding:0.5rem 0.6rem; text-align:center; line-height:1.35;"><div style="color:#e2e8f0; font-weight:600;">${dateStr}</div><div style="color:${color}; font-size:0.76rem; margin-top:0.1rem;">${label}</div>${proxyHint}</td>`;
-            };
-            const buildKD = (k, dv, cross) => {
-                if (k == null) return '<span class="kd-neu">-</span>';
-                const up = cross==='golden', dn = cross==='death';
-                const lbl = up ? '▲ 黃金交叉' : dn ? '▼ 死亡交叉' : (parseFloat(k)>parseFloat(dv) ? 'K>D' : 'K<D');
-                return '<span class="'+(up?'kd-up':dn?'kd-down':'kd-neu')+'">'+ lbl +'</span><br><small style="color:#7e93a6;font-size:0.75rem;">K:'+parseFloat(k).toFixed(1)+' D:'+parseFloat(dv).toFixed(1)+'</small>';
-            };
-            const fundRowsHtml = [], techRowsHtml = [];
-            rows.forEach(r => {
-                const rowId  = r.holding.replace(/[^a-zA-Z0-9]/g,'_');
-                const d      = allResults[r.query];
-                const symTd  = '<td style="padding:0.5rem 0.6rem; font-weight:700; color:#f1f5f9;">' + r.holding +
-                    (r.isProxy ? '<br><small style="color:#3b82f6;font-size:0.72rem;">' + r.query + ' (原型)</small>' : '') +
-                    (r.isWatchlist ? '<br><small style="color:#7e93a6;font-size:0.7rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.3rem;border-radius:3px;">觀察中</small>' : '') + '</td>';
-                const rowStyle = `data-symbol="${r.holding}" style="border-bottom:1px solid rgba(255,255,255,0.05);"`;
-
-
-                if (d?._pending) {
-                    const msg = '⏳ 資料同步中，待下次 Actions 更新';
-                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
-                    techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#7e93a6;font-size:0.82rem;padding:0.5rem;">${msg}</td></tr>`);
-                    return;
-                }
-                if (!d || d._error) {
-                    const errMsg = '❌ ' + (d?._error||'無數據').split('\n')[0];
-                    fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}<td colspan="16" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`);
-                    techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}<td colspan="10" style="color:#ef4444;font-size:0.82rem;padding:0.5rem;">${errMsg}</td></tr>`);
-                    return;
-                }
-
-                // 基本面行
-                fundRowsHtml.push(`<tr id="arow-${rowId}" ${rowStyle}>${symTd}` +
-                    buildNextEarningsTd(d.next_earnings_date, d.no_earnings, d.earnings_proxy_symbol) +
-                    tr(fmt(d.pe)) + tr(fmt(d.hist_avg_pe)) + tr(fmt(d.fpe)) +
-                    tr(fmt(d.peg)) + tr(fmt(d.ps)) + tr(fmt(d.pb)) +
-                    tr(fmtp(d.rev_yoy)) + tr(fmtp(d.rev_fwd)) +
-                    tr(fmtp(d.gross_margin)) + tr(fmtp(d.operating_margin)) +
-                    tr(fmt(d.eps_cur_q)) + tr(fmt(d.eps_next_q)) + tr(fmt(d.eps_ttm)) + tr(fmt(d.eps_cur_y)) + tr(fmt(d.eps_next_y)) + '</tr>');
-
-                // 技術面行
-                techRowsHtml.push(`<tr id="trow-${rowId}" ${rowStyle}>${symTd}` +
-                    trc(buildKD(d.hourly_k, d.hourly_d, d.hourly_cross)) +
-                    trc(buildKD(d.daily_k,  d.daily_d,  d.daily_cross))  +
-                    trc(buildKD(d.weekly_k, d.weekly_d, d.weekly_cross)) +
-                    trc(macdBadge(d.hourly_macd)) + trc(macdBadge(d.daily_macd)) + trc(macdBadge(d.weekly_macd)) +
-                    trc(rsiBadge(d.hourly_rsi))   + trc(rsiBadge(d.daily_rsi))   + trc(rsiBadge(d.weekly_rsi)) +
-                    '<td style="padding:0.5rem 0.6rem; text-align:center; background:rgba(56,139,253,0.04);">' + techSummaryBadge(d) + '</td></tr>');
-            });
-            fundTbody.innerHTML = fundRowsHtml.join('');
-            techTbody.innerHTML = techRowsHtml.join('');
+            // ── Render ──（v15.915：fund 走 tag-aware 路徑、tech 維持原順序）
+            _lastFundRows = rows;
+            _lastFundResults = allResults;
+            const fundDisplayRows = _applyFundTagRows(rows, allResults);
+            const fundRowsHtml = fundDisplayRows.length === 0
+                ? '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">沒有符合此標籤的基本面資料</td></tr>'
+                : fundDisplayRows.map(r => _buildFundRowHtml(r, allResults[r.query])).join('');
+            const techRowsHtml = rows.map(r => _buildTechRowHtml(r, allResults[r.query])).join('');
+            fundTbody.innerHTML = fundRowsHtml;
+            techTbody.innerHTML = techRowsHtml;
+            _renderFundTagToolbar(rows, allResults);
             _applyAnalysisRowSelection();
 
             btn.textContent = '↻ 更新分析數據'; btn.disabled = false;
