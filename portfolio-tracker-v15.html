@@ -4220,6 +4220,7 @@
                 monthlyPayment: _numOr(raw?.monthlyPayment, 0),
                 paymentDay,
                 firstPaymentDate: _deriveFirstPaymentDate(raw || {}, paymentDay),
+                finalPaymentDate: _isValidYmd(raw?.finalPaymentDate) ? raw.finalPaymentDate : '',
                 active: raw?.active !== false,
                 createdAt: raw?.createdAt || now,
                 updatedAt: raw?.updatedAt || raw?.createdAt || now
@@ -4310,6 +4311,7 @@
             const monthly = parseFloat(document.getElementById('loan-monthly-input')?.value);
             const day   = parseInt(document.getElementById('loan-day-input')?.value, 10);
             const firstPaymentRaw = document.getElementById('loan-first-payment-input')?.value || '';
+            const finalPaymentRaw = document.getElementById('loan-final-payment-input')?.value || '';
             if (!bank)  return alert('請填入銀行名稱');
             if (!name)  return alert('請填入貸款名稱');
             if (isNaN(principal) || principal <= 0) return alert('原始本金必須 > 0');
@@ -4317,9 +4319,11 @@
             if (isNaN(monthly) || monthly <= 0) return alert('固定月付必須 > 0');
             if (isNaN(day) || day < 1 || day > 31) return alert('還款日必須在 1–31 之間');
             if (firstPaymentRaw && !_isValidYmd(firstPaymentRaw)) return alert('首次還款日格式錯誤');
+            if (finalPaymentRaw && !_isValidYmd(finalPaymentRaw)) return alert('最後一期日期格式錯誤');
             const today = _taipeiToday();
             const firstPaymentDate = firstPaymentRaw || _nextDueDate(today, day);
-            const msg = `確認新增貸款？\n\n銀行：${bank}\n名稱：${name}\n原始本金：NT$ ${Math.round(principal).toLocaleString()}\n年利率：${rate}%\n固定月付：NT$ ${Math.round(monthly).toLocaleString()}\n還款日：每月 ${day} 號\n首次還款日：${firstPaymentDate}\n\n系統只會依日期即時計算剩餘本金，不會每月自動寫入還款紀錄。`;
+            const finalPaymentDate = finalPaymentRaw || '';
+            const msg = `確認新增貸款？\n\n銀行：${bank}\n名稱：${name}\n原始本金：NT$ ${Math.round(principal).toLocaleString()}\n年利率：${rate}%\n固定月付：NT$ ${Math.round(monthly).toLocaleString()}\n還款日：每月 ${day} 號\n首次還款日：${firstPaymentDate}\n最後一期日期：${finalPaymentDate || '未設定'}\n\n系統只會依日期即時計算剩餘本金，不會每月自動寫入還款紀錄。`;
             if (!confirm(msg)) return;
             const now = new Date().toISOString();
             loans.push({
@@ -4330,13 +4334,14 @@
                 monthlyPayment: monthly,
                 paymentDay: day,
                 firstPaymentDate,
+                finalPaymentDate,
                 active: true,
                 createdAt: now,
                 updatedAt: now
             });
             saveLoans();
             _markAndAutoPush(['loans']);
-            ['loan-bank-input','loan-name-input','loan-principal-input','loan-rate-input','loan-monthly-input','loan-day-input','loan-first-payment-input']
+            ['loan-bank-input','loan-name-input','loan-principal-input','loan-rate-input','loan-monthly-input','loan-day-input','loan-first-payment-input','loan-final-payment-input']
                 .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
             renderLoansTab();
         }
@@ -4363,6 +4368,9 @@
             } else if (field === 'firstPaymentDate') {
                 v = String(raw || '').trim();
                 if (!v || !_isValidYmd(v)) return;
+            } else if (field === 'finalPaymentDate') {
+                v = String(raw || '').trim();
+                if (v && !_isValidYmd(v)) return;
             } else if (field === 'bank' || field === 'name') {
                 v = String(raw).trim();
                 if (!v) return;
@@ -4430,6 +4438,10 @@
                         首次還款日
                         <input id="loan-first-payment-input" type="date" title="第一期實際開始扣款的日期；留空會自動用今天之後的下一個每月還款日" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
                     </label>
+                    <label style="display:flex;flex-direction:column;gap:0.24rem;color:#7e93a6;font-size:0.68rem;letter-spacing:0.02em;">
+                        最後一期日期
+                        <input id="loan-final-payment-input" type="date" title="預計或實際最後一期還款日期；只作記錄，不影響本金推導公式" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    </label>
                     <button onclick="addLoan()" style="padding:0.4rem 1rem;background:rgba(56,139,253,0.15);border:1.5px solid rgba(56,139,253,0.35);border-radius:7px;color:#60a5fa;font-size:0.82rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;white-space:nowrap;">+ 新增</button>
                 </div>
                 <div style="color:#607585;font-size:0.7rem;margin-top:0.45rem;">月付校正會從原始本金與首次還款日重新推導，不保留每月還款流水帳。</div>
@@ -4479,7 +4491,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.55rem;">
                     <div style="flex:1;min-width:200px;">
                         <div style="color:#f1f5f9;font-size:1rem;font-weight:700;">${l.bank} · ${l.name}${headerLabel}</div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-top:0.2rem;">建立 ${(l.createdAt || '').slice(0,10)} · 首次還款 ${l.firstPaymentDate}</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-top:0.2rem;">建立 ${(l.createdAt || '').slice(0,10)} · 首次還款 ${l.firstPaymentDate} · 最後一期 ${l.finalPaymentDate || '未設定'}</div>
                     </div>
                     <button onclick="removeLoan(${l.id})" style="padding:0.22rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.78rem;cursor:pointer;text-transform:none;letter-spacing:0;">刪除</button>
                 </div>
@@ -4507,6 +4519,10 @@
                     <div>
                         <div style="color:#7e93a6;font-size:0.7rem;">首次還款日</div>
                         <input type="date" class="mono" value="${l.firstPaymentDate}" onchange="updateLoanField(${l.id}, 'firstPaymentDate', this.value)" style="width:100%;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#a8bdd0;font-size:0.86rem;outline:none;">
+                    </div>
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.7rem;">最後一期日期</div>
+                        <input type="date" class="mono" value="${l.finalPaymentDate || ''}" onchange="updateLoanField(${l.id}, 'finalPaymentDate', this.value)" style="width:100%;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#a8bdd0;font-size:0.86rem;outline:none;">
                     </div>
                 </div>
                 <div style="color:#607585;font-size:0.74rem;">${paidOff ? '已推導為結清；仍可保留作為紀錄。' : `下期 ${proj.nextDueDate || '-'}，預估利息 ${pv('NT$ ' + fmt2(proj.nextInterest))}，預估還本 ${pv('NT$ ' + fmt2(proj.nextPrincipal))}`}</div>
@@ -7654,6 +7670,7 @@
                 const lFirst = (lLines[0] || '').toLowerCase();
                 const lHasHeader = lFirst.includes('bank') || lFirst.includes('originalprincipal') || lFirst.includes('remainingprincipal') || lFirst.includes('annualratepct');
                 const isNewLoanCsv = lFirst.includes('originalprincipal') || lFirst.includes('firstpaymentdate');
+                const hasFinalPaymentDate = lFirst.includes('finalpaymentdate');
                 const lData = lHasHeader ? lLines.slice(1) : lLines;
                 importedLoans = [];
                 lData.forEach(line => {
@@ -7669,9 +7686,10 @@
                             monthlyPayment:    parseFloat(c[5]) || 0,
                             paymentDay:        parseInt(c[6], 10) || 1,
                             firstPaymentDate:  (c[7] || '').trim(),
-                            active:            (c[8] || 'true').toLowerCase() !== 'false',
-                            createdAt:         c[9] || new Date().toISOString(),
-                            updatedAt:         c[10] || new Date().toISOString()
+                            finalPaymentDate:  hasFinalPaymentDate ? (c[8] || '').trim() : '',
+                            active:            (c[hasFinalPaymentDate ? 9 : 8] || 'true').toLowerCase() !== 'false',
+                            createdAt:         c[hasFinalPaymentDate ? 10 : 9] || new Date().toISOString(),
+                            updatedAt:         c[hasFinalPaymentDate ? 11 : 10] || new Date().toISOString()
                         });
                     } else {
                         let payments = {};
@@ -7898,12 +7916,12 @@
             // ── Loans（v15.918：原始本金 + 首次還款日；不匯出每月還款流水帳）──
             if (loans.length > 0) {
                 csv += '\n\n[Loans]\n';
-                const lRows = [['Id','Bank','Name','OriginalPrincipal','AnnualRatePct','MonthlyPayment','PaymentDay','FirstPaymentDate','Active','CreatedAt','UpdatedAt']];
+                const lRows = [['Id','Bank','Name','OriginalPrincipal','AnnualRatePct','MonthlyPayment','PaymentDay','FirstPaymentDate','FinalPaymentDate','Active','CreatedAt','UpdatedAt']];
                 _normalizeLoans(loans).forEach(l => {
                     lRows.push([
                         l.id, l.bank || '', l.name || '',
                         l.originalPrincipal || 0, l.annualRatePct || 0, l.monthlyPayment || 0,
-                        l.paymentDay || 0, l.firstPaymentDate || '',
+                        l.paymentDay || 0, l.firstPaymentDate || '', l.finalPaymentDate || '',
                         l.active !== false ? 'true' : 'false',
                         l.createdAt || '', l.updatedAt || ''
                     ]);
