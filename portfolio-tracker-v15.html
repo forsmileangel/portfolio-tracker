@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.919 - 貸款新增表單 UI 文案修正：將「每月還款日」與「首次還款日」分成明確標籤，避免誤解 1-31 欄位；不改貸款公式 / Gist / CSV。
         v15.918 - 修正貸款功能：改為原始本金 + 首次還款日 + 固定月付即時推導剩餘本金；不再保存每月還款流水帳、不因日期推導自動產生 Gist pending，支援月付校正後從原始本金重新計算。
         v15.917 - 新增「貸款」Tab：銀行貸款追蹤 + 每月自動還款記帳。剩餘本金 / 年利率 / 月付 / 還款日輸入後，系統依台北時區判斷到期日隔天自動扣款（每月每筆最多一次、跨裝置與重整不重複、隔幾個月開可一次補扣錯過月份、月底順延 2/29 與 4/31）；最後一期 isFinal 標記、active=false 標「已還清」。貸款頁顯示「貸款總額」與「淨資產 = 既有總資產 − 貸款總額」，總資產純讀取既有 _currentStockValueTWD/_depositsTWD/crypto/moxa，不影響五張統計卡 / 圓餅圖 / 總投入 / 總市值 / 總損益 / 今日損益 / 前次收盤損益任一數字。同步通道對齊 v15.079 規則：loans 進 userDataHash + dirty domain + Gist payload + FSA payload + CSV [Loans] 區段；不升 PT_SCHEMA_VERSION。
         v15.916 - 基本面 Tab 改為自選標的比較 + 表頭排序：可勾選任意標的置頂或只看選取，並可點 PE/FPE/PEG/PS/PB/營收成長/毛利率/EPS 等欄位排序；取代 v15.915 複雜標籤列，純前端 UI 狀態，不影響 Gist / FSA / 損益計算。
@@ -402,7 +403,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.918</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.919</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1097,7 +1098,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.918';
+        const APP_VERSION = 'v15.919';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4421,8 +4422,14 @@
                     <input id="loan-principal-input" type="number" min="0" step="1" placeholder="原始本金 NT$" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
                     <input id="loan-rate-input" type="number" min="0" step="0.01" placeholder="年利率%（如 2.06）" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
                     <input id="loan-monthly-input" type="number" min="0" step="1" placeholder="固定月付 NT$" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
-                    <input id="loan-day-input" type="number" min="1" max="31" step="1" placeholder="還款日 1-31" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
-                    <input id="loan-first-payment-input" type="date" title="首次還款日" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <label style="display:flex;flex-direction:column;gap:0.24rem;color:#7e93a6;font-size:0.68rem;letter-spacing:0.02em;">
+                        每月還款日
+                        <input id="loan-day-input" type="number" min="1" max="31" step="1" placeholder="例：26" title="每月幾號還款，1 到 31；月底不存在的日期會順延為該月最後一天" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:0.24rem;color:#7e93a6;font-size:0.68rem;letter-spacing:0.02em;">
+                        首次還款日
+                        <input id="loan-first-payment-input" type="date" title="第一期實際開始扣款的日期；留空會自動用今天之後的下一個每月還款日" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    </label>
                     <button onclick="addLoan()" style="padding:0.4rem 1rem;background:rgba(56,139,253,0.15);border:1.5px solid rgba(56,139,253,0.35);border-radius:7px;color:#60a5fa;font-size:0.82rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;white-space:nowrap;">+ 新增</button>
                 </div>
                 <div style="color:#607585;font-size:0.7rem;margin-top:0.45rem;">月付校正會從原始本金與首次還款日重新推導，不保留每月還款流水帳。</div>
