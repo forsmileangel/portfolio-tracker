@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.917 - 新增「貸款」Tab：銀行貸款追蹤 + 每月自動還款記帳。剩餘本金 / 年利率 / 月付 / 還款日輸入後，系統依台北時區判斷到期日隔天自動扣款（每月每筆最多一次、跨裝置與重整不重複、隔幾個月開可一次補扣錯過月份、月底順延 2/29 與 4/31）；最後一期 isFinal 標記、active=false 標「已還清」。貸款頁顯示「貸款總額」與「淨資產 = 既有總資產 − 貸款總額」，總資產純讀取既有 _currentStockValueTWD/_depositsTWD/crypto/moxa，不影響五張統計卡 / 圓餅圖 / 總投入 / 總市值 / 總損益 / 今日損益 / 前次收盤損益任一數字。同步通道對齊 v15.079 規則：loans 進 userDataHash + dirty domain + Gist payload + FSA payload + CSV [Loans] 區段；不升 PT_SCHEMA_VERSION。
         v15.916 - 基本面 Tab 改為自選標的比較 + 表頭排序：可勾選任意標的置頂或只看選取，並可點 PE/FPE/PEG/PS/PB/營收成長/毛利率/EPS 等欄位排序；取代 v15.915 複雜標籤列，純前端 UI 狀態，不影響 Gist / FSA / 損益計算。
         v15.915 - 基本面 Tab 新增標籤排序與篩選：可依市場、持倉/觀察、財報狀態、資料完整度、估值/成長狀態快速整理基本面表格；純前端 UI 狀態，不影響 Gist / FSA / 損益計算。
         v15.914 - Hotfix：9747.HK USD 計價一致化；統一 HK_USD_PRICED 幣別 helper，修正買賣確認、快照市值、已實現損益仍以 HKD 換算的殘留判斷。
@@ -342,7 +343,8 @@
             #tab-pane-4,
             #tab-pane-5,
             #tab-pane-6,
-            #tab-pane-7 { padding-top: 0.4rem !important; }
+            #tab-pane-7,
+            #tab-pane-8 { padding-top: 0.4rem !important; }
 
             /* 表格字體縮小 */
             #fund-tbody td, #tech-tbody td { font-size: 0.74rem !important; padding: 0.35rem 0.35rem !important; }
@@ -399,7 +401,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.916</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.917</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -417,6 +419,7 @@
             <button class="tab-btn" id="tab-btn-5" onclick="switchTab(5)"><i class="ic">◎</i> 總體經濟</button>
             <button class="tab-btn" id="tab-btn-6" onclick="switchTab(6)"><i class="ic">◈</i> 已實現損益</button>
             <button class="tab-btn" id="tab-btn-7" onclick="switchTab(7)"><i class="ic">▦</i> 存款</button>
+            <button class="tab-btn" id="tab-btn-8" onclick="switchTab(8)"><i class="ic">▤</i> 貸款</button>
         </div>
 
         <!-- Tab 1: Holdings -->
@@ -888,6 +891,10 @@
         <div id="tab-pane-7" class="tab-pane" style="padding-top:1rem;">
         </div><!-- /tab-pane-7 -->
 
+        <!-- Tab 8: 貸款（v15.917） -->
+        <div id="tab-pane-8" class="tab-pane" style="padding-top:1rem;">
+        </div><!-- /tab-pane-8 -->
+
 
     <!-- Modals -->
     <div id="import-modal" onclick="if(event.target===this)hideImportModal()" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:1000; padding:1rem;">
@@ -1089,7 +1096,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.916';
+        const APP_VERSION = 'v15.917';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1104,6 +1111,7 @@
             deposits:         'pt_deposits',
             tradeHistory:     'pt_trade_history',
             manualRealizedEntries: 'pt_manual_realized_entries',  // v15.905：期間補錄總報酬
+            loans:            'pt_loans_v1',         // v15.917：銀行貸款追蹤 + 每月自動還款記帳
             watchlist:        'pt_watchlist',
             snapshots:        'pt_snapshots',
             // 圓餅圖手動欄位
@@ -3930,6 +3938,14 @@
         const PT_WATCHLIST_KEY      = 'pt_watchlist';
         const PT_TRADE_HISTORY_KEY  = 'pt_trade_history';
         const PT_MANUAL_REALIZED_KEY = STORAGE_KEYS.manualRealizedEntries;   // v15.905
+        const PT_LOANS_KEY      = STORAGE_KEYS.loans;   // v15.917
+        let loans = [];   // v15.917：銀行貸款追蹤
+        function saveLoans() {
+            try { localStorage.setItem(PT_LOANS_KEY, JSON.stringify(loans)); } catch(_) {}
+        }
+        function loadLoans() {
+            try { loans = JSON.parse(localStorage.getItem(PT_LOANS_KEY)) || []; } catch(_) { loans = []; }
+        }
         const PT_MOXA_PIE_KEY   = 'pt_moxa_pie_cb';
 
         // ── USDT/TWD 即時匯率（CoinGecko，備援用 USD/TWD）──
@@ -4119,6 +4135,381 @@
                 </div>
                 <div>${rowsHtml}</div>
                 ${totalRow}
+            </div>`;
+        }
+
+        // ==================== 貸款（v15.917）====================
+        // INV-1：日期 + 剩餘本金準確；台北時區判斷、today > dueDate 才扣、每月最多一筆
+        // INV-2：純讀取既有總資產，不影響五張統計卡 / 圓餅圖 / 損益計算
+        let _loanExpanded = {};   // { [loan.id]: true } 是否展開全部歷史；不持久化
+
+        // 取台北時區的今天（YYYY-MM-DD）；不受裝置本地時區影響
+        function _taipeiToday() {
+            try {
+                const f = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit'
+                });
+                return f.format(new Date());
+            } catch(_) {
+                // fallback：直接取本地日期（極舊環境）
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+        }
+        // 月底順延：給定 (y, m, requestedDay) → 該月實際還款日（不存在則回該月最後一天）
+        function _resolveDueDay(y, m, requestedDay) {
+            const lastDay = new Date(y, m, 0).getDate();   // new Date(y, m, 0) 回該月最後一天
+            return Math.min(requestedDay, lastDay);
+        }
+        function _formatYmd(y, m, d) {
+            return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        }
+        // 給定 (anchorYmd, paymentDay) → 該日之後第一個還款日（含月底順延）
+        function _nextDueDate(anchorYmd, paymentDay) {
+            const [Y, M, D] = anchorYmd.split('-').map(Number);
+            let y = Y, m = M;
+            const dueThisMonth = _resolveDueDay(y, m, paymentDay);
+            if (D >= dueThisMonth) {   // anchor 已達或過當月還款日 → 下個月
+                m++;
+                if (m > 12) { m = 1; y++; }
+            }
+            return _formatYmd(y, m, _resolveDueDay(y, m, paymentDay));
+        }
+        function _advanceOneMonth(ymd, paymentDay) {
+            const [Y, M] = ymd.split('-').map(Number);
+            let y = Y, m = M + 1;
+            if (m > 12) { m = 1; y++; }
+            return _formatYmd(y, m, _resolveDueDay(y, m, paymentDay));
+        }
+
+        // 單期還款計算；INV-1 防呆：monthlyPayment <= interest 回 error，避免無限迴圈
+        function _calculateLoanDebit(loan) {
+            const balance  = loan.remainingPrincipal;
+            const interest = balance * (loan.annualRatePct / 100) / 12;
+            if (loan.monthlyPayment <= interest) {
+                return { error: 'monthly_payment_too_low', interest };
+            }
+            let payment   = loan.monthlyPayment;
+            let principal = payment - interest;
+            let balanceAfter;
+            let isFinal = false;
+            // 最後一期：計算本金 >= 剩餘本金 → 直接結清
+            if (principal >= balance) {
+                principal    = balance;
+                payment      = balance + interest;
+                balanceAfter = 0;
+                isFinal      = true;
+            } else {
+                balanceAfter = balance - principal;
+            }
+            return { interest, principal, payment, balanceAfter, isFinal };
+        }
+
+        // 處理單筆貸款的自動扣款（從 balanceAsOfDate 起，一路補扣到今天為止錯過的月份）
+        function _processLoanAutoDebit(loan) {
+            if (!loan || !loan.active || loan.remainingPrincipal <= 0) return false;
+            const today = _taipeiToday();
+            const anchor = loan.balanceAsOfDate || today;
+            if (!loan.payments) loan.payments = {};
+            let due = _nextDueDate(anchor, loan.paymentDay);
+            let changed = false;
+            // 防無限迴圈安全上限：120 個月 / 10 年
+            let safety = 0;
+            while (due < today && safety < 240) {       // today > dueDate 才扣（嚴格小於）
+                safety++;
+                const ym = due.slice(0, 7);
+                if (!loan.payments[ym]) {
+                    const r = _calculateLoanDebit(loan);
+                    if (r.error) {
+                        try { _recordAppError('loan_auto_debit', new Error(`loan ${loan.id} monthlyPayment ${loan.monthlyPayment} <= interest ${r.interest}`)); } catch(_) {}
+                        break;
+                    }
+                    loan.payments[ym] = {
+                        dueDate:       due,
+                        paidAt:        new Date().toISOString(),
+                        balanceBefore: loan.remainingPrincipal,
+                        interest:      r.interest,
+                        principal:     r.principal,
+                        payment:       r.payment,
+                        balanceAfter:  r.balanceAfter,
+                        isFinal:       !!r.isFinal
+                    };
+                    loan.remainingPrincipal = r.balanceAfter;
+                    changed = true;
+                    if (r.isFinal || loan.remainingPrincipal <= 0) {
+                        loan.active = false;
+                        loan.remainingPrincipal = 0;
+                        loan.updatedAt = new Date().toISOString();
+                        break;
+                    }
+                }
+                due = _advanceOneMonth(due, loan.paymentDay);
+            }
+            if (changed) loan.updatedAt = new Date().toISOString();
+            return changed;
+        }
+
+        // 所有貸款的 auto-debit；pull 期間不執行避免衝突
+        function _processAllLoansAutoDebit() {
+            if (_isApplyingCloudPull) return;
+            if (!Array.isArray(loans) || loans.length === 0) return;
+            let anyChanged = false;
+            loans.forEach(l => { if (_processLoanAutoDebit(l)) anyChanged = true; });
+            if (anyChanged) {
+                saveLoans();
+                _markAndAutoPush(['loans']);
+                if (document.getElementById('tab-pane-8')?.classList.contains('active')) {
+                    renderLoansTab();
+                }
+            }
+        }
+
+        // INV-2：純讀取既有資產來源 wrapper；不改既有 _currentStockValueTWD / _depositsTWD / renderPie 內 grandTotal
+        function _grandTotalTWD() {
+            const stockTWD  = _currentStockValueTWD();
+            const cashTWD   = _depositsTWD();
+            const cryptoTWD = parseFloat(localStorage.getItem(PT_CRYPTO_KEY) || '0') || 0;
+            const moxaTWD   = parseFloat(localStorage.getItem(PT_MOXA_KEY)   || '0') || 0;
+            return stockTWD + cashTWD + cryptoTWD + moxaTWD;
+        }
+        function _activeLoansTotalTWD() {
+            return loans.filter(l => l && l.active).reduce((s, l) => s + (parseFloat(l.remainingPrincipal) || 0), 0);
+        }
+
+        // ── Handlers ──
+        function addLoan() {
+            const bank  = document.getElementById('loan-bank-input')?.value.trim();
+            const name  = document.getElementById('loan-name-input')?.value.trim();
+            const principal = parseFloat(document.getElementById('loan-principal-input')?.value);
+            const rate  = parseFloat(document.getElementById('loan-rate-input')?.value);
+            const monthly = parseFloat(document.getElementById('loan-monthly-input')?.value);
+            const day   = parseInt(document.getElementById('loan-day-input')?.value, 10);
+            if (!bank)  return alert('請填入銀行名稱');
+            if (!name)  return alert('請填入貸款名稱');
+            if (isNaN(principal) || principal <= 0) return alert('剩餘本金必須 > 0');
+            if (isNaN(rate) || rate <= 0 || rate >= 50) return alert('年利率必須在 0–50% 之間（請填數字，例如 2.06 表示 2.06%）');
+            if (isNaN(monthly) || monthly <= 0) return alert('月付必須 > 0');
+            if (isNaN(day) || day < 1 || day > 31) return alert('還款日必須在 1–31 之間');
+            const today = _taipeiToday();
+            const msg = `確認新增貸款？\n\n銀行：${bank}\n名稱：${name}\n剩餘本金：NT$ ${principal.toLocaleString()}\n年利率：${rate}%\n月付：NT$ ${monthly.toLocaleString()}\n還款日：每月 ${day} 號\n\n系統會在每月 ${day} 號隔天自動扣款（台北時間），可隨時於貸款 Tab 刪除。`;
+            if (!confirm(msg)) return;
+            const now = new Date().toISOString();
+            loans.push({
+                id: Date.now(),
+                bank, name,
+                remainingPrincipal: principal,
+                annualRatePct: rate,
+                monthlyPayment: monthly,
+                paymentDay: day,
+                balanceAsOfDate: today,
+                payments: {},
+                active: true,
+                createdAt: now,
+                updatedAt: now
+            });
+            saveLoans();
+            _markAndAutoPush(['loans']);
+            ['loan-bank-input','loan-name-input','loan-principal-input','loan-rate-input','loan-monthly-input','loan-day-input']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            renderLoansTab();
+        }
+        function removeLoan(id) {
+            const l = loans.find(x => x.id === id);
+            if (!l) return;
+            const msg = `確認刪除「${l.bank} · ${l.name}」？\n\n此操作會同時刪除該貸款的所有還款歷史記錄，無法復原（除非另有雲端備份）。`;
+            if (!confirm(msg)) return;
+            loans = loans.filter(x => x.id !== id);
+            saveLoans();
+            _markAndAutoPush(['loans']);
+            renderLoansTab();
+        }
+        function updateLoanField(id, field, raw) {
+            const l = loans.find(x => x.id === id);
+            if (!l) return;
+            let v = raw;
+            if (field === 'remainingPrincipal' || field === 'monthlyPayment' || field === 'annualRatePct') {
+                v = parseFloat(raw);
+                if (isNaN(v) || v < 0) return;
+            } else if (field === 'paymentDay') {
+                v = parseInt(raw, 10);
+                if (isNaN(v) || v < 1 || v > 31) return;
+            } else if (field === 'bank' || field === 'name') {
+                v = String(raw).trim();
+                if (!v) return;
+            } else {
+                return;
+            }
+            l[field] = v;
+            // 若直接編輯了「剩餘本金」，重設 balanceAsOfDate 為今天，避免回補已含在新餘額裡的月份
+            if (field === 'remainingPrincipal') {
+                l.balanceAsOfDate = _taipeiToday();
+            }
+            l.updatedAt = new Date().toISOString();
+            // 若貸款已還清（active=false）但又被手動補 principal > 0，重新啟用
+            if (!l.active && l.remainingPrincipal > 0) l.active = true;
+            saveLoans();
+            _markAndAutoPush(['loans']);
+            renderLoansTab();
+        }
+        function _toggleLoanExpanded(id) {
+            _loanExpanded[id] = !_loanExpanded[id];
+            renderLoansTab();
+        }
+
+        // ── Render ──
+        function renderLoansTab() {
+            const pane = document.getElementById('tab-pane-8');
+            if (!pane) return;
+            // 先觸發一次 auto-debit（同月已扣 noop，這裡確保使用者打開貸款 Tab 時看到最新狀態）
+            _processAllLoansAutoDebit();
+            const loansTotalTWD = _activeLoansTotalTWD();
+            const grandTotal    = _grandTotalTWD();
+            const netWorthTWD   = grandTotal - loansTotalTWD;
+            const fmtN = v => Math.round(v).toLocaleString('en-US');
+            const activeCount = loans.filter(l => l && l.active).length;
+
+            // 統計卡（兩個並排）
+            const statsHtml = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:1rem;">
+                <div class="glass-card" style="padding:1rem 1.25rem;">
+                    <div style="color:#7e93a6;font-size:0.72rem;letter-spacing:0.04em;margin-bottom:0.25rem;">貸款總額（TWD）</div>
+                    <div class="mono pv-field" style="font-size:1.55rem;font-weight:800;color:#f87171;line-height:1.1;">${pv('NT$ ' + fmtN(loansTotalTWD))}</div>
+                    <div style="color:#607585;font-size:0.72rem;margin-top:0.35rem;">共 ${activeCount} 筆未還清</div>
+                </div>
+                <div class="glass-card" style="padding:1rem 1.25rem;">
+                    <div style="color:#7e93a6;font-size:0.72rem;letter-spacing:0.04em;margin-bottom:0.25rem;">淨資產（總資產 − 貸款）</div>
+                    <div class="mono pv-field" style="font-size:1.55rem;font-weight:800;color:#60a5fa;line-height:1.1;">${pv('NT$ ' + fmtN(netWorthTWD))}</div>
+                    <div style="color:#607585;font-size:0.72rem;margin-top:0.35rem;">既有總資產 <span class="pv-field">${pv('NT$ ' + fmtN(grandTotal))}</span></div>
+                </div>
+            </div>`;
+
+            // 新增 form
+            const formHtml = `
+            <div class="glass-card" style="padding:1rem 1.25rem;margin-bottom:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+                    <h3 style="color:#e2e8f0;font-size:0.95rem;font-weight:700;margin:0;"><i class="ic">+</i> 新增貸款</h3>
+                    <div style="color:#607585;font-size:0.72rem;">每月 ${(() => { return _taipeiToday(); })()} 系統台北時間檢查</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:0.45rem;align-items:center;">
+                    <input id="loan-bank-input" type="text" placeholder="銀行" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <input id="loan-name-input" type="text" placeholder="貸款名稱（如「房貸」）" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <input id="loan-principal-input" type="number" min="0" step="1" placeholder="剩餘本金 NT$" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <input id="loan-rate-input" type="number" min="0" step="0.01" placeholder="年利率% (如 2.06)" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <input id="loan-monthly-input" type="number" min="0" step="1" placeholder="月付 NT$" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <input id="loan-day-input" type="number" min="1" max="31" step="1" placeholder="還款日 1-31" style="padding:0.4rem 0.6rem;background:rgba(6,13,26,0.9);border:1.5px solid rgba(56,139,253,0.22);border-radius:7px;color:#e2e8f0;font-size:0.82rem;outline:none;">
+                    <button onclick="addLoan()" style="padding:0.4rem 1rem;background:rgba(56,139,253,0.15);border:1.5px solid rgba(56,139,253,0.35);border-radius:7px;color:#60a5fa;font-size:0.82rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0;white-space:nowrap;">+ 新增</button>
+                </div>
+                <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">月底順延：還款日 29-31 在 2 月、4/6/9/11 月自動取該月最後一天</div>
+            </div>`;
+
+            // 貸款卡片列表（依 active 排序，已還清放後面）
+            const sorted = [...loans].sort((a, b) => {
+                if (a.active !== b.active) return a.active ? -1 : 1;
+                return (a.createdAt || '').localeCompare(b.createdAt || '');
+            });
+            const cardsHtml = sorted.length === 0
+                ? `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;">尚無貸款紀錄。可在上方表單新增。</div>`
+                : sorted.map(l => _buildLoanCardHtml(l)).join('');
+
+            pane.innerHTML = statsHtml + formHtml + cardsHtml;
+        }
+
+        function _buildLoanCardHtml(l) {
+            const fmtN = v => Math.round(v).toLocaleString('en-US');
+            const fmt2 = v => v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const ymKeys = Object.keys(l.payments || {}).sort().reverse();   // 最新在前
+            const isExpanded = !!_loanExpanded[l.id];
+            const visibleKeys = isExpanded ? ymKeys : ymKeys.slice(0, 3);
+            const totalInterest = ymKeys.reduce((s, k) => s + (l.payments[k].interest || 0), 0);
+            const totalPrincipalPaid = ymKeys.reduce((s, k) => s + (l.payments[k].principal || 0), 0);
+            const paidOff = !l.active && (l.remainingPrincipal || 0) <= 0;
+
+            // 預估剩餘期數 / 還清月份（保守估算：用當前月利息與月付計算）
+            let etaText = '';
+            if (l.active && l.remainingPrincipal > 0) {
+                const r = _calculateLoanDebit(l);
+                if (r.error) {
+                    etaText = '⚠ 月付低於月利息，無法估算';
+                } else {
+                    // 用標準等額本息逼近：n = -log(1 - i*P/M) / log(1+i)
+                    const i = l.annualRatePct / 100 / 12;
+                    const P = l.remainingPrincipal;
+                    const M = l.monthlyPayment;
+                    let n = NaN;
+                    try {
+                        if (i > 0 && (i * P) < M) {
+                            n = -Math.log(1 - (i * P) / M) / Math.log(1 + i);
+                        } else if (i === 0) {
+                            n = P / M;
+                        }
+                    } catch(_) {}
+                    if (isFinite(n) && n > 0) {
+                        const months = Math.ceil(n);
+                        const today = _taipeiToday();
+                        const [Y, M2] = today.split('-').map(Number);
+                        let endY = Y, endM = M2 + months;
+                        endY += Math.floor((endM - 1) / 12);
+                        endM = ((endM - 1) % 12) + 1;
+                        etaText = `估剩 ${months} 期 · 預估還清 ${endY}-${String(endM).padStart(2,'0')}`;
+                    }
+                }
+            }
+
+            const headerLabel = paidOff
+                ? `<span style="color:#7e93a6;font-size:0.78rem;background:rgba(126,147,166,0.12);padding:0.1rem 0.45rem;border-radius:4px;margin-left:0.45rem;">已還清</span>`
+                : '';
+            const cardOpacity = paidOff ? '0.78' : '1';
+
+            const paymentsHtml = visibleKeys.length === 0
+                ? `<div style="color:#607585;font-size:0.78rem;padding:0.5rem 0;">尚無還款記錄（系統會在還款日隔天自動扣款）</div>`
+                : visibleKeys.map(k => {
+                    const p = l.payments[k];
+                    const finalBadge = p.isFinal ? `<span style="color:#fbbf24;font-size:0.7rem;background:rgba(251,191,36,0.12);padding:0.05rem 0.35rem;border-radius:4px;margin-left:0.35rem;">最後一期</span>` : '';
+                    return `
+                    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;gap:0.5rem 0.85rem;padding:0.4rem 0;border-bottom:1px dashed rgba(56,139,253,0.08);font-size:0.78rem;align-items:center;">
+                        <div style="color:#a8bdd0;font-weight:600;min-width:75px;">${k} ${finalBadge}</div>
+                        <div class="pv-field" style="color:#fbbf24;">利息 ${pv('NT$ ' + fmt2(p.interest || 0))}</div>
+                        <div class="pv-field" style="color:#34d399;">本金 ${pv('NT$ ' + fmt2(p.principal || 0))}</div>
+                        <div class="pv-field" style="color:#a8bdd0;">扣款 ${pv('NT$ ' + fmt2(p.payment || 0))}</div>
+                        <div class="pv-field" style="color:#e2e8f0;text-align:right;">餘 ${pv('NT$ ' + fmtN(p.balanceAfter || 0))}</div>
+                    </div>`;
+                }).join('');
+
+            const expandBtn = ymKeys.length > 3
+                ? `<button onclick="_toggleLoanExpanded(${l.id})" style="margin-top:0.4rem;padding:0.25rem 0.7rem;background:rgba(56,139,253,0.08);border:1px solid rgba(56,139,253,0.18);border-radius:6px;color:#60a5fa;font-size:0.74rem;cursor:pointer;text-transform:none;letter-spacing:0;">${isExpanded ? '▲ 收合（最近 3 期）' : `▼ 展開全部歷史（共 ${ymKeys.length} 期）`}</button>`
+                : '';
+
+            return `
+            <div class="glass-card" style="padding:1rem 1.25rem;margin-bottom:0.85rem;opacity:${cardOpacity};">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.55rem;">
+                    <div style="flex:1;min-width:200px;">
+                        <div style="color:#f1f5f9;font-size:1rem;font-weight:700;">${l.bank} · ${l.name}${headerLabel}</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-top:0.2rem;">建立 ${(l.createdAt || '').slice(0,10)} · 截至 ${l.balanceAsOfDate || '-'}</div>
+                    </div>
+                    <button onclick="removeLoan(${l.id})" style="padding:0.22rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.78rem;cursor:pointer;text-transform:none;letter-spacing:0;">刪除</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(135px, 1fr));gap:0.4rem 0.9rem;margin-bottom:0.55rem;padding:0.55rem 0.7rem;background:rgba(6,13,26,0.45);border:1px solid rgba(56,139,253,0.1);border-radius:8px;">
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.7rem;">剩餘本金</div>
+                        <input type="number" min="0" step="1" class="mono pv-field" value="${l.remainingPrincipal}" onchange="updateLoanField(${l.id}, 'remainingPrincipal', this.value)" style="width:100%;text-align:left;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#f1f5f9;font-size:0.86rem;outline:none;font-weight:700;">
+                    </div>
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.7rem;">年利率 %</div>
+                        <input type="number" min="0" step="0.01" class="mono" value="${l.annualRatePct}" onchange="updateLoanField(${l.id}, 'annualRatePct', this.value)" style="width:100%;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#fbbf24;font-size:0.86rem;outline:none;">
+                    </div>
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.7rem;">月付 NT$</div>
+                        <input type="number" min="0" step="1" class="mono pv-field" value="${l.monthlyPayment}" onchange="updateLoanField(${l.id}, 'monthlyPayment', this.value)" style="width:100%;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#60a5fa;font-size:0.86rem;outline:none;">
+                    </div>
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.7rem;">還款日</div>
+                        <input type="number" min="1" max="31" step="1" class="mono" value="${l.paymentDay}" onchange="updateLoanField(${l.id}, 'paymentDay', this.value)" style="width:100%;padding:0.22rem 0.4rem;background:rgba(6,13,26,0.9);border:1px solid rgba(56,139,253,0.25);border-radius:6px;color:#a8bdd0;font-size:0.86rem;outline:none;">
+                    </div>
+                </div>
+                ${etaText ? `<div style="color:#607585;font-size:0.74rem;margin-bottom:0.5rem;">${etaText}</div>` : ''}
+                ${ymKeys.length > 0 ? `<div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.3rem;">已扣 ${ymKeys.length} 期 · 累計利息 <span class="pv-field">${pv('NT$ ' + fmtN(totalInterest))}</span> · 累計還本 <span class="pv-field">${pv('NT$ ' + fmtN(totalPrincipalPaid))}</span></div>` : ''}
+                ${paymentsHtml}
+                ${expandBtn}
             </div>`;
         }
 
@@ -4491,6 +4882,7 @@
                 tradeHistory,
                 deposits,
                 manualRealizedEntries: manualRealizedEntries || [],   // v15.905
+                loans:         loans || [],                            // v15.917
                 currency,
                 sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
                 cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
@@ -4508,6 +4900,7 @@
                 tradeHistory:  payload.tradeHistory || [],
                 deposits:      payload.deposits     || {},
                 manualRealizedEntries: Array.isArray(payload.manual_realized_entries) ? payload.manual_realized_entries : [],   // v15.905
+                loans:         Array.isArray(payload.loans) ? payload.loans : [],   // v15.917
                 currency:      payload.currency     || 'USD',
                 sheet_url:     payload.sheet_url    || '',
                 cash_pie_cb:   payload.cash_pie_cb  ?? false,
@@ -5540,6 +5933,7 @@
                     watchlist,
                     tradeHistory,
                     manual_realized_entries: manualRealizedEntries,   // v15.905
+                    loans,                                            // v15.917
                     currency,
                     exchangeRates,
                     sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
@@ -6288,6 +6682,7 @@
                 watchlist,
                 tradeHistory,
                 manual_realized_entries: manualRealizedEntries,   // v15.905
+                loans,                                            // v15.917
                 currency,
                 exchangeRates,
                 sheet_url:    document.getElementById('sheet-url')?.value?.trim() || '',
@@ -6471,6 +6866,9 @@
                 // v15.905：還原期間補錄（手動 pull = 雲端為準）
                 manualRealizedEntries = Array.isArray(saved.manual_realized_entries) ? saved.manual_realized_entries : [];
                 saveManualRealizedEntries();
+                // v15.917：還原貸款（手動 pull = 雲端為準）
+                loans = Array.isArray(saved.loans) ? saved.loans : [];
+                saveLoans();
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 // 永遠記住 Token 和 Gist ID
@@ -6537,6 +6935,7 @@
                 _recordAppError('gist_pull', e);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
+                try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.917：pull 完跑一次貸款 auto-debit
             }
         }
 
@@ -6699,6 +7098,15 @@
                         saveManualRealizedEntries();
                     }
                 }
+                // v15.917：還原貸款（auto-pull 對齊 deposits / tradeHistory 條件）
+                if (Array.isArray(saved.loans)) {
+                    if (_gistIsNewer || loans.length === 0) {
+                        loans = saved.loans;
+                        saveLoans();
+                    } else {
+                        console.log('[Auto-pull] 本地貸款較新，跳過 Gist 覆蓋');
+                    }
+                }
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 // v15.071/080：merge 雲端 daily_pnl_snapshots 進本機（傳本機 hash 給 priority 用）
@@ -6735,6 +7143,7 @@
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
+                try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.917：silent pull 完跑一次貸款 auto-debit
             }
         }
 
@@ -7081,6 +7490,7 @@
         let pendingCsvRows = [];
         let pendingCsvTrades = [];
         let pendingCsvDeposits = null;   // v15.077：CSV 匯入暫存的存款列表
+        let pendingCsvLoans    = null;   // v15.917：CSV 匯入暫存的貸款列表
         let pendingCsvOther    = null;   // v15.077：CSV 匯入暫存的單值欄位 map
 
         function showImportConfirm() {
@@ -7144,10 +7554,11 @@
 
             // ── v15.077：依序分離 [TradeHistory] / [Deposits] / [OtherAssets] 區段 ──
             let holdingsPart = csvText;
-            let tradeHistoryPart = '', depositsPart = '', otherAssetsPart = '';
+            let tradeHistoryPart = '', depositsPart = '', loansPart = '', otherAssetsPart = '';
             const _markers = [
                 { key: 'tradeHistory', tag: '[TradeHistory]' },
                 { key: 'deposits',     tag: '[Deposits]' },
+                { key: 'loans',        tag: '[Loans]' },        // v15.917
                 { key: 'otherAssets',  tag: '[OtherAssets]' }
             ];
             const _positions = _markers
@@ -7162,6 +7573,7 @@
                     const seg   = csvText.substring(start, end);
                     if (p.key === 'tradeHistory') tradeHistoryPart = seg;
                     else if (p.key === 'deposits') depositsPart = seg;
+                    else if (p.key === 'loans') loansPart = seg;
                     else if (p.key === 'otherAssets') otherAssetsPart = seg;
                 });
             }
@@ -7231,6 +7643,35 @@
                     if (bank && amt > 0) importedDeposits.push({ id: Date.now() + Math.random(), bank, currency: cur, amount: amt });
                 });
             }
+            // v15.917：解析 [Loans]
+            let importedLoans = null;
+            if (loansPart.trim()) {
+                const lLines = loansPart.trim().split(/\r?\n|\r/).filter(l => l.trim());
+                const lFirst = (lLines[0] || '').toLowerCase();
+                const lHasHeader = lFirst.includes('bank') || lFirst.includes('remainingprincipal') || lFirst.includes('annualratepct');
+                const lData = lHasHeader ? lLines.slice(1) : lLines;
+                importedLoans = [];
+                lData.forEach(line => {
+                    const c = parseCSVLine(line);
+                    if (!c[0]) return;
+                    let payments = {};
+                    if (c[11]) { try { const obj = JSON.parse(c[11]); if (obj && typeof obj === 'object') payments = obj; } catch(_) {} }
+                    importedLoans.push({
+                        id:                  parseInt(c[0], 10) || (Date.now() + Math.random()),
+                        bank:                (c[1] || '').trim(),
+                        name:                (c[2] || '').trim(),
+                        remainingPrincipal:  parseFloat(c[3]) || 0,
+                        annualRatePct:       parseFloat(c[4]) || 0,
+                        monthlyPayment:      parseFloat(c[5]) || 0,
+                        paymentDay:          parseInt(c[6], 10) || 1,
+                        balanceAsOfDate:     (c[7] || '').trim(),
+                        active:              (c[8] || 'true').toLowerCase() !== 'false',
+                        createdAt:           c[9] || new Date().toISOString(),
+                        updatedAt:           c[10] || new Date().toISOString(),
+                        payments
+                    });
+                });
+            }
             // v15.077：解析 [OtherAssets]（key=value 單值欄位）
             let importedOther = null;
             if (otherAssetsPart.trim()) {
@@ -7247,6 +7688,7 @@
             pendingCsvRows = rows;
             pendingCsvTrades = importedTrades;
             pendingCsvDeposits = importedDeposits;
+            pendingCsvLoans = importedLoans;
             pendingCsvOther = importedOther;
             if (rows.length > 0) {
                 // 自動匯入，不需要按確認鍵
@@ -7301,6 +7743,13 @@
                 saveDeposits();
             }
             pendingCsvDeposits = null;
+            // v15.917：還原貸款（向下相容：CSV 沒 [Loans] 區段就保留本機）
+            const ln = (pendingCsvLoans && pendingCsvLoans.length) || 0;
+            if (pendingCsvLoans && pendingCsvLoans.length > 0) {
+                loans = pendingCsvLoans;
+                saveLoans();
+            }
+            pendingCsvLoans = null;
             // v15.077：還原 OtherAssets（crypto / moxa / pie_cb / sheet_url / currency；缺值保留本機）
             if (pendingCsvOther) {
                 const o = pendingCsvOther;
@@ -7424,6 +7873,22 @@
                     dRows.push([d.bank || '', d.currency || 'TWD', d.amount || 0]);
                 });
                 csv += dRows.map(r => r.join('\t')).join('\n');
+            }
+            // ── Loans（v15.917：銀行貸款 + 每月還款記錄）──
+            if (loans.length > 0) {
+                csv += '\n\n[Loans]\n';
+                const lRows = [['Id','Bank','Name','RemainingPrincipal','AnnualRatePct','MonthlyPayment','PaymentDay','BalanceAsOfDate','Active','CreatedAt','UpdatedAt','PaymentsJSON']];
+                loans.forEach(l => {
+                    lRows.push([
+                        l.id, l.bank || '', l.name || '',
+                        l.remainingPrincipal || 0, l.annualRatePct || 0, l.monthlyPayment || 0,
+                        l.paymentDay || 0, l.balanceAsOfDate || '',
+                        l.active ? 'true' : 'false',
+                        l.createdAt || '', l.updatedAt || '',
+                        JSON.stringify(l.payments || {})
+                    ]);
+                });
+                csv += lRows.map(r => r.join('\t')).join('\n');
             }
             // ── OtherAssets（v15.077：crypto / moxa / pie 勾選 / sheet_url / currency 單值欄位）──
             const _other = [
@@ -7801,6 +8266,10 @@
             // 切換到存款 Tab：即時渲染
             if (n === 7) {
                 renderDepositsTab();
+            }
+            // 切換到貸款 Tab：即時渲染（v15.917）
+            if (n === 8) {
+                renderLoansTab();
             }
         }
 
@@ -8324,6 +8793,7 @@
                 watchlist,
                 tradeHistory,
                 manual_realized_entries: manualRealizedEntries,   // v15.905
+                loans,                                            // v15.917
                 deposits,
                 marketSnapshots,
                 daily_pnl_snapshots: _loadDailyPnlSnapshots(),
@@ -8350,7 +8820,7 @@
             if (saved.sync_source != null && saved.sync_source !== 'local_fsa' && saved.sync_source !== '') {
                 return { ok: false, reason: `sync_source 非預期：${saved.sync_source}` };
             }
-            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries']) {
+            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries','loans']) {
                 if (saved[k] != null && !Array.isArray(saved[k])) {
                     return { ok: false, reason: `${k} 欄位存在但不是 array` };
                 }
@@ -8407,6 +8877,9 @@
                 // v15.905：FSA pull 還原期間補錄
                 manualRealizedEntries = Array.isArray(saved.manual_realized_entries) ? saved.manual_realized_entries : [];
                 saveManualRealizedEntries();
+                // v15.917：FSA pull 還原貸款
+                loans = Array.isArray(saved.loans) ? saved.loans : [];
+                saveLoans();
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
@@ -8419,6 +8892,7 @@
                 renderAll();
             } finally {
                 _isApplyingCloudPull = false;
+                try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.917：FSA pull 完跑一次貸款 auto-debit
             }
         }
 
@@ -9732,6 +10206,7 @@
             loadWatchlist();         // 還原觀察清單
             loadTradeHistory();      // 還原已實現損益紀錄
             loadManualRealizedEntries();  // v15.905：還原期間補錄
+            loadLoans();             // v15.917：還原貸款資料
             // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
             // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
             const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
@@ -9753,6 +10228,9 @@
 
             // v15.069：抽成 _hydrateDailyPnlCachesFromAnalysisCache，Gist pull 後也能呼叫
             _hydrateDailyPnlCachesFromAnalysisCache();
+
+            // v15.917：啟動先跑一次貸款 auto-debit（同月已扣 noop）
+            try { _processAllLoansAutoDebit(); } catch(e) { console.warn('[Loan auto-debit] init failed', e); }
 
             renderAll();
             // 有 Gist 憑證時跳過本地 toast（auto-pull 成功後會顯示雲端 toast）
