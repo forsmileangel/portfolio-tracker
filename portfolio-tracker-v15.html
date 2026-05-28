@@ -7389,23 +7389,39 @@
         }
 
         // ==================== 操作 ====================
+        function _isTwSymbolInput(symbol) {
+            const s = String(symbol || '').toUpperCase().trim();
+            return s.endsWith('.TW') || /^\d{4}$/.test(s) || /^\d{4,6}[A-Z]$/.test(s);
+        }
+        function _tradeFormCurrencyFor(symbol, market) {
+            const s = String(symbol || '').toUpperCase().trim();
+            if (market === 'TW') return 'TWD';
+            if (market === 'HK') {
+                const fullSym = s.endsWith('.HK') ? s : `${s}.HK`;
+                return _holdingNativeCurrency({ symbol: fullSym, market: 'HK' });
+            }
+            return 'USD';
+        }
         function getSymbolMarket(symbol) {
             const s = symbol.toUpperCase().trim();
             if (s.endsWith('.HK')) return 'HK';
-            if (s.endsWith('.TW') || /^\d{4}$/.test(s)) return 'TW';
+            if (_isTwSymbolInput(s)) return 'TW';
             return 'US';
         }
         function getSymbolCurrency(symbol) {
             const s = symbol.toUpperCase().trim();
             if (s.endsWith('.HK')) return _holdingNativeCurrency({ symbol: s, market: 'HK' });
-            if (s.endsWith('.TW') || /^\d{4}$/.test(s)) return 'TWD';
+            if (_isTwSymbolInput(s)) return 'TWD';
             return 'USD';
         }
-        function onSymbolInput(val) {
+        function onSymbolInput(val, opts = {}) {
             const s = val.toUpperCase().trim();
             if (!s) return;
-            document.getElementById('form-market').value = getSymbolMarket(s);
-            document.getElementById('form-price-ccy').textContent = '(' + getSymbolCurrency(s) + ')';
+            const mEl = document.getElementById('form-market');
+            const ccyEl = document.getElementById('form-price-ccy');
+            const market = opts.preserveMarket && mEl?.value ? mEl.value : getSymbolMarket(s);
+            if (mEl) mEl.value = market;
+            if (ccyEl) ccyEl.textContent = '(' + _tradeFormCurrencyFor(s, market) + ')';
         }
         // 市場手動切換時，重新計算幣別顯示
         function onMarketChange(market) {
@@ -10737,7 +10753,7 @@
             sEl.value = symbol || '';
             mEl.value = market || 'US';
             try { if (typeof onMarketChange === 'function') onMarketChange(mEl.value); } catch(_) {}
-            try { if (typeof onSymbolInput  === 'function') onSymbolInput(sEl.value);  } catch(_) {}
+            try { if (typeof onSymbolInput  === 'function') onSymbolInput(sEl.value, { preserveMarket: true });  } catch(_) {}
             if (qEl) qEl.value = '';
             if (cEl) cEl.value = '';
             // v15.077：移除 qEl.focus() — 手機 tap 持倉按鈕後不應自動彈鍵盤打斷 user
