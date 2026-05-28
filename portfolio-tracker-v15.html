@@ -511,7 +511,6 @@
                     <div style="color:#60a5fa; font-size:0.92rem; font-weight:800;"><i class="ic">◇</i> 公司行動 / 股票分割</div>
                     <div style="color:#7e93a6; font-size:0.76rem; margin-top:0.18rem;">手動套用 split / reverse split，調整股數、成本與 FIFO lots；不回溯歷史快照。</div>
                 </div>
-                <div id="ca-status" style="color:#607585; font-size:0.74rem;">尚未選擇標的</div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:0.55rem; align-items:end;">
                 <div>
@@ -528,7 +527,7 @@
                 <div><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">舊股數</label><input id="ca-old-shares" type="number" step="any" value="1" oninput="previewCorporateAction()" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
                 <div><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">新股數</label><input id="ca-new-shares" type="number" step="any" value="8" oninput="previewCorporateAction()" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
                 <div><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">生效日</label><input id="ca-action-date" type="date" onchange="previewCorporateAction()" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
-                <div style="grid-column:1 / -1;"><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">備註</label><input id="ca-note" type="text" placeholder="例如：SNXX 1→8 split" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
+                <div style="grid-column:1 / -1;"><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">備註</label><input id="ca-note" type="text" placeholder="可留空" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
                 <div style="grid-column:1 / -1; display:grid; grid-template-columns:1fr auto; gap:0.6rem; align-items:stretch;">
                     <div id="ca-preview" style="min-height:2.2rem; padding:0.65rem 0.75rem; border:1px solid rgba(56,139,253,0.16); border-radius:8px; background:rgba(6,13,26,0.28); color:#7e93a6; font-size:0.78rem;">選擇標的並輸入比例後會顯示預覽。</div>
                     <button onclick="applyCorporateAction()" style="padding:0.55rem 1.25rem; background:rgba(16,185,129,0.15); color:#10b981; border:1.5px solid rgba(16,185,129,0.4); border-radius:8px; font-weight:800; font-size:0.84rem; cursor:pointer; text-transform:none; letter-spacing:0;">套用分割</button>
@@ -7621,11 +7620,10 @@
         }
         function previewCorporateAction() {
             const box = document.getElementById('ca-preview');
-            const status = document.getElementById('ca-status');
             if (!box) return;
             const p = _buildCorporateActionPreview();
-            if (!p.ok && !p.h) { box.innerHTML = `<span style="color:#7e93a6;">${p.message}</span>`; if (status) status.textContent = '尚未選擇標的'; return; }
-            if (!p.ok && (!(p.oldShares > 0) || !(p.newShares > 0))) { box.innerHTML = `<span style="color:#fbbf24;">${p.message}</span>`; if (status) status.textContent = p.h ? p.h.symbol : ''; return; }
+            if (!p.ok && !p.h) { box.innerHTML = `<span style="color:#7e93a6;">${p.message}</span>`; return; }
+            if (!p.ok && (!(p.oldShares > 0) || !(p.newShares > 0))) { box.innerHTML = `<span style="color:#fbbf24;">${p.message}</span>`; return; }
             const warn = !p.ok ? `<div style="color:#ef4444;font-weight:700;margin-top:0.3rem;">⚠ 分割前後總成本或市值差異超過容許誤差，請檢查比例。</div>` : '';
             const historyWarn = p.actionDate && p.actionDate < _caToday() ? '<div style="color:#fbbf24;margin-top:0.3rem;">注意：生效日早於今天，本工具不回溯重算歷史快照或已實現損益。</div>' : '';
             box.innerHTML = `
@@ -7636,7 +7634,6 @@
                     <div><span style="color:#607585;">總成本</span><br><b style="color:#a8bdd0;">${_caMoney(p.totalCostBefore, p.h)} → ${_caMoney(p.totalCostAfter, p.h)}</b></div>
                     <div><span style="color:#607585;">市值</span><br><b style="color:#a8bdd0;">${_caMoney(p.marketValueBefore, p.h)} → ${_caMoney(p.marketValueAfter, p.h)}</b></div>
                 </div>${warn}${historyWarn}`;
-            if (status) status.textContent = `${p.h.symbol}｜${p.oldShares}→${p.newShares}｜ratio ${_caFmt(p.ratio, 6)}`;
         }
         function _hasTradeAfterActionDate(symbol, actionDate) { return !!actionDate && tradeHistory.some(t => t.symbol === symbol && String(t.date || '').slice(0,10) > actionDate); }
         function _hasLotAfterActionDate(h, actionDate) { if (!actionDate) return false; try { _ensureLots(h); } catch(_) {} return (h.lots || []).some(l => String(l.date || '').slice(0,10) > actionDate); }
