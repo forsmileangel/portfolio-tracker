@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.921 - Hotfix：股票分割後 close pair 基準價自動轉成目前持倉尺度；修正 SNXX 1→8 後今日損益仍用拆股前昨收造成 -87% / 千萬級錯誤，不改 Gist schema / holdings / corporateActions 結構。
         v15.920 - 新增股票分割 / 反分割工具：可手動套用 1→8 或 8→1 公司行動，同步調整 holdings / FIFO lots / costPrice / currentPrice，新增 corporateActions 紀錄並納入 Gist/FSA/CSV/userDataHash；分割後 48 小時內阻擋明顯舊價格報價，避免統計數據因報價延遲跳動。
         v15.919 - 貸款新增表單 UI 文案修正：將「每月還款日」與「首次還款日」分成明確標籤，避免誤解 1-31 欄位；不改貸款公式 / Gist / CSV。
         v15.918 - 修正貸款功能：改為原始本金 + 首次還款日 + 固定月付即時推導剩餘本金；不再保存每月還款流水帳、不因日期推導自動產生 Gist pending，支援月付校正後從原始本金重新計算。
@@ -404,7 +405,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.920</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.921</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1131,7 +1132,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.920';
+        const APP_VERSION = 'v15.921';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1839,6 +1840,55 @@
                 if (slot.targetDate === targetDate) return slot;
             }
             return null;
+        }
+        function _splitActionsForHolding(h) {
+            const key = _cleanSymbolKey(h?.symbol);
+            if (!key) return [];
+            try {
+                return _normalizeCorporateActions(corporateActions)
+                    .filter(a => _cleanSymbolKey(a.symbol) === key && a.actionDate && a.ratio > 0 && isFinite(a.ratio))
+                    .sort((a, b) => String(a.actionDate).localeCompare(String(b.actionDate)));
+            } catch(_) {
+                return [];
+            }
+        }
+        function _shouldSplitScaleHistoricalPrice(price, action, h) {
+            const ratio = Number(action?.ratio);
+            const px = Number(price);
+            if (!Number.isFinite(px) || px <= 0 || !Number.isFinite(ratio) || ratio <= 0 || Math.abs(ratio - 1) < 1e-9) return false;
+
+            const before = Number(action.currentPriceBefore);
+            const after = Number(action.currentPriceAfter);
+            const adjusted = px / ratio;
+            if (Number.isFinite(before) && before > 0 && Number.isFinite(after) && after > 0) {
+                const rawAfterRel = Math.abs(px - after) / after;
+                const adjustedAfterRel = Math.abs(adjusted - after) / after;
+                if (rawAfterRel <= 0.45) return false; // already looks like post-split scale
+                return adjustedAfterRel < rawAfterRel && adjustedAfterRel <= 0.65;
+            }
+
+            const current = Number(h?.currentPrice);
+            if (!Number.isFinite(current) || current <= 0) return false;
+            if (ratio > 1) return px > current * Math.sqrt(ratio);
+            return px < current / Math.sqrt(1 / ratio);
+        }
+        function _splitAdjustClosePriceForHolding(h, dateKey, price) {
+            let out = Number(price);
+            if (!Number.isFinite(out) || out <= 0 || !dateKey) return price;
+            for (const action of _splitActionsForHolding(h)) {
+                if (String(dateKey) >= String(action.actionDate)) continue;
+                if (_shouldSplitScaleHistoricalPrice(out, action, h)) {
+                    out = out / Number(action.ratio);
+                }
+            }
+            return out;
+        }
+        function _splitAdjustedClosePairForHolding(pair, h) {
+            if (!pair || !h) return pair;
+            const close = _splitAdjustClosePriceForHolding(h, pair.targetDate, pair.close);
+            const prevClose = _splitAdjustClosePriceForHolding(h, pair.prevDate, pair.prevClose);
+            if (close === pair.close && prevClose === pair.prevClose) return pair;
+            return { ...pair, close, prevClose, splitAdjusted: true, rawClose: pair.close, rawPrevClose: pair.prevClose };
         }
         function _isFinalClosePair(pair) {
             return !!(pair && pair.final === true);
@@ -2863,8 +2913,8 @@
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
                 const _mkKey = _holdingMarketKey(h);
                 const _todayState = todayPnlByMarket[_mkKey] || {};
-                const _todayPair = _getClosePairForDate(_closePairData, h.symbol, _todayState.targetDate, _mkKey);
-                const _prevPair  = _getClosePairForDate(_closePairData, h.symbol, _todayState.previousTradingDate, _mkKey);
+                const _todayPair = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.targetDate, _mkKey), h);
+                const _prevPair  = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.previousTradingDate, _mkKey), h);
                 let prevDayChangePct = null;
                 let prevDayPnlUSD = null, prevDayPnlTWD = null;
                 if (_validFinalClosePair(_prevPair)) {
@@ -2956,7 +3006,7 @@
                 const _target = session.previousTradingDate || null;
                 let pnlUSD = 0, pnlTWD = 0, withData = 0;
                 for (const h of marketHoldings) {
-                    const pair = _getClosePairForDate(_closePairData, h.symbol, _target, mk);
+                    const pair = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _target, mk), h);
                     if (!_validFinalClosePair(pair)) continue;
 
                     const dc = pair.close - pair.prevClose;
@@ -4757,7 +4807,7 @@
             return holdings.reduce((sum, h) => {
                 const mk = _holdingMarketKey(h);
                 const target = _marketSession(mk, new Date()).lastCompletedTradingDate;
-                const pair = _getClosePairForDate(closePairData, h.symbol, target, mk);
+                const pair = _splitAdjustedClosePairForHolding(_getClosePairForDate(closePairData, h.symbol, target, mk), h);
                 const px = (pair && typeof pair.close === 'number' && pair.close > 0)
                     ? pair.close
                     : (h.currentPrice || 0);
