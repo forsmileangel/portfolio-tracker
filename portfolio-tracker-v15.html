@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.922 - 股票分割預約 + 自動偵測 + 一鍵套用：新增 corporateActionPlans 預約層，報價刷新時若價格尺度接近預約或常見分割比例，先提示不自動改 holdings；使用者確認後才套用既有分割工具並寫入 corporateActions。
         v15.921 - Hotfix：股票分割後 close pair 基準價自動轉成目前持倉尺度；修正 SNXX 1→8 後今日損益仍用拆股前昨收造成 -87% / 千萬級錯誤，不改 Gist schema / holdings / corporateActions 結構。
         v15.920 - 新增股票分割 / 反分割工具：可手動套用 1→8 或 8→1 公司行動，同步調整 holdings / FIFO lots / costPrice / currentPrice，新增 corporateActions 紀錄並納入 Gist/FSA/CSV/userDataHash；分割後 48 小時內阻擋明顯舊價格報價，避免統計數據因報價延遲跳動。
         v15.919 - 貸款新增表單 UI 文案修正：將「每月還款日」與「首次還款日」分成明確標籤，避免誤解 1-31 欄位；不改貸款公式 / Gist / CSV。
@@ -405,7 +406,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.921</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.922</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -626,11 +627,13 @@
                 <div><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">新股數</label><input id="ca-new-shares" type="number" step="any" value="8" oninput="previewCorporateAction()" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
                 <div><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">生效日</label><input id="ca-action-date" type="date" onchange="previewCorporateAction()" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
                 <div style="grid-column:1 / -1;"><label style="display:block;color:#7e93a6;font-size:0.74rem;margin-bottom:0.2rem;">備註</label><input id="ca-note" type="text" placeholder="可留空" style="width:100%; padding:0.48rem 0.6rem; background:rgba(6,13,26,0.9); border:1.5px solid rgba(56,139,253,0.22); border-radius:7px; color:#e2e8f0; font-size:0.82rem;"></div>
-                <div style="grid-column:1 / -1; display:grid; grid-template-columns:1fr auto; gap:0.6rem; align-items:stretch;">
+                <div style="grid-column:1 / -1; display:grid; grid-template-columns:1fr auto auto; gap:0.6rem; align-items:stretch;">
                     <div id="ca-preview" style="min-height:2.2rem; padding:0.65rem 0.75rem; border:1px solid rgba(56,139,253,0.16); border-radius:8px; background:rgba(6,13,26,0.28); color:#7e93a6; font-size:0.78rem;">選擇標的並輸入比例後會顯示預覽。</div>
+                    <button onclick="addCorporateActionPlan()" style="padding:0.55rem 1.25rem; background:rgba(59,130,246,0.12); color:#60a5fa; border:1.5px solid rgba(96,165,250,0.35); border-radius:8px; font-weight:800; font-size:0.84rem; cursor:pointer; text-transform:none; letter-spacing:0;">預約分割</button>
                     <button onclick="applyCorporateAction()" style="padding:0.55rem 1.25rem; background:rgba(16,185,129,0.15); color:#10b981; border:1.5px solid rgba(16,185,129,0.4); border-radius:8px; font-weight:800; font-size:0.84rem; cursor:pointer; text-transform:none; letter-spacing:0;">套用分割</button>
                 </div>
             </div>
+            <div id="ca-plan-panel" style="margin-top:0.7rem; color:#a8bdd0; font-size:0.76rem;"></div>
             <div id="ca-recent" style="margin-top:0.7rem; color:#607585; font-size:0.72rem;"></div>
         </div>
 
@@ -1132,7 +1135,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.921';
+        const APP_VERSION = 'v15.922';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1149,6 +1152,7 @@
             manualRealizedEntries: 'pt_manual_realized_entries',  // v15.905：期間補錄總報酬
             loans:            'pt_loans_v1',         // v15.918：貸款原始本金 + 首次還款日推導
             corporateActions: 'pt_corporate_actions_v1', // v15.920：股票分割 / 反分割紀錄
+            corporateActionPlans: 'pt_corporate_action_plans_v1', // v15.922：股票分割 / 反分割預約
             watchlist:        'pt_watchlist',
             snapshots:        'pt_snapshots',
             // 圓餅圖手動欄位
@@ -1201,6 +1205,7 @@
             closePairCache:   'pt_close_pair_v3',   // v15.907：close pair cache 多日期（保留 pt_close_pair_v2 供 rollback）
             // 後端
             symbolSyncAck:    'pt_symbol_sync_ack_v1', // v15.913：補 symbols 後 12hr 本機 ack，避免部署/CDN 空窗重複提醒
+            corporateActionCandidateIgnores: 'pt_corporate_action_candidate_ignores_v1', // v15.922：疑似分割忽略 24hr
             backendUrl:       'backend_url',
             // Migration markers
             migrationMarker_v15_901: 'pt_v15_901_migrated',  // v15.901：清除 v15.901-904 era 污染
@@ -4100,6 +4105,46 @@
             try { corporateActions = _normalizeCorporateActions(JSON.parse(localStorage.getItem(PT_CORPORATE_ACTIONS_KEY)) || []); }
             catch(_) { corporateActions = []; }
         }
+        const PT_CORPORATE_ACTION_PLANS_KEY = STORAGE_KEYS.corporateActionPlans;   // v15.922
+        let corporateActionPlans = [];   // v15.922：股票分割 / 反分割預約
+        let _corporateActionCandidates = []; // runtime-only detection candidates
+        function _normalizeCorporateActionPlans(list) {
+            if (!Array.isArray(list)) return [];
+            return list.map(p => {
+                if (!p || typeof p !== 'object') return null;
+                const oldShares = parseFloat(p.oldShares);
+                const newShares = parseFloat(p.newShares);
+                const ratio = parseFloat(p.ratio || (oldShares > 0 ? newShares / oldShares : 0));
+                if (!p.symbol || !isFinite(ratio) || ratio <= 0) return null;
+                const status = ['planned','detected','ignored','applied'].includes(p.status) ? p.status : 'planned';
+                return {
+                    id: p.id || Date.now() + Math.random(),
+                    symbol: String(p.symbol || '').trim().toUpperCase(),
+                    market: String(p.market || getSymbolMarket(p.symbol || '') || 'US').toUpperCase(),
+                    type: p.type === 'reverseSplit' ? 'reverseSplit' : 'split',
+                    oldShares: isFinite(oldShares) && oldShares > 0 ? oldShares : 1,
+                    newShares: isFinite(newShares) && newShares > 0 ? newShares : ratio,
+                    ratio,
+                    expectedDate: p.expectedDate || p.actionDate || '',
+                    status,
+                    detectedAt: p.detectedAt || '',
+                    ignoredUntil: p.ignoredUntil || '',
+                    note: p.note || '',
+                    createdAt: p.createdAt || new Date().toISOString(),
+                    updatedAt: p.updatedAt || p.createdAt || new Date().toISOString()
+                };
+            }).filter(Boolean);
+        }
+        function saveCorporateActionPlans() {
+            try {
+                corporateActionPlans = _normalizeCorporateActionPlans(corporateActionPlans);
+                localStorage.setItem(PT_CORPORATE_ACTION_PLANS_KEY, JSON.stringify(corporateActionPlans));
+            } catch(_) {}
+        }
+        function loadCorporateActionPlans() {
+            try { corporateActionPlans = _normalizeCorporateActionPlans(JSON.parse(localStorage.getItem(PT_CORPORATE_ACTION_PLANS_KEY)) || []); }
+            catch(_) { corporateActionPlans = []; }
+        }
         const PT_MOXA_PIE_KEY   = 'pt_moxa_pie_cb';
 
         // ── USDT/TWD 即時匯率（CoinGecko，備援用 USD/TWD）──
@@ -5052,6 +5097,7 @@
                 manualRealizedEntries: manualRealizedEntries || [],   // v15.905
                 loans:         loans || [],                            // v15.918
                 corporateActions: corporateActions || [],              // v15.920
+                corporateActionPlans: corporateActionPlans || [],       // v15.922
                 currency,
                 sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
                 cash_pie_cb:   document.getElementById('cash-pie-cb')?.checked  || false,
@@ -5071,6 +5117,7 @@
                 manualRealizedEntries: Array.isArray(payload.manual_realized_entries) ? payload.manual_realized_entries : [],   // v15.905
                 loans:         Array.isArray(payload.loans) ? payload.loans : [],   // v15.918
                 corporateActions: Array.isArray(payload.corporate_actions) ? payload.corporate_actions : [],   // v15.920
+                corporateActionPlans: Array.isArray(payload.corporate_action_plans) ? payload.corporate_action_plans : [],   // v15.922
                 currency:      payload.currency     || 'USD',
                 sheet_url:     payload.sheet_url    || '',
                 cash_pie_cb:   payload.cash_pie_cb  ?? false,
@@ -5662,6 +5709,7 @@
                 if (Array.isArray(before.deposits)) { deposits = before.deposits; saveDeposits(); }
                 if (Array.isArray(before.manual_realized_entries)) { manualRealizedEntries = before.manual_realized_entries; saveManualRealizedEntries(); }   // v15.905
                 corporateActions = Array.isArray(before.corporate_actions) ? before.corporate_actions : []; saveCorporateActions();   // v15.920
+                corporateActionPlans = Array.isArray(before.corporate_action_plans) ? before.corporate_action_plans : []; saveCorporateActionPlans();   // v15.922
                 if (Array.isArray(before.marketSnapshots)) { marketSnapshots = before.marketSnapshots; saveSnapshots(); }
                 if (before.currency) currency = before.currency;
                 if (before.exchangeRates) { exchangeRates = before.exchangeRates; try { syncRateInputs(); } catch(_) {} }
@@ -6106,6 +6154,7 @@
                     manual_realized_entries: manualRealizedEntries,   // v15.905
                     loans,                                            // v15.918
                     corporate_actions: corporateActions,               // v15.920
+                    corporate_action_plans: corporateActionPlans,       // v15.922
                     currency,
                     exchangeRates,
                     sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
@@ -6856,6 +6905,7 @@
                 manual_realized_entries: manualRealizedEntries,   // v15.905
                 loans,                                            // v15.918
                 corporate_actions: corporateActions,               // v15.920
+                corporate_action_plans: corporateActionPlans,       // v15.922
                 currency,
                 exchangeRates,
                 sheet_url:    document.getElementById('sheet-url')?.value?.trim() || '',
@@ -7045,6 +7095,8 @@
                 // v15.920：還原股票分割 / 反分割紀錄
                 corporateActions = Array.isArray(saved.corporate_actions) ? saved.corporate_actions : [];
                 saveCorporateActions();
+                corporateActionPlans = Array.isArray(saved.corporate_action_plans) ? saved.corporate_action_plans : [];
+                saveCorporateActionPlans();
                 // 還原市值快照
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 // 永遠記住 Token 和 Gist ID
@@ -7292,6 +7344,14 @@
                         saveCorporateActions();
                     } else {
                         console.log('[Auto-pull] 本地公司行動紀錄較新，跳過 Gist 覆蓋');
+                    }
+                }
+                if (Array.isArray(saved.corporate_action_plans)) {
+                    if (_gistIsNewer || corporateActionPlans.length === 0) {
+                        corporateActionPlans = saved.corporate_action_plans;
+                        saveCorporateActionPlans();
+                    } else {
+                        console.log('[Auto-pull] 本地公司行動預約較新，跳過 Gist 覆蓋');
                     }
                 }
                 // 還原市值快照
@@ -7651,7 +7711,34 @@
                 const rows = _normalizeCorporateActions(corporateActions).slice(-4).reverse();
                 recent.innerHTML = rows.length ? `最近紀錄：${rows.map(a => `${a.actionDate || ''} ${a.symbol} ${a.oldShares}→${a.newShares}`).join(' ｜ ')}` : '尚無股票分割紀錄';
             }
+            renderCorporateActionPlanPanel();
             previewCorporateAction();
+        }
+        function renderCorporateActionPlanPanel() {
+            const panel = document.getElementById('ca-plan-panel');
+            if (!panel) return;
+            const detected = _corporateActionCandidates.map(c => `
+                <div style="padding:0.45rem 0;border-top:1px solid rgba(56,139,253,0.12);display:flex;justify-content:space-between;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                    <span style="color:#fbbf24;font-weight:800;">疑似 ${c.symbol} ${c.oldShares}→${c.newShares}</span>
+                    <span style="color:#7e93a6;">${_caFmt(c.oldPrice, 4)} → ${_caFmt(c.incomingPrice, 4)} · ${c.source}</span>
+                    <span style="white-space:nowrap;">
+                        <button onclick="applyCorporateActionCandidate('${c.id}')" style="padding:0.25rem 0.55rem;border-radius:6px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.12);color:#10b981;font-weight:700;cursor:pointer;">套用</button>
+                        <button onclick="ignoreCorporateActionCandidate('${c.id}')" style="padding:0.25rem 0.55rem;border-radius:6px;border:1px solid rgba(148,163,184,0.25);background:rgba(148,163,184,0.08);color:#94a3b8;font-weight:700;cursor:pointer;">忽略</button>
+                    </span>
+                </div>`).join('');
+            const plans = _normalizeCorporateActionPlans(corporateActionPlans)
+                .filter(p => p.status !== 'applied')
+                .slice(-6).reverse().map(p => `
+                <div style="padding:0.35rem 0;display:flex;justify-content:space-between;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                    <span style="color:${p.status === 'detected' ? '#fbbf24' : '#93c5fd'};font-weight:700;">預約 ${p.expectedDate || ''} ${p.symbol} ${p.oldShares}→${p.newShares} (${p.status})</span>
+                    <span style="white-space:nowrap;">
+                        <button onclick="applyCorporateActionPlan('${p.id}')" style="padding:0.22rem 0.5rem;border-radius:6px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.10);color:#10b981;font-weight:700;cursor:pointer;">套用</button>
+                        <button onclick="ignoreCorporateActionPlan('${p.id}')" style="padding:0.22rem 0.5rem;border-radius:6px;border:1px solid rgba(148,163,184,0.25);background:rgba(148,163,184,0.08);color:#94a3b8;font-weight:700;cursor:pointer;">忽略</button>
+                    </span>
+                </div>`).join('');
+            panel.innerHTML = detected || plans
+                ? `${detected ? `<div style="margin-bottom:0.35rem;">${detected}</div>` : ''}${plans ? `<div>${plans}</div>` : ''}`
+                : '<span style="color:#607585;">可先預約分割；系統偵測到報價尺度變化時會在這裡提示。</span>';
         }
         function _getCorporateActionDraft() {
             const symbol = (document.getElementById('ca-symbol')?.value || '').trim();
@@ -7703,7 +7790,169 @@
         }
         function _hasTradeAfterActionDate(symbol, actionDate) { return !!actionDate && tradeHistory.some(t => t.symbol === symbol && String(t.date || '').slice(0,10) > actionDate); }
         function _hasLotAfterActionDate(h, actionDate) { if (!actionDate) return false; try { _ensureLots(h); } catch(_) {} return (h.lots || []).some(l => String(l.date || '').slice(0,10) > actionDate); }
-        function applyCorporateAction() {
+        function _caPlanIgnored(plan) {
+            return !!(plan?.ignoredUntil && new Date(plan.ignoredUntil).getTime() > Date.now());
+        }
+        function _caDaysBetween(a, b) {
+            const da = new Date(String(a || '').slice(0, 10) + 'T00:00:00Z').getTime();
+            const db = new Date(String(b || '').slice(0, 10) + 'T00:00:00Z').getTime();
+            if (!isFinite(da) || !isFinite(db)) return 9999;
+            return Math.round((da - db) / 86400000);
+        }
+        function _caCandidateIgnoreKey(symbol, ratio) {
+            return `${String(symbol || '').toUpperCase()}|${Number(ratio || 0).toFixed(6)}`;
+        }
+        function _caReadCandidateIgnores() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.corporateActionCandidateIgnores) || '{}') || {}; }
+            catch(_) { return {}; }
+        }
+        function _caIsCandidateIgnored(symbol, ratio) {
+            const v = _caReadCandidateIgnores()[_caCandidateIgnoreKey(symbol, ratio)];
+            return !!(v && new Date(v).getTime() > Date.now());
+        }
+        function _caWriteCandidateIgnore(symbol, ratio) {
+            const m = _caReadCandidateIgnores();
+            m[_caCandidateIgnoreKey(symbol, ratio)] = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            try { localStorage.setItem(STORAGE_KEYS.corporateActionCandidateIgnores, JSON.stringify(m)); } catch(_) {}
+        }
+        function _caActionAlreadyApplied(symbol, ratio, actionDate) {
+            const key = String(symbol || '').toUpperCase();
+            return _normalizeCorporateActions(corporateActions).some(a => {
+                if (String(a.symbol || '').toUpperCase() !== key) return false;
+                if (Math.abs(Number(a.ratio || 0) - Number(ratio || 0)) > 0.001) return false;
+                if (!actionDate || !a.actionDate) return true;
+                return Math.abs(_caDaysBetween(a.actionDate, actionDate)) <= 3;
+            });
+        }
+        function _caRelDiff(a, b) {
+            a = Number(a); b = Number(b);
+            if (!(a > 0) || !(b > 0)) return Infinity;
+            return Math.abs(a - b) / b;
+        }
+        function _caCandidateFromRatio(h, incomingPrice, ratio, source, plan) {
+            const oldPrice = _caNum(h?.currentPrice);
+            const incoming = _caNum(incomingPrice);
+            ratio = Number(ratio);
+            if (!(oldPrice > 0) || !(incoming > 0) || !(ratio > 0) || Math.abs(ratio - 1) < 1e-9) return null;
+            const expected = oldPrice / ratio;
+            const rel = _caRelDiff(incoming, expected);
+            const maxRel = plan ? 0.15 : 0.035;
+            if (rel > maxRel) return null;
+            if (_caActionAlreadyApplied(h.symbol, ratio, plan?.expectedDate || _caToday())) return null;
+            if (!plan && _caIsCandidateIgnored(h.symbol, ratio)) return null;
+            return {
+                id: plan ? `plan-${plan.id}` : `auto-${String(h.symbol).toUpperCase()}-${ratio.toFixed(6)}`,
+                planId: plan?.id || null,
+                symbol: h.symbol,
+                market: h.market || getSymbolMarket(h.symbol),
+                type: ratio >= 1 ? 'split' : 'reverseSplit',
+                oldShares: plan?.oldShares || (ratio >= 1 ? 1 : Math.round(1 / ratio)),
+                newShares: plan?.newShares || (ratio >= 1 ? ratio : 1),
+                ratio,
+                expectedDate: plan?.expectedDate || _caToday(),
+                oldPrice,
+                incomingPrice: incoming,
+                source: source || 'quote',
+                detectedAt: new Date().toISOString(),
+                confidence: 1 - rel
+            };
+        }
+        function _caDetectCorporateActionCandidate(h, incomingPrice, source) {
+            if (!h || !(incomingPrice > 0)) return false;
+            const symbol = String(h.symbol || '').toUpperCase();
+            const today = _caToday();
+            const plans = _normalizeCorporateActionPlans(corporateActionPlans)
+                .filter(p => p.symbol === symbol && (p.status === 'planned' || p.status === 'detected' || (p.status === 'ignored' && !_caPlanIgnored(p))) && !_caPlanIgnored(p));
+            for (const plan of plans) {
+                const diff = _caDaysBetween(today, plan.expectedDate);
+                if (diff < -1 || diff > 3) continue;
+                const cand = _caCandidateFromRatio(h, incomingPrice, plan.ratio, source, plan);
+                if (cand) {
+                    _registerCorporateActionCandidate(cand);
+                    return true;
+                }
+            }
+            for (const r of [10, 8, 5, 4, 3, 2, 0.5, 1/3, 0.25, 0.2, 0.125, 0.1]) {
+                const cand = _caCandidateFromRatio(h, incomingPrice, r, source, null);
+                if (cand) { _registerCorporateActionCandidate(cand); return true; }
+            }
+            return false;
+        }
+        function _registerCorporateActionCandidate(cand) {
+            if (!cand) return;
+            const idx = _corporateActionCandidates.findIndex(c => c.id === cand.id);
+            if (idx >= 0) _corporateActionCandidates[idx] = { ..._corporateActionCandidates[idx], ...cand };
+            else _corporateActionCandidates.unshift(cand);
+            _corporateActionCandidates = _corporateActionCandidates.slice(0, 8);
+            try { renderCorporateActionTool(); } catch(_) {}
+        }
+        function _setCorporateActionDraftFromData(d) {
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+            set('ca-symbol', d.symbol || '');
+            set('ca-type', d.type || (Number(d.ratio) >= 1 ? 'split' : 'reverseSplit'));
+            set('ca-old-shares', d.oldShares || 1);
+            set('ca-new-shares', d.newShares || (Number(d.ratio) || 1));
+            set('ca-action-date', d.expectedDate || d.actionDate || _caToday());
+            set('ca-note', d.note || (d.planId ? 'planned split detected' : 'suspected split detected'));
+            previewCorporateAction();
+        }
+        function addCorporateActionPlan() {
+            const p = _buildCorporateActionPreview();
+            if (!p.h) { showWarnToast('請先選擇持倉標的', 2500); return; }
+            if (!(p.oldShares > 0) || !(p.newShares > 0) || !(p.ratio > 0)) { showWarnToast('請輸入有效分割比例', 2500); return; }
+            corporateActionPlans.push({
+                id: Date.now(),
+                symbol: p.h.symbol,
+                market: p.h.market || getSymbolMarket(p.h.symbol),
+                type: p.ratio >= 1 ? 'split' : 'reverseSplit',
+                oldShares: p.oldShares,
+                newShares: p.newShares,
+                ratio: p.ratio,
+                expectedDate: p.actionDate,
+                status: 'planned',
+                detectedAt: '',
+                ignoredUntil: '',
+                note: p.note,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            saveCorporateActionPlans();
+            _markAndAutoPush(['corporateActionPlans']);
+            renderAll();
+            showImportToast(`已預約 ${p.h.symbol} ${p.oldShares}→${p.newShares}`, 2200);
+        }
+        function applyCorporateActionPlan(planId) {
+            const p = _normalizeCorporateActionPlans(corporateActionPlans).find(x => String(x.id) === String(planId));
+            if (!p) return showWarnToast('找不到分割預約', 2500);
+            _setCorporateActionDraftFromData(p);
+            applyCorporateAction(p.id);
+        }
+        function applyCorporateActionCandidate(id) {
+            const cand = _corporateActionCandidates.find(c => String(c.id) === String(id));
+            if (!cand) return showWarnToast('找不到疑似分割候選', 2500);
+            _setCorporateActionDraftFromData(cand);
+            if (applyCorporateAction(cand.planId || null)) {
+                _corporateActionCandidates = _corporateActionCandidates.filter(c => String(c.id) !== String(id));
+                renderCorporateActionTool();
+            }
+        }
+        function ignoreCorporateActionPlan(planId) {
+            const p = corporateActionPlans.find(x => String(x.id) === String(planId));
+            if (!p) return;
+            p.status = 'ignored';
+            p.ignoredUntil = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            p.updatedAt = new Date().toISOString();
+            saveCorporateActionPlans();
+            _markAndAutoPush(['corporateActionPlans']);
+            renderCorporateActionTool();
+        }
+        function ignoreCorporateActionCandidate(id) {
+            const cand = _corporateActionCandidates.find(c => String(c.id) === String(id));
+            if (cand) _caWriteCandidateIgnore(cand.symbol, cand.ratio);
+            _corporateActionCandidates = _corporateActionCandidates.filter(c => String(c.id) !== String(id));
+            renderCorporateActionTool();
+        }
+        function applyCorporateAction(sourcePlanId = null) {
             const p = _buildCorporateActionPreview();
             if (!p.h) { showWarnToast('請先選擇持倉', 2500); return; }
             if (!p.ok) { showWarnToast(p.message || '分割預覽未通過安全檢查', 3500); return; }
@@ -7726,8 +7975,20 @@
                 totalCostAfter: _caTotalCost(h), marketValueBefore: p.marketValueBefore, marketValueAfter: _caMarketValue(h),
                 note: p.note, createdAt: new Date().toISOString()
             });
-            saveCorporateActions(); saveToStorage(); _markAndAutoPush(['holdings', 'corporateActions']); renderAll();
+            const _caDomains = ['holdings', 'corporateActions'];
+            if (sourcePlanId) {
+                const plan = corporateActionPlans.find(x => String(x.id) === String(sourcePlanId));
+                if (plan) {
+                    plan.status = 'applied';
+                    plan.detectedAt = plan.detectedAt || new Date().toISOString();
+                    plan.updatedAt = new Date().toISOString();
+                    saveCorporateActionPlans();
+                    _caDomains.push('corporateActionPlans');
+                }
+            }
+            saveCorporateActions(); saveToStorage(); _markAndAutoPush(_caDomains); renderAll();
             showImportToast(`✅ 已套用 ${h.symbol} ${p.oldShares}→${p.newShares} 分割`, 2600);
+            return true;
         }
         function _recentCorporateSplitAction(symbol) {
             const cutoff = Date.now() - 48 * 60 * 60 * 1000;
@@ -7743,7 +8004,13 @@
             return Math.abs(incoming - before) / before <= 0.2 && Math.abs(incoming - after) / after >= 0.45;
         }
         function _acceptIncomingPriceForHolding(h, incomingPrice, source) {
-            if (!_shouldRejectSplitStaleQuote(h, incomingPrice)) return true;
+            if (!_shouldRejectSplitStaleQuote(h, incomingPrice)) {
+                if (_caDetectCorporateActionCandidate(h, incomingPrice, source)) {
+                    try { _recordAppError('split_candidate_detected', new Error(`${h.symbol} suspected split candidate`), { symbol: h.symbol, incomingPrice, source }); } catch(_) {}
+                    return false;
+                }
+                return true;
+            }
             const msg = `${h.symbol} 報價 ${incomingPrice} 看起來仍是分割前舊價，已拒收（${source || 'quote'}）`;
             console.warn('[SplitGuard]', msg);
             try { _recordAppError('split_quote_guard', new Error(msg), { symbol: h.symbol, source }); } catch(_) {}
@@ -7817,6 +8084,7 @@
         let pendingCsvDeposits = null;   // v15.077：CSV 匯入暫存的存款列表
         let pendingCsvLoans    = null;   // v15.918：CSV 匯入暫存的貸款列表
         let pendingCsvCorporateActions = null; // v15.920：CSV 匯入暫存的公司行動紀錄
+        let pendingCsvCorporateActionPlans = null; // v15.922：CSV 匯入暫存的公司行動預約
         let pendingCsvOther    = null;   // v15.077：CSV 匯入暫存的單值欄位 map
 
         function showImportConfirm() {
@@ -7825,6 +8093,7 @@
             pendingCsvDeposits = null;
             pendingCsvLoans = null;
             pendingCsvCorporateActions = null;
+            pendingCsvCorporateActionPlans = null;
             pendingCsvOther = null;
             document.getElementById('csv-preview-wrap').style.display = 'none';
             document.getElementById('csv-preview-count').textContent = '';
@@ -7884,12 +8153,13 @@
 
             // ── v15.077：依序分離 [TradeHistory] / [Deposits] / [OtherAssets] 區段 ──
             let holdingsPart = csvText;
-            let tradeHistoryPart = '', depositsPart = '', loansPart = '', corporateActionsPart = '', otherAssetsPart = '';
+            let tradeHistoryPart = '', depositsPart = '', loansPart = '', corporateActionsPart = '', corporateActionPlansPart = '', otherAssetsPart = '';
             const _markers = [
                 { key: 'tradeHistory', tag: '[TradeHistory]' },
                 { key: 'deposits',     tag: '[Deposits]' },
                 { key: 'loans',        tag: '[Loans]' },        // v15.918
                 { key: 'corporateActions', tag: '[CorporateActions]' }, // v15.920
+                { key: 'corporateActionPlans', tag: '[CorporateActionPlans]' }, // v15.922
                 { key: 'otherAssets',  tag: '[OtherAssets]' }
             ];
             const _positions = _markers
@@ -7906,6 +8176,7 @@
                     else if (p.key === 'deposits') depositsPart = seg;
                     else if (p.key === 'loans') loansPart = seg;
                     else if (p.key === 'corporateActions') corporateActionsPart = seg;
+                    else if (p.key === 'corporateActionPlans') corporateActionPlansPart = seg;
                     else if (p.key === 'otherAssets') otherAssetsPart = seg;
                 });
             }
@@ -8059,6 +8330,36 @@
                 });
                 importedCorporateActions = _normalizeCorporateActions(importedCorporateActions);
             }
+            // v15.922：解析 [CorporateActionPlans]
+            let importedCorporateActionPlans = null;
+            if (corporateActionPlansPart.trim()) {
+                const cpLines = corporateActionPlansPart.trim().split(/\r?\n|\r/).filter(l => l.trim());
+                const cpFirst = (cpLines[0] || '').toLowerCase();
+                const cpHasHeader = cpFirst.includes('symbol') || cpFirst.includes('ratio') || cpFirst.includes('expecteddate');
+                const cpData = cpHasHeader ? cpLines.slice(1) : cpLines;
+                importedCorporateActionPlans = [];
+                cpData.forEach(line => {
+                    const c = parseCSVLine(line);
+                    if (!c[1]) return;
+                    importedCorporateActionPlans.push({
+                        id: parseInt(c[0], 10) || (Date.now() + Math.random()),
+                        symbol: (c[1] || '').trim().toUpperCase(),
+                        market: (c[2] || getSymbolMarket(c[1] || '') || 'US').toUpperCase(),
+                        type: (c[3] || 'split') === 'reverseSplit' ? 'reverseSplit' : 'split',
+                        oldShares: parseFloat(c[4]) || 1,
+                        newShares: parseFloat(c[5]) || 1,
+                        ratio: parseFloat(c[6]) || 1,
+                        expectedDate: c[7] || '',
+                        status: c[8] || 'planned',
+                        detectedAt: c[9] || '',
+                        ignoredUntil: c[10] || '',
+                        note: c[11] || '',
+                        createdAt: c[12] || new Date().toISOString(),
+                        updatedAt: c[13] || new Date().toISOString()
+                    });
+                });
+                importedCorporateActionPlans = _normalizeCorporateActionPlans(importedCorporateActionPlans);
+            }
             // v15.077：解析 [OtherAssets]（key=value 單值欄位）
             let importedOther = null;
             if (otherAssetsPart.trim()) {
@@ -8077,6 +8378,7 @@
             pendingCsvDeposits = importedDeposits;
             pendingCsvLoans = importedLoans;
             pendingCsvCorporateActions = importedCorporateActions;
+            pendingCsvCorporateActionPlans = importedCorporateActionPlans;
             pendingCsvOther = importedOther;
             if (rows.length > 0) {
                 // 自動匯入，不需要按確認鍵
@@ -8145,6 +8447,12 @@
                 saveCorporateActions();
             }
             pendingCsvCorporateActions = null;
+            const cpn = (pendingCsvCorporateActionPlans && pendingCsvCorporateActionPlans.length) || 0;
+            if (pendingCsvCorporateActionPlans && pendingCsvCorporateActionPlans.length > 0) {
+                corporateActionPlans = pendingCsvCorporateActionPlans;
+                saveCorporateActionPlans();
+            }
+            pendingCsvCorporateActionPlans = null;
             // v15.077：還原 OtherAssets（crypto / moxa / pie_cb / sheet_url / currency；缺值保留本機）
             if (pendingCsvOther) {
                 const o = pendingCsvOther;
@@ -8179,6 +8487,7 @@
             const importDomains = ['holdings'];
             if (tn > 0) importDomains.push('tradeHistory');
             if (can > 0) importDomains.push('corporateActions');
+            if (cpn > 0) importDomains.push('corporateActionPlans');
             _markAndAutoPush(importDomains);
             renderAll();
             const msg = tn > 0 ? `✅ 已匯入 ${n} 筆持倉 + ${tn} 筆已實現損益，正在自動更新…` : `✅ 已匯入 ${n} 筆持倉，正在自動更新報價與分析數據…`;
@@ -8247,7 +8556,7 @@
         }
 
         function exportHoldings() {
-            if (holdings.length === 0 && tradeHistory.length === 0 && deposits.length === 0 && loans.length === 0 && corporateActions.length === 0) return alert('尚無持倉、交易、存款、貸款或公司行動紀錄');
+            if (holdings.length === 0 && tradeHistory.length === 0 && deposits.length === 0 && loans.length === 0 && corporateActions.length === 0 && corporateActionPlans.length === 0) return alert('尚無持倉、交易、存款、貸款或公司行動紀錄');
             // ── Holdings ──
             const hRows = [['Symbol','Market','Name','Quantity','Cost Price','Current Price','Added Date','Lots']];
             holdings.forEach(h => {
@@ -8304,6 +8613,21 @@
                     ]);
                 });
                 csv += caRows.map(r => r.join('\t')).join('\n');
+            }
+            // ── CorporateActionPlans（v15.922：股票分割 / 反分割預約）──
+            if (corporateActionPlans.length > 0) {
+                csv += '\n\n[CorporateActionPlans]\n';
+                const cpRows = [['Id','Symbol','Market','Type','OldShares','NewShares','Ratio','ExpectedDate','Status','DetectedAt','IgnoredUntil','Note','CreatedAt','UpdatedAt']];
+                _normalizeCorporateActionPlans(corporateActionPlans).forEach(p => {
+                    cpRows.push([
+                        p.id, p.symbol, p.market, p.type,
+                        p.oldShares, p.newShares, p.ratio,
+                        p.expectedDate || '', p.status || 'planned',
+                        p.detectedAt || '', p.ignoredUntil || '',
+                        p.note || '', p.createdAt || '', p.updatedAt || ''
+                    ]);
+                });
+                csv += cpRows.map(r => r.join('\t')).join('\n');
             }
             // ── OtherAssets（v15.077：crypto / moxa / pie 勾選 / sheet_url / currency 單值欄位）──
             const _other = [
@@ -9210,6 +9534,7 @@
                 manual_realized_entries: manualRealizedEntries,   // v15.905
                 loans,                                            // v15.918
                 corporate_actions: corporateActions,               // v15.920
+                corporate_action_plans: corporateActionPlans,       // v15.922
                 deposits,
                 marketSnapshots,
                 daily_pnl_snapshots: _loadDailyPnlSnapshots(),
@@ -9236,7 +9561,7 @@
             if (saved.sync_source != null && saved.sync_source !== 'local_fsa' && saved.sync_source !== '') {
                 return { ok: false, reason: `sync_source 非預期：${saved.sync_source}` };
             }
-            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries','loans','corporate_actions']) {
+            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries','loans','corporate_actions','corporate_action_plans']) {
                 if (saved[k] != null && !Array.isArray(saved[k])) {
                     return { ok: false, reason: `${k} 欄位存在但不是 array` };
                 }
@@ -9299,6 +9624,8 @@
                 // v15.920：FSA pull 還原股票分割 / 反分割紀錄
                 corporateActions = Array.isArray(saved.corporate_actions) ? saved.corporate_actions : [];
                 saveCorporateActions();
+                corporateActionPlans = Array.isArray(saved.corporate_action_plans) ? saved.corporate_action_plans : [];
+                saveCorporateActionPlans();
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
@@ -10627,6 +10954,7 @@
             loadManualRealizedEntries();  // v15.905：還原期間補錄
             loadLoans();             // v15.918：還原貸款資料
             loadCorporateActions();   // v15.920：還原股票分割 / 反分割紀錄
+            loadCorporateActionPlans();   // v15.922：還原股票分割 / 反分割預約
             // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
             // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
             const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
