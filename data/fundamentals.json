@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-07T02:59:53.968454+00:00",
+  "generated": "2026-06-07T13:32:33.671675+00:00",
   "data": {
     "AAOI": {
       "pe": null,
@@ -387,9 +387,9 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": -0.15,
-          "eps_actual": -0.2,
-          "surprise_pct": -0.3333
+          "eps_estimate": -0.14,
+          "eps_actual": -0.19,
+          "surprise_pct": -0.3768
         },
         {
           "quarter": "2025 Q3",
@@ -762,11 +762,15 @@
       "number_of_analysts": null,
       "earnings_history": [],
       "prev_close": 60864.24,
-      "prev_prev_close": 63801.5742,
+      "prev_prev_close": 60867.4141,
       "recent_closes": [
         {
           "date": "2026-06-07",
-          "close": 61499.0586
+          "close": 61816.0195
+        },
+        {
+          "date": "2026-06-06",
+          "close": 60867.4141
         },
         {
           "date": "2026-06-05",
@@ -787,51 +791,47 @@
         {
           "date": "2026-06-01",
           "close": 71319.7734
-        },
-        {
-          "date": "2026-05-31",
-          "close": 73579.6875
         }
       ],
-      "daily_k": 13.1,
-      "daily_d": 13.6,
-      "daily_cross": "none",
-      "weekly_k": 46.7,
-      "weekly_d": 61.5,
+      "daily_k": 13.8,
+      "daily_d": 13.4,
+      "daily_cross": "golden",
+      "weekly_k": 47.1,
+      "weekly_d": 61.7,
       "weekly_cross": "none",
-      "hourly_k": 69.4,
-      "hourly_d": 55.1,
+      "hourly_k": 48.7,
+      "hourly_d": 67.9,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -3868.3683,
-        "signal": -2361.9744,
-        "histogram": -1506.3939,
+        "macd": -4115.6815,
+        "signal": -2720.7778,
+        "histogram": -1394.9036,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": -4831.0096,
-        "signal": -5531.3232,
-        "histogram": 700.3136,
+        "macd": -4805.725,
+        "signal": -5526.2663,
+        "histogram": 720.5413,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": -52.4107,
-        "signal": -182.8183,
-        "histogram": 130.4076,
+        "macd": 317.7159,
+        "signal": 273.6585,
+        "histogram": 44.0574,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 18.2,
+        "rsi": 20.1,
         "overbought": false,
         "oversold": true
       },
       "weekly_rsi": {
-        "rsi": 33.1,
+        "rsi": 33.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 58.3,
+        "rsi": 52.3,
         "overbought": false,
         "oversold": false
       }
@@ -1084,7 +1084,7 @@
     "AMD": {
       "pe": 156.5034,
       "fpe": 35.6652,
-      "peg": 1.2586,
+      "peg": 1.1219,
       "ps": 20.3044,
       "pb": 11.7931,
       "rev_yoy": 0.378,
@@ -1425,9 +1425,9 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": -0.22,
+          "eps_estimate": -0.2,
           "eps_actual": -0.2,
-          "surprise_pct": 0.1106
+          "surprise_pct": -0.0004
         },
         {
           "quarter": "2025 Q3",
@@ -1437,9 +1437,9 @@
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": -0.26,
+          "eps_estimate": -0.28,
           "eps_actual": -0.45,
-          "surprise_pct": -0.7439
+          "surprise_pct": -0.5838
         },
         {
           "quarter": "2026 Q1",
@@ -1532,12 +1532,12 @@
     "AVGO": {
       "pe": 64.0747,
       "fpe": 19.9639,
-      "peg": 0.8815,
+      "peg": 0.7127,
       "ps": 24.2007,
       "pb": 20.8807,
       "rev_yoy": 0.479,
       "rev_fwd": 0.6017,
-      "hist_avg_pe": 115.35,
+      "hist_avg_pe": 118.37,
       "eps_ttm": 6.02,
       "eps_cur_q": 3.23794,
       "eps_next_q2": 3.86853,
@@ -1682,15 +1682,15 @@
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": 1.12,
-          "eps_actual": 1.74,
-          "surprise_pct": 0.5545
+          "eps_estimate": 1.87,
+          "eps_actual": 1.95,
+          "surprise_pct": 0.0438
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": 1.42,
-          "eps_actual": 1.5,
-          "surprise_pct": 0.0561
+          "eps_estimate": 2.02,
+          "eps_actual": 2.05,
+          "surprise_pct": 0.0132
         },
         {
           "quarter": "2026 Q2",
@@ -2046,9 +2046,9 @@
       "earnings_history": [
         {
           "quarter": "2020 Q3",
-          "eps_estimate": 1.37,
+          "eps_estimate": 1.4,
           "eps_actual": 1.8,
-          "surprise_pct": 0.312
+          "surprise_pct": 0.2888
         },
         {
           "quarter": "2020 Q4",
@@ -2064,9 +2064,9 @@
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 2.34,
+          "eps_estimate": 2.35,
           "eps_actual": 3.3,
-          "surprise_pct": 0.4092
+          "surprise_pct": 0.4065
         },
         {
           "quarter": "2021 Q3",
@@ -2096,7 +2096,7 @@
           "quarter": "2022 Q3",
           "eps_estimate": 2.55,
           "eps_actual": 2.46,
-          "surprise_pct": -0.0338
+          "surprise_pct": -0.0356
         },
         {
           "quarter": "2022 Q4",
@@ -2106,15 +2106,15 @@
         },
         {
           "quarter": "2023 Q1",
-          "eps_estimate": 2.24,
+          "eps_estimate": 2.23,
           "eps_actual": 1.76,
-          "surprise_pct": -0.2153
+          "surprise_pct": -0.2114
         },
         {
           "quarter": "2023 Q2",
-          "eps_estimate": 1.95,
+          "eps_estimate": 1.98,
           "eps_actual": 2.2,
-          "surprise_pct": 0.1262
+          "surprise_pct": 0.112
         },
         {
           "quarter": "2023 Q3",
@@ -2154,15 +2154,15 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 6.76,
+          "eps_estimate": 6.74,
           "eps_actual": 8.02,
-          "surprise_pct": 0.1867
+          "surprise_pct": 0.19
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": 5.21,
+          "eps_estimate": 5.22,
           "eps_actual": 6.43,
-          "surprise_pct": 0.2353
+          "surprise_pct": 0.2311
         },
         {
           "quarter": "2025 Q3",
@@ -2299,13 +2299,13 @@
           "quarter": "2020 Q4",
           "eps_estimate": 0.56,
           "eps_actual": 0.82,
-          "surprise_pct": 0.4624
+          "surprise_pct": 0.4648
         },
         {
           "quarter": "2021 Q1",
-          "eps_estimate": 0.79,
+          "eps_estimate": 0.8,
           "eps_actual": 1.12,
-          "surprise_pct": 0.4185
+          "surprise_pct": 0.3928
         },
         {
           "quarter": "2021 Q2",
@@ -2317,7 +2317,7 @@
           "quarter": "2021 Q3",
           "eps_estimate": 0.96,
           "eps_actual": 1.36,
-          "surprise_pct": 0.4137
+          "surprise_pct": 0.427
         },
         {
           "quarter": "2021 Q4",
@@ -2339,9 +2339,9 @@
         },
         {
           "quarter": "2022 Q3",
-          "eps_estimate": 1.27,
+          "eps_estimate": 1.29,
           "eps_actual": 1.21,
-          "surprise_pct": -0.0505
+          "surprise_pct": -0.0605
         },
         {
           "quarter": "2022 Q4",
@@ -2351,15 +2351,15 @@
         },
         {
           "quarter": "2023 Q1",
-          "eps_estimate": 1.19,
+          "eps_estimate": 1.2,
           "eps_actual": 1.05,
-          "surprise_pct": -0.1187
+          "surprise_pct": -0.1233
         },
         {
           "quarter": "2023 Q2",
           "eps_estimate": 1.07,
           "eps_actual": 1.17,
-          "surprise_pct": 0.0952
+          "surprise_pct": 0.0945
         },
         {
           "quarter": "2023 Q3",
@@ -2371,13 +2371,13 @@
           "quarter": "2023 Q4",
           "eps_estimate": 1.45,
           "eps_actual": 1.55,
-          "surprise_pct": 0.0674
+          "surprise_pct": 0.0705
         },
         {
           "quarter": "2024 Q1",
           "eps_estimate": 1.6,
           "eps_actual": 1.64,
-          "surprise_pct": 0.0275
+          "surprise_pct": 0.0253
         },
         {
           "quarter": "2024 Q2",
@@ -2411,9 +2411,9 @@
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": 2.19,
+          "eps_estimate": 2.2,
           "eps_actual": 2.31,
-          "surprise_pct": 0.0567
+          "surprise_pct": 0.0509
         },
         {
           "quarter": "2025 Q4",
@@ -2644,9 +2644,9 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": -0.86,
-          "eps_actual": -0.88,
-          "surprise_pct": -0.0203
+          "eps_estimate": 0.36,
+          "eps_actual": 0.42,
+          "surprise_pct": 0.1697
         },
         {
           "quarter": "2025 Q2",
@@ -2901,9 +2901,9 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": 1.45,
-          "eps_actual": 1.68,
-          "surprise_pct": 0.1617
+          "eps_estimate": 1.59,
+          "eps_actual": 1.91,
+          "surprise_pct": 0.1975
         },
         {
           "quarter": "2025 Q3",
@@ -3026,9 +3026,9 @@
       "earnings_history": [
         {
           "quarter": "2018 Q2",
-          "eps_estimate": 0.2,
-          "eps_actual": 0.19,
-          "surprise_pct": -0.0223
+          "eps_estimate": 0.15,
+          "eps_actual": 0.11,
+          "surprise_pct": -0.2197
         },
         {
           "quarter": "2018 Q3",
@@ -3038,27 +3038,27 @@
         },
         {
           "quarter": "2018 Q4",
-          "eps_estimate": 0.22,
-          "eps_actual": 0.23,
-          "surprise_pct": 0.0689
+          "eps_estimate": 0.27,
+          "eps_actual": 0.28,
+          "surprise_pct": 0.0285
         },
         {
           "quarter": "2019 Q1",
-          "eps_estimate": 0.36,
-          "eps_actual": 0.31,
-          "surprise_pct": -0.1201
+          "eps_estimate": 0.32,
+          "eps_actual": 0.27,
+          "surprise_pct": -0.1443
         },
         {
           "quarter": "2019 Q2",
-          "eps_estimate": 0.26,
-          "eps_actual": 0.25,
-          "surprise_pct": -0.032
+          "eps_estimate": 0.21,
+          "eps_actual": 0.16,
+          "surprise_pct": -0.2017
         },
         {
           "quarter": "2019 Q3",
-          "eps_estimate": 0.28,
-          "eps_actual": 0.27,
-          "surprise_pct": -0.0264
+          "eps_estimate": 0.23,
+          "eps_actual": 0.17,
+          "surprise_pct": -0.254
         },
         {
           "quarter": "2019 Q4",
@@ -3068,9 +3068,9 @@
         },
         {
           "quarter": "2020 Q1",
-          "eps_estimate": 0.37,
-          "eps_actual": 0.25,
-          "surprise_pct": -0.316
+          "eps_estimate": 0.27,
+          "eps_actual": 0.04,
+          "surprise_pct": -0.8399
         },
         {
           "quarter": "2020 Q2",
@@ -3080,9 +3080,9 @@
         },
         {
           "quarter": "2020 Q3",
-          "eps_estimate": 0.06,
-          "eps_actual": 0.08,
-          "surprise_pct": 0.2913
+          "eps_estimate": -0.16,
+          "eps_actual": -0.14,
+          "surprise_pct": 0.1314
         },
         {
           "quarter": "2020 Q4",
@@ -3092,15 +3092,15 @@
         },
         {
           "quarter": "2021 Q1",
-          "eps_estimate": 0.12,
-          "eps_actual": 0.03,
-          "surprise_pct": -0.7474
+          "eps_estimate": 0.14,
+          "eps_actual": 0.23,
+          "surprise_pct": 0.6316
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 0.27,
-          "eps_actual": 0.08,
-          "surprise_pct": -0.702
+          "eps_estimate": 0.26,
+          "eps_actual": -0.15,
+          "surprise_pct": -1.5747
         },
         {
           "quarter": "2021 Q3",
@@ -3110,9 +3110,9 @@
         },
         {
           "quarter": "2021 Q4",
-          "eps_estimate": -0.2,
-          "eps_actual": -0.13,
-          "surprise_pct": 0.3287
+          "eps_estimate": 0.03,
+          "eps_actual": 0.05,
+          "surprise_pct": 0.5858
         },
         {
           "quarter": "2022 Q1",
@@ -3146,9 +3146,9 @@
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": -0.42,
-          "eps_actual": -0.38,
-          "surprise_pct": 0.0874
+          "eps_estimate": -0.41,
+          "eps_actual": 2.45,
+          "surprise_pct": 6.9712
         },
         {
           "quarter": "2025 Q4",
@@ -3158,9 +3158,9 @@
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": -0.54,
-          "eps_actual": -0.68,
-          "surprise_pct": -0.274
+          "eps_estimate": -0.6,
+          "eps_actual": -0.99,
+          "surprise_pct": -0.6306
         },
         {
           "quarter": "2026 Q2",
@@ -3385,9 +3385,9 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 1.06,
-          "eps_actual": 1.02,
-          "surprise_pct": -0.041
+          "eps_estimate": 1.49,
+          "eps_actual": 1.47,
+          "surprise_pct": -0.0135
         },
         {
           "quarter": "2025 Q2",
@@ -3397,9 +3397,9 @@
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": 1.48,
-          "eps_actual": 1.47,
-          "surprise_pct": -0.0062
+          "eps_estimate": 1.05,
+          "eps_actual": 1.01,
+          "surprise_pct": -0.0374
         },
         {
           "quarter": "2025 Q4",
@@ -3409,9 +3409,9 @@
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": 1.23,
-          "eps_actual": 1.27,
-          "surprise_pct": 0.0336
+          "eps_estimate": 1.69,
+          "eps_actual": 1.79,
+          "surprise_pct": 0.0569
         }
       ],
       "prev_close": 236.34,
@@ -3612,9 +3612,9 @@
         },
         {
           "quarter": "2024 Q4",
-          "eps_estimate": 0.04,
-          "eps_actual": 0.06,
-          "surprise_pct": 0.4221
+          "eps_estimate": 0.09,
+          "eps_actual": 0.1,
+          "surprise_pct": 0.1006
         },
         {
           "quarter": "2025 Q1",
@@ -4847,9 +4847,9 @@
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": 12586.41,
+          "eps_estimate": 13533.65,
           "eps_actual": 17850.0,
-          "surprise_pct": 0.4182
+          "surprise_pct": 0.3189
         },
         {
           "quarter": "2026 Q1",
@@ -4912,9 +4912,9 @@
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 366862.558,
-        "signal": 257867.6505,
-        "histogram": 108994.9076,
+        "macd": 366862.5618,
+        "signal": 257867.6533,
+        "histogram": 108994.9085,
         "bullish": true
       },
       "hourly_macd": {
@@ -5098,9 +5098,9 @@
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": 2361.26,
+          "eps_estimate": 2403.72,
           "eps_actual": 2909.0,
-          "surprise_pct": 0.232
+          "surprise_pct": 0.2102
         },
         {
           "quarter": "2026 Q2",
@@ -5157,8 +5157,8 @@
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 47127.9911,
-        "signal": 36764.0104,
+        "macd": 47127.9909,
+        "signal": 36764.0102,
         "histogram": 10363.9807,
         "bullish": true
       },
@@ -5630,15 +5630,15 @@
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": 0.25,
-          "eps_actual": 0.56,
-          "surprise_pct": 1.2892
+          "eps_estimate": 0.16,
+          "eps_actual": 0.43,
+          "surprise_pct": 1.6545
         },
         {
           "quarter": "2026 Q2",
-          "eps_estimate": 0.27,
-          "eps_actual": 0.47,
-          "surprise_pct": 0.7254
+          "eps_estimate": 0.18,
+          "eps_actual": 0.21,
+          "surprise_pct": 0.1858
         }
       ],
       "prev_close": 90.54,
@@ -6006,9 +6006,9 @@
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 0.05,
-          "eps_actual": 0.15,
-          "surprise_pct": 2.1864
+          "eps_estimate": -0.1,
+          "eps_actual": -1.14,
+          "surprise_pct": -10.3331
         },
         {
           "quarter": "2021 Q3",
@@ -6018,9 +6018,9 @@
         },
         {
           "quarter": "2021 Q4",
-          "eps_estimate": 0.12,
-          "eps_actual": 0.19,
-          "surprise_pct": 0.497
+          "eps_estimate": 0.06,
+          "eps_actual": -0.36,
+          "surprise_pct": -7.3333
         },
         {
           "quarter": "2022 Q1",
@@ -6030,15 +6030,15 @@
         },
         {
           "quarter": "2022 Q2",
-          "eps_estimate": -0.21,
-          "eps_actual": -1.04,
-          "surprise_pct": -3.9737
+          "eps_estimate": 0.13,
+          "eps_actual": -1.16,
+          "surprise_pct": -9.7727
         },
         {
           "quarter": "2022 Q3",
-          "eps_estimate": -0.08,
-          "eps_actual": -9.28,
-          "surprise_pct": -108.8343
+          "eps_estimate": -1.37,
+          "eps_actual": -9.4,
+          "surprise_pct": -5.8595
         },
         {
           "quarter": "2022 Q4",
@@ -6066,9 +6066,9 @@
         },
         {
           "quarter": "2023 Q4",
-          "eps_estimate": 0.07,
-          "eps_actual": -0.9,
-          "surprise_pct": -14.0145
+          "eps_estimate": -0.06,
+          "eps_actual": -1.01,
+          "surprise_pct": -16.7018
         },
         {
           "quarter": "2024 Q1",
@@ -6078,15 +6078,15 @@
         },
         {
           "quarter": "2024 Q2",
-          "eps_estimate": -0.01,
-          "eps_actual": -0.83,
-          "surprise_pct": -65.08
+          "eps_estimate": -0.08,
+          "eps_actual": -0.31,
+          "surprise_pct": -3.0658
         },
         {
           "quarter": "2024 Q3",
-          "eps_estimate": -0.02,
-          "eps_actual": -0.76,
-          "surprise_pct": -34.4419
+          "eps_estimate": -0.11,
+          "eps_actual": -0.57,
+          "surprise_pct": -4.1946
         },
         {
           "quarter": "2024 Q4",
@@ -6102,15 +6102,15 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": -0.02,
-          "eps_actual": -16.53,
-          "surprise_pct": -707.5298
+          "eps_estimate": -0.11,
+          "eps_actual": -16.49,
+          "surprise_pct": -148.9091
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": 21.48,
-          "eps_actual": 32.52,
-          "surprise_pct": 0.514
+          "eps_estimate": 6.76,
+          "eps_actual": 32.6,
+          "surprise_pct": 3.8249
         },
         {
           "quarter": "2025 Q4",
@@ -6535,9 +6535,9 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": -0.1,
-          "eps_actual": -0.15,
-          "surprise_pct": -0.5306
+          "eps_estimate": -0.09,
+          "eps_actual": -0.12,
+          "surprise_pct": -0.3289
         },
         {
           "quarter": "2025 Q3",
@@ -6553,15 +6553,15 @@
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": -0.01,
-          "eps_actual": -0.41,
-          "surprise_pct": -35.4444
+          "eps_estimate": -0.04,
+          "eps_actual": -0.03,
+          "surprise_pct": 0.2
         },
         {
           "quarter": "2026 Q2",
-          "eps_estimate": -0.06,
-          "eps_actual": 0.56,
-          "surprise_pct": 10.5319
+          "eps_estimate": -0.03,
+          "eps_actual": -0.07,
+          "surprise_pct": -1.2367
         }
       ],
       "prev_close": 11.97,
@@ -6913,7 +6913,7 @@
           "quarter": "2020 Q4",
           "eps_estimate": 0.7,
           "eps_actual": 0.73,
-          "surprise_pct": 0.0448
+          "surprise_pct": 0.045
         },
         {
           "quarter": "2021 Q1",
@@ -6923,9 +6923,9 @@
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 0.98,
+          "eps_estimate": 0.99,
           "eps_actual": 1.4,
-          "surprise_pct": 0.4216
+          "surprise_pct": 0.4159
         },
         {
           "quarter": "2021 Q3",
@@ -6967,7 +6967,7 @@
           "quarter": "2023 Q1",
           "eps_estimate": 1.95,
           "eps_actual": 1.88,
-          "surprise_pct": -0.0378
+          "surprise_pct": -0.0367
         },
         {
           "quarter": "2023 Q2",
@@ -7003,13 +7003,13 @@
           "quarter": "2024 Q3",
           "eps_estimate": 1.34,
           "eps_actual": 1.4,
-          "surprise_pct": 0.0436
+          "surprise_pct": 0.043
         },
         {
           "quarter": "2024 Q4",
-          "eps_estimate": 0.95,
-          "eps_actual": 0.97,
-          "surprise_pct": 0.0248
+          "eps_estimate": 1.6,
+          "eps_actual": 1.64,
+          "surprise_pct": 0.0228
         },
         {
           "quarter": "2025 Q1",
@@ -7352,15 +7352,15 @@
         },
         {
           "quarter": "2024 Q4",
-          "eps_estimate": -0.03,
-          "eps_actual": -0.46,
-          "surprise_pct": -15.3352
+          "eps_estimate": -0.25,
+          "eps_actual": -3.88,
+          "surprise_pct": -14.2264
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": -0.22,
-          "eps_actual": -0.03,
-          "surprise_pct": 0.8653
+          "eps_estimate": 0.12,
+          "eps_actual": 0.13,
+          "surprise_pct": 0.0871
         },
         {
           "quarter": "2025 Q2",
@@ -7613,9 +7613,9 @@
         },
         {
           "quarter": "2024 Q3",
-          "eps_estimate": 0.17,
-          "eps_actual": 0.21,
-          "surprise_pct": 0.231
+          "eps_estimate": 0.35,
+          "eps_actual": 0.4,
+          "surprise_pct": 0.1543
         },
         {
           "quarter": "2024 Q4",
@@ -7655,9 +7655,9 @@
         },
         {
           "quarter": "2026 Q2",
-          "eps_estimate": 0.37,
-          "eps_actual": 0.29,
-          "surprise_pct": -0.2066
+          "eps_estimate": 0.58,
+          "eps_actual": 0.6,
+          "surprise_pct": 0.0357
         }
       ],
       "prev_close": 393.44,
@@ -7956,9 +7956,9 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 0.59,
-          "eps_actual": 0.6,
-          "surprise_pct": 0.0157
+          "eps_estimate": 0.18,
+          "eps_actual": 0.23,
+          "surprise_pct": 0.2958
         },
         {
           "quarter": "2025 Q2",
@@ -9958,15 +9958,15 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 0.11,
-          "eps_actual": 0.16,
-          "surprise_pct": 0.4221
+          "eps_estimate": 0.14,
+          "eps_actual": 0.19,
+          "surprise_pct": 0.3886
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": 0.04,
-          "eps_actual": -0.01,
-          "surprise_pct": -1.272
+          "eps_estimate": 0.05,
+          "eps_actual": 0.03,
+          "surprise_pct": -0.3461
         },
         {
           "quarter": "2025 Q3",
@@ -9976,9 +9976,9 @@
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": 0.05,
-          "eps_actual": 0.01,
-          "surprise_pct": -0.753
+          "eps_estimate": 0.06,
+          "eps_actual": 0.07,
+          "surprise_pct": 0.2603
         },
         {
           "quarter": "2026 Q1",
