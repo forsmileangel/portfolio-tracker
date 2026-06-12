@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.924 - 健檢修正（今日/前次收盤損益邏輯檢查結論落地）：(1) P1 防護——行事曆未涵蓋年份（2027+）的 close pair 驗證與抓取（_isExactFinalClosePair / _fetchClosePairFromYahoo / _resolveClosePairFromFundamentals）降級為週末判斷（新增 _isPossibleTradingDay / _expectedPrevTradingDate helper），避免 2027 起今日/前次收盤損益全滅；2026 行為一字不變；2026-Q4 補 2027 年表後恢復精確假日（MARKET_CALENDARS 註解留提醒）。(2) 今日損益卡 closed_retained 市場名旁加灰色「已收盤」小標，凍結值與盤中浮動值可區分。(3) 有持倉市場全為休市/未開盤時 headline 顯示「休市/今日未開盤」，不再永遠掛「資料讀取中」。(4) 清理 v15.907 後不可達的 'closed' UI 死碼分支；_eligibleTodayStatus 註解由 v15.082「只算 open」修正為 v15.907 投資日（台北 08:00 換日）語意；_statusText 補 closed_retained。不動損益公式 / 採計邏輯 / 同步通道 / Gist payload / STORAGE_KEYS。
         v15.923 - Hotfix：final close pair 必須精確銜接前一交易日；Yahoo chart 前日 close=null 時改用同日期 fundamentals / cache 補值，禁止跳到更早交易日並阻止錯誤 pair 進入計算與跨裝置 system sync。
         v15.922 - 股票分割預約 + 自動偵測 + 一鍵套用：新增 corporateActionPlans 預約層，報價刷新時若價格尺度接近預約或常見分割比例，先提示不自動改 holdings；使用者確認後才套用既有分割工具並寫入 corporateActions。
         v15.921 - Hotfix：股票分割後 close pair 基準價自動轉成目前持倉尺度；修正 SNXX 1→8 後今日損益仍用拆股前昨收造成 -87% / 千萬級錯誤，不改 Gist schema / holdings / corporateActions 結構。
@@ -407,7 +408,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.923</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.924</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1136,7 +1137,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.923';
+        const APP_VERSION = 'v15.924';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1268,6 +1269,9 @@
         // 來源：TWSE「115 年市場開休市日期」、HKEX 2026 Securities Market Holiday Schedule、NYSE Holidays & Trading Hours
         // 設計：holidays 用 Set<'YYYY-MM-DD'>；週末由 _isTradingDay 內部判斷（不一定要列在 holidays）
         // 涵蓋 2026 全年；2027 之後年份回 null → 呼叫端 fallback 為純週末判斷
+        // ⚠ 2026-Q4 必須補 2027 年表（TWSE 約 9-10 月、HKEX 約 7 月公告，NYSE 已可查）：
+        //   未涵蓋年份 close pair 驗證/抓取走降級週末判斷（v15.924 _isPossibleTradingDay），
+        //   假日精度下降（假日鄰近 1-2 天前次收盤損益會顯示「資料不足」），補表後自動恢復精確
         // ────────────────────────────────────────────────────────
         const MARKET_CALENDARS = {
             TW: {
@@ -1529,6 +1533,17 @@
                 cursor = _shiftDate(cursor, -1);
             }
             return null;
+        }
+        // v15.924：calendar 未涵蓋年份（_isTradingDay 回 null）的降級判斷，避免 2027 起 close pair 驗證/抓取全滅。
+        // false（明確週末/假日）仍 reject；null（未涵蓋年份的平日）視為可能交易日。
+        // 行事曆涵蓋年份（2026）_isTradingDay 只回 true/false，兩個 helper 行為與原嚴格路徑完全一致。
+        // 代價：未涵蓋年份遇到假日時，expectedPrevDate 可能指到假日 → 該 target 當天 pair 驗不過、顯示「資料不足」，
+        // 寧可短暫空窗也不可接受跳日 pair 造成錯誤損益（v15.923 禁止跳到更早交易日的原則不變）。
+        function _isPossibleTradingDay(market, dateStr) {
+            return _isTradingDay(market, dateStr) !== false;
+        }
+        function _expectedPrevTradingDate(market, dateStr) {
+            return _previousTradingDate(market, dateStr) || _previousNonWeekendDate(dateStr);
         }
         // 保留 _marketClock 為 alias，避免改太多既有 callers
         function _marketClock(marketKey, now) { return _marketSession(marketKey, now); }
@@ -1906,8 +1921,9 @@
             if (!market || !target || pair.targetDate !== target) return false;
             if (!(typeof pair.close === 'number' && pair.close > 0)
              || !(typeof pair.prevClose === 'number' && pair.prevClose > 0)) return false;
-            if (_isTradingDay(market, target) !== true || _isTradingDay(market, pair.prevDate) !== true) return false;
-            const expectedPrevDate = _previousTradingDate(market, target);
+            // v15.924：=== false 才 reject（calendar 未涵蓋年份回 null 走降級，2026 行為不變）
+            if (!_isPossibleTradingDay(market, target) || !_isPossibleTradingDay(market, pair.prevDate)) return false;
+            const expectedPrevDate = _expectedPrevTradingDate(market, target);
             return !!expectedPrevDate && pair.prevDate === expectedPrevDate;
         }
         function _setClosePairForDate(data, symbol, pair) {
@@ -2108,8 +2124,8 @@
                 const session = _marketSession(marketKey, new Date());
                 const target = targetDate || session.lastCompletedTradingDate;
                 if (!target) return null;
-                const expectedPrevDate = _previousTradingDate(marketKey, target);
-                if (!expectedPrevDate || _isTradingDay(marketKey, target) !== true) return null;
+                const expectedPrevDate = _expectedPrevTradingDate(marketKey, target);   // v15.924：未涵蓋年份降級
+                if (!expectedPrevDate || !_isPossibleTradingDay(marketKey, target)) return null;
                 const final = !!(options && options.final);
                 const querySymbol = _canonicalYahooSymbol(symbol, marketKey);
                 if (!querySymbol) return null;
@@ -2183,8 +2199,8 @@
                 const closes = f?.recent_closes;
                 if (!Array.isArray(closes) || closes.length < 2) return null;
 
-                const expectedPrevDate = _previousTradingDate(marketKey, target);
-                if (!expectedPrevDate || _isTradingDay(marketKey, target) !== true) return null;
+                const expectedPrevDate = _expectedPrevTradingDate(marketKey, target);   // v15.924：未涵蓋年份降級
+                if (!expectedPrevDate || !_isPossibleTradingDay(marketKey, target)) return null;
                 const tBar = closes.find(c => c && c.date === target);
                 const pBar = closes.find(c => c && c.date === expectedPrevDate);
                 if (!tBar || !pBar) return null;
@@ -3035,8 +3051,9 @@
             const totalPnLUSD = totalValueUSD - totalCostUSD;
             const totalPnLTWD = totalValueTWD - totalCostTWD;
 
-            // v15.082：今日總計只算「盤中」市場（'open'）；'closed' 已收盤的市場數值已凍進前次收盤損益，不再進今日總額
-            // 'not_open' / 'closed_or_holiday' 同樣排除（既有行為）
+            // v15.907：投資日（台北 08:00 換日）模型——今日總計採計 'open'（盤中浮動）與 'closed_retained'
+            // （已收盤凍結，只接受 final close pair）；收盤後凍結值保留在今日損益，至隔日 08:00 才整批切入前次收盤損益。
+            // 'not_open' / 'closed_or_holiday' 排除。（v15.924 修正註解：原 v15.082「只算 open」描述已被 v15.907 設計取代）
             const _eligibleTodayStatus = (s) => s === 'open' || s === 'closed_retained';
             const todayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) =>
@@ -3355,6 +3372,7 @@
                 'not_open': '今日未開盤',
                 'open': '盤中',
                 'closed': '已收盤',
+                'closed_retained': '已收盤',   // v15.924：v15.907 投資日模型的收盤保留狀態
                 'closed_or_holiday': '假日/休市'
             }[s] || s);
 
@@ -3430,8 +3448,14 @@
                 const byMk = stats.todayPnlByMarket;
                 const totVal = currency==='USD' ? tot.pnlUSD : tot.pnlTWD;
                 const totPos = totVal >= 0;
+                // v15.924：有持倉市場全為休市/未開盤時，headline 顯示對應狀態，不再永遠掛「資料讀取中」
+                const _activeStatuses = ['TW','US','HK'].filter(mk => (byMk[mk]?.count || 0) > 0).map(mk => byMk[mk].status);
+                const _anyEligibleMk = _activeStatuses.some(s => s === 'open' || s === 'closed_retained');
+                const _idleStr = _activeStatuses.length === 0 ? '—'
+                               : _activeStatuses.every(s => s === 'closed_or_holiday') ? '休市'
+                               : '今日未開盤';
                 const totCol = tot.hasAnyData ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
-                const totStr = tot.hasAnyData ? fmtPnl(totVal, currency) : '資料讀取中';
+                const totStr = tot.hasAnyData ? fmtPnl(totVal, currency) : (_anyEligibleMk ? '資料讀取中' : _idleStr);
                 const totSubStr = tot.hasAnyData
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
@@ -3439,7 +3463,7 @@
                 // v15.073：休市時加註「沿用 MM-DD 快照」對應前交易日
                 const mkRow = (mk, label) => {
                     const m = byMk[mk];
-                    let valStr, col, isAmount = false;
+                    let valStr, col, isAmount = false, labelNote = '';
                     if (m.count === 0) {
                         valStr = '無持倉'; col = '#607585';
                     } else if (m.status === 'not_open') {
@@ -3447,19 +3471,21 @@
                     } else if (m.status === 'closed_or_holiday') {
                         const lc = m.lastCompletedTradingDate ? m.lastCompletedTradingDate.slice(5) : '';
                         valStr = lc ? `休市，沿用 ${lc} 快照` : '休市'; col = '#607585';
-                    } else if (m.status === 'closed') {
-                        // v15.082：已收盤的市場，今日數值已凍進前次收盤損益，不再浮動顯示
-                        valStr = '已收盤，見前次收盤'; col = '#607585';
                     } else if (m.withData === 0) {
                         valStr = '資料讀取中'; col = '#607585';
                     } else {
+                        // v15.924：closed_retained（收盤後凍結保留，至隔日 08:00 換日）加「已收盤」小標，與盤中浮動值區分
+                        // （v15.907 後 status 不會再是 'closed'，原「已收盤，見前次收盤」分支為死碼，已移除）
+                        if (m.status === 'closed_retained') {
+                            labelNote = '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">已收盤</span>';
+                        }
                         const v = currency==='USD' ? m.pnlUSD : m.pnlTWD;
                         valStr = fmtPnl(v, currency);
                         col = v >= 0 ? '#10b981' : '#ef4444';
                         isAmount = true;
                     }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
-                        +   '<span style="color:#7e93a6;">' + label + '</span>'
+                        +   '<span style="color:#7e93a6;">' + label + labelNote + '</span>'
                         +   '<span class="mono" style="color:' + col + ';">' + (isAmount ? pv(valStr) : valStr) + '</span>'   // v15.076：金額才套 pv()
                         + '</div>';
                 };
