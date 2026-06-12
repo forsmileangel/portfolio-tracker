@@ -12,3 +12,7 @@ Thumbs.db
 
 # 本地排程 log（v15.065 起不追蹤；daily_pull.bat 仍會寫，但不再混入 commit）
 scripts/pull_log.txt
+
+# 大型備份檔不入 git（2026-06-12 健檢清理；封存於 C:\My-project\portfolio-tracker-archives\）
+*.7z
+*.zip
