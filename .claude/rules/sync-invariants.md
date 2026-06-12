@@ -46,7 +46,7 @@
 3. **system-generated data 不等於 user dirty**。報價 / 分析 / snapshot / FX / cache 都是系統產生，不該觸發使用者可見的「未同步」提示。
 4. **baseline.prevClose 語意 = 今日 PnL basis = close[最近完成交易日]**（對齊 runAnalysis 未開盤路徑寫法）。backfill / hydrate 路徑都必須遵守此語意；marketDate 必須等於該市場目前的 lastCompletedTradingDate 才能 hydrate 進 `_prevCloseCache`，否則跳過避免兩倍漲幅 bug。
 5. **`_captureDailyPnlSnapshot` 必須用明確 close pair：`close[target] - close[prevTrading]`**（v15.082 起）。**禁止**用 `isToday ? h.prevClose : h.prevPrevClose` 這種「依 stats 變數語意決定 basis」的寫法 — v15.081 改 baseline 語意（prevClose = close[target]）後，isToday=true 會誤算 ≈ 0。capture 來源優先序：baseline.marketDate===target → price_cache → stats fallback。同 target 已有 complete fresh snapshot 時，新 pnlTWD 變化 > 5% 必印 console.warn（提早發現 basis 語意回歸）。
-6. **「今日損益」只算盤中市場（`status === 'open'`）**（v15.082 起）。'closed'（收盤後）數值已凍進前次收盤損益，不再進今日總額；UI 卡片 'closed' 顯示「已收盤，見前次收盤」灰色文字，避免「美股 +247」這種收盤後仍浮動的誤導。
+6. **「今日損益」採投資日模型（v15.907 起，取代 v15.082「只算 'open'」舊規則）**。投資日 = 台北時間 08:00 換日（`_portfolioDay`）；今日總額採計 `open`（盤中浮動）與 `closed_retained`（已收盤凍結）兩種狀態（`_eligibleTodayStatus`），`closed_retained` 只接受 final close pair（`close[投資日] − close[前一交易日]`，v15.909 起），收盤後凍結值保留在今日損益、至隔日 08:00 才整批切入前次收盤損益；`not_open` / `closed_or_holiday` 排除。前次收盤損益 = 投資日前一交易日的 final close pair（v15.902 起單一來源 `pt_close_pair`，v15.907 升 v3 多日期）。UI 已收盤市場顯示凍結金額 + 灰色「已收盤」小標（v15.924）。
 
 ---
 
@@ -235,7 +235,7 @@
 
 ---
 
-## 9. v15.069→v15.082 已修補的回歸點（不可重蹈）
+## 9. v15.069→v15.924 已修補的回歸點（不可重蹈）
 
 | 版本 | 錯誤 | 修補 |
 |------|------|------|
@@ -254,6 +254,10 @@
 | v15.080 後續修補 C | Yahoo chart API 三處（fetchSymbolDataFromYahoo 主路徑 / 補抓 / 槓桿 ETF）對 closes 用 `.filter(v => v != null)` 過濾盤中 null close，但 timestamp 沒同步 filter → `tss[last]` 仍指向今天但 closes 已少一筆 → `opened` 誤判 true → `prevClose = closes[len-2]` 取到「真.前一交易日」（其實是 prevPrevClose）→ 一鍵更新後今日漲幅變兩倍 / 昨日漲跌跑掉 | 三處統一改為 `pairs = closes.map((c,i) => ({ts:tss[i], close:c})).filter(p => p.close != null)`，opened 判斷與 prevClose 取值都用 filter 過的 pairs，保證 timestamp 與 close 對齊 |
 | v15.081 | `loadAnalysis` 結尾整包覆蓋 `window._prevCloseCache = _tmpPrevClose` → 即使先前已寫入經 marketDate guard 驗證的 system baseline，也會被 fundamentals.json (`f.prev_close`) 或 chart=5d 補抓的舊值整批洗掉 → 兩倍漲幅 bug 反覆復發 | 改為 merge 既有值（不整包賦值）+ 結尾立刻呼叫 `_hydratePrevCloseFromBaselines()` 讓 system baseline（marketDate guard 過的）重新覆蓋；analysis 寫的 prevClose 只在 system baseline 缺失該 symbol 時生效（fallback 角色，不再優先於 system baseline）|
 | v15.082 | `_captureDailyPnlSnapshot` 用 `isToday ? h.prevClose : h.prevPrevClose` 模糊語意，但 v15.081 改 baseline 語意（prevClose = close[target]）後 isToday=true 時 basis = close[target] ≈ currentPrice → 美股剛收盤 snapshot pnl ≈ 0（看到「+247」而非「+203,482」），又因 lastQuoteAt 較新覆蓋掉原本正確的 snapshot；今日損益 'closed' 仍計入總額 → 收盤後數值持續浮動 | capture 改用明確 `close[target] - close[prevTrading]` 公式，來源優先序 baseline.marketDate===target → price_cache → stats fallback；同 target complete snapshot pnl 變化 > 5% 印 console.warn；`_eligibleTodayStatus` 只保留 'open'，UI 'closed' 顯示「已收盤，見前次收盤」 |
+| v15.901-902 | 前次收盤損益多源拼湊（CSV dayChange / prevClose 反推 / snapshot fallback）數值反覆出錯 | 改單一來源 close pair（`pt_close_pair`）+ 單一公式 `close[target] − close[prevTrading]`，時間驅動（session.lastCompletedTradingDate）；不再讀 CSV dayChange / h.prevClose / snapshot / baseline 作為顯示來源 |
+| v15.907-910 | v15.902「各市場收盤瞬間切出今日損益」造成下午起三市場今日全空白；盤中暫存 pair 污染收盤後數值 | **投資日（台北 08:00 換日）模型**：今日採計 `open` + `closed_retained`，收盤凍結值保留至隔日 08:00（§1 第 6 條同步改寫）；close pair 加 `final` 標記，closed_retained 與 previousTradingDate pair 都只接受 final；close pair cache 升 v3 多日期 |
+| v15.923 | Yahoo 前日 close=null 時 pair 跳到更早交易日 → prevClose 取錯日、損益放大 | final close pair 必須精確銜接 `_previousTradingDate(target)`；缺值只可用同日期 fundamentals / cache 補，禁止跳日 |
+| v15.924 | `MARKET_CALENDARS` 只涵蓋 2026，`_isExactFinalClosePair` 與兩個抓取端要求 `_isTradingDay === true`（2027 回 null）→ 2027 起今日/前次收盤損益全滅、close pair fetch 無限重試 | 未涵蓋年份降級週末判斷（`_isPossibleTradingDay` / `_expectedPrevTradingDate`）；`=== false`（明確週末/假日）仍 reject；**2026-Q4 必須補 2027 年表**（TWSE 約 9-10 月 / HKEX 約 7 月公告，NYSE 已可查）恢復精確假日 |
 
 ---
 
