@@ -258,6 +258,7 @@
 | v15.907-910 | v15.902「各市場收盤瞬間切出今日損益」造成下午起三市場今日全空白；盤中暫存 pair 污染收盤後數值 | **投資日（台北 08:00 換日）模型**：今日採計 `open` + `closed_retained`，收盤凍結值保留至隔日 08:00（§1 第 6 條同步改寫）；close pair 加 `final` 標記，closed_retained 與 previousTradingDate pair 都只接受 final；close pair cache 升 v3 多日期 |
 | v15.923 | Yahoo 前日 close=null 時 pair 跳到更早交易日 → prevClose 取錯日、損益放大 | final close pair 必須精確銜接 `_previousTradingDate(target)`；缺值只可用同日期 fundamentals / cache 補，禁止跳日 |
 | v15.924 | `MARKET_CALENDARS` 只涵蓋 2026，`_isExactFinalClosePair` 與兩個抓取端要求 `_isTradingDay === true`（2027 回 null）→ 2027 起今日/前次收盤損益全滅、close pair fetch 無限重試 | 未涵蓋年份降級週末判斷（`_isPossibleTradingDay` / `_expectedPrevTradingDate`）；`=== false`（明確週末/假日）仍 reject；**2026-Q4 必須補 2027 年表**（TWSE 約 9-10 月 / HKEX 約 7 月公告，NYSE 已可查）恢復精確假日 |
+| v15.925 | （v15.924 deferred 落地）補 **NYSE 2027** 行事曆（US `years` 加 2027 + 10 個全休日 + 11/26 半日，對照官方表），美股 2027 恢復精確；**TW/HK 2027 仍未補**，待 2026-Q4 官方公告後補（在那之前 TW/HK 2027 走週末降級，per-market 獨立不影響 US）|
 
 ---
 

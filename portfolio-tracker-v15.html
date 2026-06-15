@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.925 - 補 NYSE 2027 行事曆（v15.924 deferred 項落地）：MARKET_CALENDARS.US years 加 2027、holidays 追加 2027 十個全休日（含週末觀察日 Juneteenth 6/18、Independence 7/5、Christmas 12/24）、earlyClose 加 2027-11-26 感恩節翌日半日（2027 的 12/24 是 observed Christmas 全休不列半日）；日期對照 nyse.com/markets/hours-calendars 官方表確認。美股 2027 起恢復精確假日判斷，TW/HK 2027 仍走 v15.924 週末降級（per-market 獨立、互不衝突），待 Q4 官方公告後補。不改任何同步通道 / payload / 損益公式。
         v15.924 - 健檢修正（今日/前次收盤損益邏輯檢查結論落地）：(1) P1 防護——行事曆未涵蓋年份（2027+）的 close pair 驗證與抓取（_isExactFinalClosePair / _fetchClosePairFromYahoo / _resolveClosePairFromFundamentals）降級為週末判斷（新增 _isPossibleTradingDay / _expectedPrevTradingDate helper），避免 2027 起今日/前次收盤損益全滅；2026 行為一字不變；2026-Q4 補 2027 年表後恢復精確假日（MARKET_CALENDARS 註解留提醒）。(2) 今日損益卡 closed_retained 市場名旁加灰色「已收盤」小標，凍結值與盤中浮動值可區分。(3) 有持倉市場全為休市/未開盤時 headline 顯示「休市/今日未開盤」，不再永遠掛「資料讀取中」。(4) 清理 v15.907 後不可達的 'closed' UI 死碼分支；_eligibleTodayStatus 註解由 v15.082「只算 open」修正為 v15.907 投資日（台北 08:00 換日）語意；_statusText 補 closed_retained。不動損益公式 / 採計邏輯 / 同步通道 / Gist payload / STORAGE_KEYS。
         v15.923 - Hotfix：final close pair 必須精確銜接前一交易日；Yahoo chart 前日 close=null 時改用同日期 fundamentals / cache 補值，禁止跳到更早交易日並阻止錯誤 pair 進入計算與跨裝置 system sync。
         v15.922 - 股票分割預約 + 自動偵測 + 一鍵套用：新增 corporateActionPlans 預約層，報價刷新時若價格尺度接近預約或常見分割比例，先提示不自動改 holdings；使用者確認後才套用既有分割工具並寫入 corporateActions。
@@ -408,7 +409,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.924</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.925</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1137,7 +1138,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.924';
+        const APP_VERSION = 'v15.925';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1268,8 +1269,8 @@
         // v15.073：市場行事曆 + 交易日狀態機
         // 來源：TWSE「115 年市場開休市日期」、HKEX 2026 Securities Market Holiday Schedule、NYSE Holidays & Trading Hours
         // 設計：holidays 用 Set<'YYYY-MM-DD'>；週末由 _isTradingDay 內部判斷（不一定要列在 holidays）
-        // 涵蓋 2026 全年；2027 之後年份回 null → 呼叫端 fallback 為純週末判斷
-        // ⚠ 2026-Q4 必須補 2027 年表（TWSE 約 9-10 月、HKEX 約 7 月公告，NYSE 已可查）：
+        // 涵蓋：TW/HK 2026；US 2026+2027（v15.925 補）。未涵蓋年份回 null → 呼叫端 fallback 為純週末判斷
+        // ⚠ 2026-Q4 仍需補 TW/HK 2027 年表（TWSE 約 9-10 月、HKEX 約 7 月公告；NYSE 2027 已於 v15.925 補上）：
         //   未涵蓋年份 close pair 驗證/抓取走降級週末判斷（v15.924 _isPossibleTradingDay），
         //   假日精度下降（假日鄰近 1-2 天前次收盤損益會顯示「資料不足」），補表後自動恢復精確
         // ────────────────────────────────────────────────────────
@@ -1320,7 +1321,7 @@
             US: {
                 tz: 'America/New_York',
                 openMin: 9*60+30, closeMin: 16*60,
-                years: { 2026: true },
+                years: { 2026: true, 2027: true },   // v15.925：NYSE 2027 已補（對照 nyse.com/markets/hours-calendars 確認）
                 holidays: new Set([
                     '2026-01-01',          // New Year's Day
                     '2026-01-19',          // MLK Day
@@ -1331,12 +1332,24 @@
                     '2026-07-03',          // Independence Day (observed; 7/4 為週六)
                     '2026-09-07',          // Labor Day
                     '2026-11-26',          // Thanksgiving
-                    '2026-12-25'           // Christmas
+                    '2026-12-25',          // Christmas
+                    // v15.925：NYSE 2027（觀察日已套用週末規則）
+                    '2027-01-01',          // New Year's Day（五）
+                    '2027-01-18',          // MLK Day（1 月第 3 個週一）
+                    '2027-02-15',          // Presidents Day（2 月第 3 個週一）
+                    '2027-03-26',          // Good Friday（Easter 3/28）
+                    '2027-05-31',          // Memorial Day（5 月最後週一）
+                    '2027-06-18',          // Juneteenth observed（6/19 為週六）
+                    '2027-07-05',          // Independence Day observed（7/4 為週日）
+                    '2027-09-06',          // Labor Day（9 月第 1 個週一）
+                    '2027-11-25',          // Thanksgiving（11 月第 4 個週四）
+                    '2027-12-24'           // Christmas observed（12/25 為週六）
                 ]),
                 earlyClose: {
                     // v15.074：移除原 '2026-07-02'（NYSE 2026 表未列為 early close；7/3 為 observed holiday 全日休市）
                     '2026-11-27': 13*60,   // Day after Thanksgiving
-                    '2026-12-24': 13*60    // Christmas Eve
+                    '2026-12-24': 13*60,   // Christmas Eve
+                    '2027-11-26': 13*60    // v15.925：Day after Thanksgiving（2027 的 12/24 是 observed Christmas 全休，非半日）
                 }
             }
         };
