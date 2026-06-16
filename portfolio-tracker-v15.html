@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.927 - 觀察清單 Pro 左側列表改穩定 grid 版面：商品代碼／來源副標（TV·Yahoo）／備註分行不重疊，放大字體（A+ 至 24px）與切換字型時不再上下擠壓；市場標籤移右欄不再重複。純前端版面，不動報價／損益／Gist／close pair／TradingView 來源。
         v15.926 - 觀察清單 Pro 獨立 Tab：新增左側 watchlist + 右側 TradingView Advanced Chart（MA / Stoch / MACD / RSI）視覺圖表；watchlist item 向下相容並補 tvSymbol / yahooSymbol / note，支援編輯模式與新增標的 modal。TradingView 僅作 visual-only，不寫報價、close pair、今日/前次收盤損益或 system sync cache；只有使用者新增/編輯/刪除 watchlist 時才進正常同步。
         v15.925 - 補 NYSE 2027 行事曆（v15.924 deferred 項落地）：MARKET_CALENDARS.US years 加 2027、holidays 追加 2027 十個全休日（含週末觀察日 Juneteenth 6/18、Independence 7/5、Christmas 12/24）、earlyClose 加 2027-11-26 感恩節翌日半日（2027 的 12/24 是 observed Christmas 全休不列半日）；日期對照 nyse.com/markets/hours-calendars 官方表確認。美股 2027 起恢復精確假日判斷，TW/HK 2027 仍走 v15.924 週末降級（per-market 獨立、互不衝突），待 Q4 官方公告後補。不改任何同步通道 / payload / 損益公式。
         v15.924 - 健檢修正（今日/前次收盤損益邏輯檢查結論落地）：(1) P1 防護——行事曆未涵蓋年份（2027+）的 close pair 驗證與抓取（_isExactFinalClosePair / _fetchClosePairFromYahoo / _resolveClosePairFromFundamentals）降級為週末判斷（新增 _isPossibleTradingDay / _expectedPrevTradingDate helper），避免 2027 起今日/前次收盤損益全滅；2026 行為一字不變；2026-Q4 補 2027 年表後恢復精確假日（MARKET_CALENDARS 註解留提醒）。(2) 今日損益卡 closed_retained 市場名旁加灰色「已收盤」小標，凍結值與盤中浮動值可區分。(3) 有持倉市場全為休市/未開盤時 headline 顯示「休市/今日未開盤」，不再永遠掛「資料讀取中」。(4) 清理 v15.907 後不可達的 'closed' UI 死碼分支；_eligibleTodayStatus 註解由 v15.082「只算 open」修正為 v15.907 投資日（台北 08:00 換日）語意；_statusText 補 closed_retained。不動損益公式 / 採計邏輯 / 同步通道 / Gist payload / STORAGE_KEYS。
@@ -261,13 +262,14 @@
         /* ── Watchlist Pro ── */
         .watchlist-pro-layout { display:grid; grid-template-columns:minmax(280px, 34%) minmax(0, 1fr); gap:1rem; align-items:stretch; }
         .watchlist-pro-list { display:flex; flex-direction:column; gap:0.45rem; max-height:650px; overflow-y:auto; padding-right:0.2rem; }
-        .watchlist-pro-row { width:100%; display:flex; justify-content:space-between; align-items:center; gap:0.75rem; text-align:left; padding:0.7rem 0.8rem; background:rgba(8,16,32,0.62); border:1px solid rgba(56,139,253,0.14); border-radius:8px; color:#e2e8f0; cursor:pointer; transition:border-color 0.18s, background 0.18s; }
+        .watchlist-pro-row { width:100%; display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; column-gap:0.75rem; text-align:left; padding:0.65rem 0.8rem; min-height:3.2em; background:rgba(8,16,32,0.62); border:1px solid rgba(56,139,253,0.14); border-radius:8px; color:#e2e8f0; cursor:pointer; transition:border-color 0.18s, background 0.18s; }
         .watchlist-pro-row:hover { border-color:rgba(96,165,250,0.35); background:rgba(15,30,60,0.76); }
         .watchlist-pro-row.active { border-color:rgba(96,165,250,0.65); background:linear-gradient(135deg, rgba(37,99,235,0.28), rgba(14,165,233,0.12)); box-shadow:0 0 0 1px rgba(96,165,250,0.1) inset; }
-        .watchlist-pro-symbol { color:#f1f5f9; font-size:1rem; font-weight:800; letter-spacing:0; }
-        .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; margin-top:0.18rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
-        .watchlist-pro-market { color:#60a5fa; font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(96,165,250,0.26); border-radius:5px; background:rgba(37,99,235,0.12); flex-shrink:0; }
-        .watchlist-pro-actions { display:flex; gap:0.35rem; align-items:center; flex-shrink:0; }
+        .watchlist-pro-main { min-width:0; display:flex; flex-direction:column; gap:0.2rem; }
+        .watchlist-pro-symbol { color:#f1f5f9; font-size:1rem; font-weight:800; letter-spacing:0; line-height:1.3; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+        .watchlist-pro-market { color:#60a5fa; font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(96,165,250,0.26); border-radius:5px; background:rgba(37,99,235,0.12); flex-shrink:0; white-space:nowrap; line-height:1.3; }
+        .watchlist-pro-side { display:flex; gap:0.35rem; align-items:center; flex-shrink:0; white-space:nowrap; }
         .watchlist-pro-icon-btn { padding:0.28rem 0.5rem; border-radius:6px; border:1px solid rgba(96,165,250,0.22); background:rgba(30,58,110,0.2); color:#93c5fd; cursor:pointer; font-size:0.78rem; font-weight:800; line-height:1.2; text-transform:none; letter-spacing:0; }
         .watchlist-pro-icon-btn.danger { border-color:rgba(239,68,68,0.28); background:rgba(239,68,68,0.12); color:#f87171; }
         .watchlist-pro-chart-card { min-height:680px; display:flex; flex-direction:column; }
@@ -434,7 +436,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.926</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.927</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1248,7 +1250,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.926';
+        const APP_VERSION = 'v15.927';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -5074,22 +5076,20 @@
             list.innerHTML = items.map((w, i) => {
                 const active = w.symbol === _watchlistSelectedSymbol;
                 const note = w.note ? `<div class="watchlist-pro-meta">${_escapeHtml(w.note)}</div>` : '';
-                const actions = _watchlistProEditMode ? `
-                    <div class="watchlist-pro-actions">
+                const side = _watchlistProEditMode
+                    ? `<div class="watchlist-pro-side">
                         <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${i})" title="編輯">✎</button>
                         <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${i})" title="刪除">✕</button>
-                    </div>` : `<span class="watchlist-pro-market">${_escapeHtml(w.market)}</span>`;
+                    </div>`
+                    : `<div class="watchlist-pro-side"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span></div>`;
                 return `
                     <button class="watchlist-pro-row${active ? ' active' : ''}" onclick="selectWatchlistProItem(${i})">
-                        <div style="min-width:0;flex:1;">
-                            <div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">
-                                <span class="watchlist-pro-symbol">${_escapeHtml(w.symbol)}</span>
-                                <span class="watchlist-pro-market">${_escapeHtml(w.market)}</span>
-                            </div>
+                        <div class="watchlist-pro-main">
+                            <span class="watchlist-pro-symbol">${_escapeHtml(w.symbol)}</span>
                             <div class="watchlist-pro-meta">TV ${_escapeHtml(w.tvSymbol || '未設定')} · Yahoo ${_escapeHtml(w.yahooSymbol || '未設定')}</div>
                             ${note}
                         </div>
-                        ${actions}
+                        ${side}
                     </button>`;
             }).join('');
             const selected = items.find(w => w.symbol === _watchlistSelectedSymbol) || items[0];
