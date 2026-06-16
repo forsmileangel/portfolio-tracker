@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.928 - 觀察清單 Pro 左側列表新增「最新價 + 漲跌%」：開啟 Tab 或按「↻ 報價」時依各標的 yahooSymbol 獨立向 Yahoo 抓即時報價（regularMarketPrice 對 chartPreviousClose）、唯讀顯示、隨隱私模式遮蔽、綠漲紅跌 + 更新時間戳。完全獨立於持倉：不寫 holdings / 報價快取 / close pair / 今日損益 / snapshot / Gist / hash，報價只存記憶體不落地。市場標籤併入來源副標列。
         v15.927 - 觀察清單 Pro 左側列表改穩定 grid 版面：商品代碼／來源副標（TV·Yahoo）／備註分行不重疊，放大字體（A+ 至 24px）與切換字型時不再上下擠壓；市場標籤移右欄不再重複。純前端版面，不動報價／損益／Gist／close pair／TradingView 來源。
         v15.926 - 觀察清單 Pro 獨立 Tab：新增左側 watchlist + 右側 TradingView Advanced Chart（MA / Stoch / MACD / RSI）視覺圖表；watchlist item 向下相容並補 tvSymbol / yahooSymbol / note，支援編輯模式與新增標的 modal。TradingView 僅作 visual-only，不寫報價、close pair、今日/前次收盤損益或 system sync cache；只有使用者新增/編輯/刪除 watchlist 時才進正常同步。
         v15.925 - 補 NYSE 2027 行事曆（v15.924 deferred 項落地）：MARKET_CALENDARS.US years 加 2027、holidays 追加 2027 十個全休日（含週末觀察日 Juneteenth 6/18、Independence 7/5、Christmas 12/24）、earlyClose 加 2027-11-26 感恩節翌日半日（2027 的 12/24 是 observed Christmas 全休不列半日）；日期對照 nyse.com/markets/hours-calendars 官方表確認。美股 2027 起恢復精確假日判斷，TW/HK 2027 仍走 v15.924 週末降級（per-market 獨立、互不衝突），待 Q4 官方公告後補。不改任何同步通道 / payload / 損益公式。
@@ -270,6 +271,10 @@
         .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
         .watchlist-pro-market { color:#60a5fa; font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(96,165,250,0.26); border-radius:5px; background:rgba(37,99,235,0.12); flex-shrink:0; white-space:nowrap; line-height:1.3; }
         .watchlist-pro-side { display:flex; gap:0.35rem; align-items:center; flex-shrink:0; white-space:nowrap; }
+        .watchlist-pro-quote { display:flex; flex-direction:column; align-items:flex-end; gap:0.1rem; flex-shrink:0; white-space:nowrap; line-height:1.25; min-width:4.5em; }
+        .watchlist-pro-quote.muted { color:#607585; font-size:0.8rem; font-weight:600; }
+        .watchlist-pro-price { color:#f1f5f9; font-size:0.95rem; font-weight:800; }
+        .watchlist-pro-chg { font-size:0.78rem; font-weight:700; }
         .watchlist-pro-icon-btn { padding:0.28rem 0.5rem; border-radius:6px; border:1px solid rgba(96,165,250,0.22); background:rgba(30,58,110,0.2); color:#93c5fd; cursor:pointer; font-size:0.78rem; font-weight:800; line-height:1.2; text-transform:none; letter-spacing:0; }
         .watchlist-pro-icon-btn.danger { border-color:rgba(239,68,68,0.28); background:rgba(239,68,68,0.12); color:#f87171; }
         .watchlist-pro-chart-card { min-height:680px; display:flex; flex-direction:column; }
@@ -436,7 +441,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.927</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.928</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -978,6 +983,7 @@
                     </div>
                     <div style="display:flex;gap:0.45rem;align-items:center;flex-wrap:wrap;">
                         <button id="watchlist-pro-add-btn" onclick="showWatchlistProModal()" style="display:none;padding:0.45rem 0.9rem;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-weight:800;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">+ 新增標的</button>
+                        <button id="watchlist-pro-refresh-btn" onclick="refreshWatchlistQuotes(true)" style="padding:0.45rem 0.9rem;background:rgba(30,58,110,0.25);border:1.5px solid rgba(56,139,253,0.28);border-radius:8px;color:#60a5fa;font-weight:800;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">↻ 報價</button>
                         <button id="watchlist-pro-edit-btn" onclick="toggleWatchlistProEditMode()" style="padding:0.45rem 0.9rem;background:rgba(30,58,110,0.25);border:1.5px solid rgba(56,139,253,0.28);border-radius:8px;color:#60a5fa;font-weight:800;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0;">編輯模式</button>
                     </div>
                 </div>
@@ -985,7 +991,7 @@
                     <div style="min-width:0;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;color:#7e93a6;font-size:0.78rem;">
                             <span>標的</span>
-                            <span id="watchlist-pro-count">0 檔</span>
+                            <span><span id="watchlist-pro-count">0 檔</span><span id="watchlist-pro-quote-ts" style="color:#607585;margin-left:0.5rem;"></span></span>
                         </div>
                         <div id="watchlist-pro-list" class="watchlist-pro-list">
                             <div style="color:#607585;text-align:center;padding:2rem 0;">尚未建立觀察清單</div>
@@ -1250,7 +1256,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.927';
+        const APP_VERSION = 'v15.928';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3354,6 +3360,7 @@
             renderRealizedTab();
             renderDepositsTab();
             renderLoansTab();
+            renderWatchlistPro();
         }
         function _updatePrivacyBtn() {
             const title = _privacyMode ? '隱私模式開啟 — 點擊顯示金額' : '點擊隱藏敏感金額';
@@ -4935,6 +4942,9 @@
         let _watchlistProEditIndex = -1;
         let _watchlistSelectedSymbol = null;
         let _watchlistRenderedTvSymbol = null;
+        let _watchlistQuotes = {};            // v15.928：{ [displaySymbol]: { price, prevClose, changeAbs, changePct, ts } | { _error:true, ts } }；純記憶體、不入 localStorage / hash / Gist
+        let _watchlistQuotesLoading = false;  // v15.928：報價抓取中
+        let _watchlistQuotesLastFetch = 0;    // v15.928：上次抓取時間（stale guard）
 
         function _watchlistBaseSymbol(symbol, market) {
             const s = String(symbol || '').trim().toUpperCase();
@@ -5053,6 +5063,53 @@
             _watchlistSelectedSymbol = item.symbol;
             renderWatchlistPro();
         }
+        // ==================== v15.928：觀察清單 Pro 報價（唯讀獨立抓取，不影響持倉/同步）====================
+        // 只讀 watchlist + 寫入記憶體 _watchlistQuotes + DOM；不碰 holdings / 報價快取 / close pair / snapshot / Gist / hash。
+        function _fmtWlPrice(p) {
+            if (p == null || isNaN(p)) return '—';
+            const abs = Math.abs(p);
+            const d = abs >= 100 ? 2 : (abs >= 1 ? 2 : 4);
+            return p.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+        }
+        function _watchlistQuoteHtml(sym) {
+            const q = _watchlistQuotes[sym];
+            if (!q) return `<div class="watchlist-pro-quote muted">${_watchlistQuotesLoading ? '載入中…' : '—'}</div>`;
+            if (q._error) return `<div class="watchlist-pro-quote muted" title="報價抓取失敗">報價失敗</div>`;
+            const up = (q.changePct ?? 0) >= 0;
+            const color = up ? '#10b981' : '#ef4444';
+            const sign = up ? '+' : '';
+            const pct = q.changePct == null ? '—' : `${sign}${q.changePct.toFixed(2)}%`;
+            return `<div class="watchlist-pro-quote">
+                        <span class="watchlist-pro-price">${pv(_fmtWlPrice(q.price))}</span>
+                        <span class="watchlist-pro-chg" style="color:${color};">${pv(pct)}</span>
+                    </div>`;
+        }
+        async function _fetchOneWatchlistQuote(yahooSymbol) {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=5d`;
+            const data = await yfFetch(url);
+            const meta = data?.chart?.result?.[0]?.meta;
+            const price = meta?.regularMarketPrice ?? null;
+            const prevClose = meta?.chartPreviousClose ?? meta?.previousClose ?? null;
+            if (price == null || prevClose == null) throw new Error('報價缺值');
+            const changeAbs = price - prevClose;
+            const changePct = prevClose ? (changeAbs / prevClose) * 100 : null;
+            return { price, prevClose, changeAbs, changePct, ts: Date.now() };
+        }
+        async function refreshWatchlistQuotes(force) {
+            if (_watchlistQuotesLoading) return;
+            if (!force && Date.now() - _watchlistQuotesLastFetch < 30000) { renderWatchlistPro(); return; }
+            const targets = watchlist.map(_normalizeWatchlistItem).filter(w => w.symbol && (w.yahooSymbol || '').trim());
+            if (targets.length === 0) { renderWatchlistPro(); return; }
+            _watchlistQuotesLoading = true;
+            renderWatchlistPro();
+            await Promise.all(targets.map(async w => {
+                try { _watchlistQuotes[w.symbol] = await _fetchOneWatchlistQuote(w.yahooSymbol.trim()); }
+                catch (e) { _watchlistQuotes[w.symbol] = { _error: true, ts: Date.now() }; }
+            }));
+            _watchlistQuotesLoading = false;
+            _watchlistQuotesLastFetch = Date.now();
+            renderWatchlistPro();
+        }
         function renderWatchlistPro() {
             const list = document.getElementById('watchlist-pro-list');
             const count = document.getElementById('watchlist-pro-count');
@@ -5063,6 +5120,14 @@
             if (count) count.textContent = `${items.length} 檔`;
             if (addBtn) addBtn.style.display = _watchlistProEditMode ? '' : 'none';
             if (editBtn) editBtn.textContent = _watchlistProEditMode ? '完成編輯' : '編輯模式';
+            const tsEl = document.getElementById('watchlist-pro-quote-ts');
+            if (tsEl) {
+                let newest = 0;
+                Object.values(_watchlistQuotes).forEach(q => { if (q && q.ts > newest) newest = q.ts; });
+                tsEl.textContent = _watchlistQuotesLoading ? '報價更新中…' : (newest ? '報價 ' + new Date(newest).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '');
+            }
+            const refreshBtn = document.getElementById('watchlist-pro-refresh-btn');
+            if (refreshBtn) { refreshBtn.disabled = _watchlistQuotesLoading; refreshBtn.textContent = _watchlistQuotesLoading ? '報價更新中…' : '↻ 報價'; }
             if (!_watchlistSelectedSymbol && items.length) _watchlistSelectedSymbol = items[0].symbol;
             if (_watchlistSelectedSymbol && !items.some(w => w.symbol === _watchlistSelectedSymbol)) {
                 _watchlistSelectedSymbol = items[0]?.symbol || null;
@@ -5076,17 +5141,18 @@
             list.innerHTML = items.map((w, i) => {
                 const active = w.symbol === _watchlistSelectedSymbol;
                 const note = w.note ? `<div class="watchlist-pro-meta">${_escapeHtml(w.note)}</div>` : '';
+                const meta = `<div class="watchlist-pro-meta"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span> TV ${_escapeHtml(w.tvSymbol || '未設定')} · Yahoo ${_escapeHtml(w.yahooSymbol || '未設定')}</div>`;
                 const side = _watchlistProEditMode
                     ? `<div class="watchlist-pro-side">
                         <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${i})" title="編輯">✎</button>
                         <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${i})" title="刪除">✕</button>
                     </div>`
-                    : `<div class="watchlist-pro-side"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span></div>`;
+                    : `<div class="watchlist-pro-side">${_watchlistQuoteHtml(w.symbol)}</div>`;
                 return `
                     <button class="watchlist-pro-row${active ? ' active' : ''}" onclick="selectWatchlistProItem(${i})">
                         <div class="watchlist-pro-main">
                             <span class="watchlist-pro-symbol">${_escapeHtml(w.symbol)}</span>
-                            <div class="watchlist-pro-meta">TV ${_escapeHtml(w.tvSymbol || '未設定')} · Yahoo ${_escapeHtml(w.yahooSymbol || '未設定')}</div>
+                            ${meta}
                             ${note}
                         </div>
                         ${side}
@@ -5215,6 +5281,7 @@
             hideWatchlistProModal();
             renderWatchlist();
             renderWatchlistPro();
+            refreshWatchlistQuotes(true);
         }
         function deleteWatchlistProItem(index) {
             const item = _normalizeWatchlistItem(watchlist[index]);
@@ -9463,6 +9530,7 @@
             // 切換到完整觀察清單 Tab：即時渲染 TradingView 技術圖（visual-only）
             if (n === 9) {
                 renderWatchlistPro();
+                refreshWatchlistQuotes();
             }
         }
 
