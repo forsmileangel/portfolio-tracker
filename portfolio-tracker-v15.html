@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.930 - 觀察清單 Pro 修補：(1) 新增 modal「市場」下拉補「加密」選項，市場=加密 ↔ 分類=crypto 連動並自動填 OKX symbol；_inferWatchlistYahooSymbol 補加密分支（BTCUSDT→BTC-USD 供 fallback），可正常建立 BTCUSDT/ETHUSDT 等加密標的走 OKX 原生圖。(2) 編輯模式列按鈕 ✎/✕ 在 Android 缺字變藍/紅色塊看不到字 → 改「編輯」/「刪除」中文字 + 放大按鈕。純前端，market='CRYPTO' 同 category/okx 模式只在新增/編輯落地，不升 PT_SCHEMA_VERSION、不漂 hash、不碰持倉/損益。
         v15.929 - 觀察清單 Pro 三分類 + 列距修正 + 原生圖 fallback：(1) 左側清單分「個股原型／個股槓桿／加密」三頁籤（_watchlistProCategory 純記憶體，切換不進同步）；watchlist item 新增 category / okxSymbol 欄位，推斷只在顯示層、使用者新增/編輯才落地（與 tvSymbol/yahooSymbol 同模式，不升 PT_SCHEMA_VERSION、舊資料開頁不莫名 dirty）；修正分類過濾後 select/edit/delete 指錯標的的 raw-index bug。(2) 左側列距修正：.watchlist-pro-row 補 font-size、min-height 改 clamp、meta 允許兩行，放大字體不再上下擠壓。(3) 失敗標的圖表改 lightweight-charts 原生圖 fallback（lazy-load CDN，pin v4.2.3）：WATCHLIST_PRO_SYMBOL_META 修正交易所前綴（NOK→NYSE:NOK）+ 標 nativeFallback；AAPX/MRVU/AAOX/AXTX/LITX/COHX/LNOK/HAWK 走 Yahoo 原生 K線+MA20/MA60+RSI，加密走 OKX/CoinGecko；沿用 yfFetch proxy 鏈。原生圖嚴格 visual-only：不碰 holdings／報價快取／close pair／今日/前次收盤損益／snapshot／Gist／userDataHash／pending。圖表加大（card 720 / chart 640）；不碰 LEVERAGED_MAP。
         v15.928 - 觀察清單 Pro 左側列表新增「最新價 + 漲跌%」：開啟 Tab 或按「↻ 報價」時依各標的 yahooSymbol 獨立向 Yahoo 抓即時報價（regularMarketPrice 對 chartPreviousClose）、唯讀顯示、隨隱私模式遮蔽、綠漲紅跌 + 更新時間戳。完全獨立於持倉：不寫 holdings / 報價快取 / close pair / 今日損益 / snapshot / Gist / hash，報價只存記憶體不落地。市場標籤併入來源副標列。
         v15.927 - 觀察清單 Pro 左側列表改穩定 grid 版面：商品代碼／來源副標（TV·Yahoo）／備註分行不重疊，放大字體（A+ 至 24px）與切換字型時不再上下擠壓；市場標籤移右欄不再重複。純前端版面，不動報價／損益／Gist／close pair／TradingView 來源。
@@ -276,7 +277,7 @@
         .watchlist-pro-quote.muted { color:#607585; font-size:0.8rem; font-weight:600; }
         .watchlist-pro-price { color:#f1f5f9; font-size:0.95rem; font-weight:800; }
         .watchlist-pro-chg { font-size:0.78rem; font-weight:700; }
-        .watchlist-pro-icon-btn { padding:0.28rem 0.5rem; border-radius:6px; border:1px solid rgba(96,165,250,0.22); background:rgba(30,58,110,0.2); color:#93c5fd; cursor:pointer; font-size:0.78rem; font-weight:800; line-height:1.2; text-transform:none; letter-spacing:0; }
+        .watchlist-pro-icon-btn { padding:0.5rem 0.7rem; min-width:3.6em; border-radius:7px; border:1px solid rgba(96,165,250,0.3); background:rgba(30,58,110,0.35); color:#bfdbfe; cursor:pointer; font-size:0.82rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; white-space:nowrap; }
         .watchlist-pro-icon-btn.danger { border-color:rgba(239,68,68,0.28); background:rgba(239,68,68,0.12); color:#f87171; }
         .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
         .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid rgba(56,139,253,0.14); border-radius:10px; overflow:hidden; background:rgba(6,13,26,0.88); }
@@ -444,7 +445,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.929</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.930</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1044,6 +1045,7 @@
                         <option value="US">US</option>
                         <option value="HK">HK</option>
                         <option value="TW">TW</option>
+                        <option value="CRYPTO">加密</option>
                     </select>
                 </label>
                 <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;">
@@ -1060,7 +1062,7 @@
                 </label>
                 <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;">
                     分類
-                    <select id="wl-pro-category" class="watchlist-pro-field">
+                    <select id="wl-pro-category" class="watchlist-pro-field" onchange="onWatchlistProCategoryChange()">
                         <option value="proto">個股原型</option>
                         <option value="lev">個股槓桿</option>
                         <option value="crypto">加密</option>
@@ -1276,7 +1278,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.929';
+        const APP_VERSION = 'v15.930';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -5048,6 +5050,10 @@
             return `NASDAQ:${base}`;
         }
         function _inferWatchlistYahooSymbol(symbol, market) {
+            if (_isWatchlistCryptoSymbol(symbol, market)) {
+                const okx = _inferWatchlistOkxSymbol(symbol);   // BTC-USDT
+                if (okx) return okx.replace('-USDT', '-USD');    // BTC-USD（Yahoo 加密格式，供 OKX 失敗 fallback）
+            }
             const base = _watchlistBaseSymbol(symbol, market);
             if (!base) return '';
             try {
@@ -5251,8 +5257,8 @@
                 const meta = `<div class="watchlist-pro-meta"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span> ${srcLabel}</div>`;
                 const side = _watchlistProEditMode
                     ? `<div class="watchlist-pro-side">
-                        <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${w._idx})" title="編輯">✎</button>
-                        <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${w._idx})" title="刪除">✕</button>
+                        <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${w._idx})" title="編輯">編輯</button>
+                        <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${w._idx})" title="刪除">刪除</button>
                     </div>`
                     : `<div class="watchlist-pro-side">${_watchlistQuoteHtml(w.symbol)}</div>`;
                 return `
@@ -5540,6 +5546,7 @@
             if (note) note.value = item.note || '';
             if (cat) cat.value = _watchlistProEditIndex >= 0 ? (item.category || 'proto') : _watchlistProCategory;
             if (okx) okx.value = item.okxSymbol || '';
+            if (market && _watchlistProEditIndex < 0 && _watchlistProCategory === 'crypto') market.value = 'CRYPTO';   // 加密分頁新增時市場預設加密
             const modal = document.getElementById('watchlist-pro-modal');
             if (modal) modal.style.display = 'flex';
             setTimeout(() => sym?.focus(), 50);
@@ -5565,7 +5572,20 @@
             const okxEl = document.getElementById('wl-pro-okx');
             const guessedCat = _watchlistCategoryOf({}, symbol, market);
             if (catEl && _watchlistProEditIndex < 0 && guessedCat !== 'proto') catEl.value = guessedCat;
+            if (catEl && market === 'CRYPTO') catEl.value = 'crypto';   // 市場=加密 → 鎖定分類 crypto（含編輯）
             if (okxEl && (!okxEl.value || _watchlistProEditIndex < 0) && guessedCat === 'crypto') okxEl.value = _inferWatchlistOkxSymbol(symbol);
+        }
+        function onWatchlistProCategoryChange() {
+            const catEl = document.getElementById('wl-pro-category');
+            const marketEl = document.getElementById('wl-pro-market');
+            const okxEl = document.getElementById('wl-pro-okx');
+            const symEl = document.getElementById('wl-pro-symbol');
+            if (!catEl) return;
+            if (catEl.value === 'crypto') {
+                if (marketEl) marketEl.value = 'CRYPTO';
+                const symbol = String(symEl?.value || '').trim().toUpperCase();
+                if (okxEl && symbol && !okxEl.value) okxEl.value = _inferWatchlistOkxSymbol(symbol);
+            }
         }
         function confirmWatchlistProModal() {
             const symbol = String(document.getElementById('wl-pro-symbol')?.value || '').trim().toUpperCase();
