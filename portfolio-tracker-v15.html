@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.929 - 觀察清單 Pro 三分類 + 列距修正 + 原生圖 fallback：(1) 左側清單分「個股原型／個股槓桿／加密」三頁籤（_watchlistProCategory 純記憶體，切換不進同步）；watchlist item 新增 category / okxSymbol 欄位，推斷只在顯示層、使用者新增/編輯才落地（與 tvSymbol/yahooSymbol 同模式，不升 PT_SCHEMA_VERSION、舊資料開頁不莫名 dirty）；修正分類過濾後 select/edit/delete 指錯標的的 raw-index bug。(2) 左側列距修正：.watchlist-pro-row 補 font-size、min-height 改 clamp、meta 允許兩行，放大字體不再上下擠壓。(3) 失敗標的圖表改 lightweight-charts 原生圖 fallback（lazy-load CDN，pin v4.2.3）：WATCHLIST_PRO_SYMBOL_META 修正交易所前綴（NOK→NYSE:NOK）+ 標 nativeFallback；AAPX/MRVU/AAOX/AXTX/LITX/COHX/LNOK/HAWK 走 Yahoo 原生 K線+MA20/MA60+RSI，加密走 OKX/CoinGecko；沿用 yfFetch proxy 鏈。原生圖嚴格 visual-only：不碰 holdings／報價快取／close pair／今日/前次收盤損益／snapshot／Gist／userDataHash／pending。圖表加大（card 720 / chart 640）；不碰 LEVERAGED_MAP。
         v15.928 - 觀察清單 Pro 左側列表新增「最新價 + 漲跌%」：開啟 Tab 或按「↻ 報價」時依各標的 yahooSymbol 獨立向 Yahoo 抓即時報價（regularMarketPrice 對 chartPreviousClose）、唯讀顯示、隨隱私模式遮蔽、綠漲紅跌 + 更新時間戳。完全獨立於持倉：不寫 holdings / 報價快取 / close pair / 今日損益 / snapshot / Gist / hash，報價只存記憶體不落地。市場標籤併入來源副標列。
         v15.927 - 觀察清單 Pro 左側列表改穩定 grid 版面：商品代碼／來源副標（TV·Yahoo）／備註分行不重疊，放大字體（A+ 至 24px）與切換字型時不再上下擠壓；市場標籤移右欄不再重複。純前端版面，不動報價／損益／Gist／close pair／TradingView 來源。
         v15.926 - 觀察清單 Pro 獨立 Tab：新增左側 watchlist + 右側 TradingView Advanced Chart（MA / Stoch / MACD / RSI）視覺圖表；watchlist item 向下相容並補 tvSymbol / yahooSymbol / note，支援編輯模式與新增標的 modal。TradingView 僅作 visual-only，不寫報價、close pair、今日/前次收盤損益或 system sync cache；只有使用者新增/編輯/刪除 watchlist 時才進正常同步。
@@ -263,26 +264,28 @@
         /* ── Watchlist Pro ── */
         .watchlist-pro-layout { display:grid; grid-template-columns:minmax(280px, 34%) minmax(0, 1fr); gap:1rem; align-items:stretch; }
         .watchlist-pro-list { display:flex; flex-direction:column; gap:0.45rem; max-height:650px; overflow-y:auto; padding-right:0.2rem; }
-        .watchlist-pro-row { width:100%; display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; column-gap:0.75rem; text-align:left; padding:0.65rem 0.8rem; min-height:3.2em; background:rgba(8,16,32,0.62); border:1px solid rgba(56,139,253,0.14); border-radius:8px; color:#e2e8f0; cursor:pointer; transition:border-color 0.18s, background 0.18s; }
+        .watchlist-pro-row { width:100%; display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; column-gap:0.75rem; text-align:left; padding:0.8rem 0.95rem; min-height:clamp(76px, 5.2em, 120px); font-size:1rem; background:rgba(8,16,32,0.62); border:1px solid rgba(56,139,253,0.14); border-radius:8px; color:#e2e8f0; cursor:pointer; transition:border-color 0.18s, background 0.18s; }
         .watchlist-pro-row:hover { border-color:rgba(96,165,250,0.35); background:rgba(15,30,60,0.76); }
         .watchlist-pro-row.active { border-color:rgba(96,165,250,0.65); background:linear-gradient(135deg, rgba(37,99,235,0.28), rgba(14,165,233,0.12)); box-shadow:0 0 0 1px rgba(96,165,250,0.1) inset; }
-        .watchlist-pro-main { min-width:0; display:flex; flex-direction:column; gap:0.2rem; }
+        .watchlist-pro-main { min-width:0; display:flex; flex-direction:column; gap:0.3rem; line-height:1.35; }
         .watchlist-pro-symbol { color:#f1f5f9; font-size:1rem; font-weight:800; letter-spacing:0; line-height:1.3; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+        .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; line-height:1.35; max-width:100%; overflow:hidden; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-word; }
         .watchlist-pro-market { color:#60a5fa; font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(96,165,250,0.26); border-radius:5px; background:rgba(37,99,235,0.12); flex-shrink:0; white-space:nowrap; line-height:1.3; }
         .watchlist-pro-side { display:flex; gap:0.35rem; align-items:center; flex-shrink:0; white-space:nowrap; }
-        .watchlist-pro-quote { display:flex; flex-direction:column; align-items:flex-end; gap:0.1rem; flex-shrink:0; white-space:nowrap; line-height:1.25; min-width:4.5em; }
+        .watchlist-pro-quote { display:flex; flex-direction:column; align-items:flex-end; gap:0.1rem; flex-shrink:0; white-space:nowrap; line-height:1.35; min-width:5.8em; }
         .watchlist-pro-quote.muted { color:#607585; font-size:0.8rem; font-weight:600; }
         .watchlist-pro-price { color:#f1f5f9; font-size:0.95rem; font-weight:800; }
         .watchlist-pro-chg { font-size:0.78rem; font-weight:700; }
         .watchlist-pro-icon-btn { padding:0.28rem 0.5rem; border-radius:6px; border:1px solid rgba(96,165,250,0.22); background:rgba(30,58,110,0.2); color:#93c5fd; cursor:pointer; font-size:0.78rem; font-weight:800; line-height:1.2; text-transform:none; letter-spacing:0; }
         .watchlist-pro-icon-btn.danger { border-color:rgba(239,68,68,0.28); background:rgba(239,68,68,0.12); color:#f87171; }
-        .watchlist-pro-chart-card { min-height:680px; display:flex; flex-direction:column; }
-        .watchlist-pro-chart { flex:1; min-height:600px; border:1px solid rgba(56,139,253,0.14); border-radius:10px; overflow:hidden; background:rgba(6,13,26,0.88); }
+        .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
+        .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid rgba(56,139,253,0.14); border-radius:10px; overflow:hidden; background:rgba(6,13,26,0.88); }
         .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:#7e93a6; text-align:center; padding:2rem; }
         .watchlist-pro-toolbar { display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.9rem; }
         .watchlist-pro-form-grid { display:grid; grid-template-columns:1fr 120px; gap:0.75rem; }
         .watchlist-pro-field { padding:0.62rem 0.75rem; background:rgba(6,13,26,0.92); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.9rem; outline:none; }
+        .watchlist-pro-cat-btn { flex:1; min-width:64px; padding:0.42rem 0.5rem; border-radius:7px; border:1px solid rgba(56,139,253,0.18); background:rgba(8,16,32,0.5); color:#7e93a6; font-size:0.8rem; font-weight:800; cursor:pointer; text-transform:none; letter-spacing:0; line-height:1.2; transition:border-color 0.15s, background 0.15s, color 0.15s; }
+        .watchlist-pro-cat-btn.active { border-color:rgba(96,165,250,0.6); background:linear-gradient(135deg, rgba(37,99,235,0.3), rgba(14,165,233,0.14)); color:#dbeafe; }
 
         /* ── 凍結欄（持倉代碼）── */
         #tab-pane-2 table thead th:nth-child(1),
@@ -383,7 +386,7 @@
             #tab-pane-9 { padding-top: 0.4rem !important; }
             .watchlist-pro-layout { grid-template-columns:1fr !important; }
             .watchlist-pro-chart-card { min-height:520px !important; }
-            .watchlist-pro-chart { min-height:460px !important; }
+            .watchlist-pro-chart { min-height:480px !important; }
             .watchlist-pro-form-grid { grid-template-columns:1fr !important; }
 
             /* 表格字體縮小 */
@@ -441,7 +444,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.928</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.929</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -989,6 +992,11 @@
                 </div>
                 <div class="watchlist-pro-layout">
                     <div style="min-width:0;">
+                        <div class="watchlist-pro-cat-tabs" style="display:flex;gap:0.4rem;margin-bottom:0.6rem;flex-wrap:wrap;">
+                            <button id="wlcat-proto" class="watchlist-pro-cat-btn active" onclick="setWatchlistProCategory('proto')">個股原型</button>
+                            <button id="wlcat-lev" class="watchlist-pro-cat-btn" onclick="setWatchlistProCategory('lev')">個股槓桿</button>
+                            <button id="wlcat-crypto" class="watchlist-pro-cat-btn" onclick="setWatchlistProCategory('crypto')">加密</button>
+                        </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;color:#7e93a6;font-size:0.78rem;">
                             <span>標的</span>
                             <span><span id="watchlist-pro-count">0 檔</span><span id="watchlist-pro-quote-ts" style="color:#607585;margin-left:0.5rem;"></span></span>
@@ -1045,6 +1053,18 @@
                 <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;">
                     Yahoo symbol
                     <input id="wl-pro-yahoo" class="watchlist-pro-field" type="text" placeholder="SNXX">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;">
+                    OKX symbol（加密用）
+                    <input id="wl-pro-okx" class="watchlist-pro-field" type="text" placeholder="BTC-USDT">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;">
+                    分類
+                    <select id="wl-pro-category" class="watchlist-pro-field">
+                        <option value="proto">個股原型</option>
+                        <option value="lev">個股槓桿</option>
+                        <option value="crypto">加密</option>
+                    </select>
                 </label>
             </div>
             <label style="display:flex;flex-direction:column;gap:0.35rem;color:#7e93a6;font-size:0.78rem;font-weight:700;margin-top:0.75rem;">
@@ -1256,7 +1276,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.928';
+        const APP_VERSION = 'v15.929';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4942,10 +4962,68 @@
         let _watchlistProEditIndex = -1;
         let _watchlistSelectedSymbol = null;
         let _watchlistRenderedTvSymbol = null;
+        let _watchlistProCategory = 'proto';      // v15.929：proto | lev | crypto（純記憶體，不入 localStorage / Gist / hash）
+        let _wlNativeCharts = [];                 // v15.929：lightweight-charts 實例（visual-only，重畫/切走時釋放）
+        let _watchlistRenderedNativeKey = null;   // v15.929：已渲染原生圖 key，避免重抓重畫
         let _watchlistQuotes = {};            // v15.928：{ [displaySymbol]: { price, prevClose, changeAbs, changePct, ts } | { _error:true, ts } }；純記憶體、不入 localStorage / hash / Gist
         let _watchlistQuotesLoading = false;  // v15.928：報價抓取中
         let _watchlistQuotesLastFetch = 0;    // v15.928：上次抓取時間（stale guard）
 
+        // ==================== v15.929：觀察清單 Pro 分類 / 原生圖 mapping（僅供觀察清單，不碰 LEVERAGED_MAP / 持倉 / 損益）====================
+        const WATCHLIST_PRO_SYMBOL_META = {
+            // 修正交易所前綴 + 標記要走原生圖（nativeFallback）；TV 空白也會自動落原生圖
+            NOK:  { category:'proto', tvSymbol:'NYSE:NOK',    nativeFallback:false },
+            HAWK: { category:'proto', tvSymbol:'NASDAQ:HAWK', nativeFallback:true  },
+            AAPX: { category:'lev',   tvSymbol:'NASDAQ:AAPX', nativeFallback:true  },
+            MRVU: { category:'lev',   tvSymbol:'NASDAQ:MRVU', nativeFallback:true  },
+            AAOX: { category:'lev',   tvSymbol:'NASDAQ:AAOX', nativeFallback:true  },
+            AXTX: { category:'lev',   tvSymbol:'NASDAQ:AXTX', nativeFallback:true  },
+            LITX: { category:'lev',   tvSymbol:'NASDAQ:LITX', nativeFallback:true  },
+            COHX: { category:'lev',   tvSymbol:'NASDAQ:COHX', nativeFallback:true  },
+            LNOK: { category:'lev',   tvSymbol:'NASDAQ:LNOK', nativeFallback:true  }
+        };
+        function _watchlistMetaOf(symbol) {
+            return WATCHLIST_PRO_SYMBOL_META[String(symbol || '').trim().toUpperCase()] || null;
+        }
+        function _isWatchlistCryptoSymbol(symbol, market) {
+            const s = String(symbol || '').trim().toUpperCase();
+            if (!s) return false;
+            if (String(market || '').toUpperCase() === 'CRYPTO') return true;
+            if (/USDT(\.P)?$/.test(s)) return true;        // BTCUSDT / ETHUSDT.P
+            if (/-USDT?$/.test(s)) return true;            // BTC-USD / BTC-USDT
+            if (/^(BTC|ETH|SOL|BNB|XRP|ADA|DOGE|AVAX|DOT|MATIC|LTC|TRX|LINK|TON|SUI)$/.test(s)) return true;
+            return false;
+        }
+        function _inferWatchlistOkxSymbol(symbol) {
+            let s = String(symbol || '').trim().toUpperCase();
+            if (!s) return '';
+            s = s.replace(/\.P$/, '');
+            if (/^[A-Z0-9]+-USDT$/.test(s)) return s;
+            let m = s.match(/^([A-Z0-9]+)-USD$/);   if (m) return `${m[1]}-USDT`;
+            m = s.match(/^([A-Z0-9]+?)USDT$/);       if (m) return `${m[1]}-USDT`;
+            m = s.match(/^([A-Z0-9]+?)USD$/);        if (m) return `${m[1]}-USDT`;
+            if (/^[A-Z]{2,6}$/.test(s)) return `${s}-USDT`;
+            return '';
+        }
+        function _watchlistCategoryOf(item, symbol, market) {
+            const explicit = String(item && item.category || '').trim().toLowerCase();
+            if (explicit === 'proto' || explicit === 'lev' || explicit === 'crypto') return explicit;
+            const s = String(symbol || '').trim().toUpperCase();
+            if (_isWatchlistCryptoSymbol(s, market)) return 'crypto';
+            const meta = WATCHLIST_PRO_SYMBOL_META[s];
+            if (meta && meta.category) return meta.category;
+            try { if (typeof LEVERAGED_MAP !== 'undefined' && LEVERAGED_MAP[s]) return 'lev'; } catch (_) {}
+            return 'proto';
+        }
+        function _matchWatchlistCategory(item, cat) {
+            if (!cat) return true;
+            return (item && item.category || 'proto') === cat;
+        }
+        function setWatchlistProCategory(cat) {
+            if (cat !== 'proto' && cat !== 'lev' && cat !== 'crypto') return;
+            _watchlistProCategory = cat;
+            renderWatchlistPro();   // 純前端切換，不標 dirty、不碰同步
+        }
         function _watchlistBaseSymbol(symbol, market) {
             const s = String(symbol || '').trim().toUpperCase();
             if (market === 'HK') {
@@ -4956,6 +5034,13 @@
             return s.replace(/^.*:/, '');
         }
         function _inferWatchlistTvSymbol(symbol, market) {
+            const s0 = String(symbol || '').trim().toUpperCase();
+            const meta = WATCHLIST_PRO_SYMBOL_META[s0];
+            if (meta && meta.tvSymbol) return meta.tvSymbol;   // 修正前綴優先（如 NOK→NYSE:NOK）
+            if (_isWatchlistCryptoSymbol(s0, market)) {
+                const okx = _inferWatchlistOkxSymbol(s0);
+                if (okx) return `BINANCE:${okx.replace('-', '')}`;   // BTC-USDT → BINANCE:BTCUSDT
+            }
             const base = _watchlistBaseSymbol(symbol, market);
             if (!base) return '';
             if (market === 'HK') return `HKEX:${base}`;
@@ -4977,11 +5062,23 @@
             const symbol = String(item?.symbol || '').trim().toUpperCase();
             const inferredMarket = symbol ? getSymbolMarket(symbol) : 'US';
             const market = String(item?.market || inferredMarket || 'US').toUpperCase();
+            const category = _watchlistCategoryOf(item, symbol, market);
+            // tvSymbol：使用者存的優先；但若存的剛好是舊版 naive 猜測（NASDAQ:base）且 meta 有修正前綴，採修正值（healing，不寫回 raw 陣列、不影響 hash）
+            const base = _watchlistBaseSymbol(symbol, market);
+            const naiveTv = base ? `NASDAQ:${base}` : '';
+            let tvSymbol = String(item?.tvSymbol || '').trim().toUpperCase();
+            if (!tvSymbol || (naiveTv && tvSymbol === naiveTv)) {
+                tvSymbol = String(_inferWatchlistTvSymbol(symbol, market) || '').trim().toUpperCase();
+            }
+            let okxSymbol = String(item?.okxSymbol || '').trim().toUpperCase();
+            if (!okxSymbol && category === 'crypto') okxSymbol = _inferWatchlistOkxSymbol(symbol);
             return {
                 symbol,
                 market,
-                tvSymbol: String(item?.tvSymbol || _inferWatchlistTvSymbol(symbol, market) || '').trim().toUpperCase(),
+                category,
+                tvSymbol,
                 yahooSymbol: String(item?.yahooSymbol || _inferWatchlistYahooSymbol(symbol, market) || '').trim().toUpperCase(),
+                okxSymbol,
                 note: String(item?.note || '').trim()
             };
         }
@@ -5116,8 +5213,14 @@
             const addBtn = document.getElementById('watchlist-pro-add-btn');
             const editBtn = document.getElementById('watchlist-pro-edit-btn');
             if (!list) return;
-            const items = watchlist.map(_normalizeWatchlistItem).filter(w => w.symbol);
+            // v15.929：帶 raw 索引 + 依分類過濾（_idx 供 select/edit/delete 正確指回 raw watchlist，過濾後不錯位）
+            const allItems = watchlist.map((raw, idx) => Object.assign(_normalizeWatchlistItem(raw), { _idx: idx })).filter(w => w.symbol);
+            const items = allItems.filter(w => _matchWatchlistCategory(w, _watchlistProCategory));
             if (count) count.textContent = `${items.length} 檔`;
+            ['proto', 'lev', 'crypto'].forEach(c => {
+                const b = document.getElementById('wlcat-' + c);
+                if (b) b.classList.toggle('active', c === _watchlistProCategory);
+            });
             if (addBtn) addBtn.style.display = _watchlistProEditMode ? '' : 'none';
             if (editBtn) editBtn.textContent = _watchlistProEditMode ? '完成編輯' : '編輯模式';
             const tsEl = document.getElementById('watchlist-pro-quote-ts');
@@ -5128,28 +5231,32 @@
             }
             const refreshBtn = document.getElementById('watchlist-pro-refresh-btn');
             if (refreshBtn) { refreshBtn.disabled = _watchlistQuotesLoading; refreshBtn.textContent = _watchlistQuotesLoading ? '報價更新中…' : '↻ 報價'; }
-            if (!_watchlistSelectedSymbol && items.length) _watchlistSelectedSymbol = items[0].symbol;
-            if (_watchlistSelectedSymbol && !items.some(w => w.symbol === _watchlistSelectedSymbol)) {
-                _watchlistSelectedSymbol = items[0]?.symbol || null;
+            if ((!_watchlistSelectedSymbol || !items.some(w => w.symbol === _watchlistSelectedSymbol)) && items.length) {
+                _watchlistSelectedSymbol = items[0].symbol;
                 _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedNativeKey = null;
             }
             if (items.length === 0) {
-                list.innerHTML = '<div style="color:#607585;text-align:center;padding:2rem 0;">尚未建立觀察清單，進入編輯模式後新增標的</div>';
-                _renderWatchlistTradingView(null);
+                const emptyMsg = allItems.length ? '此分類尚無標的，切換分類或於編輯模式新增' : '尚未建立觀察清單，進入編輯模式後新增標的';
+                list.innerHTML = `<div style="color:#607585;text-align:center;padding:2rem 0;">${emptyMsg}</div>`;
+                _renderWatchlistChart(null);
                 return;
             }
-            list.innerHTML = items.map((w, i) => {
+            list.innerHTML = items.map((w) => {
                 const active = w.symbol === _watchlistSelectedSymbol;
                 const note = w.note ? `<div class="watchlist-pro-meta">${_escapeHtml(w.note)}</div>` : '';
-                const meta = `<div class="watchlist-pro-meta"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span> TV ${_escapeHtml(w.tvSymbol || '未設定')} · Yahoo ${_escapeHtml(w.yahooSymbol || '未設定')}</div>`;
+                const srcLabel = w.category === 'crypto'
+                    ? `TV ${_escapeHtml(w.tvSymbol || '未設定')} · OKX ${_escapeHtml(w.okxSymbol || '未設定')}`
+                    : `TV ${_escapeHtml(w.tvSymbol || '未設定')} · Yahoo ${_escapeHtml(w.yahooSymbol || '未設定')}`;
+                const meta = `<div class="watchlist-pro-meta"><span class="watchlist-pro-market">${_escapeHtml(w.market)}</span> ${srcLabel}</div>`;
                 const side = _watchlistProEditMode
                     ? `<div class="watchlist-pro-side">
-                        <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${i})" title="編輯">✎</button>
-                        <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${i})" title="刪除">✕</button>
+                        <button class="watchlist-pro-icon-btn" onclick="event.stopPropagation(); showWatchlistProModal(${w._idx})" title="編輯">✎</button>
+                        <button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); deleteWatchlistProItem(${w._idx})" title="刪除">✕</button>
                     </div>`
                     : `<div class="watchlist-pro-side">${_watchlistQuoteHtml(w.symbol)}</div>`;
                 return `
-                    <button class="watchlist-pro-row${active ? ' active' : ''}" onclick="selectWatchlistProItem(${i})">
+                    <button class="watchlist-pro-row${active ? ' active' : ''}" onclick="selectWatchlistProItem(${w._idx})">
                         <div class="watchlist-pro-main">
                             <span class="watchlist-pro-symbol">${_escapeHtml(w.symbol)}</span>
                             ${meta}
@@ -5159,7 +5266,7 @@
                     </button>`;
             }).join('');
             const selected = items.find(w => w.symbol === _watchlistSelectedSymbol) || items[0];
-            _renderWatchlistTradingView(selected);
+            _renderWatchlistChart(selected);
         }
         function _renderWatchlistTradingView(item) {
             const box = document.getElementById('watchlist-tv-container');
@@ -5222,6 +5329,198 @@
             wrap.appendChild(script);
             box.appendChild(wrap);
         }
+        // ==================== v15.929：觀察清單 Pro 原生圖（lightweight-charts，lazy-load，嚴格 visual-only）====================
+        // 只寫自己的 DOM + _wlNativeCharts；不碰 holdings／報價快取／close pair／今日損益／snapshot／baseline／Gist／userDataHash／pending。
+        let _lwcLoadPromise = null;
+        let _wlNativeResizeHandler = null;
+        function _ensureLightweightCharts() {
+            if (typeof LightweightCharts !== 'undefined') return Promise.resolve(LightweightCharts);
+            if (_lwcLoadPromise) return _lwcLoadPromise;
+            _lwcLoadPromise = new Promise((resolve, reject) => {
+                try {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js';
+                    s.async = true;
+                    let done = false;
+                    const timer = setTimeout(() => { if (!done) { done = true; _lwcLoadPromise = null; reject(new Error('lightweight-charts 載入逾時')); } }, 8000);
+                    s.onload = () => {
+                        if (done) return; done = true; clearTimeout(timer);
+                        if (typeof LightweightCharts !== 'undefined') resolve(LightweightCharts);
+                        else { _lwcLoadPromise = null; reject(new Error('lightweight-charts 載入後未定義')); }
+                    };
+                    s.onerror = () => { if (done) return; done = true; clearTimeout(timer); _lwcLoadPromise = null; reject(new Error('lightweight-charts 載入失敗')); };
+                    document.head.appendChild(s);
+                } catch (e) { _lwcLoadPromise = null; reject(e); }
+            });
+            return _lwcLoadPromise;
+        }
+        function _watchlistChartRoute(item) {
+            if (!item || !item.symbol) return { mode: 'tv', tvSymbol: '' };
+            const tvSymbol = String(item.tvSymbol || '').trim().toUpperCase();
+            if (item.category === 'crypto') {
+                const okx = String(item.okxSymbol || _inferWatchlistOkxSymbol(item.symbol) || '').trim().toUpperCase();
+                if (okx) return { mode: 'native', kind: 'crypto', fetchSymbol: okx, source: 'OKX' };
+                return { mode: 'tv', tvSymbol };
+            }
+            const meta = _watchlistMetaOf(item.symbol);
+            if (meta && meta.nativeFallback) {
+                return { mode: 'native', kind: 'stock', fetchSymbol: String(item.yahooSymbol || item.symbol || '').trim().toUpperCase(), source: 'Yahoo' };
+            }
+            return { mode: 'tv', tvSymbol };
+        }
+        function _renderWatchlistChart(item) {
+            const pane = document.getElementById('tab-pane-9');
+            if (pane && !pane.classList.contains('active')) return;   // 非當前頁不抓圖（TV widget / 原生 fetch 都省，避免啟動時對隱藏頁抓資料）
+            const route = _watchlistChartRoute(item);
+            if (!item || route.mode === 'tv') {
+                _disposeWatchlistNativeCharts();
+                _watchlistRenderedNativeKey = null;
+                _renderWatchlistTradingView(item);
+                return;
+            }
+            _watchlistRenderedTvSymbol = null;   // 切回 TV 時可重建
+            _renderWatchlistNativeChart(item, route);
+        }
+        function _disposeWatchlistNativeCharts() {
+            try { (_wlNativeCharts || []).forEach(ch => { try { ch.remove(); } catch (_) {} }); } catch (_) {}
+            _wlNativeCharts = [];
+            if (_wlNativeResizeHandler) { try { window.removeEventListener('resize', _wlNativeResizeHandler); } catch (_) {} _wlNativeResizeHandler = null; }
+        }
+        function _wlFmtDay(tsSec, tz) {
+            try {
+                return new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(tsSec * 1000));
+            } catch (_) { return new Date(tsSec * 1000).toISOString().slice(0, 10); }
+        }
+        async function _wlFetchStockOHLC(yahooSymbol) {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=6mo`;
+            const data = await yfFetch(url);
+            const r = data && data.chart && data.chart.result && data.chart.result[0];
+            const ts = (r && r.timestamp) || [];
+            const q = (r && r.indicators && r.indicators.quote && r.indicators.quote[0]) || {};
+            const tz = _exchangeTz(yahooSymbol);
+            const o = q.open || [], h = q.high || [], l = q.low || [], c = q.close || [];
+            // zip ts+ohlc 後一起 filter null（ts 與 close 對齊，沿用 v15.080-C 教訓）
+            return ts.map((t, i) => ({ time: _wlFmtDay(t, tz), open: o[i], high: h[i], low: l[i], close: c[i] }))
+                     .filter(b => b.open != null && b.high != null && b.low != null && b.close != null);
+        }
+        async function _wlFetchCryptoOHLC(okxSymbol) {
+            try {
+                const url = `https://www.okx.com/api/v5/market/candles?instId=${encodeURIComponent(okxSymbol)}&bar=1D&limit=180`;
+                const data = await yfFetch(url);
+                const rows = (data && data.data) || [];
+                if (rows.length) {
+                    const bars = rows.map(rr => ({ time: _wlFmtDay(Math.floor(Number(rr[0]) / 1000), 'UTC'), open: +rr[1], high: +rr[2], low: +rr[3], close: +rr[4] }))
+                                     .filter(b => isFinite(b.open) && isFinite(b.high) && isFinite(b.low) && isFinite(b.close))
+                                     .reverse();
+                    if (bars.length >= 5) return { bars, source: 'OKX' };
+                }
+            } catch (_) {}
+            // fallback：Yahoo BASE-USD
+            const base = String(okxSymbol || '').replace(/-USDT?$/, '');
+            const bars = await _wlFetchStockOHLC(`${base}-USD`);
+            return { bars, source: 'Yahoo' };
+        }
+        function _wlComputeMA(bars, period) {
+            const out = []; let sum = 0;
+            for (let i = 0; i < bars.length; i++) {
+                sum += bars[i].close;
+                if (i >= period) sum -= bars[i - period].close;
+                if (i >= period - 1) out.push({ time: bars[i].time, value: sum / period });
+            }
+            return out;
+        }
+        function _wlComputeRSI(bars, period) {
+            const out = [];
+            if (bars.length <= period) return out;
+            let gain = 0, loss = 0;
+            for (let i = 1; i <= period; i++) { const d = bars[i].close - bars[i - 1].close; if (d >= 0) gain += d; else loss -= d; }
+            let avgG = gain / period, avgL = loss / period;
+            out.push({ time: bars[period].time, value: avgL === 0 ? 100 : 100 - 100 / (1 + avgG / avgL) });
+            for (let i = period + 1; i < bars.length; i++) {
+                const d = bars[i].close - bars[i - 1].close;
+                avgG = (avgG * (period - 1) + (d > 0 ? d : 0)) / period;
+                avgL = (avgL * (period - 1) + (d < 0 ? -d : 0)) / period;
+                out.push({ time: bars[i].time, value: avgL === 0 ? 100 : 100 - 100 / (1 + avgG / avgL) });
+            }
+            return out;
+        }
+        function _wlNativeError(box, source, msg) {
+            _disposeWatchlistNativeCharts();
+            if (box) box.innerHTML = `<div class="watchlist-pro-placeholder"><div style="font-weight:800;color:#f87171;">${_escapeHtml(msg)}</div><div style="font-size:0.78rem;color:#607585;">原生圖為 visual-only，不影響報價與損益</div></div>`;
+            if (source) source.textContent = '原生圖失敗';
+            _watchlistRenderedNativeKey = null;
+        }
+        async function _renderWatchlistNativeChart(item, route) {
+            const box = document.getElementById('watchlist-tv-container');
+            const title = document.getElementById('watchlist-tv-title');
+            const subtitle = document.getElementById('watchlist-tv-subtitle');
+            const source = document.getElementById('watchlist-tv-source');
+            if (!box) return;
+            const key = `${item.symbol}|${route.kind}|${route.fetchSymbol}`;
+            if (_watchlistRenderedNativeKey === key && box.querySelector('.wl-native-wrap')) return;
+            _watchlistRenderedNativeKey = key;
+            if (title) title.textContent = `${item.symbol} 技術圖`;
+            if (subtitle) subtitle.textContent = `${route.kind === 'crypto' ? route.fetchSymbol : (item.tvSymbol || route.fetchSymbol)} · K線 / MA20 / MA60 / RSI`;
+            if (source) source.textContent = '原生圖載入中…';
+            _disposeWatchlistNativeCharts();
+            box.innerHTML = '<div class="watchlist-pro-placeholder"><div style="font-weight:700;color:#a8bdd0;">原生圖載入中…</div><div style="font-size:0.78rem;color:#607585;">抓取 K 線資料（visual-only，不影響報價/損益）</div></div>';
+            let LWC, bars, srcName;
+            try { LWC = await _ensureLightweightCharts(); }
+            catch (e) { if (_watchlistRenderedNativeKey === key) _wlNativeError(box, source, '原生圖元件載入失敗，請稍後重試或檢查網路'); return; }
+            try {
+                if (route.kind === 'crypto') { const res = await _wlFetchCryptoOHLC(route.fetchSymbol); bars = res.bars; srcName = res.source; }
+                else { bars = await _wlFetchStockOHLC(route.fetchSymbol); srcName = 'Yahoo'; }
+            } catch (e) { if (_watchlistRenderedNativeKey === key) _wlNativeError(box, source, '原生圖資料抓取失敗，請稍後重試'); return; }
+            if (_watchlistRenderedNativeKey !== key) return;   // 抓取期間使用者已切走 → 放棄
+            if (!bars || bars.length < 5) { _wlNativeError(box, source, '此標的無足夠歷史資料繪製原生圖'); return; }
+            box.innerHTML = '';
+            const boxH = box.clientHeight || 640;
+            const priceH = Math.max(boxH - 150, 320);
+            const wrap = document.createElement('div');
+            wrap.className = 'wl-native-wrap';
+            wrap.style.cssText = 'height:100%;width:100%;background:#060d1a;';
+            const priceDiv = document.createElement('div');
+            priceDiv.style.cssText = `height:${priceH}px;width:100%;`;
+            const rsiDiv = document.createElement('div');
+            rsiDiv.style.cssText = 'height:140px;width:100%;border-top:1px solid rgba(56,139,253,0.14);';
+            wrap.appendChild(priceDiv); wrap.appendChild(rsiDiv); box.appendChild(wrap);
+            const W = box.clientWidth || 600;
+            const commonOpts = {
+                layout: { background: { color: 'transparent' }, textColor: '#7e93a6' },
+                grid: { vertLines: { color: 'rgba(56,139,253,0.06)' }, horzLines: { color: 'rgba(56,139,253,0.06)' } },
+                rightPriceScale: { borderColor: 'rgba(56,139,253,0.2)' },
+                timeScale: { borderColor: 'rgba(56,139,253,0.2)' },
+                crosshair: { mode: 0 }
+            };
+            const priceChart = LWC.createChart(priceDiv, Object.assign({ width: W, height: priceH }, commonOpts));
+            const candle = priceChart.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#ef4444' });
+            candle.setData(bars);
+            const ma20 = priceChart.addLineSeries({ color: '#fbbf24', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+            ma20.setData(_wlComputeMA(bars, 20));
+            const ma60 = priceChart.addLineSeries({ color: '#60a5fa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+            ma60.setData(_wlComputeMA(bars, 60));
+            const rsiChart = LWC.createChart(rsiDiv, Object.assign({ width: W, height: 140 }, commonOpts));
+            const rsi = rsiChart.addLineSeries({ color: '#c084fc', lineWidth: 1, priceLineVisible: false });
+            rsi.setData(_wlComputeRSI(bars, 14));
+            try {
+                rsi.createPriceLine({ price: 70, color: 'rgba(239,68,68,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '70' });
+                rsi.createPriceLine({ price: 30, color: 'rgba(16,185,129,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '30' });
+            } catch (_) {}
+            try { priceChart.timeScale().fitContent(); rsiChart.timeScale().fitContent(); } catch (_) {}
+            try {
+                priceChart.timeScale().subscribeVisibleLogicalRangeChange(rng => { if (rng) try { rsiChart.timeScale().setVisibleLogicalRange(rng); } catch (_) {} });
+                rsiChart.timeScale().subscribeVisibleLogicalRangeChange(rng => { if (rng) try { priceChart.timeScale().setVisibleLogicalRange(rng); } catch (_) {} });
+            } catch (_) {}
+            _wlNativeCharts = [priceChart, rsiChart];
+            _wlNativeResizeHandler = () => {
+                const bh = box.clientHeight || boxH; const ph = Math.max(bh - 150, 320); const w = box.clientWidth || W;
+                priceDiv.style.height = ph + 'px';
+                try { priceChart.applyOptions({ width: w, height: ph }); } catch (_) {}
+                try { rsiChart.applyOptions({ width: w }); } catch (_) {}
+            };
+            window.addEventListener('resize', _wlNativeResizeHandler);
+            if (source) source.textContent = `${srcName} 原生圖 · ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+        }
         function showWatchlistProModal(index) {
             _watchlistProEditIndex = Number.isInteger(index) ? index : -1;
             const item = _watchlistProEditIndex >= 0 ? _normalizeWatchlistItem(watchlist[_watchlistProEditIndex]) : _normalizeWatchlistItem({});
@@ -5232,11 +5531,15 @@
             const tv = document.getElementById('wl-pro-tv');
             const yahoo = document.getElementById('wl-pro-yahoo');
             const note = document.getElementById('wl-pro-note');
+            const cat = document.getElementById('wl-pro-category');
+            const okx = document.getElementById('wl-pro-okx');
             if (sym) sym.value = item.symbol || '';
             if (market) market.value = item.market || 'US';
             if (tv) tv.value = item.tvSymbol || '';
             if (yahoo) yahoo.value = item.yahooSymbol || '';
             if (note) note.value = item.note || '';
+            if (cat) cat.value = _watchlistProEditIndex >= 0 ? (item.category || 'proto') : _watchlistProCategory;
+            if (okx) okx.value = item.okxSymbol || '';
             const modal = document.getElementById('watchlist-pro-modal');
             if (modal) modal.style.display = 'flex';
             setTimeout(() => sym?.focus(), 50);
@@ -5258,6 +5561,11 @@
             const guessedYahoo = _inferWatchlistYahooSymbol(symbol, market);
             if (tvEl && (!tvEl.value || _watchlistProEditIndex < 0)) tvEl.value = guessedTv;
             if (yahooEl && (!yahooEl.value || _watchlistProEditIndex < 0)) yahooEl.value = guessedYahoo;
+            const catEl = document.getElementById('wl-pro-category');
+            const okxEl = document.getElementById('wl-pro-okx');
+            const guessedCat = _watchlistCategoryOf({}, symbol, market);
+            if (catEl && _watchlistProEditIndex < 0 && guessedCat !== 'proto') catEl.value = guessedCat;
+            if (okxEl && (!okxEl.value || _watchlistProEditIndex < 0) && guessedCat === 'crypto') okxEl.value = _inferWatchlistOkxSymbol(symbol);
         }
         function confirmWatchlistProModal() {
             const symbol = String(document.getElementById('wl-pro-symbol')?.value || '').trim().toUpperCase();
@@ -5266,8 +5574,10 @@
             const item = _normalizeWatchlistItem({
                 symbol,
                 market,
+                category: document.getElementById('wl-pro-category')?.value,
                 tvSymbol: document.getElementById('wl-pro-tv')?.value,
                 yahooSymbol: document.getElementById('wl-pro-yahoo')?.value,
+                okxSymbol: document.getElementById('wl-pro-okx')?.value,
                 note: document.getElementById('wl-pro-note')?.value
             });
             const dup = watchlist.findIndex((w, idx) => idx !== _watchlistProEditIndex && _normalizeWatchlistItem(w).symbol === item.symbol);
@@ -5275,7 +5585,9 @@
             if (_watchlistProEditIndex >= 0) watchlist[_watchlistProEditIndex] = item;
             else watchlist.push(item);
             _watchlistSelectedSymbol = item.symbol;
+            _watchlistProCategory = item.category || _watchlistProCategory;   // 切到該標的分類，避免存完看不到
             _watchlistRenderedTvSymbol = null;
+            _watchlistRenderedNativeKey = null;
             saveWatchlist();
             _markWatchlistChanged();
             hideWatchlistProModal();
@@ -5291,6 +5603,7 @@
             if (_watchlistSelectedSymbol === item.symbol) {
                 _watchlistSelectedSymbol = null;
                 _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedNativeKey = null;
             }
             saveWatchlist();
             _markWatchlistChanged();
