@@ -79,42 +79,172 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.81400299072266,
-        "chg1d": -0.04560541280046887,
-        "chg7d": -0.5386716814730813
+        "price": 100.85800170898438,
+        "chg1d": -0.001981857381609362,
+        "chg7d": -0.49526331723001193
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4181.7001953125,
-        "chg1d": 1.6777298787459292,
-        "chg7d": 2.5253204544019328
+        "price": 4187.10009765625,
+        "chg1d": 1.8090281034476619,
+        "chg7d": 2.657713187586401
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 68.5999984741211,
-        "chg1d": -0.13102920961741293,
-        "chg7d": -0.9100171201268664
+        "price": 68.75,
+        "chg1d": 0.08734540174886286,
+        "chg7d": -0.693345852460543
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 62296.08984375,
-        "chg1d": 1.31867137705741,
-        "chg7d": 3.7983934867835014
+        "price": 62204,
+        "chg1d": 1.1688959956574987,
+        "chg7d": 3.6449524303436185
       }
     ],
     "news": [
       {
+        "uuid": "0c5b5d9a-5095-3185-8855-945b3e2d2c59",
+        "title": "Micron Remains a Buy as AI Memory Demand Surges",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/micron-remains-buy-ai-memory-165903321.html",
+        "providerPublishTime": 1783097943,
+        "type": "STORY",
+        "relatedTickers": [
+          "MU"
+        ],
+        "_sym": "MU",
+        "titleZh": "隨著人工智慧記憶體需求激增，美光仍是買家"
+      },
+      {
+        "uuid": "4bdf314f-aff6-3d25-8aff-9e6ed9a99d6f",
+        "title": "HSBC Delivers Bullish AI Verdict After Micron Earnings Surprise",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/hsbc-delivers-bullish-ai-verdict-165850655.html",
+        "providerPublishTime": 1783097930,
+        "type": "STORY",
+        "relatedTickers": [
+          "HSBC",
+          "MU"
+        ],
+        "_sym": "MU",
+        "titleZh": "滙豐在美光獲利出人意料後作出看漲的AI判斷"
+      },
+      {
+        "uuid": "0051fa64-4f26-339a-8c88-994aadc65467",
+        "title": "Michael Burry Shorts Micron After 240% Surge Since Start of 2026",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-shorts-micron-240-165737839.html",
+        "providerPublishTime": 1783097857,
+        "type": "STORY",
+        "relatedTickers": [
+          "MU"
+        ],
+        "_sym": "MU",
+        "titleZh": "Michael Burry自2026年初以來飆升240%後做空美光"
+      },
+      {
+        "uuid": "703b801f-08fc-36d5-b638-abd67a398e05",
+        "title": "Why the Supreme Court's Ruling on the Fed This Week Is Good for the Stock Market",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/703b801f-08fc-36d5-b638-abd67a398e05/why-the-supreme-court%27s.html",
+        "providerPublishTime": 1783097400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/AfCGj.M95PKo0taW5.4Wbg--~B/aD05MzU7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a937c9b411fde391e0405ae5d9addb8f",
+              "width": 1400,
+              "height": 935,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/AP2HbVxhF2ZK5JN3EZ5Ixg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a937c9b411fde391e0405ae5d9addb8f",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "為什麼最高法院本週對聯儲局的裁決對股市有利"
+      },
+      {
+        "uuid": "8ddefc29-6256-37ab-9631-6ce416c6317a",
+        "title": "Price Prediction: Coca-Cola’s Fourth Consecutive Earnings Beat Sets Up a Run Toward a New High",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/8ddefc29-6256-37ab-9631-6ce416c6317a/price-prediction%3A-coca-cola%E2%80%99s.html",
+        "providerPublishTime": 1783097038,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/N3qUL2vrgOiCym_dVGeZVA--~B/aD0xNjk5O3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/f9447b8e7ad20bba61db6aff58bf92c3",
+              "width": 2560,
+              "height": 1699,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/EI8zr7SEWJfAcYhfldLfwA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/f9447b8e7ad20bba61db6aff58bf92c3",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "KO",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "價格預測：可口可樂連續第四年盈利突破，邁向新高"
+      },
+      {
+        "uuid": "4b8dcb20-0087-3560-a258-867c8443ebad",
+        "title": "Saylor makes a bold claim about MSTR and it involves Apple and Nvidia",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/4b8dcb20-0087-3560-a258-867c8443ebad/saylor-makes-a-bold-claim.html",
+        "providerPublishTime": 1783096882,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/V7RdznIGXm__06vANpCLzQ--~B/aD0xMjgxO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/182c2f9b20f81c258488af344ceb8721",
+              "width": 1920,
+              "height": 1281,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/osJkR.oj__Dyi3Yl2p4Qhg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/182c2f9b20f81c258488af344ceb8721",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MSTR",
+          "AAPL",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Saylor大膽宣稱MSTR涉及Apple和Nvidia"
+      },
+      {
         "uuid": "c5c7ee9b-1c12-3518-9e81-d4125388c16f",
-        "title": "Dow Jones Futures Fall Techs Rise After Tesla, Sandisk, AI Stocks Dive; Apple, Robinhood Flash Buy Signals",
+        "title": "Dow Jones Futures: Techs Rebound After Tesla, Sandisk, AI Stocks Dive; Apple, Robinhood Flash Buy Signals",
         "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures-fall-techs.html",
-        "providerPublishTime": 1783090469,
+        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures%3A-techs.html",
+        "providerPublishTime": 1783096663,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -135,35 +265,67 @@
         "relatedTickers": [
           "^DJI",
           "^IXIC",
-          "HOOD",
           "TSLA",
           "AAPL",
           "SNDK",
           "DAL",
           "TSM",
           "^GSPC",
+          "HOOD",
           "SPCX"
         ],
         "_sym": "SNDK",
-        "titleZh": "在特斯拉、桑迪斯克、人工智能股下跌後，道瓊斯期貨秋季科技股上漲；蘋果、羅賓漢閃購信號"
+        "titleZh": "道瓊斯期貨：特斯拉、桑迪斯克、AI股票下跌後科技股反彈；蘋果、羅賓漢閃購信號"
       },
       {
-        "uuid": "d45b4b5d-c63e-3229-8e62-14ac5154f2b1",
-        "title": "Palantir’s NVIDIA AI Collab Could Be a Game-Changer That Marks a Turn in the Stock",
+        "uuid": "8c3a6d0b-c2b1-325d-9860-99ee515bc1d3",
+        "title": "Meet the Major Artificial Intelligence (AI) CPU Player That Just Joined Nvidia, Tesla, and Palantir as One of the Most Popular Stocks on Robinhood",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/8c3a6d0b-c2b1-325d-9860-99ee515bc1d3/meet-the-major-artificial.html",
+        "providerPublishTime": 1783096500,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/LAN4Vi6iKkppfuV1gyKXYA--~B/aD03Mzg7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2c63d3df084a3bd2515e3d878e5eaa49",
+              "width": 1400,
+              "height": 738,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/atodwzKV9RidXQYxkarCcA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2c63d3df084a3bd2515e3d878e5eaa49",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "HOOD",
+          "NVDA",
+          "TSLA",
+          "PLTR"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "認識剛剛加入NVIDIA、Tesla和Palantir成為Robinhood最受歡迎股票之一的主要人工智慧(AI) CPU玩家"
+      },
+      {
+        "uuid": "f198a054-cc1b-3bf6-bec1-018afa8f9da3",
+        "title": "Tesla Vs. SpaceX: Here’s Which Will Outperform the Other by the End of July",
         "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/d45b4b5d-c63e-3229-8e62-14ac5154f2b1/palantir%E2%80%99s-nvidia-ai-collab.html",
-        "providerPublishTime": 1783090417,
+        "link": "https://finance.yahoo.com/m/f198a054-cc1b-3bf6-bec1-018afa8f9da3/tesla-vs.-spacex%3A-here%E2%80%99s.html",
+        "providerPublishTime": 1783096499,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/WiS5GNZRVVdLHO.JGQurPQ--~B/aD0zOTY7dz01OTQ7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
-              "width": 594,
-              "height": 396,
+              "url": "https://s.yimg.com/uu/api/res/1.2/DEpZBlxXpHYeEbsKEx7WCg--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/470770149ef1a8305414627a65620da5",
+              "width": 1366,
+              "height": 768,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/7K_5VfmyP2xXLep7zGT5YQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
+              "url": "https://s.yimg.com/uu/api/res/1.2/tRC0mdeYO1vkHr1tIDBW7Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/470770149ef1a8305414627a65620da5",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -171,90 +333,46 @@
           ]
         },
         "relatedTickers": [
-          "PLTR",
-          "NVDA"
+          "TSLA",
+          "SPCX",
+          "NVDA",
+          "GOOG"
         ],
         "_sym": "NVDA",
-        "titleZh": "Palantir的NVIDIA AI Collab可能會改變遊戲規則，標誌著股票的轉變"
+        "titleZh": "特斯拉與SpaceX ：到7月底，特斯拉的表現會優於其他公司"
       },
       {
-        "uuid": "d99d1b2b-0e58-34d4-8ffd-b250c6165535",
-        "title": "Ripple Is Bringing Agentic AI Payments to the XRP Blockchain. Is This a Game Changer for XRP?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/d99d1b2b-0e58-34d4-8ffd-b250c6165535/ripple-is-bringing-agentic-ai.html",
-        "providerPublishTime": 1783089660,
+        "uuid": "ac445d22-3c57-3ab3-aa6e-22756dc6b623",
+        "title": "Trump Says Musk Could Donate SpaceX Stock After $86 Billion IPO",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/trump-says-musk-could-donate-161729411.html",
+        "providerPublishTime": 1783095449,
         "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/wxcW85Qp4f_NyEKuYXsoXA--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a7b4b5f2ef262f7414956f0e15f40d6c",
-              "width": 1400,
-              "height": 787,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/f6YsjSsVqd3biR393wK3cw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a7b4b5f2ef262f7414956f0e15f40d6c",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "XRP-USD",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "Ripple正在為XRP區塊鏈帶來代理AI支付。這是XRP的改變遊戲規則嗎？"
-      },
-      {
-        "uuid": "62083c20-f8d6-379b-a5e1-81fb442b26fb",
-        "title": "He Predicted the Dot-com Bubble Burst. Now He's Saying SpaceX Could be a Fresh Warning Sign.",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/62083c20-f8d6-379b-a5e1-81fb442b26fb/he-predicted-the-dot-com.html",
-        "providerPublishTime": 1783089300,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/s5x8KutqzB9aFcUiOU.Iyw--~B/aD05MzE7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/48a732a0417b47061c4d90a17d978766",
-              "width": 1400,
-              "height": 931,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/MbWAdxMV1lgpV.veohMqhw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/48a732a0417b47061c4d90a17d978766",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
         "relatedTickers": [
           "SPCX",
-          "^IXIC",
-          "NVDA"
+          "MU",
+          "DELL"
         ],
-        "_sym": "NVDA",
-        "titleZh": "他預測了網路泡沫破裂。現在他說SpaceX可能是一個新的警告信號。"
+        "_sym": "MU",
+        "titleZh": "特朗普表示，馬斯克可以在$ 860億IPO後捐贈SpaceX股票"
       },
       {
-        "uuid": "7c676dad-e611-380c-aaaf-f6eac41724f6",
-        "title": "How Greg Abel Is Already Reshaping Berkshire Hathaway's Playbook",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/7c676dad-e611-380c-aaaf-f6eac41724f6/how-greg-abel-is-already.html",
-        "providerPublishTime": 1783088400,
+        "uuid": "b8f11d0f-59c9-3a42-babd-8118d3c8af65",
+        "title": "Up 140% YTD, Three Catalysts Will Take AMD to New Highs In 2026",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/b8f11d0f-59c9-3a42-babd-8118d3c8af65/up-140%25-ytd%2C-three-catalysts.html",
+        "providerPublishTime": 1783094238,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_pqNKbhuBx1oQxL2dvJx6w--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/814d1729c64f137a4d13c60421125522",
+              "url": "https://s.yimg.com/uu/api/res/1.2/YviTjfboNSrAX2fGr64Osg--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/c1fb148b73e2677d019f7e7fdc928722",
               "width": 1200,
-              "height": 800,
+              "height": 675,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/9AJ0dLWROw8jpIUW64nSkg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/814d1729c64f137a4d13c60421125522",
+              "url": "https://s.yimg.com/uu/api/res/1.2/r1N.sF4NDpQMpo4nvM511A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/c1fb148b73e2677d019f7e7fdc928722",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -262,30 +380,29 @@
           ]
         },
         "relatedTickers": [
-          "BRK-B",
-          "^GSPC",
+          "AMD",
           "NVDA"
         ],
-        "_sym": "NVDA",
-        "titleZh": "Greg Abel如何重塑Berkshire Hathaway的攻略"
+        "_sym": "AMD",
+        "titleZh": "年初至今上漲140% ，三大催化劑將使AMD在2026年創下新高"
       },
       {
-        "uuid": "d2c84694-5cc9-32a3-ab45-1bedb44fe178",
-        "title": "Michael Burry Shorts Micron, Adding to His NVIDIA and Applied Materials Short Bets Against Chip Stocks",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/d2c84694-5cc9-32a3-ab45-1bedb44fe178/michael-burry-shorts-micron%2C.html",
-        "providerPublishTime": 1783088299,
+        "uuid": "0e237f59-08f2-3220-90a2-47138b6e19cf",
+        "title": "This Is the Single Most Important Number from Micron's Monster Earnings Report",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/0e237f59-08f2-3220-90a2-47138b6e19cf/this-is-the-single-most.html",
+        "providerPublishTime": 1783093800,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/8LV.Yw7ujax9rlcemU3PdQ--~B/aD0xNzQzO3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/42b1a74e613a76b65a709f21cdf8417d",
-              "width": 2560,
-              "height": 1743,
+              "url": "https://s.yimg.com/uu/api/res/1.2/E76iMB44gKl42K6YO_kbMA--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/089f4d715d5134bb40a76e5c297a82dd",
+              "width": 1400,
+              "height": 840,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/PBQ0nJbYetMFpvkWIDJeoA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/42b1a74e613a76b65a709f21cdf8417d",
+              "url": "https://s.yimg.com/uu/api/res/1.2/iwiYkwcZiM8eRT464sqrAA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/089f4d715d5134bb40a76e5c297a82dd",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -294,43 +411,28 @@
         },
         "relatedTickers": [
           "MU",
-          "NVDA",
-          "SOXX",
-          "AMAT"
+          "NVDA"
         ],
         "_sym": "MU",
-        "titleZh": "Michael Burry做空美光，加上他的NVIDIA和應用材料對籌碼股的做空賭注"
+        "titleZh": "這是美光怪物收入報告中最重要的單一數字"
       },
       {
-        "uuid": "dfe4c304-9c59-3a7e-a136-3390b0027d24",
-        "title": "Michael Burry Shorts Micron After Massive Rally",
-        "publisher": "GuruFocus.com",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-shorts-micron-massive-134827628.html",
-        "providerPublishTime": 1783086507,
-        "type": "STORY",
-        "relatedTickers": [
-          "MU"
-        ],
-        "_sym": "MU",
-        "titleZh": "Michael Burry在大規模拉力賽後做美光短褲"
-      },
-      {
-        "uuid": "636dd7f9-0df9-3b55-9020-c422b9153cca",
-        "title": "Retail Investors’ Verdict: Micron Technology (MU) is Better Than Space (SPCX)",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/retail-investors-verdict-micron-technology-132234282.html",
-        "providerPublishTime": 1783084954,
+        "uuid": "e8853b42-e1bc-34ac-9e88-d442f4613521",
+        "title": "Arm Holdings' Robust Licensing Business Drives AI-Fueled Growth",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/technology/ai/articles/arm-holdings-robust-licensing-business-140600801.html",
+        "providerPublishTime": 1783087560,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/IMMz_M1HrOs57IyLBZY9MA--~B/aD01NTY7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/4ee398ac04b6b39dd1b6146a0b2bb679",
-              "width": 768,
-              "height": 556,
+              "url": "https://s.yimg.com/uu/api/res/1.2/mYQcKrBErD723LN8P5V9xQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
+              "width": 635,
+              "height": 400,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/.eP2.hl_G9RhqVLTDU1Zgg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/4ee398ac04b6b39dd1b6146a0b2bb679",
+              "url": "https://s.yimg.com/uu/api/res/1.2/4sRxY11S5IcQIY38NXtlew--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -338,10 +440,12 @@
           ]
         },
         "relatedTickers": [
-          "MU"
+          "ARM",
+          "NVDA",
+          "AMD"
         ],
-        "_sym": "MU",
-        "titleZh": "散戶投資者的判斷：美光科技（ MU ）優於太空（ SPCX ）"
+        "_sym": "AMD",
+        "titleZh": "ARM Holdings強勁的授權業務推動AI成長"
       },
       {
         "uuid": "a98316dd-5ab6-3e00-b772-e7ac89ebb091",
@@ -504,72 +608,6 @@
         "titleZh": "過去一年中IWD的實際駕駛情況"
       },
       {
-        "uuid": "8b098224-9466-3803-ad4c-114306759321",
-        "title": "Can MRVL's AI Infrastructure Growth Outpace Its Margin Pressure?",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/technology/ai/articles/mrvls-ai-infrastructure-growth-outpace-121200649.html",
-        "providerPublishTime": 1783080720,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/mYQcKrBErD723LN8P5V9xQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
-              "width": 635,
-              "height": 400,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4sRxY11S5IcQIY38NXtlew--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MRVL",
-          "AVGO",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "MRVL的人工智能基礎設施增長能否超越其利潤率壓力？"
-      },
-      {
-        "uuid": "8e72c5eb-572f-369c-abae-73496328abcc",
-        "title": "The Toughest Questions MU Faced On Its Latest Call",
-        "publisher": "Trefis",
-        "link": "https://finance.yahoo.com/m/8e72c5eb-572f-369c-abae-73496328abcc/the-toughest-questions-mu.html",
-        "providerPublishTime": 1783080483,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/jZNBbCY.0PMC6nYnCandqA--~B/aD03MjE7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/b873e06c110baeb7d29ba6df6ec3cafb",
-              "width": 1280,
-              "height": 721,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vX7C52nlSHjI7sCZoRv1gg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/b873e06c110baeb7d29ba6df6ec3cafb",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "WSFX.BO",
-          "QCOM",
-          "INTC",
-          "NVDA",
-          "WDC",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "MU在最新通話中面臨的最棘手問題"
-      },
-      {
         "uuid": "c60d2707-6f2f-322b-a6e8-0ea5eaaeafa0",
         "title": "Kioxia and Sandisk Begin Production of 10th-Generation 3D Flash Memory Products at Kitakami Plant Fab2",
         "publisher": "Business Wire",
@@ -633,101 +671,9 @@
         ],
         "_sym": "SNDK",
         "titleZh": "SpaceX股票即將加入納斯達克100指數。歷史告訴我們接下來會發生什麼。"
-      },
-      {
-        "uuid": "5fa7eb1e-221e-3ba9-ba99-fffa46023d6a",
-        "title": "Coherent (COHR) Is Down 6.1% After Shift Into Russell Growth Benchmarks Amid AI Optics Reset",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/coherent-cohr-down-6-1-211417202.html",
-        "providerPublishTime": 1783026857,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/6uAsO.rEcrE.nmLBY.t5jw--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/c9021a6b56b6d46879d8b105f9ba3ef8",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1cI9kuQhNiJrhK_P_fTDRQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/c9021a6b56b6d46879d8b105f9ba3ef8",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "COHR"
-        ],
-        "_sym": "COHR",
-        "titleZh": "在人工智能光學重置之際，轉向羅素增長基準後，相幹(COHR)下跌6.1%"
-      },
-      {
-        "uuid": "76a7f1d4-b09c-360c-b9c9-ab8fe2ebe0c2",
-        "title": "Applied Optoelectronics Plunges 17%, Coherent and Lumentum Sink 10% as Photonics Stocks Reset",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/76a7f1d4-b09c-360c-b9c9-ab8fe2ebe0c2/applied-optoelectronics.html",
-        "providerPublishTime": 1783013651,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/6XQOGhmloph9d4WVKF9R5Q--~B/aD0xNzA3O3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/682c86b3acc4de3d5400c962e3d4b86a",
-              "width": 2560,
-              "height": 1707,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QJea0Ih38DG1LKXV.IERNg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/682c86b3acc4de3d5400c962e3d4b86a",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "COHR",
-          "AAOI",
-          "NVDA",
-          "LITE",
-          "INTC"
-        ],
-        "_sym": "COHR",
-        "titleZh": "隨著光子學股重置，應用光電暴跌17% ，相幹和Lumentum Sink下跌10%"
-      },
-      {
-        "uuid": "33d6cf28-ca23-3c3e-8ca6-cdbbb504bcde",
-        "title": "Here's Why Verisk's Stock Is a Great Pick for Investors Now",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/heres-why-verisks-stock-great-151200054.html",
-        "providerPublishTime": 1783005120,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QF1xzRZ2K6AlJy6MSsH_BQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/0cd617ce77d6f50e5eda953b200b0299",
-              "width": 635,
-              "height": 400,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/FftEJcx3JJKdOYT29EdR8A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/0cd617ce77d6f50e5eda953b200b0299",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "VRSK",
-          "COHR"
-        ],
-        "_sym": "COHR",
-        "titleZh": "這就是為什麼Verisk的股票現在是投資者的最佳選擇"
       }
     ],
-    "fetched_at": 1783091359303
+    "fetched_at": 1783098536336
   },
   "earnings": {
     "AMD": {
