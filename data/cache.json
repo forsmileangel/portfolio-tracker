@@ -39,9 +39,9 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": null,
-        "chg1d": null,
-        "chg7d": null
+        "price": 7483.240234375,
+        "chg1d": 0.00013702513856667139,
+        "chg7d": 1.757137110050818
       },
       {
         "symbol": "^IXIC",
@@ -49,7 +49,7 @@
         "cat": "股市",
         "price": 25832.669921875,
         "chg1d": -0.7963100679955253,
-        "chg7d": 1.86946566372986
+        "chg7d": 2.1150242569300577
       },
       {
         "symbol": "^SOX",
@@ -57,15 +57,15 @@
         "cat": "股市",
         "price": 12626.2197265625,
         "chg1d": -5.44480855630116,
-        "chg7d": -9.430188930633435
+        "chg7d": -4.372685359132858
       },
       {
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 15.949999809265137,
-        "chg1d": -1.2383889411096942,
-        "chg7d": -13.362303414102279
+        "price": 15.8100004196167,
+        "chg1d": -2.1052582473343473,
+        "chg7d": -14.122756378843162
       },
       {
         "symbol": "^TNX",
@@ -79,53 +79,53 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.78099822998047,
-        "chg1d": -0.07832875262047688,
-        "chg7d": -0.5712335999255728
+        "price": 100.81400299072266,
+        "chg1d": -0.04560541280046887,
+        "chg7d": -0.5386716814730813
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4185,
-        "chg1d": 1.7579643848074453,
-        "chg7d": 2.606223799266806
+        "price": 4181.7001953125,
+        "chg1d": 1.6777298787459292,
+        "chg7d": 2.5253204544019328
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 68.25,
-        "chg1d": -0.6405625648093107,
-        "chg7d": -1.415576064442648
+        "price": 68.5999984741211,
+        "chg1d": -0.13102920961741293,
+        "chg7d": -0.9100171201268664
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 61941.87109375,
-        "chg1d": 0.7425682345189593,
-        "chg7d": 3.208190517622583
+        "price": 62296.08984375,
+        "chg1d": 1.31867137705741,
+        "chg7d": 3.7983934867835014
       }
     ],
     "news": [
       {
-        "uuid": "9a2b2772-3ef8-3624-9d4b-f53174ce80b3",
-        "title": "Wall Street Is Split on Meta’s Secret Cloud Move, and One Side Is Very Wrong",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/9a2b2772-3ef8-3624-9d4b-f53174ce80b3/wall-street-is-split-on.html",
-        "providerPublishTime": 1783083116,
+        "uuid": "c5c7ee9b-1c12-3518-9e81-d4125388c16f",
+        "title": "Dow Jones Futures Fall Techs Rise After Tesla, Sandisk, AI Stocks Dive; Apple, Robinhood Flash Buy Signals",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures-fall-techs.html",
+        "providerPublishTime": 1783090469,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/xIHHpkSbm_XGjZmpg.9BBA--~B/aD03Njc7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2d8b84c16fc3bb28c96ab7ff01b2f9db",
-              "width": 1366,
-              "height": 767,
+              "url": "https://s.yimg.com/uu/api/res/1.2/F8t1OyliTCmpR6hUEAkNQA--~B/aD01MTE7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
+              "width": 1000,
+              "height": 511,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/0gnvTaG33udhxov_oKFs9w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2d8b84c16fc3bb28c96ab7ff01b2f9db",
+              "url": "https://s.yimg.com/uu/api/res/1.2/MJ_KFUaQtX5ujuk.EVOp6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -133,33 +133,37 @@
           ]
         },
         "relatedTickers": [
-          "META",
-          "CRWV",
-          "NVDA",
-          "AMZN",
-          "GOOG",
-          "MSFT"
+          "^DJI",
+          "^IXIC",
+          "HOOD",
+          "TSLA",
+          "AAPL",
+          "SNDK",
+          "DAL",
+          "TSM",
+          "^GSPC",
+          "SPCX"
         ],
-        "_sym": "NVDA",
-        "titleZh": "華爾街在Meta的祕密雲端移動中分裂，一方是非常錯誤的"
+        "_sym": "SNDK",
+        "titleZh": "在特斯拉、桑迪斯克、人工智能股下跌後，道瓊斯期貨秋季科技股上漲；蘋果、羅賓漢閃購信號"
       },
       {
-        "uuid": "173ae55a-b304-3988-9500-57daa993d1df",
-        "title": "4 Top Growth Stocks Worth Buying Under $100 Today",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/173ae55a-b304-3988-9500-57daa993d1df/4-top-growth-stocks-worth.html",
-        "providerPublishTime": 1783083000,
+        "uuid": "d45b4b5d-c63e-3229-8e62-14ac5154f2b1",
+        "title": "Palantir’s NVIDIA AI Collab Could Be a Game-Changer That Marks a Turn in the Stock",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/d45b4b5d-c63e-3229-8e62-14ac5154f2b1/palantir%E2%80%99s-nvidia-ai-collab.html",
+        "providerPublishTime": 1783090417,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/pTm_cPbSgeFDtKatAo1cDA--~B/aD05MzQ7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/1bf78cd92e28bbf9d4b5340b3b9df543",
-              "width": 1400,
-              "height": 934,
+              "url": "https://s.yimg.com/uu/api/res/1.2/WiS5GNZRVVdLHO.JGQurPQ--~B/aD0zOTY7dz01OTQ7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
+              "width": 594,
+              "height": 396,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/w2fiXDzYXYHjLMjUobEKIg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/1bf78cd92e28bbf9d4b5340b3b9df543",
+              "url": "https://s.yimg.com/uu/api/res/1.2/7K_5VfmyP2xXLep7zGT5YQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -167,29 +171,121 @@
           ]
         },
         "relatedTickers": [
-          "ENOV",
+          "PLTR",
           "NVDA"
         ],
         "_sym": "NVDA",
-        "titleZh": "今天值得購買$ 100以下的4大增長股"
+        "titleZh": "Palantir的NVIDIA AI Collab可能會改變遊戲規則，標誌著股票的轉變"
       },
       {
-        "uuid": "965c977b-16aa-30e2-a234-73d38024b732",
-        "title": "Why Is Wall Street So Bullish on Micron? There's 1 Key Reason.",
+        "uuid": "d99d1b2b-0e58-34d4-8ffd-b250c6165535",
+        "title": "Ripple Is Bringing Agentic AI Payments to the XRP Blockchain. Is This a Game Changer for XRP?",
         "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/965c977b-16aa-30e2-a234-73d38024b732/why-is-wall-street-so-bullish.html",
-        "providerPublishTime": 1783082160,
+        "link": "https://finance.yahoo.com/m/d99d1b2b-0e58-34d4-8ffd-b250c6165535/ripple-is-bringing-agentic-ai.html",
+        "providerPublishTime": 1783089660,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/tA9F4m1FTNZZ_8x3fZ5vXA--~B/aD03MzE7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5f1c44a57c45b3bc59e143cc953c2d83",
+              "url": "https://s.yimg.com/uu/api/res/1.2/wxcW85Qp4f_NyEKuYXsoXA--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a7b4b5f2ef262f7414956f0e15f40d6c",
               "width": 1400,
-              "height": 731,
+              "height": 787,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/E7qt_meNhOTj2NtnxnyFIg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5f1c44a57c45b3bc59e143cc953c2d83",
+              "url": "https://s.yimg.com/uu/api/res/1.2/f6YsjSsVqd3biR393wK3cw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a7b4b5f2ef262f7414956f0e15f40d6c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "XRP-USD",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Ripple正在為XRP區塊鏈帶來代理AI支付。這是XRP的改變遊戲規則嗎？"
+      },
+      {
+        "uuid": "62083c20-f8d6-379b-a5e1-81fb442b26fb",
+        "title": "He Predicted the Dot-com Bubble Burst. Now He's Saying SpaceX Could be a Fresh Warning Sign.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/62083c20-f8d6-379b-a5e1-81fb442b26fb/he-predicted-the-dot-com.html",
+        "providerPublishTime": 1783089300,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/s5x8KutqzB9aFcUiOU.Iyw--~B/aD05MzE7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/48a732a0417b47061c4d90a17d978766",
+              "width": 1400,
+              "height": 931,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/MbWAdxMV1lgpV.veohMqhw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/48a732a0417b47061c4d90a17d978766",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SPCX",
+          "^IXIC",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "他預測了網路泡沫破裂。現在他說SpaceX可能是一個新的警告信號。"
+      },
+      {
+        "uuid": "7c676dad-e611-380c-aaaf-f6eac41724f6",
+        "title": "How Greg Abel Is Already Reshaping Berkshire Hathaway's Playbook",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/7c676dad-e611-380c-aaaf-f6eac41724f6/how-greg-abel-is-already.html",
+        "providerPublishTime": 1783088400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/_pqNKbhuBx1oQxL2dvJx6w--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/814d1729c64f137a4d13c60421125522",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/9AJ0dLWROw8jpIUW64nSkg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/814d1729c64f137a4d13c60421125522",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "BRK-B",
+          "^GSPC",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Greg Abel如何重塑Berkshire Hathaway的攻略"
+      },
+      {
+        "uuid": "d2c84694-5cc9-32a3-ab45-1bedb44fe178",
+        "title": "Michael Burry Shorts Micron, Adding to His NVIDIA and Applied Materials Short Bets Against Chip Stocks",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/d2c84694-5cc9-32a3-ab45-1bedb44fe178/michael-burry-shorts-micron%2C.html",
+        "providerPublishTime": 1783088299,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/8LV.Yw7ujax9rlcemU3PdQ--~B/aD0xNzQzO3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/42b1a74e613a76b65a709f21cdf8417d",
+              "width": 2560,
+              "height": 1743,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/PBQ0nJbYetMFpvkWIDJeoA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/42b1a74e613a76b65a709f21cdf8417d",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -198,28 +294,43 @@
         },
         "relatedTickers": [
           "MU",
-          "NVDA"
+          "NVDA",
+          "SOXX",
+          "AMAT"
         ],
         "_sym": "MU",
-        "titleZh": "為什麼華爾街如此看好美光？有1個關鍵原因。"
+        "titleZh": "Michael Burry做空美光，加上他的NVIDIA和應用材料對籌碼股的做空賭注"
       },
       {
-        "uuid": "d2ea77d7-1471-3fe3-a429-301492df7df8",
-        "title": "Nvidia CEO's iconic leather jacket heads to auction",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/d2ea77d7-1471-3fe3-a429-301492df7df8/nvidia-ceo%27s-iconic-leather.html",
-        "providerPublishTime": 1783081980,
+        "uuid": "dfe4c304-9c59-3a7e-a136-3390b0027d24",
+        "title": "Michael Burry Shorts Micron After Massive Rally",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-shorts-micron-massive-134827628.html",
+        "providerPublishTime": 1783086507,
+        "type": "STORY",
+        "relatedTickers": [
+          "MU"
+        ],
+        "_sym": "MU",
+        "titleZh": "Michael Burry在大規模拉力賽後做美光短褲"
+      },
+      {
+        "uuid": "636dd7f9-0df9-3b55-9020-c422b9153cca",
+        "title": "Retail Investors’ Verdict: Micron Technology (MU) is Better Than Space (SPCX)",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/retail-investors-verdict-micron-technology-132234282.html",
+        "providerPublishTime": 1783084954,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/c04Bc56XnFwSobTRbNu.WA--~B/aD0xMjgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/aa016dea60680d98e3962061689b5c98",
-              "width": 1920,
-              "height": 1280,
+              "url": "https://s.yimg.com/uu/api/res/1.2/IMMz_M1HrOs57IyLBZY9MA--~B/aD01NTY7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/4ee398ac04b6b39dd1b6146a0b2bb679",
+              "width": 768,
+              "height": 556,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/75KXrOfv1eo7vHPYqHSQ8g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/aa016dea60680d98e3962061689b5c98",
+              "url": "https://s.yimg.com/uu/api/res/1.2/.eP2.hl_G9RhqVLTDU1Zgg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/4ee398ac04b6b39dd1b6146a0b2bb679",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -227,28 +338,28 @@
           ]
         },
         "relatedTickers": [
-          "NVDA"
+          "MU"
         ],
-        "_sym": "NVDA",
-        "titleZh": "NVIDIA執行長的標誌性皮夾克即將拍賣"
+        "_sym": "MU",
+        "titleZh": "散戶投資者的判斷：美光科技（ MU ）優於太空（ SPCX ）"
       },
       {
-        "uuid": "03c8e5eb-22da-39ec-9f2c-48091a0d17a4",
-        "title": "3 Reasons I Bought Comcast This Week",
+        "uuid": "a98316dd-5ab6-3e00-b772-e7ac89ebb091",
+        "title": "Sandisk Stock Is Up More Than 6,000% Since Spinning Off From Western Digital. Is a Stock Split on the Horizon?",
         "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/03c8e5eb-22da-39ec-9f2c-48091a0d17a4/3-reasons-i-bought-comcast.html",
-        "providerPublishTime": 1783081920,
+        "link": "https://finance.yahoo.com/m/a98316dd-5ab6-3e00-b772-e7ac89ebb091/sandisk-stock-is-up-more-than.html",
+        "providerPublishTime": 1783084500,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ht8yJTmGZeOnIO_jbweEkw--~B/aD0xMDQyO3c9MTQwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/motleyfool.com/0ded948a9f944a4a1b82708124bbaac8",
-              "width": 1400,
-              "height": 1042,
+              "url": "https://s.yimg.com/uu/api/res/1.2/oG0rNf_b_EvxdW1GSaXjPw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8b3c496934fdbd21417a10df63073e70",
+              "width": 1200,
+              "height": 800,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/RxfCNaxufWw4WCvU_bWsbw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0ded948a9f944a4a1b82708124bbaac8",
+              "url": "https://s.yimg.com/uu/api/res/1.2/Bp4UoitUVyrdrgszU8Onww--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8b3c496934fdbd21417a10df63073e70",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -256,11 +367,172 @@
           ]
         },
         "relatedTickers": [
-          "CMCSA",
+          "SNDK",
+          "NVDA",
+          "WDC",
+          "^IXIC"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "自從Western Digital分拆以來， Sandisk的股價上漲了6,000%以上。股票分割是否即將到來？"
+      },
+      {
+        "uuid": "c21a8e5f-d7b7-3702-8abc-d8711e31a19e",
+        "title": "Broadcom Has Barely Moved in 2026. Should You Switch to AMD or Intel Now?",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/c21a8e5f-d7b7-3702-8abc-d8711e31a19e/broadcom-has-barely-moved-in.html",
+        "providerPublishTime": 1783084405,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Fjb3t4d8hA6QuEfegMZ1zw--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b72607c2fd99ce02ae16d87313b96de1",
+              "width": 1366,
+              "height": 768,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/5mUFSkrKDnvxxRrWE1fZPg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b72607c2fd99ce02ae16d87313b96de1",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AVGO",
+          "AMD",
+          "INTC",
+          "SOXX",
           "NVDA"
         ],
-        "_sym": "NVDA",
-        "titleZh": "我本週購買Comcast的3個原因"
+        "_sym": "AMD",
+        "titleZh": "Broadcom在2026年幾乎沒有搬家。您現在應該切換到AMD還是Intel ？"
+      },
+      {
+        "uuid": "6e335832-1143-387e-9413-48da0f568ce4",
+        "title": "Can Higher Memory Prices Extend Micron Technology's Profit Boom?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/higher-memory-prices-extend-micron-130000596.html",
+        "providerPublishTime": 1783083600,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hf_2I4mS3iKLS6NqhA7HRA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/f137593ef3b3f5b2675404f14056fe62",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wJDha.iIexrmCHy6YlR2Zw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/f137593ef3b3f5b2675404f14056fe62",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "NVDA",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "更高的記憶體價格能否延續美光科技的利潤熱潮？"
+      },
+      {
+        "uuid": "442b69a2-0f96-3503-beb9-d8d465a3d6c1",
+        "title": "Micron Trades at a Discount Despite 243% YTD Rally: Buy More MU Shares?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/micron-trades-discount-despite-243-125800113.html",
+        "providerPublishTime": 1783083480,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VoxwhmWCJKTUZyS4Myz08Q--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/0ac112d5c16fc98d5217d000d65874d4",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZB4RHPUk9EsSD646CTniuQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/0ac112d5c16fc98d5217d000d65874d4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "NVDA",
+          "MRVL",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "儘管年初至今反彈243% ，但Micron仍以折扣價進行交易：購買更多MU股票？"
+      },
+      {
+        "uuid": "237c7d98-97e3-362d-8968-719f8aac5be7",
+        "title": "What Actually Drove IWD Over The Past Year",
+        "publisher": "Trefis",
+        "link": "https://finance.yahoo.com/m/237c7d98-97e3-362d-8968-719f8aac5be7/what-actually-drove-iwd-over.html",
+        "providerPublishTime": 1783083334,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nmtFbJBZ44Vt9xFgQaOr9w--~B/aD04Njk7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/56c363bffa73f8b8cfa9cd71fae1de1c",
+              "width": 1280,
+              "height": 869,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/5qhy_KwLxS.xllyt4K9dXg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/56c363bffa73f8b8cfa9cd71fae1de1c",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "IWD",
+          "SPY",
+          "QQQ",
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "過去一年中IWD的實際駕駛情況"
+      },
+      {
+        "uuid": "8b098224-9466-3803-ad4c-114306759321",
+        "title": "Can MRVL's AI Infrastructure Growth Outpace Its Margin Pressure?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/technology/ai/articles/mrvls-ai-infrastructure-growth-outpace-121200649.html",
+        "providerPublishTime": 1783080720,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/mYQcKrBErD723LN8P5V9xQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/4sRxY11S5IcQIY38NXtlew--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/d87cc8e5693753ce8e232e0a527e4885",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MRVL",
+          "AVGO",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "MRVL的人工智能基礎設施增長能否超越其利潤率壓力？"
       },
       {
         "uuid": "8e72c5eb-572f-369c-abae-73496328abcc",
@@ -296,142 +568,6 @@
         ],
         "_sym": "AMD",
         "titleZh": "MU在最新通話中面臨的最棘手問題"
-      },
-      {
-        "uuid": "c5c7ee9b-1c12-3518-9e81-d4125388c16f",
-        "title": "Dow Jones Futures Fall Techs Rise After Tesla, Sandisk, AI Stocks Dive; Apple, Robinhood Flash Buy Signals",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures-fall-techs.html",
-        "providerPublishTime": 1783079518,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/F8t1OyliTCmpR6hUEAkNQA--~B/aD01MTE7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
-              "width": 1000,
-              "height": 511,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/MJ_KFUaQtX5ujuk.EVOp6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^DJI",
-          "^IXIC",
-          "HOOD",
-          "TSLA",
-          "AAPL",
-          "SNDK",
-          "DAL",
-          "TSM",
-          "^GSPC",
-          "SPCX"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "在特斯拉、桑迪斯克、人工智能股下跌後，道瓊斯期貨秋季科技股上漲；蘋果、羅賓漢閃購信號"
-      },
-      {
-        "uuid": "fd5dea74-b3a6-3c2c-bd98-58ce197c2715",
-        "title": "Why Micron Stock Skyrocketed Last Month But Is Plummeting in July",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/fd5dea74-b3a6-3c2c-bd98-58ce197c2715/why-micron-stock-skyrocketed.html",
-        "providerPublishTime": 1783079216,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Uyg7oVC8d7M0xW.grKvQQw--~B/aD03OTk7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/4c625046da3aecec521160bf2c527891",
-              "width": 1400,
-              "height": 799,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/N5DRjX6y9E6vMvdAu0Yqpw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/4c625046da3aecec521160bf2c527891",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "^GSPC",
-          "NVDA",
-          "^IXIC"
-        ],
-        "_sym": "MU",
-        "titleZh": "為什麼美光股票上個月暴漲，但7月份暴跌"
-      },
-      {
-        "uuid": "faddb5dc-6421-3447-a0e0-822ea53010a4",
-        "title": "This Week In AI Chips - Blockchain Meets Stocks With Onchain Tokenization Trends",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/week-ai-chips-blockchain-meets-113801196.html",
-        "providerPublishTime": 1783078681,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ThKtT6bZ2uQ.hQLRanR2Wg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/ce92e7ae6d602b61807a836f4291633e",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QCokH0K43v54eDo_UdN_eg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/ce92e7ae6d602b61807a836f4291633e",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "ETH-USD",
-          "NVDA",
-          "GOOG",
-          "AAPL",
-          "AVGO",
-          "MU"
-        ],
-        "_sym": "MU",
-        "titleZh": "本週人工智能芯片-區塊鏈與鏈上代幣化趨勢的股票相遇"
-      },
-      {
-        "uuid": "173fa317-24e7-373f-9da3-7a2a98f1be64",
-        "title": "Relax, Micron Stock Can Rebound Quickly After the Fourth of July Holiday",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/173fa317-24e7-373f-9da3-7a2a98f1be64/relax%2C-micron-stock-can.html",
-        "providerPublishTime": 1783075680,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/i1wDUkIGEEdRJjpqCj3CiA--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/a676648fd7d55f992efcfaa63c660597",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Vh4S.5WGm1P6E8_gVeqg.A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/a676648fd7d55f992efcfaa63c660597",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "005930.KS",
-          "005935.KS",
-          "000660.KS"
-        ],
-        "_sym": "MU",
-        "titleZh": "放心，美光股票可以在7月4日假期後迅速反彈"
       },
       {
         "uuid": "c60d2707-6f2f-322b-a6e8-0ea5eaaeafa0",
@@ -499,131 +635,6 @@
         "titleZh": "SpaceX股票即將加入納斯達克100指數。歷史告訴我們接下來會發生什麼。"
       },
       {
-        "uuid": "159feeca-d0e2-30db-aef4-4659b0eeb169",
-        "title": "Jim Cramer Mentions Sandisk (SNDK) As He Discusses Biggest Gainers of Q2",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-mentions-sandisk-sndk-081611369.html",
-        "providerPublishTime": 1783066571,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/JiDe2TY4gXnLbdwAXvfw0w--~B/aD05NjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/bac96fd1b14a726014d653a007b9155b",
-              "width": 1280,
-              "height": 960,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/szy2Tcuo2ekyKS09ga6lsA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/bac96fd1b14a726014d653a007b9155b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "MU"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "吉姆·克萊默（ Jim Cramer ）在討論第二季度最大的獲利者時提到了桑迪斯克（ SNDK ）"
-      },
-      {
-        "uuid": "3b7a2c84-f7cf-3b8a-8df9-0c127c1fe581",
-        "title": "US Stock Market Today: S&P 500 Futures Slip On Cooling Jobs And Rate Jitters",
-        "publisher": "Simply Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/us-stock-market-today-p-081507201.html",
-        "providerPublishTime": 1783066507,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/2GVwOrOTGa4ATkT4mH86Rw--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/759f0ca28b885d5d534769cdaccce534",
-              "width": 1194,
-              "height": 432,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TsMmJmp78RdWkzepWvGV0w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/759f0ca28b885d5d534769cdaccce534",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^GSPC",
-          "KLAC",
-          "SNDK",
-          "MRNA"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "今日美國股市：標準普爾500指數期貨冷卻工作和利率緊張"
-      },
-      {
-        "uuid": "b5b596b7-18e6-32b6-9ec0-51aba7d7f999",
-        "title": "Intel, Marvell Technology, and AMD Stocks Trade Down, What You Need To Know",
-        "publisher": "StockStory",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/intel-marvell-technology-amd-stocks-030024777.html",
-        "providerPublishTime": 1783047624,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/cHKkYUrg.sXPpSYNo57upg--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/26594c18ecd46f48ca56513fd36d2a77",
-              "width": 1400,
-              "height": 700,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vDsroLzBSYRZPapM6nr4pA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/26594c18ecd46f48ca56513fd36d2a77",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "META",
-          "INTC",
-          "MRVL",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "Intel、Marvell Technology和AMD股票下跌，您需要了解的信息"
-      },
-      {
-        "uuid": "89014472-d763-3145-9d02-4117c1cc3e5a",
-        "title": "Wall Street flees software plays for triple-digit chipmaker boom",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/89014472-d763-3145-9d02-4117c1cc3e5a/wall-street-flees-software.html",
-        "providerPublishTime": 1783028820,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Talw9BjYDfOLPnyJqIq3Qg--~B/aD0yNTU5O3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/9cdf16a4f5f29fd59d1da4677071d663",
-              "width": 3840,
-              "height": 2559,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/LB362mqsYJLwnbSR6RWPkA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/9cdf16a4f5f29fd59d1da4677071d663",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "INTC",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "華爾街逃離軟件為三位數的芯片製造商繁榮發揮作用"
-      },
-      {
         "uuid": "5fa7eb1e-221e-3ba9-ba99-fffa46023d6a",
         "title": "Coherent (COHR) Is Down 6.1% After Shift Into Russell Growth Benchmarks Amid AI Optics Reset",
         "publisher": "Simply Wall St.",
@@ -651,75 +662,6 @@
         ],
         "_sym": "COHR",
         "titleZh": "在人工智能光學重置之際，轉向羅素增長基準後，相幹(COHR)下跌6.1%"
-      },
-      {
-        "uuid": "b466bf93-a477-3565-872d-c8b2930a6f1c",
-        "title": "Marvell Stock: A Faster Lane On The Same Highway",
-        "publisher": "Trefis",
-        "link": "https://finance.yahoo.com/m/b466bf93-a477-3565-872d-c8b2930a6f1c/marvell-stock%3A-a-faster-lane.html",
-        "providerPublishTime": 1783023759,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/WtcWsPze0rXqCmQvGWODCQ--~B/aD03MjE7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/213d21a91ad09945c4c69906e5a5a5e2",
-              "width": 1280,
-              "height": 721,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/OlymD4fx.3ac9yAhKOCHEg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/213d21a91ad09945c4c69906e5a5a5e2",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MRVL",
-          "^GSPC",
-          "QCOM",
-          "INTC",
-          "AVGO",
-          "AMD",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "漫威股票：在同一條高速公路上更快的車道"
-      },
-      {
-        "uuid": "fc6e35cf-b8b9-3c19-adda-a37bb72ec5a4",
-        "title": "Jim Cramer Just Named His Favorite Stock, and It’s the Comeback Nobody Saw Coming",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/fc6e35cf-b8b9-3c19-adda-a37bb72ec5a4/jim-cramer-just-named-his.html",
-        "providerPublishTime": 1783022451,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/eZM5s4lmVUgft65TOy.Iag--~B/aD03Njc7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2c38ba9cf95e8a29d4ce8025b517bc6b",
-              "width": 1366,
-              "height": 767,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/uRBlwtpqVySqFzJy5IqCSg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2c38ba9cf95e8a29d4ce8025b517bc6b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "INTC",
-          "MU",
-          "MRVL",
-          "NVDA",
-          "AMD",
-          "SNDK"
-        ],
-        "_sym": "AMD",
-        "titleZh": "吉姆·克萊默（ Jim Cramer ）剛剛命名了他最喜歡的股票，這是沒有人看到的回歸"
       },
       {
         "uuid": "76a7f1d4-b09c-360c-b9c9-ab8fe2ebe0c2",
@@ -753,9 +695,39 @@
         ],
         "_sym": "COHR",
         "titleZh": "隨著光子學股重置，應用光電暴跌17% ，相幹和Lumentum Sink下跌10%"
+      },
+      {
+        "uuid": "33d6cf28-ca23-3c3e-8ca6-cdbbb504bcde",
+        "title": "Here's Why Verisk's Stock Is a Great Pick for Investors Now",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/heres-why-verisks-stock-great-151200054.html",
+        "providerPublishTime": 1783005120,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/QF1xzRZ2K6AlJy6MSsH_BQ--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/0cd617ce77d6f50e5eda953b200b0299",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/FftEJcx3JJKdOYT29EdR8A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/0cd617ce77d6f50e5eda953b200b0299",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "VRSK",
+          "COHR"
+        ],
+        "_sym": "COHR",
+        "titleZh": "這就是為什麼Verisk的股票現在是投資者的最佳選擇"
       }
     ],
-    "fetched_at": 1783084121275
+    "fetched_at": 1783091359303
   },
   "earnings": {
     "AMD": {
