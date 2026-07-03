@@ -39,9 +39,9 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7483.240234375,
-        "chg1d": 0.00013702513856667139,
-        "chg7d": 1.7091426015420617
+        "price": null,
+        "chg1d": null,
+        "chg7d": null
       },
       {
         "symbol": "^IXIC",
@@ -63,9 +63,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 15.979999542236328,
-        "chg1d": -1.0526320762193067,
-        "chg7d": -13.199349947400277
+        "price": 15.920000076293945,
+        "chg1d": -1.4241458060000818,
+        "chg7d": -13.525256880804282
       },
       {
         "symbol": "^TNX",
@@ -79,114 +79,53 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.72599792480469,
-        "chg1d": -0.13286008797933907,
-        "chg7d": -0.6254959369861393
+        "price": 100.76799774169922,
+        "chg1d": -0.09121838994208892,
+        "chg7d": -0.5840596537959023
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4192.7998046875,
-        "chg1d": 1.947616056874131,
-        "chg7d": 2.7974564170341165
+        "price": 4189.89990234375,
+        "chg1d": 1.8771051466197148,
+        "chg7d": 2.726357724351003
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 68.69000244140625,
-        "chg1d": 0,
-        "chg7d": -0.7800099513836887
+        "price": 68.62999725341797,
+        "chg1d": -0.08735650874298148,
+        "chg7d": -0.8666850706652937
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 61573.8203125,
-        "chg1d": 0.14396860733418435,
-        "chg7d": 2.5949404739821893
+        "price": 61914.859375,
+        "chg1d": 0.6986362403564826,
+        "chg7d": 3.1631833106116907
       }
     ],
     "news": [
       {
-        "uuid": "9bbba5f6-06a9-371e-8bd0-264d6a926c9d",
-        "title": "If You'd Invested $10,000 in Tesla Stock 10 Years Ago, Here's How Much You'd Have Today",
+        "uuid": "5bd49b7d-a51e-3e66-8f43-afac917fc2b2",
+        "title": "This Time-Tested Metric Has Foreshadowed Virtually Every Major Stock Market Downturn This Century -- and It's Sounding a Warning Right Now",
         "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/9bbba5f6-06a9-371e-8bd0-264d6a926c9d/if-you%27d-invested-%2410%2C000-in.html",
-        "providerPublishTime": 1783068000,
+        "link": "https://finance.yahoo.com/m/5bd49b7d-a51e-3e66-8f43-afac917fc2b2/this-time-tested-metric-has.html",
+        "providerPublishTime": 1783076160,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Wn.lbB1HaBiI3GuIWcE4jg--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/76f88c43f58f7e0b40dd1e660fce8abd",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/zBLDksId2CdWHIgIi0fsJg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/76f88c43f58f7e0b40dd1e660fce8abd",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "TSLA",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "如果您在10年前投資$ 10,000的特斯拉股票，以下是您今天擁有的金額"
-      },
-      {
-        "uuid": "a2ffcd24-193e-35e4-90d7-f19df8b65c2d",
-        "title": "Jim Cramer Explains How NVIDIA Can Change “Direction of the Price”",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-explains-nvidia-change-082356845.html",
-        "providerPublishTime": 1783067036,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/SECIaKslFU6WbKn6rfE32w--~B/aD0xMjgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/853b5432b039878bfa3f7e94bd98f8ec",
-              "width": 1920,
-              "height": 1280,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/QHBZFr60csLI1XO4qbbgXg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/853b5432b039878bfa3f7e94bd98f8ec",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "TSLA",
-          "AVGO"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "Jim Cramer解釋NVIDIA如何改變「價格方向」"
-      },
-      {
-        "uuid": "d15afeac-bc1c-30ad-9a02-3d4197a63648",
-        "title": "Apple Just Made a Controversial Move. Is the Stock One to Avoid or Is Now the Time to Buy?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/d15afeac-bc1c-30ad-9a02-3d4197a63648/apple-just-made-a.html",
-        "providerPublishTime": 1783066920,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5kMr4DXSzCvS_Q0AWRRKeg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/928951a4682549f0f483075eb87317bd",
+              "url": "https://s.yimg.com/uu/api/res/1.2/roMVz3soGzsS99sQnJ54Zw--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/012de66ef0fe5f722a792f71bca52d0d",
               "width": 1400,
               "height": 933,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/BtDM8p.gpAzzXUjnBOMS3g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/928951a4682549f0f483075eb87317bd",
+              "url": "https://s.yimg.com/uu/api/res/1.2/Gy7.JUinJsSf_L4mNCNgPA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/012de66ef0fe5f722a792f71bca52d0d",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -194,60 +133,46 @@
           ]
         },
         "relatedTickers": [
-          "AAPL",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "蘋果公司剛剛採取了有爭議的行動。股票是值得避免的，還是現在是購買的時候了？"
-      },
-      {
-        "uuid": "80940c95-9ac5-3a28-9368-02cb43fe3d61",
-        "title": "Members of Congress Are Loading Up on Johnson & Johnson and UnitedHealth. Here's Why Retail Investors Should Pay Attention.",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/80940c95-9ac5-3a28-9368-02cb43fe3d61/members-of-congress-are.html",
-        "providerPublishTime": 1783066800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/k9E2Y5t2Xl9znVp_K7yJrA--~B/aD04Njc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/902b7844dc3838cb36100b838f3da2eb",
-              "width": 1400,
-              "height": 867,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/8xF6jKHrQqDrH8.lKGwAJQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/902b7844dc3838cb36100b838f3da2eb",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "JNJ",
+          "^DJI",
           "NVDA",
-          "UNH"
+          "^GSPC",
+          "^IXIC"
         ],
         "_sym": "NVDA",
-        "titleZh": "國會議員正在為強生和UnitedHealth做準備。以下是散戶投資者應該關注的原因。"
+        "titleZh": "這個經過時間考驗的指標幾乎預示了本世紀的每一次主要股市低迷-現在它正在發出警告"
       },
       {
-        "uuid": "be2b7f38-9eaa-375c-af0c-c10e9a05b473",
-        "title": "Jim Cramer Says If Jensen Huang Is Right, Marvell Has “A Lot More Upside”",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-says-jensen-huang-081754859.html",
-        "providerPublishTime": 1783066674,
+        "uuid": "78aaa515-73b1-3357-abd7-c24a3d76c4dc",
+        "title": "1 Incredible Autonomous Vehicle Stock to Buy Instead of Tesla",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/78aaa515-73b1-3357-abd7-c24a3d76c4dc/1-incredible-autonomous.html",
+        "providerPublishTime": 1783074600,
+        "type": "STORY",
+        "relatedTickers": [
+          "TSLA",
+          "NVDA",
+          "GOOG"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "1種令人難以置信的自動駕駛汽車股票，而不是特斯拉"
+      },
+      {
+        "uuid": "268eab0d-67c3-38be-917d-185643a3bc85",
+        "title": "Prediction: This Glorious Growth Stock Will Double in the Second Half of 2026",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/268eab0d-67c3-38be-917d-185643a3bc85/prediction%3A-this-glorious.html",
+        "providerPublishTime": 1783074300,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/b8PQ3.VeOwKCEFYhk69KSw--~B/aD0xMjgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/f4972b23ca1d429713741721f81c5f25",
-              "width": 1920,
-              "height": 1280,
+              "url": "https://s.yimg.com/uu/api/res/1.2/x7Lujta6EolEeoQrqF5unw--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/86625446b887c4c41136027d126be83a",
+              "width": 1400,
+              "height": 933,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1F2cQsWg3s8WMhA0KGGDDw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/f4972b23ca1d429713741721f81c5f25",
+              "url": "https://s.yimg.com/uu/api/res/1.2/6hLJ_AdddNFyp4ZrNRTxJQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/86625446b887c4c41136027d126be83a",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -255,11 +180,169 @@
           ]
         },
         "relatedTickers": [
-          "MRVL",
+          "TEAM",
           "NVDA"
         ],
         "_sym": "NVDA",
-        "titleZh": "吉姆·克萊默（ Jim Cramer ）表示，如果Jensen Huang是對的，那麼Marvell就有「更多好處」"
+        "titleZh": "預測：這隻輝煌的成長股將在2026年下半年翻一番"
+      },
+      {
+        "uuid": "16ff0ec8-c22c-3144-9ebf-921deb4982e6",
+        "title": "Joby Aviation Is Down 25% Since June 1. Should You Buy the Dip?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/16ff0ec8-c22c-3144-9ebf-921deb4982e6/joby-aviation-is-down-25%25.html",
+        "providerPublishTime": 1783074000,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZUz5EvTaZHR1GKFSfIDjjg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/103db84b768fad2f0f0f779a27e44e0b",
+              "width": 1400,
+              "height": 933,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/YT0QgTcx2Q65kLrApYh5Uw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/103db84b768fad2f0f0f779a27e44e0b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "JOBY",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Joby Aviation自6月1日以來下跌了25%。您應該買蘸醬嗎？"
+      },
+      {
+        "uuid": "c60d2707-6f2f-322b-a6e8-0ea5eaaeafa0",
+        "title": "Kioxia and Sandisk Begin Production of 10th-Generation 3D Flash Memory Products at Kitakami Plant Fab2",
+        "publisher": "Business Wire",
+        "link": "https://finance.yahoo.com/technology/articles/kioxia-sandisk-begin-production-10th-101900088.html",
+        "providerPublishTime": 1783073940,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/anX4BHX70C7cLT3WToSolg--~B/aD0zMjA7dz00ODA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/06d078814165531bb3be9c013edaa4a1",
+              "width": 480,
+              "height": 320,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/e0tqiaRiW_DBLYId6r8TcQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/06d078814165531bb3be9c013edaa4a1",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK",
+          "285A.T"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "Kioxia和Sandisk開始在北上工廠Fab2生產第10代3D快閃記憶體產品"
+      },
+      {
+        "uuid": "ffe10291-716e-3874-81ab-ed21d3bd8e90",
+        "title": "If I Could Only Buy 1 Growth Stock in July, It Would Be Amazon By a Mile",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/ffe10291-716e-3874-81ab-ed21d3bd8e90/if-i-could-only-buy-1-growth.html",
+        "providerPublishTime": 1783073100,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/MWVBP7K2Fa2HvwxBYxFTGw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ea30459298776e9f1bf6f981100ab0af",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/NZdcf92CN32UQW358RuGsA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ea30459298776e9f1bf6f981100ab0af",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMZN",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "如果我只能在7月份購買1隻成長股，那將是亞馬遜一英裏"
+      },
+      {
+        "uuid": "06e6cce0-f6bf-326c-8433-705185244799",
+        "title": "SK Hynix Stock, Samsung Surge as Memory Frenzy Drives KOSPI Rebound",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/06e6cce0-f6bf-326c-8433-705185244799/sk-hynix-stock%2C-samsung-surge.html",
+        "providerPublishTime": 1783072080,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/yfTi8_6kUHakkEGibRHmrg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/5ea1be9eab504fe7878c670d033b8ef4",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/iAYPhgSh2t4UtWbrfi9o5g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/5ea1be9eab504fe7878c670d033b8ef4",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "005930.KS",
+          "000660.KS",
+          "005935.KS",
+          "^GSPC",
+          "MU"
+        ],
+        "_sym": "MU",
+        "titleZh": "SK海力士股票，三星激增，記憶狂潮推動KOSPI反彈"
+      },
+      {
+        "uuid": "e0ab2110-c682-3ad3-9432-17027107203b",
+        "title": "SpaceX Stock Is Joining the Nasdaq 100 Soon. What History Says Happens Next.",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/e0ab2110-c682-3ad3-9432-17027107203b/spacex-stock-is-joining-the.html",
+        "providerPublishTime": 1783071840,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/f0VLr8W8rE7WR5X96SV_Xw--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/0675a1bf191f32a2685447e715e117ad",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/6ospJUtzgEqWK8OpcuIZCA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/0675a1bf191f32a2685447e715e117ad",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SPCX",
+          "^NDX",
+          "SMCI",
+          "SMCIP",
+          "SNDK",
+          "RKLB",
+          "CRWV"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "SpaceX股票即將加入納斯達克100指數。歷史告訴我們接下來會發生什麼。"
       },
       {
         "uuid": "b294ba1f-d957-302a-a909-eec8159dca0a",
@@ -445,75 +528,6 @@
         "titleZh": "Sandisk是2026年上半年表現最佳的標準普爾500指數股票。以下是我認為將主宰下半年的股票（提示：它不是SpaceX ）"
       },
       {
-        "uuid": "5ad0bfa3-533b-3464-8e90-b501934ed7bc",
-        "title": "Fresh lawsuit drops bombshell on Micron stock price",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/5ad0bfa3-533b-3464-8e90-b501934ed7bc/fresh-lawsuit-drops-bombshell.html",
-        "providerPublishTime": 1783048620,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/tjgKF_ZBc18_xmmFaSmQ5A--~B/aD0yNTYyO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/9ac5641c2c2062d444471f1b6c76a782",
-              "width": 3840,
-              "height": 2562,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5FxbnTViAk.EE73xV9bp_w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/9ac5641c2c2062d444471f1b6c76a782",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "005930.KS",
-          "000660.KS"
-        ],
-        "_sym": "MU",
-        "titleZh": "新訴訟對美光股價造成重磅炸彈"
-      },
-      {
-        "uuid": "c5c7ee9b-1c12-3518-9e81-d4125388c16f",
-        "title": "Dow Jones Futures Rise After Tesla, Sandisk, AI Stocks Dive; Apple, Robinhood Flash Buy Signals",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures-rise-after.html",
-        "providerPublishTime": 1783047628,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/F8t1OyliTCmpR6hUEAkNQA--~B/aD01MTE7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
-              "width": 1000,
-              "height": 511,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/MJ_KFUaQtX5ujuk.EVOp6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/3466ef5c612e56be40cc67bae4229f0d",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "^DJI",
-          "^IXIC",
-          "AAPL",
-          "^GSPC",
-          "DAL",
-          "TSM",
-          "HOOD",
-          "TSLA",
-          "SPCX"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "道瓊斯期貨在特斯拉、桑迪斯克、AI股票下跌後上漲；蘋果、羅賓漢閃購信號"
-      },
-      {
         "uuid": "b5b596b7-18e6-32b6-9ec0-51aba7d7f999",
         "title": "Intel, Marvell Technology, and AMD Stocks Trade Down, What You Need To Know",
         "publisher": "StockStory",
@@ -544,40 +558,6 @@
         ],
         "_sym": "AMD",
         "titleZh": "Intel、Marvell Technology和AMD股票下跌，您需要了解的信息"
-      },
-      {
-        "uuid": "96eb83ab-2b0c-3815-8659-80f4939ee167",
-        "title": "AI Memory and Storage Glut Fears Loom as SanDisk, Micron, Seagate All Plunge",
-        "publisher": "BeInCrypto",
-        "link": "https://finance.yahoo.com/m/96eb83ab-2b0c-3815-8659-80f4939ee167/ai-memory-and-storage-glut.html",
-        "providerPublishTime": 1783047496,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Hzp8r2uxAgr.4hOTXfXObg--~B/aD0xMzMyO3c9MjM2ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/beincrypto_us_662/cd95f6d21e25ae21a72b8d220024753f",
-              "width": 2368,
-              "height": 1332,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4kXJHSUcK0F_F.9xvtRj1A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/beincrypto_us_662/cd95f6d21e25ae21a72b8d220024753f",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "MU",
-          "STX",
-          "META",
-          "005930.KS",
-          "000660.KS"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "AI記憶體和儲存過剩恐懼織機作為SanDisk ， Micron ， Seagate All Plunge"
       },
       {
         "uuid": "89014472-d763-3145-9d02-4117c1cc3e5a",
@@ -740,7 +720,7 @@
         "titleZh": "1重大警告標誌AMD和英特爾投資者無法忽視"
       }
     ],
-    "fetched_at": 1783069693152
+    "fetched_at": 1783076919235
   },
   "earnings": {
     "AMD": {
