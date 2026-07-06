@@ -14,7 +14,7 @@
       "eps_next_q2": null,
       "eps_cur_y": null,
       "eps_next_y": null,
-      "fetched_at": 1783217153095
+      "fetched_at": 1783308533800
     },
     "BTC": {
       "pe": null,
@@ -30,7 +30,7 @@
       "eps_next_q2": null,
       "eps_cur_y": null,
       "eps_next_y": null,
-      "fetched_at": 1783307539866
+      "fetched_at": 1783279349500
     }
   },
   "macro": {
@@ -79,53 +79,410 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.86000061035156,
-        "chg1d": -0.522732796614442,
-        "chg7d": -0.24725546285320185
+        "price": 100.9219970703125,
+        "chg1d": 0.06146783619449495,
+        "chg7d": -0.18593960924159547
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4187.2998046875,
-        "chg1d": 1.8138839650900351,
-        "chg7d": 2.6626095279311377
+        "price": 4184,
+        "chg1d": 1.733649459028519,
+        "chg7d": 2.581706183066264
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 68.77999877929688,
-        "chg1d": 0.1310181026232943,
-        "chg7d": -0.6500138029989702
+        "price": 68.56999969482422,
+        "chg1d": -0.17470191049184436,
+        "chg7d": -0.9533491695884392
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 62653.359375,
-        "chg1d": 0.1745328225695391,
-        "chg7d": 5.242561504287421
+        "price": 63356.4609375,
+        "chg1d": 0.4250490662703306,
+        "chg7d": 5.351128663223003
       }
     ],
     "news": [
       {
-        "uuid": "9441d7b3-faa6-3f40-9877-a780677d4607",
-        "title": "The Stock Market Just Did Something That's Only Been Observed Twice in the Last 155 Years -- and It Has Distressing Implications for Wall Street",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/9441d7b3-faa6-3f40-9877-a780677d4607/the-stock-market-just-did.html",
-        "providerPublishTime": 1783248960,
+        "uuid": "ec56cf3b-dedb-33cd-b5a6-808b1a4fa8f8",
+        "title": "Dow Jones Futures Rise, Techs Jump; Apple, SpaceX, Sandisk, Robinhood In Focus",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/ec56cf3b-dedb-33cd-b5a6-808b1a4fa8f8/dow-jones-futures-rise%2C-techs.html",
+        "providerPublishTime": 1783307131,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/gXMTv7zZn_CHor6..qOj.w--~B/aD03ODA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/68cbdf8c7eb8652827c1c7173cacf156",
-              "width": 1200,
-              "height": 780,
+              "url": "https://s.yimg.com/uu/api/res/1.2/vIVjnB7Ji6pwqyDmGIi0wg--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/c66806cf756aa82a3190a23478bad917",
+              "width": 1000,
+              "height": 563,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/h41_LCr8Cb2wM7cs9u.www--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/68cbdf8c7eb8652827c1c7173cacf156",
+              "url": "https://s.yimg.com/uu/api/res/1.2/oTf9YdgAF75x5NYTYLfJBQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/c66806cf756aa82a3190a23478bad917",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^DJI",
+          "SKHY",
+          "AAPL",
+          "SNDK",
+          "SPCX",
+          "HOOD",
+          "^IXIC",
+          "DAL",
+          "TSM",
+          "005930.KS",
+          "000660.KS",
+          "^GSPC"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "道瓊期貨崛起，科技躍升；蘋果、SpaceX、Sandisk、Robinhood聚焦"
+      },
+      {
+        "uuid": "c99cd662-4e9e-3785-ad88-1a2f25c19556",
+        "title": "Down 32%, Is Nike the Smartest Dividend Stock to Buy for the Second Half of 2026?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/c99cd662-4e9e-3785-ad88-1a2f25c19556/down-32%25%2C-is-nike-the.html",
+        "providerPublishTime": 1783304400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/NpyRnZGZvQylV5KXWiDmFw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/81d0fa4369c27dc1f3dd1e4ae2cd9b75",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/xDHDEBZFFK62ccM_0yJNxQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/81d0fa4369c27dc1f3dd1e4ae2cd9b75",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NKE",
+          "NVDA",
+          "^GSPC"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "下跌32% ，耐克是2026年下半年最聰明的股息股票嗎？"
+      },
+      {
+        "uuid": "85e12bc5-5eb9-3a63-9f7d-cdeb0872c712",
+        "title": "McDonald's Popped 4% While the Nasdaq Fell. Is the Dividend Juggernaut Back?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/85e12bc5-5eb9-3a63-9f7d-cdeb0872c712/mcdonald%27s-popped-4%25-while.html",
+        "providerPublishTime": 1783302660,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/OoZlEL.FljhMgZh5G6Jdvw--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/dd2d106800256ee4529f0b05a38657f5",
+              "width": 1400,
+              "height": 933,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/64QnlrAaYPbrCdRQ9ZwAEA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/dd2d106800256ee4529f0b05a38657f5",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MCD",
+          "^IXIC",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "麥當勞在納斯達克指數下跌時上漲4%。紅坦克分紅回來了嗎？"
+      },
+      {
+        "uuid": "1c7693cd-50eb-3f3f-aa87-0a59474d2554",
+        "title": "A More Than 80% Chance of a Tesla and SpaceX Merger? It Could Be a Game Changer.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/1c7693cd-50eb-3f3f-aa87-0a59474d2554/a-more-than-80%25-chance-of-a.html",
+        "providerPublishTime": 1783301220,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/SO8bFpwwoETFk7Jza.v5TQ--~B/aD05Nzg7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/98d321a6b80ffe40769cac0ef7671fbb",
+              "width": 1400,
+              "height": 978,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/EivjiUtwRv.yFNDZm17SjQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/98d321a6b80ffe40769cac0ef7671fbb",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "TSLA",
+          "SPCX",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "特斯拉和SpaceX合並的可能性超過80% ？這可能會改變遊戲規則。"
+      },
+      {
+        "uuid": "82984698-7f85-38fb-b8ac-b53bfd0865d1",
+        "title": "Palantir Is Down 38% From Its High -- and It Just Got a Wall Street Upgrade. Time to Buy?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/82984698-7f85-38fb-b8ac-b53bfd0865d1/palantir-is-down-38%25-from-its.html",
+        "providerPublishTime": 1783300800,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/NDcex0bklEu3xzA.hn9POg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/9cc235dd2fac473ddf5359b20722574a",
+              "width": 1400,
+              "height": 933,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/THFz85FhLbNmCvoiIqY8lg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/9cc235dd2fac473ddf5359b20722574a",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "PLTR",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Palantir從高點下跌了38 ％ -它剛剛獲得了華爾街的升級。是時候購買了嗎？"
+      },
+      {
+        "uuid": "45b70fb0-07a2-3332-9275-b42ef0b4c422",
+        "title": "Self-Driving Startup Turing Gets AMD Backing, Adopts AMD GPUs",
+        "publisher": "Bloomberg",
+        "link": "https://finance.yahoo.com/technology/ai/articles/self-driving-startup-turing-gets-010035122.html",
+        "providerPublishTime": 1783299635,
+        "type": "STORY",
+        "relatedTickers": [
+          "7201.T",
+          "UBER",
+          "AMD",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "自動駕駛初創公司Turing獲得AMD支持，採用AMD GPU"
+      },
+      {
+        "uuid": "49d42bae-761c-310c-a74f-f4fb47811f94",
+        "title": "Micron Technology (MU) Enters Into a Strategic Customer Agreement With General Motors",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/technology/articles/micron-technology-mu-enters-strategic-004549924.html",
+        "providerPublishTime": 1783298749,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nIgrU5d4oSWLNU4BzMRrog--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/065fd4b8554030ef4f360c2cf3b6b471",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/9bSrVrzJTfWrNa1ThWYFww--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/065fd4b8554030ef4f360c2cf3b6b471",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "GM",
+          "BLK"
+        ],
+        "_sym": "MU",
+        "titleZh": "美光科技（ MU ）與通用汽車簽訂戰略客戶協議"
+      },
+      {
+        "uuid": "79c320b5-6b0a-3a41-b389-fe767e535b0f",
+        "title": "Wells Fargo Upholds Overweight Rating for Advanced Micro Devices (AMD)",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/wells-fargo-upholds-overweight-rating-004536367.html",
+        "providerPublishTime": 1783298736,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/mmWkROuwtQ03_n6QqSdfBw--~B/aD02Njc7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/d01b0fb17549479a526f3a6b2d8df494",
+              "width": 1000,
+              "height": 667,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/QCsthw93yrIt7yg1Vrrxuw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/d01b0fb17549479a526f3a6b2d8df494",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "WFC",
+          "BLK"
+        ],
+        "_sym": "AMD",
+        "titleZh": "富國銀行維持對先進微型裝置（ AMD ）的超重評級"
+      },
+      {
+        "uuid": "3e63b842-eb5d-3543-bd6e-294137270ae8",
+        "title": "Chip Stock Bulls Count on Samsung to Soothe AI Trade Jitters",
+        "publisher": "Bloomberg",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/chip-stock-bulls-count-samsung-235318720.html",
+        "providerPublishTime": 1783295598,
+        "type": "STORY",
+        "relatedTickers": [
+          "005930.KS",
+          "MU",
+          "005935.KS",
+          "C",
+          "C-PR",
+          "AAPL",
+          "000660.KS",
+          "HSBC"
+        ],
+        "_sym": "MU",
+        "titleZh": "芯片股多頭指望三星撫平AI交易緊張情緒"
+      },
+      {
+        "uuid": "6f51236f-f2af-320e-a392-d3695438d53b",
+        "title": "After a nearly 800% explosion, this AI stock’s U.S. debut could signal if the market can still boom—or is headed for a bust",
+        "publisher": "Fortune",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/nearly-800-explosion-ai-stock-225943251.html",
+        "providerPublishTime": 1783292383,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7uOdNrxAuUopgrb3TaQoVQ--~B/aD0xMzY1O3c9MjA0ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/fortune_175/62cc2de8e7963594da0c1ebdf4d8d1ed",
+              "width": 2048,
+              "height": 1365,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/H0lT771kxAE5sjwCIGldTQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/fortune_175/62cc2de8e7963594da0c1ebdf4d8d1ed",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "000660.KS",
+          "MU",
+          "NVDA"
+        ],
+        "_sym": "MU",
+        "titleZh": "在經歷了近800%的爆炸性增長之後，這支AI股票在美國的首次亮相可能預示著市場是否仍然能夠繁榮，或者正在走向崩潰"
+      },
+      {
+        "uuid": "6c1d6f48-260f-4aec-85a5-d1d9e4c24fd4",
+        "title": "Stock market today: S&P 500, Nasdaq, Dow futures climb after record-setting week",
+        "publisher": "Yahoo Finance",
+        "link": "https://finance.yahoo.com/markets/stocks/live/stock-market-today-monday-july-7-225645420.html",
+        "providerPublishTime": 1783292205,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/N34HTHhzxdmIPYfP1qW0Nw--~B/aD01MjM5O3c9Nzg1ODthcHBpZD15dGFjaHlvbg--/https://d29szjachogqwa.cloudfront.net/images/2026-06/de9f9c9c-fc9c-4864-afa5-9c859871b9ce",
+              "width": 7858,
+              "height": 5239,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/k5yHMq3koiOd_lOCfTS0eA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://d29szjachogqwa.cloudfront.net/images/2026-06/de9f9c9c-fc9c-4864-afa5-9c859871b9ce",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^DJI",
+          "^GSPC",
+          "MU",
+          "^NDX",
+          "^IXIC"
+        ],
+        "_sym": "MU",
+        "titleZh": "今日股市：標準普爾500指數、納斯達克指數、道瓊指數期貨在創紀錄的一週後攀升"
+      },
+      {
+        "uuid": "c9a7da08-883f-38a9-b30b-796c6c9d19de",
+        "title": "Micron Technology Inc. (MU) Sued Over Skyrocketing DRAM Prices amid AI Boom",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/technology/ai/articles/micron-technology-inc-mu-sued-225110494.html",
+        "providerPublishTime": 1783291870,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/nzGl5Mu1YzMzkA4AmZzLMQ--~B/aD05NjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/b5174de0b4a09d2c8a1b8508460f6225",
+              "width": 1280,
+              "height": 960,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/b3VL2rlJpAbjf33k8t9EKg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/b5174de0b4a09d2c8a1b8508460f6225",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "005930.KS",
+          "000660.KS",
+          "AAPL"
+        ],
+        "_sym": "MU",
+        "titleZh": "美光科技股份有限公司（ MU ）在人工智能繁榮期間因DRAM價格暴漲而提起訴訟"
+      },
+      {
+        "uuid": "9c789030-ab2f-3e53-9a04-defb6ab3f0f8",
+        "title": "AMD Stock and Intel Crushed Nvidia in the First Half. Here's My Prediction for the Second Half.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/9c789030-ab2f-3e53-9a04-defb6ab3f0f8/amd-stock-and-intel-crushed.html",
+        "providerPublishTime": 1783290600,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/adfTcCZGBU2BVIr0527hhg--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f49c3fed186e8e9fad1d74b1eaea1ca0",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/AIbbTVEhWUtwjgBiHkzm_w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f49c3fed186e8e9fad1d74b1eaea1ca0",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -134,121 +491,29 @@
         },
         "relatedTickers": [
           "NVDA",
-          "^DJI",
-          "^GSPC",
-          "^IXIC"
+          "AMD",
+          "INTC"
         ],
-        "_sym": "NVDA",
-        "titleZh": "股市剛剛做了一件在過去155年中僅被觀察過兩次的事情-它對華爾街有令人痛心的影響"
+        "_sym": "AMD",
+        "titleZh": "AMD股票和英特爾在上半年粉碎了Nvidia。這是我對下半場的預測。"
       },
       {
-        "uuid": "0f4a8988-040b-3c3f-bc67-1d5cf1b5626e",
-        "title": "Why Oklo Stock Slumped 22% in June Despite a Month of Big Wins",
+        "uuid": "b135d4b9-3c57-3f78-aa09-78bf2b9b6403",
+        "title": "The First Half of 2026 Is Over. These 2 Spectacular Artificial Intelligence (AI) Stocks Can Soar in the Second Half.",
         "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/0f4a8988-040b-3c3f-bc67-1d5cf1b5626e/why-oklo-stock-slumped-22%25-in.html",
-        "providerPublishTime": 1783248600,
+        "link": "https://finance.yahoo.com/m/b135d4b9-3c57-3f78-aa09-78bf2b9b6403/the-first-half-of-2026-is.html",
+        "providerPublishTime": 1783286760,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/omDHfWwcMiDsy3asN8OXPw--~B/aD03NjI7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ba894d6247d150bbb1fb55a14fd3d949",
-              "width": 1200,
-              "height": 762,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fbugR8P7PqpPkKvG2ftysg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ba894d6247d150bbb1fb55a14fd3d949",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "OKLO",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "為什麼奧克羅股票在6月份儘管連續一個月大漲，但仍下跌了22%"
-      },
-      {
-        "uuid": "b8a7e9c9-5d32-3e68-aa4f-26759ab1aca4",
-        "title": "Should You Buy QQQ While Tech Stocks Are Still Near Their All-Time Highs?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/b8a7e9c9-5d32-3e68-aa4f-26759ab1aca4/should-you-buy-qqq-while-tech.html",
-        "providerPublishTime": 1783248300,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4i4RJdt5p6m5rpjNK9vW8w--~B/aD04MTY7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d8727e53d2495945368e29cfd7202c94",
-              "width": 1200,
-              "height": 816,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/itgj2g4K8hoh9y7yDYo00g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d8727e53d2495945368e29cfd7202c94",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "QQQ",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "你應該在科技股仍接近歷史高點時購買QQQ嗎？"
-      },
-      {
-        "uuid": "57a4deb8-befc-3445-85a7-4bca95aebca5",
-        "title": "Should SpaceX Buy T-Mobile and Build a Direct-to-Device Global Internet Giant?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/57a4deb8-befc-3445-85a7-4bca95aebca5/should-spacex-buy-t-mobile.html",
-        "providerPublishTime": 1783247520,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/2s9HHsGWLxFEQn8.ug3mvA--~B/aD04ODQ7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b714130409efffadead3d4f9deb50d8a",
-              "width": 1400,
-              "height": 884,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/cFr0iVB_HXFM6sG9nWRPOw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b714130409efffadead3d4f9deb50d8a",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "TMUS",
-          "SPCX",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "SpaceX是否應該收購T-Mobile並建立一個直接面向設備的全球互聯網巨頭？"
-      },
-      {
-        "uuid": "ac1b1734-e1ab-3b2b-b308-fb3966094443",
-        "title": "Cathie Wood Goes Bargain Hunting: 3 Stocks She Just Bought",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/ac1b1734-e1ab-3b2b-b308-fb3966094443/cathie-wood-goes-bargain.html",
-        "providerPublishTime": 1783246980,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/fmo3filCu3T.9WEmgBxD8A--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b8a21fddd31b7888e9ffb18913b20033",
+              "url": "https://s.yimg.com/uu/api/res/1.2/ZFiMiOhetnQf39wXmhtfhA--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a169085329ba89ced41656e0e52c0a33",
               "width": 1400,
               "height": 933,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/7EtSjZaF0_Hux6ntvTMilA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b8a21fddd31b7888e9ffb18913b20033",
+              "url": "https://s.yimg.com/uu/api/res/1.2/2zwLeQM7.j.IOl4LttHW3A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a169085329ba89ced41656e0e52c0a33",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -256,13 +521,104 @@
           ]
         },
         "relatedTickers": [
-          "SOFI",
-          "TSLA",
-          "RXRX",
+          "MU",
+          "SNDK",
+          "AMD",
+          "INTC",
           "NVDA"
         ],
-        "_sym": "NVDA",
-        "titleZh": "Cathie Wood便宜貨狩獵：她剛買的3隻股票"
+        "_sym": "AMD",
+        "titleZh": "2026年上半年結束了。這2隻壯觀的人工智能（ AI ）股票可以在下半年飆升。"
+      },
+      {
+        "uuid": "5f9e7f46-17b6-3276-a62c-6927709abbf0",
+        "title": "Top Analyst strongly resets AMD stock price target",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/5f9e7f46-17b6-3276-a62c-6927709abbf0/top-analyst-strongly-resets.html",
+        "providerPublishTime": 1783283580,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/rJ0S0MMZ0rwVwBF0vO7ncw--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/194165e2a9574085161982fd02b43c83",
+              "width": 3840,
+              "height": 2560,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/aVXTUcKGlZnXB85AU3EO8A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/194165e2a9574085161982fd02b43c83",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "META",
+          "NVDA",
+          "AVGO"
+        ],
+        "_sym": "AMD",
+        "titleZh": "頂尖分析師強烈重置AMD股價目標"
+      },
+      {
+        "uuid": "ad943514-8af3-3e21-83e1-e5efa1f89e87",
+        "title": "Sandisk (SNDK) Starts 10th Generation 3D NAND Production With Kioxia Through 2034",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/sandisk-sndk-starts-10th-generation-130608351.html",
+        "providerPublishTime": 1783256768,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/DHq886Ag4G1rS9TKIvWzQQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/4ede54afa2108a12bdee07c0b0d94a59",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/BuWd_RMcJHeczDOLxDYTBQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/4ede54afa2108a12bdee07c0b0d94a59",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "Sandisk (SNDK)開始與Kioxia合作生產第10代3D NAND至2034年"
+      },
+      {
+        "uuid": "fabd4f1a-3499-3032-a85a-19539c53c64f",
+        "title": "Kioxia and Sandisk (SNDK) Begin Production of 10th-Generation 3D Flash Memory",
+        "publisher": "Insider Monkey",
+        "link": "https://finance.yahoo.com/technology/articles/kioxia-sandisk-sndk-begin-production-125759399.html",
+        "providerPublishTime": 1783256279,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wND0hKaMvVfUpCLVGCXn0g--~B/aD01MTI7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/84a7c3a5aeceee0093fb443e0a2a0445",
+              "width": 768,
+              "height": 512,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/KzhFd5TdUrt8VxCw.YAVxA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/84a7c3a5aeceee0093fb443e0a2a0445",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "Kioxia與Sandisk (SNDK)開始生產第10代3D快閃記憶體"
       },
       {
         "uuid": "7eaa414e-5563-3536-8769-d98c2e2f9b59",
@@ -293,389 +649,8 @@
           "^GSPC",
           "SNDK"
         ],
-        "_sym": "MU",
+        "_sym": "SNDK",
         "titleZh": "美光股票投資者剛剛收到華爾街和NVIDIA首席執行官Jensen Huang的好消息"
-      },
-      {
-        "uuid": "9be3bbcb-0031-3a84-b898-6f12d8743e50",
-        "title": "Wall Street Veteran Visser Says Bitcoin Break Above 200-Day Average Would Start 'Next Phase' — Flags Micron Sell-Off As AI Warning",
-        "publisher": "Stocktwits",
-        "link": "https://finance.yahoo.com/m/9be3bbcb-0031-3a84-b898-6f12d8743e50/wall-street-veteran-visser.html",
-        "providerPublishTime": 1783239697,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/46LV6o7jVUcgRhnENedbIw--~B/aD04NTM7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/d1620e1c5b45a0e2e199b3baf73d0d0e",
-              "width": 1280,
-              "height": 853,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/RG.lEIzoH4dVTaQn4sydfw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/d1620e1c5b45a0e2e199b3baf73d0d0e",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "BTC-USD",
-          "MU"
-        ],
-        "_sym": "MU",
-        "titleZh": "華爾街資深人士Visser表示，比特幣突破200天平均水平將開始“下一階段” —標記美光拋售作為人工智能警告"
-      },
-      {
-        "uuid": "e5498b98-5dbc-3c39-9f1e-d46ce5487fec",
-        "title": "Is AMD Stock a Buy Before July 22?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/e5498b98-5dbc-3c39-9f1e-d46ce5487fec/is-amd-stock-a-buy-before.html",
-        "providerPublishTime": 1783230600,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/9VdulB.EE8VWHcrjzmVSxw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8c02668942480a90930e594f4718f3a7",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/UQFjwEVbLVwzJecm4_aSaA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8c02668942480a90930e594f4718f3a7",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "AMD股票是否在7月22日之前買入？"
-      },
-      {
-        "uuid": "c505ab45-4704-3bbc-b99f-590e0567e7ac",
-        "title": "\"Big Short\" Investor Michael Burry Is Now Betting Against Micron, Nvidia, and Tesla. Should You Be Worried?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/c505ab45-4704-3bbc-b99f-590e0567e7ac/%22big-short%22-investor-michael.html",
-        "providerPublishTime": 1783224600,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/pj4TKujyQno4vwtbaRYwyA--~B/aD0xMDQ5O3c9MTQwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/motleyfool.com/965cc6bba3bddc62eebe8ca160246ddb",
-              "width": 1400,
-              "height": 1049,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/XZ837ytHbSuP5MUuvrf.BQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/965cc6bba3bddc62eebe8ca160246ddb",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "MU",
-          "TSLA",
-          "AMAT",
-          "CAT"
-        ],
-        "_sym": "MU",
-        "titleZh": "「大空頭」投資者邁克爾·伯裏（ Michael Burry ）現在正在押注美光（ Micron ）、英偉達（ Nvidia ）和特斯拉（ Tesla ）。您應該擔心嗎？"
-      },
-      {
-        "uuid": "f3fa340c-c3ce-34be-9a4d-ea35634f99cf",
-        "title": "Axon and Rocket Lab rallied while chip stocks sank",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/f3fa340c-c3ce-34be-9a4d-ea35634f99cf/axon-and-rocket-lab-rallied.html",
-        "providerPublishTime": 1783221420,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/CVohei3SAxoKpAOKGLuMuA--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/030c02891542755dbaae09312feadf89",
-              "width": 3840,
-              "height": 2560,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/yfEX14E_ChoEcZSjYRrEXQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/030c02891542755dbaae09312feadf89",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AXON",
-          "SNDK",
-          "PLTR",
-          "RKLB",
-          "MU",
-          "^IXIC",
-          "WDC",
-          "STX",
-          "TER"
-        ],
-        "_sym": "MU",
-        "titleZh": "Axon和Rocket Lab反彈，而芯片股下跌"
-      },
-      {
-        "uuid": "777ad5c2-563f-3e70-9d63-40f7b1b6d1e7",
-        "title": "Michael Burry doubles down on AI chip bubble with Micron short",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/777ad5c2-563f-3e70-9d63-40f7b1b6d1e7/michael-burry-doubles-down-on.html",
-        "providerPublishTime": 1783216980,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/DOjqeOnxP8LVzyif2aH4iQ--~B/aD0yMzMzO3c9MzUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/9c5d3e596aa1a4908bb6959f1aa585db",
-              "width": 3500,
-              "height": 2333,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Uk3PrlZV8UD9jKqGVF2pZQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/9c5d3e596aa1a4908bb6959f1aa585db",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU"
-        ],
-        "_sym": "MU",
-        "titleZh": "Michael Burry用美光短片加倍研究AI芯片泡沫"
-      },
-      {
-        "uuid": "01a5fda5-2fe9-303a-ae25-99a8a8b299ba",
-        "title": "Why July Could Be a Big Month for AMD Stock Investors",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/01a5fda5-2fe9-303a-ae25-99a8a8b299ba/why-july-could-be-a-big-month.html",
-        "providerPublishTime": 1783196340,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/bKUtemgIY0w4b5fqInWNkw--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/337822ac2bccd92be0c2529466bb12a6",
-              "width": 1400,
-              "height": 840,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/zlYc5L.g1na8dg_NxcJFZw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/337822ac2bccd92be0c2529466bb12a6",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "為什麼7月對AMD股票投資者來說可能是一個重要的月份"
-      },
-      {
-        "uuid": "aaaaf1a7-c4c9-3b9f-a7e6-724a202b0ce1",
-        "title": "AMD Beats NVDA in 1H26 Returns. Here’s What's Next for 2H26.",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/m/aaaaf1a7-c4c9-3b9f-a7e6-724a202b0ce1/amd-beats-nvda-in-1h26.html",
-        "providerPublishTime": 1783180802,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/uqwh1cCJedzY59gQjZkEwQ--~B/aD0xMDY1O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/fa55004840141999980cf909890c1654",
-              "width": 1600,
-              "height": 1065,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/xv5gATETjyZp4_GyK3PExA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/fa55004840141999980cf909890c1654",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA",
-          "^GSPC"
-        ],
-        "_sym": "AMD",
-        "titleZh": "AMD在26年上半年的回報中勝過NVDA。以下是26年下半年的下一步。"
-      },
-      {
-        "uuid": "14530b70-d2e7-36b7-bb2d-7a28407865e7",
-        "title": "Jim Cramer on Dell: “I Missed One of the Greatest Stories Ever Told”",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-dell-missed-one-142420319.html",
-        "providerPublishTime": 1783175060,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/9W4D2iWoCPTnjYwy7iIgbQ--~B/aD0xMjgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/896fe714ab4458a81e2b3feb719665ee",
-              "width": 1920,
-              "height": 1280,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/DI5E9.Uh1IwEaf8wGGoVlw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/896fe714ab4458a81e2b3feb719665ee",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "DELL",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "Jim Cramer談戴爾：「我錯過了有史以來最偉大的故事之一」"
-      },
-      {
-        "uuid": "516abb21-1f11-3391-89ab-52945078fab9",
-        "title": "Jim Cramer Considers AMD Stock’s Dip as a Buying Opportunity",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-considers-amd-stock-142132089.html",
-        "providerPublishTime": 1783174892,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/6Ls8jw.oIjwNyn14lDh_hA--~B/aD0zMjYzO3c9NTE4NDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/1e85b81aa18457637c55df2e7f588803",
-              "width": 5184,
-              "height": 3263,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/yFDDqsBQQbwUeMkLOz5M2g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/1e85b81aa18457637c55df2e7f588803",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "Jim Cramer認為AMD股價下跌是一個購買機會"
-      },
-      {
-        "uuid": "8cde2277-053c-344a-a22a-12f7e5213fcc",
-        "title": "Sandisk Stock Was the Biggest Winner in the First Half of 2026. What's Next for the Second Half?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/8cde2277-053c-344a-a22a-12f7e5213fcc/sandisk-stock-was-the-biggest.html",
-        "providerPublishTime": 1783173000,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/dCH.WMFolDLzyriX_6Nz1Q--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/073f6f0417576933b107ebe755ab20a7",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/EXH3D_SyqmqeUzWM_23g_w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/073f6f0417576933b107ebe755ab20a7",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "NVDA",
-          "^GSPC",
-          "MU"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "Sandisk股票是2026年上半年的最大贏家。下半年的下一步是什麼？"
-      },
-      {
-        "uuid": "c5c7ee9b-1c12-3518-9e81-d4125388c16f",
-        "title": "Dow Jones Futures: Techs' Rise Signal AI Trend Isn't Over; Apple, Robinhood Flash Buy Signals",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/c5c7ee9b-1c12-3518-9e81-d4125388c16f/dow-jones-futures%3A-techs%27.html",
-        "providerPublishTime": 1783168262,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TmISF0sQKMr4FR7T_csjEg--~B/aD01NzI7dz0xMDEyO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/aa912d4180e53e99e00e888061772f33",
-              "width": 1012,
-              "height": 572,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vJaCQH86DWw6oafT2Vxoyg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/aa912d4180e53e99e00e888061772f33",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^DJI",
-          "^IXIC",
-          "AAPL",
-          "HOOD",
-          "SNDK",
-          "DAL",
-          "TSM",
-          "^GSPC",
-          "TSLA",
-          "SPCX"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "道瓊斯期貨：科技股的崛起信號AI趨勢尚未結束；蘋果、羅賓漢閃購信號"
-      },
-      {
-        "uuid": "031e381a-075b-343b-9b0d-a4c54c5492ad",
-        "title": "Prediction: This Will Be the Next Supercycle After AI Memory. 1 Stock to Buy Now Before It Surges 300%.",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/031e381a-075b-343b-9b0d-a4c54c5492ad/prediction%3A-this-will-be-the.html",
-        "providerPublishTime": 1783159200,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/4.v3ZhKa650Z5BIFo2Stzw--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/4447bbc2fc97a0eb3ed1376f34be02da",
-              "width": 1200,
-              "height": 675,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/674HwVA9EUZ0Qaeu6xby6A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/4447bbc2fc97a0eb3ed1376f34be02da",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "HIMX",
-          "NVDA",
-          "MU",
-          "SNDK"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "預測：這將是人工智能記憶之後的下一個超級週期。在它飆升300 ％之前，立即購買1隻股票。"
       },
       {
         "uuid": "5fa7eb1e-221e-3ba9-ba99-fffa46023d6a",
@@ -740,7 +715,7 @@
         "titleZh": "隨著光子學股重置，應用光電暴跌17% ，相幹和Lumentum Sink下跌10%"
       }
     ],
-    "fetched_at": 1783249759134
+    "fetched_at": 1783307333481
   },
   "earnings": {
     "AMD": {
@@ -1755,7 +1730,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "GOOGL": {
       "data": {
@@ -2232,7 +2207,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "MU": {
       "data": {
@@ -2609,7 +2584,7 @@
         "_fund": {
           "pe": 22.0765,
           "fpe": 6.5194,
-          "peg": 0.1533,
+          "peg": 0.1449,
           "ps": 12.205,
           "pb": 15.1869,
           "eps_ttm": 44.19,
@@ -2631,22 +2606,22 @@
         },
         "analystNews": [
           {
-            "uuid": "9eed651c-d507-327b-8995-8b2eb18eed8e",
-            "title": "Microsoft (MSFT): One of the Best AI and Technology Stocks to Buy Now",
-            "publisher": "Insider Monkey",
-            "link": "https://finance.yahoo.com/technology/ai/articles/microsoft-msft-one-best-ai-140839126.html",
-            "providerPublishTime": 1783174119,
+            "uuid": "e5f505c9-6a5d-35c7-905c-fa1123da3d96",
+            "title": "Forget Micron? This New AI Memory Stock Could Be the Best Buy of the Decade",
+            "publisher": "24/7 Wall St.",
+            "link": "https://finance.yahoo.com/m/e5f505c9-6a5d-35c7-905c-fa1123da3d96/forget-micron%3F-this-new-ai.html",
+            "providerPublishTime": 1783268028,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/FPV7LMJx9t7xViBmxMrZWw--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/ae3cb2a93ad8e5ddf6f94148e71f74b9",
-                  "width": 1456,
-                  "height": 816,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/X3LR8vJySqM2Zuq5WJpCbw--~B/aD04NDM7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/7988387abe247447186e7611e1e75107",
+                  "width": 1500,
+                  "height": 843,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/snE9DwM_Mhbq41k5r0NVHA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/ae3cb2a93ad8e5ddf6f94148e71f74b9",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/1yfr2_fvaKS68loJTGLtjg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/7988387abe247447186e7611e1e75107",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -2654,16 +2629,72 @@
               ]
             },
             "relatedTickers": [
-              "MSFT",
-              "AAPL",
               "MU",
               "000660.KS"
             ],
-            "titleZh": "微軟（ MSFT ） ：立即購買的最佳人工智能和技術股票之一"
+            "titleZh": "忘記美光了嗎？這種新的人工智慧記憶庫存可能是十年來的最佳買家"
+          },
+          {
+            "uuid": "7978422c-fc75-3104-8018-a7b0f548f3f6",
+            "title": "The Smartest Growth Stocks to Buy With $1,000 Right Now",
+            "publisher": "Motley Fool",
+            "link": "https://finance.yahoo.com/m/7978422c-fc75-3104-8018-a7b0f548f3f6/the-smartest-growth-stocks-to.html",
+            "providerPublishTime": 1783252920,
+            "type": "STORY",
+            "thumbnail": {
+              "resolutions": [
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/m83ZWol2C_HEA7ZhOfzEpA--~B/aD01MjM7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a14c07b77ecdc377a6ca41ff597dc0b6",
+                  "width": 1200,
+                  "height": 523,
+                  "tag": "original"
+                },
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/AfsuUs9TlQy2HP08_rAZDw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a14c07b77ecdc377a6ca41ff597dc0b6",
+                  "width": 140,
+                  "height": 140,
+                  "tag": "140x140"
+                }
+              ]
+            },
+            "relatedTickers": [
+              "NVDA",
+              "MU"
+            ],
+            "titleZh": "現在用$ 1,000購買最明智的增長股票"
+          },
+          {
+            "uuid": "9be3bbcb-0031-3a84-b898-6f12d8743e50",
+            "title": "Wall Street Veteran Visser Says Bitcoin Break Above 200-Day Average Would Start 'Next Phase' — Flags Micron Sell-Off As AI Warning",
+            "publisher": "Stocktwits",
+            "link": "https://finance.yahoo.com/m/9be3bbcb-0031-3a84-b898-6f12d8743e50/wall-street-veteran-visser.html",
+            "providerPublishTime": 1783239697,
+            "type": "STORY",
+            "thumbnail": {
+              "resolutions": [
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/46LV6o7jVUcgRhnENedbIw--~B/aD04NTM7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/d1620e1c5b45a0e2e199b3baf73d0d0e",
+                  "width": 1280,
+                  "height": 853,
+                  "tag": "original"
+                },
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/RG.lEIzoH4dVTaQn4sydfw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/d1620e1c5b45a0e2e199b3baf73d0d0e",
+                  "width": 140,
+                  "height": 140,
+                  "tag": "140x140"
+                }
+              ]
+            },
+            "relatedTickers": [
+              "BTC-USD",
+              "MU"
+            ],
+            "titleZh": "華爾街資深人士Visser表示，比特幣突破200天平均水平將開始“下一階段” —標記美光拋售作為人工智能警告"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "NVDA": {
       "data": {
@@ -3040,7 +3071,7 @@
         "_fund": {
           "pe": 29.8361,
           "fpe": 15.2635,
-          "peg": 0.6081,
+          "peg": 0.5996,
           "ps": 18.616,
           "pb": 24.1425,
           "eps_ttm": 6.53,
@@ -3062,22 +3093,22 @@
         },
         "analystNews": [
           {
-            "uuid": "a9cbe9b0-7630-3727-8c7e-640cc4f14e30",
-            "title": "3 Magnificent Growth Stocks to Buy in July",
+            "uuid": "ecc45644-4231-307c-80df-e2309f21a1ed",
+            "title": "Buying VOO Near All-Time Highs Could Still Be a Smart Move",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/a9cbe9b0-7630-3727-8c7e-640cc4f14e30/3-magnificent-growth-stocks.html",
-            "providerPublishTime": 1783236300,
+            "link": "https://finance.yahoo.com/m/ecc45644-4231-307c-80df-e2309f21a1ed/buying-voo-near-all-time.html",
+            "providerPublishTime": 1783281000,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kOM54XKseeVV_E9PlmmTEw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
-                  "width": 1200,
-                  "height": 800,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/aICRP1zxw2bXvuljVYDV1A--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
+                  "width": 1400,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kBs7Jp5M87TWmZY5cyGGLA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/BAmX7EwKz_NXzqOrCM6QOA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -3086,58 +3117,29 @@
             },
             "relatedTickers": [
               "^GSPC",
-              "AXON",
-              "BROS",
-              "MELI",
-              "NVDA"
+              "NVDA",
+              "VOO",
+              "SPY"
             ],
-            "titleZh": "7月要購買的3隻輝煌成長股"
+            "titleZh": "在接近歷史高點時購買VOO仍可能是明智之舉"
           },
           {
-            "uuid": "9bdfb514-ed50-3e5d-b3b5-28a87a66faab",
-            "title": "Vanguard Is Bullish on Value Stocks and Fixed Income. Are These 2 ETFs a Good Buy?",
+            "uuid": "4d19caec-7252-3b5d-b890-3551051b0205",
+            "title": "MercadoLibre and Walmart Are Both Down This Year. Which Stock Should Investors Buy?",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/9bdfb514-ed50-3e5d-b3b5-28a87a66faab/vanguard-is-bullish-on-value.html",
-            "providerPublishTime": 1783232400,
+            "link": "https://finance.yahoo.com/m/4d19caec-7252-3b5d-b890-3551051b0205/mercadolibre-and-walmart-are.html",
+            "providerPublishTime": 1783278300,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/gg8bFwCr8jPuDj5wcJ2cXg--~B/aD04MDA7dz0xMTk5O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2b7802360fbd8f30b55fcbc7d4ceddb3",
-                  "width": 1199,
-                  "height": 800,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/VzCd.fNv4kt23k1RM.TGmg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2b7802360fbd8f30b55fcbc7d4ceddb3",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "NVDA"
-            ],
-            "titleZh": "Vanguard看好價值股和固定收益。這兩個ETF是好買嗎？"
-          },
-          {
-            "uuid": "e5498b98-5dbc-3c39-9f1e-d46ce5487fec",
-            "title": "Is AMD Stock a Buy Before July 22?",
-            "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/e5498b98-5dbc-3c39-9f1e-d46ce5487fec/is-amd-stock-a-buy-before.html",
-            "providerPublishTime": 1783230600,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/9VdulB.EE8VWHcrjzmVSxw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8c02668942480a90930e594f4718f3a7",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/JzJZq1ZwfgKnOlXK6xPUFw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/676fbad64ef70d8219982deda81a69ca",
                   "width": 1200,
                   "height": 800,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/UQFjwEVbLVwzJecm4_aSaA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/8c02668942480a90930e594f4718f3a7",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/wyVuHRbgKbvk_9RAarjA4g--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/676fbad64ef70d8219982deda81a69ca",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -3145,28 +3147,29 @@
               ]
             },
             "relatedTickers": [
-              "AMD",
-              "NVDA"
+              "WMT",
+              "NVDA",
+              "MELI"
             ],
-            "titleZh": "AMD股票是否在7月22日之前買入？"
+            "titleZh": "MercadoLibre和沃爾瑪今年都下跌了。投資者應該購買哪種股票？"
           },
           {
-            "uuid": "a72a4022-3d56-35bb-a0d2-511f3736389a",
-            "title": "VTI vs. IWM: Which Broad Index ETF Is the Better Buy?",
+            "uuid": "ae0c9ddd-4d06-369a-9c48-b7889aad066a",
+            "title": "Coca-Cola Is Crushing the Nasdaq and S&P 500 in 2026, but This Higher-Yield Dividend King Could Be an Even Better Stock to Buy for the Second Half of 2026",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/a72a4022-3d56-35bb-a0d2-511f3736389a/vti-vs.-iwm%3A-which-broad.html",
-            "providerPublishTime": 1783228800,
+            "link": "https://finance.yahoo.com/m/ae0c9ddd-4d06-369a-9c48-b7889aad066a/coca-cola-is-crushing-the.html",
+            "providerPublishTime": 1783275900,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/iCT8Rbjj82b8OTvyp7GK_w--~B/aD00NTY7dz03MjA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/afc40767e59e1f53f12406d0ac985479",
-                  "width": 720,
-                  "height": 456,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/LT9GN2vIdIxFC0MLnOMmPg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/66ebd00b81500275bac266da9ec58adf",
+                  "width": 1400,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/dYpbze3JDvTlhQNmwHIS5Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/afc40767e59e1f53f12406d0ac985479",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/3zGwhIWTP7.duAG63j3Wjg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/66ebd00b81500275bac266da9ec58adf",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -3174,15 +3177,46 @@
               ]
             },
             "relatedTickers": [
-              "IWM",
-              "^GSPC",
+              "KO",
+              "PEP",
+              "^IXIC",
+              "NVDA",
+              "^GSPC"
+            ],
+            "titleZh": "可口可樂在2026年擊敗納斯達克和標準普爾500指數，但這位高收益股息王者可能是2026年下半年購買的更好股票"
+          },
+          {
+            "uuid": "fdf59187-4e78-3497-99e1-e8a36e682e27",
+            "title": "Alphabet Stock Has Doubled in a Year. Is It Too Late to Buy?",
+            "publisher": "Motley Fool",
+            "link": "https://finance.yahoo.com/m/fdf59187-4e78-3497-99e1-e8a36e682e27/alphabet-stock-has-doubled-in.html",
+            "providerPublishTime": 1783275240,
+            "type": "STORY",
+            "thumbnail": {
+              "resolutions": [
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/H52y7CYlbn9eds5FNkvU4w--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d966897a5bc2a322b451bb303659eee8",
+                  "width": 1400,
+                  "height": 787,
+                  "tag": "original"
+                },
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/PC4Q4oVKbggnr.cvwVWYww--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d966897a5bc2a322b451bb303659eee8",
+                  "width": 140,
+                  "height": 140,
+                  "tag": "140x140"
+                }
+              ]
+            },
+            "relatedTickers": [
+              "GOOG",
               "NVDA"
             ],
-            "titleZh": "VTI與IWM ：哪種廣泛指數ETF更適合購買？"
+            "titleZh": "Alphabet股票在一年內翻了一番。購買是否為時已晚？"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "SNDK": {
       "data": {
@@ -3384,7 +3418,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "TSM": {
       "data": {
@@ -3763,7 +3797,7 @@
           "fpe": 21.3986,
           "peg": 1.3668,
           "ps": 0.5487,
-          "pb": 97.5352,
+          "pb": 97.7347,
           "eps_ttm": 11.51,
           "eps_cur_q": 3.83138,
           "eps_next_q": 4.24829,
@@ -3950,7 +3984,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "SOXX": {
       "data": {
@@ -3997,7 +4031,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "00675L.TW": {
       "data": {
@@ -4044,22 +4078,37 @@
         },
         "analystNews": [
           {
-            "uuid": "a9cbe9b0-7630-3727-8c7e-640cc4f14e30",
-            "title": "3 Magnificent Growth Stocks to Buy in July",
+            "uuid": "a244e9fe-85da-31a6-8cfe-bd9a136708ca",
+            "title": "Analyst shares 5 takes on the Neocloud vs Hyperscaler opportunities for Meta",
+            "publisher": "Investing.com",
+            "link": "https://finance.yahoo.com/technology/articles/analyst-shares-5-takes-neocloud-195005562.html",
+            "providerPublishTime": 1783281005,
+            "type": "STORY",
+            "relatedTickers": [
+              "META",
+              "AMZN",
+              "MSFT",
+              "GOOG"
+            ],
+            "titleZh": "分析師分享了5個關於Meta的Neocloud與Hyperscaler機會"
+          },
+          {
+            "uuid": "ecc45644-4231-307c-80df-e2309f21a1ed",
+            "title": "Buying VOO Near All-Time Highs Could Still Be a Smart Move",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/a9cbe9b0-7630-3727-8c7e-640cc4f14e30/3-magnificent-growth-stocks.html",
-            "providerPublishTime": 1783236300,
+            "link": "https://finance.yahoo.com/m/ecc45644-4231-307c-80df-e2309f21a1ed/buying-voo-near-all-time.html",
+            "providerPublishTime": 1783281000,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kOM54XKseeVV_E9PlmmTEw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
-                  "width": 1200,
-                  "height": 800,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/aICRP1zxw2bXvuljVYDV1A--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
+                  "width": 1400,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kBs7Jp5M87TWmZY5cyGGLA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/BAmX7EwKz_NXzqOrCM6QOA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -4068,44 +4117,15 @@
             },
             "relatedTickers": [
               "^GSPC",
-              "AXON",
-              "BROS",
-              "MELI",
-              "NVDA"
+              "NVDA",
+              "VOO",
+              "SPY"
             ],
-            "titleZh": "7月要購買的3隻輝煌成長股"
-          },
-          {
-            "uuid": "a385101c-f7a7-337f-b761-0d9da1c5e851",
-            "title": "Liquidia (LQDA) Was Dropped From Russell Indexes And That Could Reshape Its Shareholders",
-            "publisher": "Simply Wall St.",
-            "link": "https://finance.yahoo.com/markets/stocks/articles/liquidia-lqda-dropped-russell-indexes-070828593.html",
-            "providerPublishTime": 1783235308,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/H9sVDVM9mi9ws1HvXhxW7w--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/8b2f1fb8ed1ddbd9c7702732b1ea0316",
-                  "width": 1194,
-                  "height": 432,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/hG0OCZI55yVVgXDa9Dxy1Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/8b2f1fb8ed1ddbd9c7702732b1ea0316",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "LQDA"
-            ],
-            "titleZh": "Liquidia （ LQDA ）被從羅素指數中剔除，這可能會重塑其股東"
+            "titleZh": "在接近歷史高點時購買VOO仍可能是明智之舉"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "005930.KS": {
       "data": {
@@ -4504,47 +4524,37 @@
         },
         "analystNews": [
           {
-            "uuid": "2b67f3ce-f447-3084-b4e2-975d6b17c8f6",
-            "title": "Walmart is selling a $367 portable air conditioner for 51% off",
-            "publisher": "TheStreet",
-            "link": "https://finance.yahoo.com/m/2b67f3ce-f447-3084-b4e2-975d6b17c8f6/walmart-is-selling-a-%24367.html",
-            "providerPublishTime": 1783238400,
+            "uuid": "a244e9fe-85da-31a6-8cfe-bd9a136708ca",
+            "title": "Analyst shares 5 takes on the Neocloud vs Hyperscaler opportunities for Meta",
+            "publisher": "Investing.com",
+            "link": "https://finance.yahoo.com/technology/articles/analyst-shares-5-takes-neocloud-195005562.html",
+            "providerPublishTime": 1783281005,
             "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/yzK.CK2P07vkYo3VGvLWPA--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_ecomm_249/af85ca9368e6ebb07a48c9955636fca1",
-                  "width": 1920,
-                  "height": 1080,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/oNtziO1RVxseBzGnRH6Bcg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_ecomm_249/af85ca9368e6ebb07a48c9955636fca1",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "titleZh": "沃爾瑪以51%的折扣出售一臺$ 367的便攜式空調"
+            "relatedTickers": [
+              "META",
+              "AMZN",
+              "MSFT",
+              "GOOG"
+            ],
+            "titleZh": "分析師分享了5個關於Meta的Neocloud與Hyperscaler機會"
           },
           {
-            "uuid": "a9cbe9b0-7630-3727-8c7e-640cc4f14e30",
-            "title": "3 Magnificent Growth Stocks to Buy in July",
+            "uuid": "ecc45644-4231-307c-80df-e2309f21a1ed",
+            "title": "Buying VOO Near All-Time Highs Could Still Be a Smart Move",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/a9cbe9b0-7630-3727-8c7e-640cc4f14e30/3-magnificent-growth-stocks.html",
-            "providerPublishTime": 1783236300,
+            "link": "https://finance.yahoo.com/m/ecc45644-4231-307c-80df-e2309f21a1ed/buying-voo-near-all-time.html",
+            "providerPublishTime": 1783281000,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kOM54XKseeVV_E9PlmmTEw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
-                  "width": 1200,
-                  "height": 800,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/aICRP1zxw2bXvuljVYDV1A--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
+                  "width": 1400,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kBs7Jp5M87TWmZY5cyGGLA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/BAmX7EwKz_NXzqOrCM6QOA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -4553,16 +4563,15 @@
             },
             "relatedTickers": [
               "^GSPC",
-              "AXON",
-              "BROS",
-              "MELI",
-              "NVDA"
+              "NVDA",
+              "VOO",
+              "SPY"
             ],
-            "titleZh": "7月要購買的3隻輝煌成長股"
+            "titleZh": "在接近歷史高點時購買VOO仍可能是明智之舉"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "000660.KS": {
       "data": {
@@ -4961,47 +4970,37 @@
         },
         "analystNews": [
           {
-            "uuid": "2b67f3ce-f447-3084-b4e2-975d6b17c8f6",
-            "title": "Walmart is selling a $367 portable air conditioner for 51% off",
-            "publisher": "TheStreet",
-            "link": "https://finance.yahoo.com/m/2b67f3ce-f447-3084-b4e2-975d6b17c8f6/walmart-is-selling-a-%24367.html",
-            "providerPublishTime": 1783238400,
+            "uuid": "a244e9fe-85da-31a6-8cfe-bd9a136708ca",
+            "title": "Analyst shares 5 takes on the Neocloud vs Hyperscaler opportunities for Meta",
+            "publisher": "Investing.com",
+            "link": "https://finance.yahoo.com/technology/articles/analyst-shares-5-takes-neocloud-195005562.html",
+            "providerPublishTime": 1783281005,
             "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/yzK.CK2P07vkYo3VGvLWPA--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_ecomm_249/af85ca9368e6ebb07a48c9955636fca1",
-                  "width": 1920,
-                  "height": 1080,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/oNtziO1RVxseBzGnRH6Bcg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_ecomm_249/af85ca9368e6ebb07a48c9955636fca1",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "titleZh": "沃爾瑪以51%的折扣出售一臺$ 367的便攜式空調"
+            "relatedTickers": [
+              "META",
+              "AMZN",
+              "MSFT",
+              "GOOG"
+            ],
+            "titleZh": "分析師分享了5個關於Meta的Neocloud與Hyperscaler機會"
           },
           {
-            "uuid": "a9cbe9b0-7630-3727-8c7e-640cc4f14e30",
-            "title": "3 Magnificent Growth Stocks to Buy in July",
+            "uuid": "ecc45644-4231-307c-80df-e2309f21a1ed",
+            "title": "Buying VOO Near All-Time Highs Could Still Be a Smart Move",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/a9cbe9b0-7630-3727-8c7e-640cc4f14e30/3-magnificent-growth-stocks.html",
-            "providerPublishTime": 1783236300,
+            "link": "https://finance.yahoo.com/m/ecc45644-4231-307c-80df-e2309f21a1ed/buying-voo-near-all-time.html",
+            "providerPublishTime": 1783281000,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kOM54XKseeVV_E9PlmmTEw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
-                  "width": 1200,
-                  "height": 800,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/aICRP1zxw2bXvuljVYDV1A--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
+                  "width": 1400,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/kBs7Jp5M87TWmZY5cyGGLA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/da984daa7414c21a9dc3f0b960cc717a",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/BAmX7EwKz_NXzqOrCM6QOA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/7bcb320550138e9198c9968cc42aa90d",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -5010,16 +5009,15 @@
             },
             "relatedTickers": [
               "^GSPC",
-              "AXON",
-              "BROS",
-              "MELI",
-              "NVDA"
+              "NVDA",
+              "VOO",
+              "SPY"
             ],
-            "titleZh": "7月要購買的3隻輝煌成長股"
+            "titleZh": "在接近歷史高點時購買VOO仍可能是明智之舉"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "PLTR": {
       "data": {
@@ -5056,7 +5054,7 @@
                 "raw": 0.52
               },
               "surprisePercent": {
-                "raw": 0.2445
+                "raw": 0.2447
               },
               "quarter": {
                 "fmt": "2020 Q3"
@@ -5070,7 +5068,7 @@
                 "raw": 0.7
               },
               "surprisePercent": {
-                "raw": 0.045
+                "raw": 0.0448
               },
               "quarter": {
                 "fmt": "2020 Q4"
@@ -5112,7 +5110,7 @@
                 "raw": 1.01
               },
               "surprisePercent": {
-                "raw": 0.2856
+                "raw": 0.2818
               },
               "quarter": {
                 "fmt": "2021 Q3"
@@ -5210,7 +5208,7 @@
                 "raw": 1.43
               },
               "surprisePercent": {
-                "raw": 0.0637
+                "raw": 0.0628
               },
               "quarter": {
                 "fmt": "2023 Q2"
@@ -5238,7 +5236,7 @@
                 "raw": 1.39
               },
               "surprisePercent": {
-                "raw": 0.0493
+                "raw": 0.0482
               },
               "quarter": {
                 "fmt": "2023 Q4"
@@ -5249,10 +5247,10 @@
                 "raw": 2.18
               },
               "epsEstimate": {
-                "raw": 2.11
+                "raw": 2.1
               },
               "surprisePercent": {
-                "raw": 0.0355
+                "raw": 0.0366
               },
               "quarter": {
                 "fmt": "2024 Q1"
@@ -5263,10 +5261,10 @@
                 "raw": 1.53
               },
               "epsEstimate": {
-                "raw": 1.5
+                "raw": 1.51
               },
               "surprisePercent": {
-                "raw": 0.0205
+                "raw": 0.0146
               },
               "quarter": {
                 "fmt": "2024 Q2"
@@ -5305,10 +5303,10 @@
                 "raw": 2.4
               },
               "epsEstimate": {
-                "raw": 2.34
+                "raw": 2.35
               },
               "surprisePercent": {
-                "raw": 0.0252
+                "raw": 0.0226
               },
               "quarter": {
                 "fmt": "2025 Q1"
@@ -5336,7 +5334,7 @@
                 "raw": 1.43
               },
               "surprisePercent": {
-                "raw": 0.1012
+                "raw": 0.0948
               },
               "quarter": {
                 "fmt": "2025 Q3"
@@ -5364,7 +5362,7 @@
                 "raw": 2.67
               },
               "surprisePercent": {
-                "raw": 0.0634
+                "raw": 0.0625
               },
               "quarter": {
                 "fmt": "2026 Q1"
@@ -5441,22 +5439,52 @@
         },
         "analystNews": [
           {
-            "uuid": "4c06cd36-b943-38b3-8e91-b388f69f49c0",
-            "title": "1 Unstoppable Stock to Buy Before It Joins Google, Apple, Microsoft, and Nvidia in the $3 Trillion Club",
-            "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/4c06cd36-b943-38b3-8e91-b388f69f49c0/1-unstoppable-stock-to-buy.html",
-            "providerPublishTime": 1783181100,
+            "uuid": "11c667fb-e4db-348b-9a95-a2a3e6d56166",
+            "title": "3 No-Brainer Stocks to Buy in July and Hold Forever",
+            "publisher": "24/7 Wall St.",
+            "link": "https://finance.yahoo.com/m/11c667fb-e4db-348b-9a95-a2a3e6d56166/3-no-brainer-stocks-to-buy-in.html",
+            "providerPublishTime": 1783252852,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/Z8A.GeJ9gJvoGv97sHRG.w--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2463efa75c5bf6db5ab74c4797096395",
-                  "width": 1400,
-                  "height": 787,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/k1tvUdjN_bcpCkJ1EuZZ7g--~B/aD03Njg7dz0xMzc2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/8e7f8f0bca231520fb38419c464bc2a4",
+                  "width": 1376,
+                  "height": 768,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/lbDnsh3Hl8JyEBot_r3x_Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/2463efa75c5bf6db5ab74c4797096395",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/zOML9AnWxnpc_aM5u8ej5w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/8e7f8f0bca231520fb38419c464bc2a4",
+                  "width": 140,
+                  "height": 140,
+                  "tag": "140x140"
+                }
+              ]
+            },
+            "relatedTickers": [
+              "MSFT",
+              "V",
+              "AAPL"
+            ],
+            "titleZh": "在7月份購買3隻無需思考的股票，並永遠持有"
+          },
+          {
+            "uuid": "592320b3-874c-3210-b23d-7d5f50ac95d1",
+            "title": "Down 35%, Is MercadoLibre Stock a Better Buy than SpaceX and the \"Magnificent Seven\" Stocks in July?",
+            "publisher": "Motley Fool",
+            "link": "https://finance.yahoo.com/m/592320b3-874c-3210-b23d-7d5f50ac95d1/down-35%25%2C-is-mercadolibre.html",
+            "providerPublishTime": 1783250400,
+            "type": "STORY",
+            "thumbnail": {
+              "resolutions": [
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/wgRQfetZjk0N4vyUQJnzIA--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34ce160170a1b849a292d4f98d03d152",
+                  "width": 1200,
+                  "height": 800,
+                  "tag": "original"
+                },
+                {
+                  "url": "https://s.yimg.com/uu/api/res/1.2/Glp01GBnvKmwtcG2Y1atoA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34ce160170a1b849a292d4f98d03d152",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -5465,75 +5493,20 @@
             },
             "relatedTickers": [
               "NVDA",
+              "SPCX",
+              "MELI",
               "AAPL",
-              "MSFT",
               "GOOG",
-              "TSM"
-            ],
-            "titleZh": "1隻不可阻擋的股票，在它加入Google、Apple、Microsoft和Nvidia的$ 3兆俱樂部之前購買"
-          },
-          {
-            "uuid": "6ada0446-dd5f-3732-b574-989b5b6b4865",
-            "title": "Evercore ISI Maintains Outperform Rating on Apple (AAPL) Stock",
-            "publisher": "Insider Monkey",
-            "link": "https://finance.yahoo.com/markets/stocks/articles/evercore-isi-maintains-outperform-rating-141046629.html",
-            "providerPublishTime": 1783174246,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/l2FYJrIyBCdrYU5a0_8zug--~B/aD0yMjU7dz00MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/290ae8a20c9d7750c5dd4b9e7d9e1801",
-                  "width": 400,
-                  "height": 225,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/n9Gn2elQrkWguGQXhwECAA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/290ae8a20c9d7750c5dd4b9e7d9e1801",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "AAPL"
-            ],
-            "titleZh": "Evercore ISI在Apple （ AAPL ）股票上維持優異表現評級"
-          },
-          {
-            "uuid": "9eed651c-d507-327b-8995-8b2eb18eed8e",
-            "title": "Microsoft (MSFT): One of the Best AI and Technology Stocks to Buy Now",
-            "publisher": "Insider Monkey",
-            "link": "https://finance.yahoo.com/technology/ai/articles/microsoft-msft-one-best-ai-140839126.html",
-            "providerPublishTime": 1783174119,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/FPV7LMJx9t7xViBmxMrZWw--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/ae3cb2a93ad8e5ddf6f94148e71f74b9",
-                  "width": 1456,
-                  "height": 816,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/snE9DwM_Mhbq41k5r0NVHA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/ae3cb2a93ad8e5ddf6f94148e71f74b9",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
+              "AMZN",
               "MSFT",
-              "AAPL",
-              "MU",
-              "000660.KS"
+              "META",
+              "TSLA"
             ],
-            "titleZh": "微軟（ MSFT ） ：立即購買的最佳人工智能和技術股票之一"
+            "titleZh": "下跌35% ， 7月份MercadoLibre股票是否比SpaceX和“Magnificent Seven”股票更好？"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "AAPX": {
       "data": {
@@ -5580,7 +5553,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "META": {
       "data": {
@@ -5591,10 +5564,10 @@
                 "raw": 1.8
               },
               "epsEstimate": {
-                "raw": 1.37
+                "raw": 1.4
               },
               "surprisePercent": {
-                "raw": 0.312
+                "raw": 0.2888
               },
               "quarter": {
                 "fmt": "2020 Q3"
@@ -5602,13 +5575,13 @@
             },
             {
               "epsActual": {
-                "raw": 2.71
+                "raw": 2.4
               },
               "epsEstimate": {
                 "raw": 1.91
               },
               "surprisePercent": {
-                "raw": 0.4195
+                "raw": 0.2557
               },
               "quarter": {
                 "fmt": "2020 Q4"
@@ -5619,10 +5592,10 @@
                 "raw": 3.88
               },
               "epsEstimate": {
-                "raw": 3.2
+                "raw": 3.24
               },
               "surprisePercent": {
-                "raw": 0.2143
+                "raw": 0.1991
               },
               "quarter": {
                 "fmt": "2021 Q1"
@@ -5647,10 +5620,10 @@
                 "raw": 3.61
               },
               "epsEstimate": {
-                "raw": 3.01
+                "raw": 3.06
               },
               "surprisePercent": {
-                "raw": 0.2004
+                "raw": 0.1794
               },
               "quarter": {
                 "fmt": "2021 Q3"
@@ -5661,10 +5634,10 @@
                 "raw": 3.22
               },
               "epsEstimate": {
-                "raw": 3.18
+                "raw": 3.17
               },
               "surprisePercent": {
-                "raw": 0.0132
+                "raw": 0.0152
               },
               "quarter": {
                 "fmt": "2021 Q4"
@@ -5678,7 +5651,7 @@
                 "raw": 3.83
               },
               "surprisePercent": {
-                "raw": -0.041
+                "raw": -0.0406
               },
               "quarter": {
                 "fmt": "2022 Q1"
@@ -5689,10 +5662,10 @@
                 "raw": 2.72
               },
               "epsEstimate": {
-                "raw": 2.55
+                "raw": 2.53
               },
               "surprisePercent": {
-                "raw": 0.0682
+                "raw": 0.0757
               },
               "quarter": {
                 "fmt": "2022 Q2"
@@ -5706,7 +5679,7 @@
                 "raw": 2.55
               },
               "surprisePercent": {
-                "raw": -0.0338
+                "raw": -0.0356
               },
               "quarter": {
                 "fmt": "2022 Q3"
@@ -5717,10 +5690,10 @@
                 "raw": 1.64
               },
               "epsEstimate": {
-                "raw": 1.86
+                "raw": 1.85
               },
               "surprisePercent": {
-                "raw": -0.1206
+                "raw": -0.1132
               },
               "quarter": {
                 "fmt": "2022 Q4"
@@ -5773,10 +5746,10 @@
                 "raw": 4.39
               },
               "epsEstimate": {
-                "raw": 3.63
+                "raw": 3.6
               },
               "surprisePercent": {
-                "raw": 0.209
+                "raw": 0.2196
               },
               "quarter": {
                 "fmt": "2023 Q4"
@@ -5801,10 +5774,10 @@
                 "raw": 4.71
               },
               "epsEstimate": {
-                "raw": 4.32
+                "raw": 4.36
               },
               "surprisePercent": {
-                "raw": 0.0892
+                "raw": 0.0811
               },
               "quarter": {
                 "fmt": "2024 Q2"
@@ -5829,10 +5802,10 @@
                 "raw": 6.03
               },
               "epsEstimate": {
-                "raw": 5.29
+                "raw": 5.3
               },
               "surprisePercent": {
-                "raw": 0.1394
+                "raw": 0.1386
               },
               "quarter": {
                 "fmt": "2024 Q4"
@@ -5843,10 +5816,10 @@
                 "raw": 8.02
               },
               "epsEstimate": {
-                "raw": 6.76
+                "raw": 6.74
               },
               "surprisePercent": {
-                "raw": 0.1867
+                "raw": 0.19
               },
               "quarter": {
                 "fmt": "2025 Q1"
@@ -5857,10 +5830,10 @@
                 "raw": 6.43
               },
               "epsEstimate": {
-                "raw": 5.22
+                "raw": 5.21
               },
               "surprisePercent": {
-                "raw": 0.2311
+                "raw": 0.2353
               },
               "quarter": {
                 "fmt": "2025 Q2"
@@ -5871,10 +5844,10 @@
                 "raw": 7.14
               },
               "epsEstimate": {
-                "raw": 5.9
+                "raw": 5.86
               },
               "surprisePercent": {
-                "raw": 0.2096
+                "raw": 0.2182
               },
               "quarter": {
                 "fmt": "2025 Q3"
@@ -5882,13 +5855,13 @@
             },
             {
               "epsActual": {
-                "raw": 1.05
+                "raw": 7.25
               },
               "epsEstimate": {
-                "raw": 6.71
+                "raw": 6.67
               },
               "surprisePercent": {
-                "raw": -0.8434
+                "raw": 0.0866
               },
               "quarter": {
                 "fmt": "2025 Q4"
@@ -5910,13 +5883,13 @@
             },
             {
               "epsActual": {
-                "raw": 10.44
+                "raw": 7.31
               },
               "epsEstimate": {
-                "raw": 6.66
+                "raw": 6.82
               },
               "surprisePercent": {
-                "raw": 0.5679
+                "raw": 0.072
               },
               "quarter": {
                 "fmt": "2026 Q2"
@@ -5979,22 +5952,37 @@
         },
         "analystNews": [
           {
-            "uuid": "0e5930e5-b8ff-3b87-ae9f-97ed354f083c",
-            "title": "Bill Ackman Drives a Tesla: Here's Why He Won't Buy the Stock",
+            "uuid": "a244e9fe-85da-31a6-8cfe-bd9a136708ca",
+            "title": "Analyst shares 5 takes on the Neocloud vs Hyperscaler opportunities for Meta",
+            "publisher": "Investing.com",
+            "link": "https://finance.yahoo.com/technology/articles/analyst-shares-5-takes-neocloud-195005562.html",
+            "providerPublishTime": 1783281005,
+            "type": "STORY",
+            "relatedTickers": [
+              "META",
+              "AMZN",
+              "MSFT",
+              "GOOG"
+            ],
+            "titleZh": "分析師分享了5個關於Meta的Neocloud與Hyperscaler機會"
+          },
+          {
+            "uuid": "f232a1ab-312d-399e-9499-0a0bd8d0946a",
+            "title": "3 Smart Stocks to Buy Now",
             "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/0e5930e5-b8ff-3b87-ae9f-97ed354f083c/bill-ackman-drives-a-tesla%3A.html",
-            "providerPublishTime": 1783184220,
+            "link": "https://finance.yahoo.com/m/f232a1ab-312d-399e-9499-0a0bd8d0946a/3-smart-stocks-to-buy-now.html",
+            "providerPublishTime": 1783266600,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/xBAin0WVo4CW3axua9_mfg--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ad00eca69dbe39b53c960206b5944095",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/KOQpOPPpY3zIAfG0bCUldg--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b55385cf36df24026e29b55a31528075",
                   "width": 1400,
-                  "height": 840,
+                  "height": 933,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/jBeTpadL8oA0_CWO039c1w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/ad00eca69dbe39b53c960206b5944095",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/iz2N7VSk2eBIL2MeTyCH9w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/b55385cf36df24026e29b55a31528075",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -6002,92 +5990,29 @@
               ]
             },
             "relatedTickers": [
-              "PS",
-              "TSLA",
-              "AMZN",
-              "MSFT",
-              "META"
-            ],
-            "titleZh": "Bill Ackman駕駛特斯拉：這就是他不會買股票的原因"
-          },
-          {
-            "uuid": "aea3713f-016c-39a7-9cf7-6d5bc3657252",
-            "title": "Why Arm Is a Strong Buy Despite the 35% Pullback From Peak Levels",
-            "publisher": "24/7 Wall St.",
-            "link": "https://finance.yahoo.com/m/aea3713f-016c-39a7-9cf7-6d5bc3657252/why-arm-is-a-strong-buy.html",
-            "providerPublishTime": 1783182656,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/SsmkTiPkiFv6MMnXBCgtnw--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/530f77593ecf06ee93fc8297a7efea66",
-                  "width": 1366,
-                  "height": 768,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/St35WNlUJuCRI0PRhhxaUA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/530f77593ecf06ee93fc8297a7efea66",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "ARM",
               "NVDA",
-              "META",
-              "QCOM",
-              "GOOG",
-              "MSFT"
-            ],
-            "titleZh": "儘管從峯值水平回調了35 ％ ，為什麼ARM是一個強勁的購買"
-          },
-          {
-            "uuid": "3feb624f-ec63-338a-8ca6-549464e45259",
-            "title": "Piper Sandler Reiterates Overweight Rating on Meta Platforms (META) Stock",
-            "publisher": "Insider Monkey",
-            "link": "https://finance.yahoo.com/technology/ai/articles/piper-sandler-reiterates-overweight-rating-140904921.html",
-            "providerPublishTime": 1783174144,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/bAtx_FOvs7EEHEVlgwBrGg--~B/aD00MzA7dz03Njg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/3bb8ee25366b0d99cae297f8032c1254",
-                  "width": 768,
-                  "height": 430,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/sNK5Jbjreat9HHxUjw84BQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/3bb8ee25366b0d99cae297f8032c1254",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
+              "MSFT",
               "META"
             ],
-            "titleZh": "Piper Sandler重申對Meta平臺（ META ）股票的超配評級"
+            "titleZh": "立即購買3隻智能股票"
           },
           {
-            "uuid": "15bbbeae-1b60-3344-8e44-65fa63242061",
-            "title": "Meta (META) Launches Meta Compute To Sell AI Power Beyond Advertising",
-            "publisher": "Simply Wall St.",
-            "link": "https://finance.yahoo.com/technology/ai/articles/meta-meta-launches-meta-compute-131618209.html",
-            "providerPublishTime": 1783170978,
+            "uuid": "592320b3-874c-3210-b23d-7d5f50ac95d1",
+            "title": "Down 35%, Is MercadoLibre Stock a Better Buy than SpaceX and the \"Magnificent Seven\" Stocks in July?",
+            "publisher": "Motley Fool",
+            "link": "https://finance.yahoo.com/m/592320b3-874c-3210-b23d-7d5f50ac95d1/down-35%25%2C-is-mercadolibre.html",
+            "providerPublishTime": 1783250400,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/BrUhbDoJKeNJUavlZ7MvVQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/fba9687e0054b528b01bdfa6c56cd20c",
-                  "width": 1194,
-                  "height": 432,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/wgRQfetZjk0N4vyUQJnzIA--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34ce160170a1b849a292d4f98d03d152",
+                  "width": 1200,
+                  "height": 800,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/ugpo6zQdWTcUD0neJdvYVQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/fba9687e0054b528b01bdfa6c56cd20c",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/Glp01GBnvKmwtcG2Y1atoA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/34ce160170a1b849a292d4f98d03d152",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -6095,50 +6020,21 @@
               ]
             },
             "relatedTickers": [
-              "META",
-              "MSFT"
-            ],
-            "titleZh": "Meta (META)推出Meta Compute ，銷售廣告以外的AI力量"
-          },
-          {
-            "uuid": "318fd41f-56a1-398f-8bc4-764645976b1a",
-            "title": "Why the Current Selloff in Big Tech Stocks Is a Springboard for a New Rally",
-            "publisher": "Barchart",
-            "link": "https://finance.yahoo.com/m/318fd41f-56a1-398f-8bc4-764645976b1a/why-the-current-selloff-in.html",
-            "providerPublishTime": 1783170002,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/Bpe85uj0GkFmTWKtVYQ7hA--~B/aD04OTg7dz0xNjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f9197f239b6c754ae5b461a271b93b0e",
-                  "width": 1600,
-                  "height": 898,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/gzmoYk1H3g9nYlHL4Fim5A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/barchart_com_477/f9197f239b6c754ae5b461a271b93b0e",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "GC=F",
-              "SI=F",
-              "PL=F",
+              "NVDA",
+              "SPCX",
+              "MELI",
+              "AAPL",
               "GOOG",
+              "AMZN",
               "MSFT",
               "META",
-              "TSLA",
-              "AMZN",
-              "NVDA"
+              "TSLA"
             ],
-            "titleZh": "為什麼大型科技股目前的拋售是新一輪反彈的跳板"
+            "titleZh": "下跌35% ， 7月份MercadoLibre股票是否比SpaceX和“Magnificent Seven”股票更好？"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "INTC": {
       "data": {
@@ -6537,22 +6433,22 @@
         },
         "analystNews": [
           {
-            "uuid": "044fcabd-2586-3937-9ef6-846d83971f88",
-            "title": "Micron vs. Intel: Which AI Stock Is the Better Buy?",
-            "publisher": "Motley Fool",
-            "link": "https://finance.yahoo.com/m/044fcabd-2586-3937-9ef6-846d83971f88/micron-vs.-intel%3A-which-ai.html",
-            "providerPublishTime": 1783126200,
+            "uuid": "597da8dc-f038-36fe-a9e3-dafbbcafc619",
+            "title": "Top-rated analyst sets a jaw-dropping Intel stock price target",
+            "publisher": "TheStreet",
+            "link": "https://finance.yahoo.com/m/597da8dc-f038-36fe-a9e3-dafbbcafc619/top-rated-analyst-sets-a.html",
+            "providerPublishTime": 1783270020,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/pw5yR1k2G4QDL5wnEjmuKQ--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6b8b52b113c6175ad27461cd8fdb754b",
-                  "width": 1200,
-                  "height": 800,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/MMwAXQ61Kz4C12H2hh_O0A--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/9ffab053c5eb9e8673a68a94bbda8a67",
+                  "width": 3840,
+                  "height": 2560,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/y94aJkXWg2sRkhZXbDxAyQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/6b8b52b113c6175ad27461cd8fdb754b",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/ggSYwY356BGzKUgMKsXWrw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/9ffab053c5eb9e8673a68a94bbda8a67",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -6560,29 +6456,27 @@
               ]
             },
             "relatedTickers": [
-              "INTC",
-              "MU",
-              "NVDA"
+              "INTC"
             ],
-            "titleZh": "美光與英特爾：哪種AI股票更適合購買？"
+            "titleZh": "頂級分析師設定了令人震驚的英特爾股價目標"
           },
           {
-            "uuid": "d19217a7-2ad6-3504-b147-085b58d80d3c",
-            "title": "AMD's Valuation is Stretched at 54.08X P/E: Buy, Sell or Hold the Stock?",
-            "publisher": "Zacks",
-            "link": "https://finance.yahoo.com/markets/stocks/articles/amds-valuation-stretched-54-08x-165000812.html",
-            "providerPublishTime": 1783097400,
+            "uuid": "e3e9be92-9c30-3298-8048-92831b2c327c",
+            "title": "This AI Chip Stock Just Signed Massive Deals With 3 Hyperscalers, and It Still Looks Like a Great Buy Right Now (Hint: Not Nvidia or Intel)",
+            "publisher": "Motley Fool",
+            "link": "https://finance.yahoo.com/m/e3e9be92-9c30-3298-8048-92831b2c327c/this-ai-chip-stock-just.html",
+            "providerPublishTime": 1783241400,
             "type": "STORY",
             "thumbnail": {
               "resolutions": [
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/TuiWJqHciXHZR_bGyeNHIg--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/81363f0fa347434ddebadf36a3b1e792",
-                  "width": 635,
-                  "height": 400,
+                  "url": "https://s.yimg.com/uu/api/res/1.2/sZ3I_4Eq_xbW1F8aN.LYqg--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/cd55c0a4dc956e7705027e931cd2af36",
+                  "width": 1200,
+                  "height": 675,
                   "tag": "original"
                 },
                 {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/ICkVV3gkvCxSvwR.7Kdu8Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/81363f0fa347434ddebadf36a3b1e792",
+                  "url": "https://s.yimg.com/uu/api/res/1.2/OqVzP1GiEZTnbgXUJPDRrg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/cd55c0a4dc956e7705027e931cd2af36",
                   "width": 140,
                   "height": 140,
                   "tag": "140x140"
@@ -6590,16 +6484,15 @@
               ]
             },
             "relatedTickers": [
-              "AMD",
-              "INTC",
               "NVDA",
-              "AVGO"
+              "QCOM",
+              "INTC"
             ],
-            "titleZh": "AMD的估值延伸至54.08倍市盈率：買入、賣出或持有股票？"
+            "titleZh": "這種AI芯片股剛剛與3個超大規模廠商簽署了大量交易，現在看起來仍然是一個很好的購買（提示：不是Nvidia或英特爾）"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "MSFU": {
       "data": {
@@ -6646,7 +6539,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "ARM": {
       "data": {
@@ -6841,7 +6734,7 @@
         "_fund": {
           "pe": 370.9176,
           "fpe": 102.3327,
-          "peg": 2.933,
+          "peg": 2.6009,
           "ps": 68.4439,
           "pb": 40.488,
           "eps_ttm": 0.85,
@@ -6957,7 +6850,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "HAWK": {
       "data": {
@@ -7047,7 +6940,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "MRVL": {
       "data": {
@@ -7424,8 +7317,8 @@
         "_fund": {
           "pe": 84.0034,
           "fpe": 39.7043,
-          "peg": 1.5375,
-          "ps": 24.6371,
+          "peg": 1.3863,
+          "ps": 24.616,
           "pb": 11.7905,
           "eps_ttm": 2.92,
           "eps_cur_q": 0.92735,
@@ -7436,7 +7329,7 @@
           "rev_fwd": 0.44799998,
           "gross_margin": 0.515,
           "operating_margin": 0.1448,
-          "hist_avg_pe": 166.63,
+          "hist_avg_pe": 166.49,
           "target_mean": 249.331,
           "target_low": 110,
           "target_high": 385,
@@ -7506,7 +7399,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "MRVU": {
       "data": {
@@ -7553,7 +7446,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "AAOI": {
       "data": {
@@ -7981,7 +7874,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "AAOX": {
       "data": {
@@ -8028,7 +7921,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "AXTX": {
       "data": {
@@ -8075,7 +7968,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "AVGO": {
       "data": {
@@ -8504,71 +8397,10 @@
               "AVGO"
             ],
             "titleZh": "錯過了第一波人工智慧（ AI ）股票？這2種攻擊性遊戲是您的第二次機會購買"
-          },
-          {
-            "uuid": "d19217a7-2ad6-3504-b147-085b58d80d3c",
-            "title": "AMD's Valuation is Stretched at 54.08X P/E: Buy, Sell or Hold the Stock?",
-            "publisher": "Zacks",
-            "link": "https://finance.yahoo.com/markets/stocks/articles/amds-valuation-stretched-54-08x-165000812.html",
-            "providerPublishTime": 1783097400,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/TuiWJqHciXHZR_bGyeNHIg--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/81363f0fa347434ddebadf36a3b1e792",
-                  "width": 635,
-                  "height": 400,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/ICkVV3gkvCxSvwR.7Kdu8Q--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/81363f0fa347434ddebadf36a3b1e792",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "AMD",
-              "INTC",
-              "NVDA",
-              "AVGO"
-            ],
-            "titleZh": "AMD的估值延伸至54.08倍市盈率：買入、賣出或持有股票？"
-          },
-          {
-            "uuid": "7ab54621-fb55-3c6e-9e65-cbfa4f239ae0",
-            "title": "JPMorgan names 2 Strong Buy picks for the rest of 2026",
-            "publisher": "TheStreet",
-            "link": "https://finance.yahoo.com/m/7ab54621-fb55-3c6e-9e65-cbfa4f239ae0/jpmorgan-names-2-strong-buy.html",
-            "providerPublishTime": 1783097220,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/Gzl52uSK9iWqpkFYZuyw7w--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/a24103f6d2956d38fd80eb060634869b",
-                  "width": 3840,
-                  "height": 2560,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/U4uj1W2Pa.QaEZX_8mSScA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/a24103f6d2956d38fd80eb060634869b",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "JPM",
-              "AVGO",
-              "NTES"
-            ],
-            "titleZh": "摩根大通列出2026年剩餘時間的2個強勁買入選擇"
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "NOK": {
       "data": {
@@ -9056,7 +8888,7 @@
           }
         ]
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "LNOK": {
       "data": {
@@ -9103,7 +8935,7 @@
         },
         "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     },
     "BTC": {
       "data": {
@@ -9125,101 +8957,9 @@
           "operatingMargins": null,
           "revenueGrowth": null
         },
-        "analystNews": [
-          {
-            "uuid": "ad600f13-9d75-3281-80d9-2236a96d0e28",
-            "title": "FBTC Holds $12 Billion in Bitcoin But Spot ETF Holders Pay Ordinary Income Tax on Forced Distributions Most Have Never Considered",
-            "publisher": "24/7 Wall St.",
-            "link": "https://finance.yahoo.com/m/ad600f13-9d75-3281-80d9-2236a96d0e28/fbtc-holds-%2412-billion-in.html",
-            "providerPublishTime": 1779914067,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/rCEcb9BsUEI01fy838B23A--~B/aD0xMDAwO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/0b882c3ff85c7c5da4752d7a0f001e65",
-                  "width": 1500,
-                  "height": 1000,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/7T_s1dHawL8mKqM2iB9XvA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/0b882c3ff85c7c5da4752d7a0f001e65",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "BTC-USD",
-              "FBTC",
-              "GBTC",
-              "NVDA",
-              "CBOE"
-            ],
-            "titleZh": "FBTC持有120億$的比特幣，但現貨ETF持有人對從未考慮過的強制分配支付普通所得稅"
-          },
-          {
-            "uuid": "8064c6fc-7c6d-3b91-afc4-55c07a7755a5",
-            "title": "Morgan Stanley’s $269M Spot Bitcoin ETF Bet: Why Wall Street is Buying Even if Your Advisor Isn’t",
-            "publisher": "99bitcoins",
-            "link": "https://finance.yahoo.com/m/8064c6fc-7c6d-3b91-afc4-55c07a7755a5/morgan-stanley%E2%80%99s-%24269m-spot.html",
-            "providerPublishTime": 1778150278,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/D3X238Hp3wh..AwiWRkLYQ--~B/aD01NzI7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/99bitcoins_us_315/b2f7a65ab5dfd4f17c0fc0ab93770225",
-                  "width": 1024,
-                  "height": 572,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/dT7FfpFt3ldDhq5kc5mS6w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/99bitcoins_us_315/b2f7a65ab5dfd4f17c0fc0ab93770225",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "MS",
-              "BTC-USD",
-              "GBTC"
-            ],
-            "titleZh": "摩根士丹利的2.69億$現貨比特幣ETF賭注：即使您的顧問不在，為什麼華爾街仍在購買"
-          },
-          {
-            "uuid": "3ff73610-6c1f-3306-92e3-dd55b4b17ef4",
-            "title": "BTCS (BTCS): 305% Revenue Growth, a Target Cut, and a Buy Rating Still Standing",
-            "publisher": "Insider Monkey",
-            "link": "https://finance.yahoo.com/markets/crypto/articles/btcs-btcs-305-revenue-growth-105501882.html",
-            "providerPublishTime": 1776768901,
-            "type": "STORY",
-            "thumbnail": {
-              "resolutions": [
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/hMgaJnWb.R9qi1dJtYSmYA--~B/aD01ODE7dz02NDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/a09109e6e434c45cf69ed18ffe6c8bc6",
-                  "width": 640,
-                  "height": 581,
-                  "tag": "original"
-                },
-                {
-                  "url": "https://s.yimg.com/uu/api/res/1.2/ArrxziDAGYNPXo83yPjqvg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/a09109e6e434c45cf69ed18ffe6c8bc6",
-                  "width": 140,
-                  "height": 140,
-                  "tag": "140x140"
-                }
-              ]
-            },
-            "relatedTickers": [
-              "BTCS",
-              "ETH-USD"
-            ],
-            "titleZh": "比特幣（ BTC ） ：收入增長305 ％ ，目標下調，買入評級仍然存在"
-          }
-        ]
+        "analystNews": []
       },
-      "fetched_at": 1783238858079
+      "fetched_at": 1783282139538
     }
   }
 }
