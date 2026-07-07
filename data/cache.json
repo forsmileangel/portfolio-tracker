@@ -32,5 +32,643 @@
       "eps_next_y": null,
       "fetched_at": 1783346431620
     }
+  },
+  "macro": {
+    "results": [
+      {
+        "symbol": "^GSPC",
+        "name": "S&P 500",
+        "cat": "股市",
+        "price": 7516.85986328125,
+        "chg1d": -0.2729088299364299,
+        "chg7d": 0.23335325039786922
+      },
+      {
+        "symbol": "^IXIC",
+        "name": "Nasdaq",
+        "cat": "股市",
+        "price": 25947.31640625,
+        "chg1d": -0.6655284411569463,
+        "chg7d": -1.016278077774901
+      },
+      {
+        "symbol": "^SOX",
+        "name": "費城半導體",
+        "cat": "股市",
+        "price": 12358.96484375,
+        "chg1d": -4.195108110733116,
+        "chg7d": -13.251915653332569
+      },
+      {
+        "symbol": "^VIX",
+        "name": "恐慌指數 VIX",
+        "cat": "情緒",
+        "price": 15.760000228881836,
+        "chg1d": 1.2202988939092734,
+        "chg7d": -4.194531927391357
+      },
+      {
+        "symbol": "^TNX",
+        "name": "10年期美債殖利率",
+        "cat": "利率",
+        "price": 4.5229997634887695,
+        "chg1d": 0.8472603978405923,
+        "chg7d": 2.3766305336798332
+      },
+      {
+        "symbol": "DX-Y.NYB",
+        "name": "美元指數",
+        "cat": "外匯",
+        "price": 100.9749984741211,
+        "chg1d": 0.12394645700671575,
+        "chg7d": -0.40931148833768893
+      },
+      {
+        "symbol": "GC=F",
+        "name": "黃金",
+        "cat": "商品",
+        "price": 4156.89990234375,
+        "chg1d": 0.043315555466767415,
+        "chg7d": 3.330930504185086
+      },
+      {
+        "symbol": "CL=F",
+        "name": "原油 (WTI)",
+        "cat": "商品",
+        "price": 70.37000274658203,
+        "chg1d": 2.654995789642855,
+        "chg7d": 1.2518025130676709
+      },
+      {
+        "symbol": "BTC-USD",
+        "name": "Bitcoin",
+        "cat": "加密",
+        "price": 63991.66015625,
+        "chg1d": -0.005243328276787181,
+        "chg7d": 9.27750444464664
+      }
+    ],
+    "news": [
+      {
+        "uuid": "5cf6855f-7350-3428-9543-b13d0fffb2a1",
+        "title": "Why Nvidia Success Could Become Its Biggest Risk",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/why-nvidia-success-could-become-170823481.html",
+        "providerPublishTime": 1783444103,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "為什麼Nvidia的成功可能成為其最大的風險"
+      },
+      {
+        "uuid": "9d679934-f7eb-32e5-bdf3-2b56fae21f2d",
+        "title": "Meta Platforms vs. Nebius: Which Is the Better Neocloud Stock?",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/9d679934-f7eb-32e5-bdf3-2b56fae21f2d/meta-platforms-vs.-nebius%3A.html",
+        "providerPublishTime": 1783443741,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/xGgCOSmzpwbkg3NSvEVUgg--~B/aD0zMzk7dz01MDk7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/24_7_wall_st__718/2d3da40fcd144fff96630c501d8e0620",
+              "width": 509,
+              "height": 339,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/fuiJS9UHjbWHj2w_Wve3lw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2d3da40fcd144fff96630c501d8e0620",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "META",
+          "NBIS",
+          "NVDA",
+          "NET",
+          "PLTR",
+          "BBAI"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Meta平臺與Nebius ：哪種Neocloud股票更好？"
+      },
+      {
+        "uuid": "ecbae8f7-9c3f-3716-b306-ca5cd9ff4a42",
+        "title": "Nvidia-Backed Nscale Secures $900 Million Credit Facility for AI Expansion",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/nvidia-backed-nscale-secures-900-170032178.html",
+        "providerPublishTime": 1783443632,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA",
+          "JPM",
+          "GS",
+          "8306.T",
+          "BAC"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Nvidia支持的Nscale獲得9億$的AI擴張信貸融資"
+      },
+      {
+        "uuid": "ce4ddd34-ef7e-3181-8b9e-95532668e127",
+        "title": "Bank of America Analyst: AI Is Becoming “Deeply Embedded in Enterprise Workflows” as AI Spending Could Reach $1.5 Trillion",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/ce4ddd34-ef7e-3181-8b9e-95532668e127/bank-of-america-analyst%3A-ai.html",
+        "providerPublishTime": 1783443591,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/zT58_vFeo.Xhr54CuqSDMg--~B/aD0xNDQwO3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/fd420ec0287f2c322d3c6a53ccc7cda0",
+              "width": 2560,
+              "height": 1440,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/u0cvUHYycV6TxALKJQzgwA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/fd420ec0287f2c322d3c6a53ccc7cda0",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "AVGO",
+          "TSM",
+          "MU",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "美國銀行分析師：人工智慧正在「深深嵌入企業工作流程」，因為人工智慧支出可能達到1.5兆$"
+      },
+      {
+        "uuid": "48892d00-7c2a-33e1-903a-645f615971e9",
+        "title": "Nvidia and AMD Face Fresh China Threat as AI Buyers Shift to Local Chips",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/nvidia-amd-face-fresh-china-165433145.html",
+        "providerPublishTime": 1783443273,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA",
+          "AMD",
+          "0700.HK",
+          "BABA",
+          "688256.SS"
+        ],
+        "_sym": "AMD",
+        "titleZh": "隨著AI買家轉向本地芯片， NVIDIA和AMD面臨新的中國威脅"
+      },
+      {
+        "uuid": "0a4bd3f7-d4cf-3cb1-801b-fc2990ee1a6c",
+        "title": "Samsung Highlights Risk For Tech Stocks: Lofty Earnings Expectations",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/0a4bd3f7-d4cf-3cb1-801b-fc2990ee1a6c/samsung-highlights-risk-for.html",
+        "providerPublishTime": 1783443258,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/VlvX6qOOY4VPkh311otL2Q--~B/aD01NjU7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/ea110998ae4521121afd54b56f0be2ca",
+              "width": 1000,
+              "height": 565,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/0HeAjW4Xs3YfewMei59ydw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/ea110998ae4521121afd54b56f0be2ca",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "005930.KS",
+          "^GSPC",
+          "MU",
+          "SNDK"
+        ],
+        "_sym": "MU",
+        "titleZh": "三星強調科技股的風險：高企的盈利預期"
+      },
+      {
+        "uuid": "e6df68b5-c214-3285-9818-f318bebef041",
+        "title": "AMD Backs Turing in Self-Driving Push",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/amd-backs-turing-self-driving-165021553.html",
+        "providerPublishTime": 1783443021,
+        "type": "STORY",
+        "relatedTickers": [
+          "AMD",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "AMD支持圖靈推動自動駕駛"
+      },
+      {
+        "uuid": "22c1e91f-39e8-319e-879c-572966433211",
+        "title": "Should You Buy Micron Technology Stock While It Trades Below $1,000?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/22c1e91f-39e8-319e-879c-572966433211/should-you-buy-micron.html",
+        "providerPublishTime": 1783442769,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WQBg0eRbBUdQV135.bwIaQ--~B/aD05MzQ7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/e542a39b06decfb5fbe36bbff45ca60f",
+              "width": 1400,
+              "height": 934,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/w_SZI44PbHyMWrXJOZO6Kg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/e542a39b06decfb5fbe36bbff45ca60f",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "NVDA"
+        ],
+        "_sym": "MU",
+        "titleZh": "您是否應該在交易價格低於$ 1,000時購買美光科技股？"
+      },
+      {
+        "uuid": "d299c7e1-3882-3044-baa5-6bdd3804b156",
+        "title": "Why Micron Stock Just Crashed",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/d299c7e1-3882-3044-baa5-6bdd3804b156/why-micron-stock-just-crashed.html",
+        "providerPublishTime": 1783442624,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wlns847p7EIuRsllsez3QQ--~B/aD04NDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/1432b76cc9f317829100e2bcdce721ac",
+              "width": 1400,
+              "height": 840,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/JLAEeCrL6t51o6miIzzDMA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/1432b76cc9f317829100e2bcdce721ac",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "005930.KS",
+          "MU",
+          "NVDA"
+        ],
+        "_sym": "MU",
+        "titleZh": "為什麼美光股票剛剛崩盤"
+      },
+      {
+        "uuid": "a6990f8c-9994-3ae9-b44a-88f421b6be52",
+        "title": "Michael Burry Turns Bearish on Micron Technology Stock",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/michael-burry-turns-bearish-micron-164328282.html",
+        "providerPublishTime": 1783442608,
+        "type": "STORY",
+        "relatedTickers": [
+          "MU",
+          "NVDA",
+          "AMAT"
+        ],
+        "_sym": "MU",
+        "titleZh": "Michael Burry看空美光科技股"
+      },
+      {
+        "uuid": "aa07dc4a-dbe7-34a2-8751-0b38440b69c8",
+        "title": "Update: US Equity Indexes Drop Amid Slide in Chipmakers, Gains in Crude Oil",
+        "publisher": "MT Newswires",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/us-equity-indexes-drop-amid-163457152.html",
+        "providerPublishTime": 1783442097,
+        "type": "STORY",
+        "relatedTickers": [
+          "CL=F",
+          "^SPX",
+          "^GSPC",
+          "^DJI",
+          "SNDK",
+          "SPCX",
+          "^IXIC"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "更新：美國股票指數在芯片製造商下滑、原油上漲的情況下下跌"
+      },
+      {
+        "uuid": "ee329625-b493-3789-a5e3-f0eb27c1c09c",
+        "title": "Turing cuts Nvidia reliance, taps AMD for 10% of AI training",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/ee329625-b493-3789-a5e3-f0eb27c1c09c/turing-cuts-nvidia-reliance%2C.html",
+        "providerPublishTime": 1783441020,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/CKBEZpfZlQTS34czQRHHig--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/b15ad46861542294090b01e6884976b7",
+              "width": 3840,
+              "height": 2560,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/TjQU5jZx7hLOgrEzN8YRjw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/b15ad46861542294090b01e6884976b7",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "NVDA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "圖靈減少對Nvidia的依賴，利用AMD進行10%的人工智能培訓"
+      },
+      {
+        "uuid": "110b2049-5932-3626-b8a1-7e911ed6df13",
+        "title": "Stock Market Today: Nasdaq Drops On Samsung News; Rivian Crashes, Tesla Feels The Heat (Live Coverage)",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/110b2049-5932-3626-b8a1-7e911ed6df13/stock-market-today%3A-nasdaq.html",
+        "providerPublishTime": 1783440346,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/ssh.WEGJxn.BjJt8vkW8NQ--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/7c872b1c86aed6df221369cd0dda7c4d",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/RXl1R8dKygqSLkiWzxW3zQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/7c872b1c86aed6df221369cd0dda7c4d",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "RIVN",
+          "^IXIC",
+          "005930.KS",
+          "TSLA",
+          "^DJI",
+          "SPCX",
+          "WDC",
+          "^KS11",
+          "MU",
+          "SNDK",
+          "^RUT",
+          "BTC-USD",
+          "^GSPC",
+          "CL=F"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "今天的股市：納斯達克在三星新聞上下跌； Rivian崩潰，特斯拉感受到熱度（現場報導）"
+      },
+      {
+        "uuid": "81fa822d-e5b2-45f9-8f57-f3357c860db4",
+        "title": "Micron, Samsung, SK Hynix just dragged memory stocks into a bear market",
+        "publisher": "Yahoo Finance",
+        "link": "https://finance.yahoo.com/markets/article/micron-samsung-sk-hynix-just-dragged-memory-stocks-into-a-bear-market-154549356.html",
+        "providerPublishTime": 1783439149,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/6wzb0pYHde69Bk3pPG1vbw--~B/aD0yNjY2O3c9NDAwMDthcHBpZD15dGFjaHlvbg--/https://d29szjachogqwa.cloudfront.net/images/2026-07/3b087471-e181-430e-b8b4-6f43317b6021",
+              "width": 4000,
+              "height": 2666,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/147IBhYT6W3FJa.w8tpoVg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://d29szjachogqwa.cloudfront.net/images/2026-07/3b087471-e181-430e-b8b4-6f43317b6021",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK",
+          "LRCX",
+          "INTC",
+          "AMAT"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "美光、三星、SK海力士將記憶庫存拖入熊市"
+      },
+      {
+        "uuid": "c9bd4764-c752-3dc3-98b8-be89e99cd385",
+        "title": "1 Prediction for AMD Stock Over the Next 5 Years",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/c9bd4764-c752-3dc3-98b8-be89e99cd385/1-prediction-for-amd-stock.html",
+        "providerPublishTime": 1783438634,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Zm8TTY9CZcNclUl2lD8Row--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/8b16e79cf4e05275a3c2fa92d3611298",
+              "width": 1200,
+              "height": 675,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/8xt0tOx3YPTLxmkDs8PgUw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/8b16e79cf4e05275a3c2fa92d3611298",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AMD",
+          "NVDA",
+          "ORCL"
+        ],
+        "_sym": "AMD",
+        "titleZh": "1未來5年AMD庫存預測"
+      },
+      {
+        "uuid": "15bfdac6-3ce9-38d8-9ba1-f2ab9e744313",
+        "title": "The Market’s Hottest Stock Is Turning Cold",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/15bfdac6-3ce9-38d8-9ba1-f2ab9e744313/the-market%E2%80%99s-hottest-stock-is.html",
+        "providerPublishTime": 1783437480,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/fiWasJIB3lfc9cSjggswqw--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/937feedc83c2e41803cbd13bf196102e",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/GuZeVJUF.oA.enzU.CRFVA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/937feedc83c2e41803cbd13bf196102e",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "005930.KS",
+          "MU",
+          "005935.KS",
+          "WDC",
+          "000660.KS",
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "市場上最熱門的股票正在轉冷"
+      },
+      {
+        "uuid": "61fe5c0e-5689-3f44-bd05-ad07faf5347a",
+        "title": "Lumentum Stock Skyrockets 700% in a Year: Is It Still a Buy?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/lumentum-stock-skyrockets-700-still-144400354.html",
+        "providerPublishTime": 1783435440,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hb34T5JpqfOKFdxuauyatA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WGxO6Lux22KyfhfK1ELLQA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/560ce7090345bb7408c706b8e0a8c3fc",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "VIAV",
+          "CIEN",
+          "GLW"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum股票在一年內飆升700 ％ ：它仍然是買入嗎？"
+      },
+      {
+        "uuid": "6581eafe-6095-3c2b-b799-fd6fc5a91178",
+        "title": "LITE Expands Co-Packaged Optics: Can It Become the Next Growth Driver?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/technology/articles/lite-expands-co-packaged-optics-142900944.html",
+        "providerPublishTime": 1783434540,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/rYP8VPOUfQj30jWv52_m5w--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/53d9a3fd304ab73d580828e5367313eb",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/GIelu5JxbZo_JgZT9noTsg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/53d9a3fd304ab73d580828e5367313eb",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AVGO",
+          "MRVL",
+          "LITE"
+        ],
+        "_sym": "LITE",
+        "titleZh": "LITE擴展聯合包裝光學器件：它能否成為下一個增長驅動力？"
+      },
+      {
+        "uuid": "aa97d539-d22e-3013-866f-52fdb009f0c5",
+        "title": "Stocks to Watch Recap: Walmart, Strategy, easyJet, Micron",
+        "publisher": "The Wall Street Journal",
+        "link": "https://finance.yahoo.com/m/aa97d539-d22e-3013-866f-52fdb009f0c5/stocks-to-watch-recap%3A.html",
+        "providerPublishTime": 1783374732,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Zyjo2Bdt6m9RF488lc5m9A--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/4750f046e31b8001f5c78557beadbd4f",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/35Qo3y7KU0r4j5fDxjaCqA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/4750f046e31b8001f5c78557beadbd4f",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "WMT",
+          "BTC-USD",
+          "MSTR",
+          "WULF",
+          "COHR",
+          "DELL",
+          "CRWV",
+          "IREN",
+          "MU",
+          "INTC",
+          "^IXIC"
+        ],
+        "_sym": "COHR",
+        "titleZh": "股票重點回顧：沃爾瑪、策略、easyJet、美光"
+      },
+      {
+        "uuid": "bec768b5-6b78-366a-b657-aa36aafe0a79",
+        "title": "Unpacking Gavin Baker's \"Memory Crunch\" Thesis",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/unpacking-gavin-bakers-memory-crunch-210700889.html",
+        "providerPublishTime": 1783372020,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hf_2I4mS3iKLS6NqhA7HRA--~B/aD00MDA7dz02MzU7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/f137593ef3b3f5b2675404f14056fe62",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/wJDha.iIexrmCHy6YlR2Zw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/zacks.com/f137593ef3b3f5b2675404f14056fe62",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "ALAB",
+          "TSM",
+          "NVDA",
+          "COHR",
+          "CBRS"
+        ],
+        "_sym": "COHR",
+        "titleZh": "解開Gavin Baker的「記憶緊張」論文"
+      }
+    ],
+    "fetched_at": 1783444369063
   }
 }
