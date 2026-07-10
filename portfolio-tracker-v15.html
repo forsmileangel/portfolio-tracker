@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.935 - 觀察清單 Pro 通道指標改 LinReg 線性回歸通道（取代 v15.933 布林，兩種引擎）：使用者實際慣用 TradingView 的 LinReg 100 close 2 2。(1) TradingView widget studies：STD;Bollinger_Bands → STD;Linear_Regression（STD; 慣例已由布林實測證實有效；長度/偏差用 widget 預設 100/2 與使用者參數一致）。(2) 原生圖 _wlComputeBOLL → _wlComputeLinReg(bars, 100, 2)：對最後 min(100, bars) 根 close 最小平方回歸，上下軌 = 回歸線 ± 2 × 殘差標準差（population），mid/upper/lower 三條直線段 —— 中軌紅虛線（lineStyle 2）、上下軌藍細線，比照 TradingView 配色；資料 < 20 根不畫。(3) 皮爾森相關係數 r 顯示於 source 行（「Yahoo 原生圖 · HH:MM · LinReg r=0.91」）。(4) 副標四處 BOLL → LinReg。向右延伸線不做（lightweight-charts 需 whitespace 未來點，複雜度不值）。維持原生圖 visual-only 不變式，不碰報價/損益/close pair/Gist/hash。
         v15.934 - 一鍵更新提速第二階段（錯峰 + 併發，港美股損益定格提速）：診斷 = 損益數字只等 close pair（v15.902 起不讀 _prevCloseCache），但按更新 +1.5s 的 missing-baseline loadAnalysis（序列 × 持股+watchlist × 每檔 3-5 請求 × 150-300ms 間隔 ≈ 10-30s）與 close pair 池搶同一批 CORS proxy → 池被塞住 → v15.932 無感；且手動更新 3min cooldown 內直接 no-op。修法：(1) _scheduleRefreshClosePair 加 opts.force —— 手動 csv-manual 跳過 cooldown、debounce 縮 300ms；csv-silent 維持原行為。(2) 錯峰：四處 loadAnalysis 排程 timer 1500→8000ms（directApplyPrices / 60s 靜默 CSV / 手動 Gist pull / silent Gist pull），close pair 先跑完再開分析。(3) loadAnalysis 五個序列迴圈（全量基本面/tech-only/槓桿 tech/缺 prevClose 補抓/槓桿 prevClose）全改 _runTaskPool(3) 併發池並移除 150/200/300ms 人工間隔，逐檔 fetch/parse/寫入邏輯一字不差；進度文字改「已開始」計數。(4) loadAnalysis 加 in-flight guard（wrapper+inner 拆分，try/finally 保證清旗標）—— 修 switchTab + timer 同時觸發雙重洪水的 pre-existing bug。(5) fundamentals.json 下載加 promise memo，pool 併發首批不重複抓 251KB。(6) _yfProxyIdx / _sheetProxyIdx 持久化至 localStorage（STORAGE_KEYS 登記 pt_yf_proxy_idx_v1 / pt_sheet_proxy_idx_v1，越界壞值歸 0），冷開頁不再從死節點開始等 timeout。不碰 user hash / pending / Gist schema / close pair 語意 / forceYahoo。
         v15.933 - 觀察清單 Pro 圖表加布林通道（兩種引擎都加、常駐顯示）：(1) TradingView Advanced Chart widget 的 studies 陣列加 'STD;Bollinger_Bands'（與既有 STD;Stochastic/MACD/RSI 同慣例，BB 為主圖 overlay 不增 sub-pane）。(2) lightweight-charts 原生圖（crypto + nativeFallback 槓桿 ETF）新增 _wlComputeBOLL(bars, 20, 2)：rolling sum + sum-of-squares 算 population stddev（TradingView 同款算法），上下軌兩條 addLineSeries（slate 灰半透明細線），中軌直接共用既有 MA20 黃線不重畫；bars < 20 不畫避免殘缺通道。(3) 副標三處（HTML 預設 / TV / 原生）加 BOLL 字樣。嚴格遵守原生圖 visual-only 不變式：只動 _render*/_wlCompute*，不碰 holdings/報價快取/close pair/損益/snapshot/Gist/hash/pending。
         v15.932 - 一鍵更新提速（第一階段，不動資料語意）：(1) close pair 補抓 _refreshClosePairForActiveHoldings 由逐檔串行 await 改併發池（concurrency 4，新增 _runTaskPool helper）；job 構建、skip 檢查、forceYahoo（v15.909 防護不動）、_isExactFinalClosePair 驗證、儲存與 system push 行為與序列版完全一致，另加 market+symbol+target 去重避免同標的重複請求 → 25 檔持股背景補抓由 25-35 個串行 proxy 請求（10 幾秒）縮到約 2-4 秒，港美股今日/前次收盤損益更快定格。(2) _SHEET_PROXIES 加 _sheetProxyIdx 記住上次成功節點（仿 _yfProxyIdx），首個 proxy 掛掉時不再每次一鍵更新都白等 7s timeout。(3) Chart.js CDN script 加 defer，~200KB 不再阻塞首繪（程式進入點 window.onload=init，deferred 保證先執行完，全檔僅 renderPie 內 new Chart 一處引用）。(4) _loadClosePair() memoize：calculateStats 每次 renderAll 都呼叫，原每次做 2 次 JSON.parse + normalize + legacy v2 merge；所有寫入路徑已收斂於 _saveClosePair 同步更新 memo（grep 驗證僅一處 setItem，system sync pull 4 處 merge 皆走 _saveClosePair）。不碰 user hash / pending / Gist schema / snapshot / forceYahoo 語意。
@@ -450,7 +451,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.934</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.935</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1015,7 +1016,7 @@
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;margin-bottom:0.55rem;flex-wrap:wrap;">
                             <div>
                                 <div id="watchlist-tv-title" style="color:#f1f5f9;font-size:1.05rem;font-weight:800;">請選擇標的</div>
-                                <div id="watchlist-tv-subtitle" style="color:#7e93a6;font-size:0.76rem;margin-top:0.2rem;">MA / BOLL / Stochastic / MACD / RSI</div>
+                                <div id="watchlist-tv-subtitle" style="color:#7e93a6;font-size:0.76rem;margin-top:0.2rem;">MA / LinReg / Stochastic / MACD / RSI</div>
                             </div>
                             <div id="watchlist-tv-source" style="color:#607585;font-size:0.72rem;text-align:right;">TradingView widget</div>
                         </div>
@@ -1283,7 +1284,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.934';
+        const APP_VERSION = 'v15.935';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -5327,14 +5328,14 @@
             if (!item) {
                 _watchlistRenderedTvSymbol = null;
                 if (title) title.textContent = '請選擇標的';
-                if (subtitle) subtitle.textContent = 'MA / BOLL / Stochastic / MACD / RSI';
+                if (subtitle) subtitle.textContent = 'MA / LinReg / Stochastic / MACD / RSI';
                 if (source) source.textContent = 'TradingView widget';
                 box.innerHTML = '<div class="watchlist-pro-placeholder"><div style="font-size:2rem;color:#1e3a5f;">◉</div><div style="font-weight:700;color:#a8bdd0;">選擇左側標的後載入技術圖</div><div style="font-size:0.78rem;color:#607585;">圖表資料不會影響 Portfolio Tracker 報價與損益計算</div></div>';
                 return;
             }
             const tvSymbol = String(item.tvSymbol || '').trim().toUpperCase();
             if (title) title.textContent = `${item.symbol} 技術圖`;
-            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · MA / BOLL / Stoch / MACD / RSI` : '請設定 TradingView symbol';
+            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · MA / LinReg / Stoch / MACD / RSI` : '請設定 TradingView symbol';
             if (source) source.textContent = 'visual-only';
             if (!tvSymbol) {
                 _watchlistRenderedTvSymbol = null;
@@ -5370,7 +5371,7 @@
                 support_host: 'https://www.tradingview.com',
                 studies: [
                     'MASimple@tv-basicstudies',
-                    'STD;Bollinger_Bands',
+                    'STD;Linear_Regression',
                     'STD;Stochastic',
                     'STD;MACD',
                     'STD;RSI'
@@ -5480,22 +5481,40 @@
             }
             return out;
         }
-        // v15.933：布林通道上下軌（population stddev，與 TradingView 同款）；中軌 = MA20，圖上直接共用既有 MA20 線
-        function _wlComputeBOLL(bars, period, mult) {
-            const upper = [], lower = [];
-            let sum = 0, sumSq = 0;
-            for (let i = 0; i < bars.length; i++) {
-                const c = bars[i].close;
-                sum += c; sumSq += c * c;
-                if (i >= period) { const d = bars[i - period].close; sum -= d; sumSq -= d * d; }
-                if (i >= period - 1) {
-                    const mean = sum / period;
-                    const sd = Math.sqrt(Math.max(0, sumSq / period - mean * mean));
-                    upper.push({ time: bars[i].time, value: mean + mult * sd });
-                    lower.push({ time: bars[i].time, value: mean - mult * sd });
-                }
+        // v15.935：LinReg 線性回歸通道（取代 v15.933 布林；對齊使用者 TradingView 慣用參數 100/2/2）：
+        // 對最後 L = min(length, bars) 根 close 做最小平方回歸，上下軌 = 回歸線 ± mult × 殘差標準差（population），
+        // 並回傳皮爾森相關係數 r（時間 vs 價格）。L < 20 資料不足回傳 null。
+        function _wlComputeLinReg(bars, length, mult) {
+            const L = Math.min(length, bars.length);
+            if (L < 20) return null;
+            const seg = bars.slice(bars.length - L);
+            let sx = 0, sy = 0, sxx = 0, sxy = 0, syy = 0;
+            for (let i = 0; i < L; i++) {
+                const y = seg[i].close;
+                sx += i; sy += y; sxx += i * i; sxy += i * y; syy += y * y;
             }
-            return { upper, lower };
+            const denom = L * sxx - sx * sx;
+            if (!denom) return null;
+            const slope = (L * sxy - sx * sy) / denom;
+            const intercept = (sy - slope * sx) / L;
+            let ssr = 0;
+            for (let i = 0; i < L; i++) {
+                const resid = seg[i].close - (intercept + slope * i);
+                ssr += resid * resid;
+            }
+            const sd = Math.sqrt(ssr / L);
+            const varX = sxx / L - (sx / L) * (sx / L);
+            const varY = syy / L - (sy / L) * (sy / L);
+            const pearson = (varX > 0 && varY > 0)
+                ? (sxy / L - (sx / L) * (sy / L)) / Math.sqrt(varX * varY) : null;
+            const mid = [], upper = [], lower = [];
+            for (let i = 0; i < L; i++) {
+                const v = intercept + slope * i;
+                mid.push({ time: seg[i].time, value: v });
+                upper.push({ time: seg[i].time, value: v + mult * sd });
+                lower.push({ time: seg[i].time, value: v - mult * sd });
+            }
+            return { mid, upper, lower, pearson };
         }
         function _wlComputeRSI(bars, period) {
             const out = [];
@@ -5528,7 +5547,7 @@
             if (_watchlistRenderedNativeKey === key && box.querySelector('.wl-native-wrap')) return;
             _watchlistRenderedNativeKey = key;
             if (title) title.textContent = `${item.symbol} 技術圖`;
-            if (subtitle) subtitle.textContent = `${route.kind === 'crypto' ? route.fetchSymbol : (item.tvSymbol || route.fetchSymbol)} · K線 / MA20 / MA60 / BOLL / RSI`;
+            if (subtitle) subtitle.textContent = `${route.kind === 'crypto' ? route.fetchSymbol : (item.tvSymbol || route.fetchSymbol)} · K線 / MA20 / MA60 / LinReg / RSI`;
             if (source) source.textContent = '原生圖載入中…';
             _disposeWatchlistNativeCharts();
             box.innerHTML = '<div class="watchlist-pro-placeholder"><div style="font-weight:700;color:#a8bdd0;">原生圖載入中…</div><div style="font-size:0.78rem;color:#607585;">抓取 K 線資料（visual-only，不影響報價/損益）</div></div>';
@@ -5568,12 +5587,19 @@
             const ma60 = priceChart.addLineSeries({ color: '#60a5fa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
             ma60.setData(_wlComputeMA(bars, 60));
             // v15.933：布林通道（20, 2）上下軌；中軌即上方 MA20 黃線。bars < 20 不畫避免殘缺通道。
-            if (bars.length >= 20) {
-                const boll = _wlComputeBOLL(bars, 20, 2);
-                const bollUp = priceChart.addLineSeries({ color: 'rgba(148,163,184,0.55)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
-                bollUp.setData(boll.upper);
-                const bollDn = priceChart.addLineSeries({ color: 'rgba(148,163,184,0.55)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
-                bollDn.setData(boll.lower);
+            // v15.935：LinReg 通道（100, ±2σ，取代布林）—— 中軌紅虛線、上下軌藍細線（比照 TradingView 配色）
+            let _lrPearson = null;
+            {
+                const lr = _wlComputeLinReg(bars, 100, 2);
+                if (lr) {
+                    _lrPearson = lr.pearson;
+                    const lrMid = priceChart.addLineSeries({ color: 'rgba(239,68,68,0.75)', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+                    lrMid.setData(lr.mid);
+                    const lrUp = priceChart.addLineSeries({ color: 'rgba(125,211,252,0.7)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+                    lrUp.setData(lr.upper);
+                    const lrDn = priceChart.addLineSeries({ color: 'rgba(125,211,252,0.7)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+                    lrDn.setData(lr.lower);
+                }
             }
             const rsiChart = LWC.createChart(rsiDiv, Object.assign({ width: W, height: 140 }, commonOpts));
             const rsi = rsiChart.addLineSeries({ color: '#c084fc', lineWidth: 1, priceLineVisible: false });
@@ -5595,7 +5621,7 @@
                 try { rsiChart.applyOptions({ width: w }); } catch (_) {}
             };
             window.addEventListener('resize', _wlNativeResizeHandler);
-            if (source) source.textContent = `${srcName} 原生圖 · ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
+            if (source) source.textContent = `${srcName} 原生圖 · ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}${_lrPearson != null ? ` · LinReg r=${_lrPearson.toFixed(2)}` : ''}`;
         }
         function showWatchlistProModal(index) {
             _watchlistProEditIndex = Number.isInteger(index) ? index : -1;
