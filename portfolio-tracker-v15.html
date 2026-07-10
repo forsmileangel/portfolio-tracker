@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.934 - 一鍵更新提速第二階段（錯峰 + 併發，港美股損益定格提速）：診斷 = 損益數字只等 close pair（v15.902 起不讀 _prevCloseCache），但按更新 +1.5s 的 missing-baseline loadAnalysis（序列 × 持股+watchlist × 每檔 3-5 請求 × 150-300ms 間隔 ≈ 10-30s）與 close pair 池搶同一批 CORS proxy → 池被塞住 → v15.932 無感；且手動更新 3min cooldown 內直接 no-op。修法：(1) _scheduleRefreshClosePair 加 opts.force —— 手動 csv-manual 跳過 cooldown、debounce 縮 300ms；csv-silent 維持原行為。(2) 錯峰：四處 loadAnalysis 排程 timer 1500→8000ms（directApplyPrices / 60s 靜默 CSV / 手動 Gist pull / silent Gist pull），close pair 先跑完再開分析。(3) loadAnalysis 五個序列迴圈（全量基本面/tech-only/槓桿 tech/缺 prevClose 補抓/槓桿 prevClose）全改 _runTaskPool(3) 併發池並移除 150/200/300ms 人工間隔，逐檔 fetch/parse/寫入邏輯一字不差；進度文字改「已開始」計數。(4) loadAnalysis 加 in-flight guard（wrapper+inner 拆分，try/finally 保證清旗標）—— 修 switchTab + timer 同時觸發雙重洪水的 pre-existing bug。(5) fundamentals.json 下載加 promise memo，pool 併發首批不重複抓 251KB。(6) _yfProxyIdx / _sheetProxyIdx 持久化至 localStorage（STORAGE_KEYS 登記 pt_yf_proxy_idx_v1 / pt_sheet_proxy_idx_v1，越界壞值歸 0），冷開頁不再從死節點開始等 timeout。不碰 user hash / pending / Gist schema / close pair 語意 / forceYahoo。
         v15.933 - 觀察清單 Pro 圖表加布林通道（兩種引擎都加、常駐顯示）：(1) TradingView Advanced Chart widget 的 studies 陣列加 'STD;Bollinger_Bands'（與既有 STD;Stochastic/MACD/RSI 同慣例，BB 為主圖 overlay 不增 sub-pane）。(2) lightweight-charts 原生圖（crypto + nativeFallback 槓桿 ETF）新增 _wlComputeBOLL(bars, 20, 2)：rolling sum + sum-of-squares 算 population stddev（TradingView 同款算法），上下軌兩條 addLineSeries（slate 灰半透明細線），中軌直接共用既有 MA20 黃線不重畫；bars < 20 不畫避免殘缺通道。(3) 副標三處（HTML 預設 / TV / 原生）加 BOLL 字樣。嚴格遵守原生圖 visual-only 不變式：只動 _render*/_wlCompute*，不碰 holdings/報價快取/close pair/損益/snapshot/Gist/hash/pending。
         v15.932 - 一鍵更新提速（第一階段，不動資料語意）：(1) close pair 補抓 _refreshClosePairForActiveHoldings 由逐檔串行 await 改併發池（concurrency 4，新增 _runTaskPool helper）；job 構建、skip 檢查、forceYahoo（v15.909 防護不動）、_isExactFinalClosePair 驗證、儲存與 system push 行為與序列版完全一致，另加 market+symbol+target 去重避免同標的重複請求 → 25 檔持股背景補抓由 25-35 個串行 proxy 請求（10 幾秒）縮到約 2-4 秒，港美股今日/前次收盤損益更快定格。(2) _SHEET_PROXIES 加 _sheetProxyIdx 記住上次成功節點（仿 _yfProxyIdx），首個 proxy 掛掉時不再每次一鍵更新都白等 7s timeout。(3) Chart.js CDN script 加 defer，~200KB 不再阻塞首繪（程式進入點 window.onload=init，deferred 保證先執行完，全檔僅 renderPie 內 new Chart 一處引用）。(4) _loadClosePair() memoize：calculateStats 每次 renderAll 都呼叫，原每次做 2 次 JSON.parse + normalize + legacy v2 merge；所有寫入路徑已收斂於 _saveClosePair 同步更新 memo（grep 驗證僅一處 setItem，system sync pull 4 處 merge 皆走 _saveClosePair）。不碰 user hash / pending / Gist schema / snapshot / forceYahoo 語意。
         v15.931 - Hotfix：觀察清單 Pro 編輯模式「編輯/刪除」按鈕被擠到卡片下方、全寬且文字上下裁切 → 根因是 .watchlist-pro-row 外層用 <button> 卻在編輯模式內巢狀 <button>（無效 HTML，瀏覽器把內層按鈕擠出列外變孤兒元素）；外層改 <div role="button" tabindex="0">，編輯/刪除按鈕回到右欄正常顯示。純前端結構修正，不動報價/損益/Gist/同步/CSS。
@@ -449,7 +450,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.933</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.934</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1282,7 +1283,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.933';
+        const APP_VERSION = 'v15.934';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1350,6 +1351,8 @@
             macroCache:       'pf_macro_v1',
             quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
             closePairCache:   'pt_close_pair_v3',   // v15.907：close pair cache 多日期（保留 pt_close_pair_v2 供 rollback）
+            yfProxyIdx:       'pt_yf_proxy_idx_v1',    // v15.934：Yahoo proxy 上次成功節點（跨開頁持久化，冷開不再從死節點等 timeout）
+            sheetProxyIdx:    'pt_sheet_proxy_idx_v1', // v15.934：Sheet CSV proxy 上次成功節點（同上）
             // 後端
             symbolSyncAck:    'pt_symbol_sync_ack_v1', // v15.913：補 symbols 後 12hr 本機 ack，避免部署/CDN 空窗重複提醒
             corporateActionCandidateIgnores: 'pt_corporate_action_candidate_ignores_v1', // v15.922：疑似分割忽略 24hr
@@ -2394,10 +2397,12 @@
         let _closePairRefreshLastRun = 0;
         let _closePairRefreshTimer = null;
         const _CLOSE_PAIR_COOLDOWN_MS = 3 * 60 * 1000;
-        function _scheduleRefreshClosePair(reason) {
-            if (Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS) return;
+        // v15.934：opts.force（手動一鍵更新）跳過 3min cooldown、debounce 縮 300ms —— 使用者主動按更新時補抓必定執行
+        function _scheduleRefreshClosePair(reason, opts) {
+            const force = !!(opts && opts.force);
+            if (!force && Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS) return;
             clearTimeout(_closePairRefreshTimer);
-            _closePairRefreshTimer = setTimeout(() => _refreshClosePairForActiveHoldings(reason), 1500);
+            _closePairRefreshTimer = setTimeout(() => _refreshClosePairForActiveHoldings(reason), force ? 300 : 1500);
         }
 
         let _symbolDataScanTimer = null;
@@ -8050,12 +8055,13 @@
                 _pushRetryCount = 0;
 
                 renderAll();
-                // v15.080 hotfix P2：與 silent pull 對齊的後處理 — hydrate cache + 1.5s 後背景跑 loadAnalysis +
+                // v15.080 hotfix P2：與 silent pull 對齊的後處理 — hydrate cache + 背景跑 loadAnalysis +
                 // 8s 後若 baselines 仍空就 backfill（避免新瀏覽器 manual pull 後今日損益卡住直到下小時 timer）
+                // v15.934 錯峰：1500→8000ms，讓 close pair（損益唯一來源）先跑完不搶 proxy
                 try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
                 try {
                     if (typeof loadAnalysis === 'function' && holdings.length > 0) {
-                        setTimeout(() => loadAnalysis(false, true), 1500);
+                        setTimeout(() => loadAnalysis(false, true), 8000);
                     }
                 } catch(_) {}
                 _scheduleRefreshClosePair('gist-pull-manual');   // v15.902
@@ -8289,11 +8295,12 @@
                 saveToStorage();
                 // v15.069：Gist pull 後立刻 hydrate 既有 cache 並排程一次 loadAnalysis，
                 //   讓新裝置不用等 1hr 就能看到今日/昨日損益
+                // v15.934 錯峰：1500→8000ms（損益顯示來源是 close pair，分析延後無感知損失）
                 try { _hydrateDailyPnlCachesFromAnalysisCache(); } catch(_) {}
                 renderAll();
                 try {
                     if (typeof loadAnalysis === 'function' && holdings.length > 0) {
-                        setTimeout(() => loadAnalysis(false, true), 1500);
+                        setTimeout(() => loadAnalysis(false, true), 8000);
                     }
                 } catch(_) {}
                 _scheduleRefreshClosePair('gist-pull-silent');   // v15.902
@@ -9571,7 +9578,13 @@
             u => 'https://api.codetabs.com/v1/proxy?quest='     + encodeURIComponent(u),
             u => 'https://corsproxy.io/?'                       + encodeURIComponent(u),
         ];
-        let _sheetProxyIdx = 0;   // v15.932：記住上次成功的 CSV proxy（仿 _yfProxyIdx），首個節點掛掉時不再每次白等 7s timeout
+        // v15.932：記住上次成功的 CSV proxy（仿 _yfProxyIdx）；v15.934：持久化至 localStorage
+        let _sheetProxyIdx = (() => {
+            try {
+                const v = parseInt(localStorage.getItem(STORAGE_KEYS.sheetProxyIdx) || '0', 10);
+                return (Number.isInteger(v) && v >= 0 && v < _SHEET_PROXIES.length) ? v : 0;
+            } catch(_) { return 0; }
+        })();
         async function _fetchSheetCSV(sheetUrl, signal) {
             const lastErrors = [];
             for (let i = 0; i < _SHEET_PROXIES.length; i++) {
@@ -9584,7 +9597,13 @@
                 try {
                     const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
                     clearTimeout(tid);
-                    if (res.ok) { _sheetProxyIdx = idx; return res; }
+                    if (res.ok) {
+                        if (idx !== _sheetProxyIdx) {   // v15.934：變動才寫 localStorage
+                            _sheetProxyIdx = idx;
+                            try { localStorage.setItem(STORAGE_KEYS.sheetProxyIdx, String(idx)); } catch(_) {}
+                        }
+                        return res;
+                    }
                     lastErrors.push(`HTTP ${res.status}`);
                 } catch(e) {
                     clearTimeout(tid);
@@ -9722,6 +9741,8 @@
             }
             // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
             // （避免 currentPrice 已新但 prevClose 為空，今日漲幅顯示「-」過久）
+            // v15.934 錯峰：1500→8000ms —— 損益數字只等 close pair（v15.902 起不讀 _prevCloseCache），
+            // 讓 close pair 池先跑完，loadAnalysis 洪水不搶同一批 CORS proxy
             try {
                 const _missingBaseline = holdings.some(h => {
                     const pc = window._prevCloseCache?.[h.symbol];
@@ -9729,10 +9750,10 @@
                 });
                 if (_missingBaseline && typeof loadAnalysis === 'function') {
                     clearTimeout(window._missingBaselineTimer);
-                    window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
+                    window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 8000);
                 }
             } catch(_) {}
-            _scheduleRefreshClosePair('csv-manual');   // v15.902
+            _scheduleRefreshClosePair('csv-manual', { force: true });   // v15.902；v15.934 手動必跑
             renderAll();
             showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
         }
@@ -10144,8 +10165,14 @@
             u => 'https://corsproxy.io/?'                          + encodeURIComponent(u),
         ];
 
-        // 記住上次成功的 proxy 索引（頁面週期內有效），避免每次都從第一個重試
-        let _yfProxyIdx = 0;
+        // 記住上次成功的 proxy 索引，避免每次都從第一個重試
+        // v15.934：持久化至 localStorage（冷開頁沿用上次成功節點）；越界/壞值歸 0（YF_PROXIES 長度依環境不同，需 clamp）
+        let _yfProxyIdx = (() => {
+            try {
+                const v = parseInt(localStorage.getItem(STORAGE_KEYS.yfProxyIdx) || '0', 10);
+                return (Number.isInteger(v) && v >= 0 && v < YF_PROXIES.length) ? v : 0;
+            } catch(_) { return 0; }
+        })();
 
         // 根據標的代碼回傳對應交易所時區（用於判斷「今天有沒有開盤」）
         function _exchangeTz(symbol) {
@@ -10171,7 +10198,10 @@
                     // 確認是 JSON（proxy 可能回傳 HTML 錯誤頁）
                     if (!text.trimStart().startsWith('{') && !text.trimStart().startsWith('['))
                         throw new Error('非 JSON 回應');
-                    _yfProxyIdx = idx; // 記住成功的 proxy，下次直接從這裡開始
+                    if (idx !== _yfProxyIdx) {   // v15.934：變動才寫 localStorage
+                        _yfProxyIdx = idx;
+                        try { localStorage.setItem(STORAGE_KEYS.yfProxyIdx, String(idx)); } catch(_) {}
+                    }
                     return JSON.parse(text);
                 } catch(e) {
                     clearTimeout(tid);
@@ -10798,30 +10828,38 @@
                 if (!window._fundJsonCache) {
                     // cache:'no-cache' → 強制驗證伺服器端是否有新版本（ETag/Last-Modified），
                     // 確保 GitHub Actions 每次推送的新 fundamentals.json 不被瀏覽器舊快取覆蓋
-                    try {
-                        const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
-                        if (r.ok) {
-                            // Python 的 JSON 序列化可能包含 NaN/Infinity（非標準 JSON），需先替換為 null
-                            const txt = await r.text();
-                            const cleaned = txt.replace(/:\s*NaN/g, ': null')
-                                               .replace(/:\s*Infinity/g, ': null')
-                                               .replace(/:\s*-Infinity/g, ': null');
-                            window._fundJsonCache = JSON.parse(cleaned);
-                            // v15.903：fundamentals.json 載入即排一次 close pair refresh，讓開頁第一秒就有 close pair
-                            try { _scheduleRefreshClosePair('fundamentals-loaded'); } catch(_) {}
-                            try { _scheduleSymbolDataScan('fundamentals-loaded'); } catch(_) {}
-                        } else {
-                            window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
-                            // v15.064：記錄 HTTP 失敗
-                            const e = new Error('HTTP ' + r.status);
-                            e.status = r.status;
-                            _recordAppError('fundamentals_json_load', e);
-                        }
-                    } catch (fetchErr) {
-                        // v15.064：記錄 fetch / parse 例外
-                        window._fundJsonCache = null;
-                        _recordAppError('fundamentals_json_load', fetchErr);
+                    // v15.934：promise memo —— loadAnalysis 迴圈 pool 化後首批併發呼叫共用同一次下載（避免重複抓 251KB）
+                    if (!window._fundJsonPromise) {
+                        window._fundJsonPromise = (async () => {
+                            try {
+                                const r = await fetch('./data/fundamentals.json', { cache: 'no-store' });
+                                if (r.ok) {
+                                    // Python 的 JSON 序列化可能包含 NaN/Infinity（非標準 JSON），需先替換為 null
+                                    const txt = await r.text();
+                                    const cleaned = txt.replace(/:\s*NaN/g, ': null')
+                                                       .replace(/:\s*Infinity/g, ': null')
+                                                       .replace(/:\s*-Infinity/g, ': null');
+                                    window._fundJsonCache = JSON.parse(cleaned);
+                                    // v15.903：fundamentals.json 載入即排一次 close pair refresh，讓開頁第一秒就有 close pair
+                                    try { _scheduleRefreshClosePair('fundamentals-loaded'); } catch(_) {}
+                                    try { _scheduleSymbolDataScan('fundamentals-loaded'); } catch(_) {}
+                                } else {
+                                    window._fundJsonCache = null; // 失敗設 null（非 {}），讓下次進來可重試
+                                    // v15.064：記錄 HTTP 失敗
+                                    const e = new Error('HTTP ' + r.status);
+                                    e.status = r.status;
+                                    _recordAppError('fundamentals_json_load', e);
+                                }
+                            } catch (fetchErr) {
+                                // v15.064：記錄 fetch / parse 例外
+                                window._fundJsonCache = null;
+                                _recordAppError('fundamentals_json_load', fetchErr);
+                            } finally {
+                                window._fundJsonPromise = null;   // 完成即清除；失敗時 _fundJsonCache=null，下次呼叫可重試
+                            }
+                        })();
                     }
+                    await window._fundJsonPromise;
                 }
                 const f = window._fundJsonCache?.data?.[symbol];
                 if (f && !f.error) {
@@ -11528,8 +11566,21 @@
         }
 
         // ==================== Main Analysis Loader ====================
+        // v15.934：in-flight guard —— switchTab 與 missing-baseline timer 可能同時觸發，兩個 loadAnalysis
+        // 併跑會對免費 proxy 造成雙重請求洪水（pre-existing；迴圈 pool 化後更需防疊加）。
+        // wrapper + inner 拆分：guard 用 try/finally 保證清旗標，且不需重排 inner 300 行縮排。
+        let _analysisInFlight = false;
         async function loadAnalysis(forceRefresh, silent = false) {
             if (holdings.length === 0) { if (!silent) alert('請先匯入持倉數據'); return; }
+            if (_analysisInFlight) { if (!silent) showImportToast('⏳ 分析數據更新中，請稍候', 2000); return; }
+            _analysisInFlight = true;
+            try {
+                return await _loadAnalysisInner(forceRefresh, silent);
+            } finally {
+                _analysisInFlight = false;
+            }
+        }
+        async function _loadAnalysisInner(forceRefresh, silent = false) {
 
             const btn = document.getElementById('analysis-btn');
             btn.textContent = '載入中...'; btn.disabled = true;
@@ -11588,25 +11639,27 @@
                 if (!silent) {
                     techTbody.innerHTML = rows.map(r => loadingRow(r, 10, '⏳ 更新技術面...')).join('').replace(/arow-/g, 'trow-');
                 }
-                for (let i = 0; i < uniqueQueries.length; i++) {
-                    const sym = uniqueQueries[i];
-                    if (!silent) {
-                        const prog = '⏳ 更新技術面（' + (i+1) + '/' + uniqueQueries.length + '）...';
-                        rows.filter(r => r.query === sym).forEach(r => {
-                            const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                            if (te) { te.cells[1].colSpan = 10; te.cells[1].textContent = prog; }
-                        });
-                    }
-                    try {
-                        const tech = await fetchTechDataFromYahoo(sym);
-                        allResults[sym] = { ...(allResults[sym] || {}), ...tech };
-                    } catch(_) {}
-                    if (i < uniqueQueries.length - 1) await new Promise(res => setTimeout(res, 200));
+                // v15.934：併發池取代逐檔 await + 200ms 間隔；進度改「已開始」計數（pool 內順序不定）
+                {
+                    let _startedB = 0;
+                    await _runTaskPool(uniqueQueries.map(sym => async () => {
+                        if (!silent) {
+                            const prog = '⏳ 更新技術面（' + (++_startedB) + '/' + uniqueQueries.length + '）...';
+                            rows.filter(r => r.query === sym).forEach(r => {
+                                const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
+                                if (te) { te.cells[1].colSpan = 10; te.cells[1].textContent = prog; }
+                            });
+                        }
+                        try {
+                            const tech = await fetchTechDataFromYahoo(sym);
+                            allResults[sym] = { ...(allResults[sym] || {}), ...tech };
+                        } catch(_) {}
+                    }), 3);
                 }
-                // 槓桿 ETF：用自身日線取技術面 & prevClose
+                // 槓桿 ETF：用自身日線取技術面 & prevClose（v15.934：併發池取代逐檔 await + 200ms）
                 const proxyRowsT = rows.filter(r => r.isProxy);
-                for (let pi = 0; pi < proxyRowsT.length; pi++) {
-                    const _psym = proxyRowsT[pi].holding;
+                await _runTaskPool(proxyRowsT.map(pr => async () => {
+                    const _psym = pr.holding;
                     try {
                         const tech = await fetchTechDataFromYahoo(_psym);
                         allResults[_psym] = { ...(allResults[_psym] || {}), ...tech };
@@ -11649,8 +11702,7 @@
                             if (_padj.length >= 2) allResults[_psym].prevPrevClose = _padj[_padj.length - 2];
                         }
                     } catch(_) {}
-                    if (pi < proxyRowsT.length - 1) await new Promise(res => setTimeout(res, 200));
-                }
+                }), 3);
                 _saveTechCache(allResults);
 
             } else {
@@ -11667,24 +11719,26 @@
                     : uniqueQueries.filter(s => !freshCache[s]);
 
                 let fetchSuccessCount = 0;
-                for (let i = 0; i < toFetch.length; i++) {
-                    const sym = toFetch[i];
-                    const prog = '⏳ 查詢中（' + (i+1) + '/' + toFetch.length + '）...';
-                    rows.filter(r => r.query === sym).forEach(r => {
-                        const fe = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                        const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
-                        if (fe) { fe.cells[1].colSpan = 15; fe.cells[1].textContent = prog; }
-                        if (te) { te.cells[1].colSpan = 10; te.cells[1].textContent = prog; }
-                    });
-                    try {
-                        allResults[sym] = await fetchSymbolDataFromYahoo(sym);
-                        fetchSuccessCount++;
-                    } catch(e) {
-                        // 失敗時保留 staleData（不覆蓋），只記 log
-                        if (!staleData[sym]) allResults[sym] = { _error: e.message };
-                        console.warn(`[分析] ${sym} 抓取失敗，保留舊快取：`, e.message);
-                    }
-                    if (i < toFetch.length - 1) await new Promise(res => setTimeout(res, 200));
+                // v15.934：併發池取代逐檔 await + 200ms 間隔；fundamentals.json 下載已有 promise memo 防重複抓
+                {
+                    let _startedA = 0;
+                    await _runTaskPool(toFetch.map(sym => async () => {
+                        const prog = '⏳ 查詢中（' + (++_startedA) + '/' + toFetch.length + '）...';
+                        rows.filter(r => r.query === sym).forEach(r => {
+                            const fe = document.getElementById('arow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
+                            const te = document.getElementById('trow-' + r.holding.replace(/[^a-zA-Z0-9]/g,'_'));
+                            if (fe) { fe.cells[1].colSpan = 15; fe.cells[1].textContent = prog; }
+                            if (te) { te.cells[1].colSpan = 10; te.cells[1].textContent = prog; }
+                        });
+                        try {
+                            allResults[sym] = await fetchSymbolDataFromYahoo(sym);
+                            fetchSuccessCount++;
+                        } catch(e) {
+                            // 失敗時保留 staleData（不覆蓋），只記 log
+                            if (!staleData[sym]) allResults[sym] = { _error: e.message };
+                            console.warn(`[分析] ${sym} 抓取失敗，保留舊快取：`, e.message);
+                        }
+                    }), 3);
                 }
                 // 至少有一筆成功才更新時間戳；全部失敗時只渲染舊資料，不動 localStorage
                 if (fetchSuccessCount > 0) _saveCache(allResults);
@@ -11739,15 +11793,15 @@
                         )).map(r => ({ holding: r.holding, query: r.query }))
                             .filter((v, i, a) => a.findIndex(x => x.holding === v.holding) === i)
                     )];
-                    for (let mi = 0; mi < missingSyms.length; mi++) {
-                        const { holding, query } = missingSyms[mi];
+                    // v15.934：併發池取代逐檔 await + 150ms 間隔
+                    await _runTaskPool(missingSyms.map(({ holding, query }) => async () => {
                         try {
                             const qd = await yfFetch(`${BASE1_pc}/v8/finance/chart/${holding}?interval=1d&range=5d`);
                             const ch = qd?.chart?.result?.[0];
                             const tss = ch?.timestamp ?? [];
                             // v15.080 後續修補：zip + filter 對齊 timestamp 與 close（同 line 7251 路徑修補理由）
                             const _pairs = (ch?.indicators?.quote?.[0]?.close ?? []).map((cv, i) => ({ ts: tss[i], close: cv })).filter(p => p.close != null);
-                            if (_pairs.length === 0) continue; // chart API 無資料，跳過此標的（不設 marketOpenedToday）
+                            if (_pairs.length === 0) return; // chart API 無資料，跳過此標的（不設 marketOpenedToday）
                             const closes = _pairs.map(p => p.close);
                             const _tzPC = _exchangeTz(holding);
                             const todayET = new Date().toLocaleDateString('en-US', {timeZone: _tzPC});
@@ -11769,8 +11823,7 @@
                                 allResults[query].marketOpenedToday = opened;
                             }
                         } catch(_) {}
-                        if (mi < missingSyms.length - 1) await new Promise(res => setTimeout(res, 150));
-                    }
+                    }), 3);
                 }
 
                 // 槓桿 ETF：必須抓自身日線取昨收（原型股昨收≠ETF昨收）
@@ -11778,8 +11831,8 @@
                 if (!fundFresh) {
                     const BASE1_lev = 'https://query1.finance.yahoo.com';
                     const proxyRows = rows.filter(r => r.isProxy);
-                    for (let pi = 0; pi < proxyRows.length; pi++) {
-                        const r = proxyRows[pi];
+                    // v15.934：併發池取代逐檔 await + 300ms 間隔
+                    await _runTaskPool(proxyRows.map(r => async () => {
                         try {
                             // range=5d：偵測今日開盤 & prevPrevClose
                             const data  = await yfFetch(`${BASE1_lev}/v8/finance/chart/${r.holding}?interval=1d&range=5d`);
@@ -11822,8 +11875,7 @@
                                 marketOpenedToday: todayOpened
                             };
                         } catch(_) {}
-                        if (pi < proxyRows.length - 1) await new Promise(res => setTimeout(res, 300));
-                    }
+                    }), 3);
                 }
 
                 // ── 最終快取存檔（含補抓後的 prevClose & ETF prevClose）──
@@ -13076,6 +13128,7 @@
                         try { _clearStaleMarketOpenedForOpenMarkets([...updatedMarkets]); } catch(_) {}
                     }
                     // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
+                    // v15.934 錯峰：1500→8000ms（同 directApplyPrices，close pair 優先）
                     try {
                         const _missingBaseline = holdings.some(h => {
                             const pc = window._prevCloseCache?.[h.symbol];
@@ -13083,10 +13136,10 @@
                         });
                         if (_missingBaseline && typeof loadAnalysis === 'function') {
                             clearTimeout(window._missingBaselineTimer);
-                            window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 1500);
+                            window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 8000);
                         }
                     } catch(_) {}
-                    _scheduleRefreshClosePair('csv-silent');   // v15.902
+                    _scheduleRefreshClosePair('csv-silent');   // v15.902（60s 靜默維持 cooldown）
                     renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
                     const now = new Date().toLocaleTimeString('zh-TW');
