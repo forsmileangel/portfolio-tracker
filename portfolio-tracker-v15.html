@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.938 - 颱風假判定修復（兩層）：台股 2026-07-10 颱風假未開盤但行事曆認定為交易日 → 前次收盤「尚無資料」+「快照未完整」，且已證實不修的話週一 07-13 台股今日損益整天「資料讀取中」（基準 = pair(07-10) 永遠抓不到）、週二前次收盤同被污染。(1) 立即修復：MARKET_CALENDARS.TW.holidays 加 2026-07-10（一行，_isTradingDay 全部 8 個 caller + 間接路徑自動歸位：previousTradingDate 接回 07-09、前次收盤顯示 (07-09)、週一損益基準恢復、快照/backfill 停止對 07-10 無限重試）。(2) 臨時休市自動偵測（未來颱風自癒）：新 STORAGE_KEYS.adhocClosures（pt_adhoc_closures_v1，per-market，不入 hash/Gist）；證據 = 收盤後 +60min Yahoo chart 有 ≥3 根相鄰有效 bar 卻獨缺 target（近 10 天內 covered-year 交易日）；同市場 ≥3 檔不同標的一致才標記（防個股停牌誤判，單檔市場 quorum=1 靠自癒兜底）；標記等效假日（_isTradingDay 同時查 holidays 與 adhoc set）；後續任何 chart 回應出現該日有效 close 即自動解除（自癒防誤標）；標記/解除時重置 close pair cooldown + renderAll 立即歸位。符合 v15.902 單一來源、v15.923 禁止跳日（07-09 成為合法相鄰日）、v15.924 covered-year 契約；_previousNonWeekendDate 降級 fallback（2027+）不經 _isTradingDay，不受影響（covered year 走不到）。
         v15.937 - 觀察清單三修（槓桿 CBOE 前綴 / 舊卡片補加密 / 刪除回歸修復）：(1) 批次查證（TradingView symbol search + Yahoo）AAPX/AAOX/AXTX/LITX/COHX/LNOK 六檔實際掛牌 Cboe BZX，v15.929 一律誤植 NASDAQ 才在 TV 全滅被丟去原生 fallback → 改 CBOE: 前綴 + nativeFallback:false 全部回 TV widget；MRVU 掛牌 NASDAQ（前綴本來就對，疑似連坐）僅關 fallback；舊存值由 healing 自動修正。(2) 持倉頁舊版觀察清單卡片的市場下拉補「加密」選項（v15.930 只補了 Pro modal，此處從未有過 → parity gap，非誤刪）。(3) 舊卡片 ✕ 刪除修復（v15.926 回歸）：renderWatchlist 的 onclick 用 JSON.stringify 產生雙引號截斷雙引號包的屬性，每顆 ✕ 點了都是 SyntaxError → 改 index 版 removeFromWatchlistAt(idx)（數字插值根絕引號問題，並免疫舊資料 symbol 大小寫不一致）。(4) 誤建防護：_normalizeWatchlistItem 補 market↔category 一致化（USDT 類代號選錯市場自動歸 CRYPTO，鏡射 modal 反向連動）；Pro 分頁空清單訊息點名其他分類檔數（個股原型 x／個股槓桿 y／加密 z），杜絕「標的落在非預期分頁看不見以為刪不掉」（ETHUSDT 誤建成港股案例）。不動 hash 計算／push-pull／pending，watchlist 增刪照走既有 user dirty 流程。
         v15.936 - HAWK 交易所修正：WATCHLIST_PRO_SYMBOL_META 的 HAWK 由 NASDAQ:HAWK 改 NYSE:HAWK（HawkEye 360 掛牌 NYSE，2026-05-07 IPO；v15.929 誤植 NASDAQ 導致 TradingView 查無此標的，當時被歸因為標的問題丟去原生圖 fallback）。同時 nativeFallback true→false 讓 HAWK 回到 TradingView widget（自動串流跳動，非靜態日 K）。既有使用者已存的 tvSymbol='NASDAQ:HAWK' 會被 _normalizeWatchlistItem 的 healing 機制自動採用 meta 修正值（存值等於舊版 naive 猜測時重新推斷，不寫回陣列、不影響 hash）。一行 meta 修正，不動報價/損益/同步。
         v15.935 - 觀察清單 Pro 通道指標改 LinReg 線性回歸通道（取代 v15.933 布林，兩種引擎）：使用者實際慣用 TradingView 的 LinReg 100 close 2 2。(1) TradingView widget studies：STD;Bollinger_Bands → STD;Linear_Regression（STD; 慣例已由布林實測證實有效；長度/偏差用 widget 預設 100/2 與使用者參數一致）。(2) 原生圖 _wlComputeBOLL → _wlComputeLinReg(bars, 100, 2)：對最後 min(100, bars) 根 close 最小平方回歸，上下軌 = 回歸線 ± 2 × 殘差標準差（population），mid/upper/lower 三條直線段 —— 中軌紅虛線（lineStyle 2）、上下軌藍細線，比照 TradingView 配色；資料 < 20 根不畫。(3) 皮爾森相關係數 r 顯示於 source 行（「Yahoo 原生圖 · HH:MM · LinReg r=0.91」）。(4) 副標四處 BOLL → LinReg。向右延伸線不做（lightweight-charts 需 whitespace 未來點，複雜度不值）。維持原生圖 visual-only 不變式，不碰報價/損益/close pair/Gist/hash。
@@ -453,7 +454,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.937</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.938</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1287,7 +1288,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.937';
+        const APP_VERSION = 'v15.938';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1355,6 +1356,7 @@
             macroCache:       'pf_macro_v1',
             quoteMovesCache:  'pt_quote_moves_v1',  // v15.901：CSV 報價漲跌記錄
             closePairCache:   'pt_close_pair_v3',   // v15.907：close pair cache 多日期（保留 pt_close_pair_v2 供 rollback）
+            adhocClosures:    'pt_adhoc_closures_v1', // v15.938：臨時休市（颱風假）自動偵測記錄，per-market；不入 hash/Gist
             yfProxyIdx:       'pt_yf_proxy_idx_v1',    // v15.934：Yahoo proxy 上次成功節點（跨開頁持久化，冷開不再從死節點等 timeout）
             sheetProxyIdx:    'pt_sheet_proxy_idx_v1', // v15.934：Sheet CSV proxy 上次成功節點（同上）
             // 後端
@@ -1439,6 +1441,7 @@
                     '2026-04-03','2026-04-06',                               // 兒童節 / 清明補假
                     '2026-05-01',                                           // 勞動節
                     '2026-06-19',                                           // 端午節
+                    '2026-07-10',                                           // v15.938：颱風假臨時休市（TWSE 未開盤，Yahoo 該日無有效 bar）
                     '2026-09-25',                                           // 中秋節
                     '2026-09-28',                                            // v15.074：教師節（依 TWSE 公告）
                     '2026-10-09','2026-10-10',                               // 國慶連假
@@ -1514,6 +1517,85 @@
             const day = String(d.getUTCDate()).padStart(2, '0');
             return `${y}-${m}-${day}`;
         }
+        // ── v15.938：臨時休市（颱風假等）自動偵測 ──
+        // 行事曆認定為交易日但市場實際未開盤時（如台股颱風假），close pair 永遠抓不到該日 bar，
+        // 造成前次收盤 / 次一交易日今日損益基準斷鏈。證據 = 收盤後 Yahoo chart 有相鄰有效 bar 卻獨缺該日；
+        // 同市場 ≥3 檔不同標的一致（或該市場 active 持股全數，取小）才標記，避免個股停牌/處置誤判；
+        // 後續任何 chart 回應中若出現該日有效 close 即自動解除（自癒，防誤標）。
+        // 僅 covered-year 生效；不入 userDataHash、不入 Gist（各裝置自行偵測）。
+        // 註：_previousNonWeekendDate 降級 fallback（2027+ 未涵蓋年）不經 _isTradingDay，該路徑不受此機制影響。
+        const _ADHOC_QUORUM = 3;
+        const _ADHOC_LOOKBACK_DAYS = 10;
+        let _adhocClosuresMemo = null;
+        let _adhocEvidence = {};   // { 'TW|2026-07-10': Set(symbols) } 記憶體累積，達 quorum 才落地
+        function _loadAdhocClosures() {
+            if (_adhocClosuresMemo) return _adhocClosuresMemo;
+            try { _adhocClosuresMemo = JSON.parse(localStorage.getItem(STORAGE_KEYS.adhocClosures) || '{}') || {}; }
+            catch(_) { _adhocClosuresMemo = {}; }
+            return _adhocClosuresMemo;
+        }
+        function _saveAdhocClosures(data) {
+            _adhocClosuresMemo = data;
+            try { localStorage.setItem(STORAGE_KEYS.adhocClosures, JSON.stringify(data)); } catch(_) {}
+        }
+        function _isAdhocClosure(market, dateStr) {
+            const d = _loadAdhocClosures();
+            return !!(d[market] && d[market][dateStr]);
+        }
+        function _recordAdhocClosureEvidence(market, dateStr, symbol) {
+            try {
+                if (_isAdhocClosure(market, dateStr)) return;
+                const key = market + '|' + dateStr;
+                if (!_adhocEvidence[key]) _adhocEvidence[key] = new Set();
+                _adhocEvidence[key].add(_cleanSymbolKey(symbol));
+                const activeCount = (Array.isArray(holdings) ? holdings : [])
+                    .filter(h => h && Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === market).length;
+                const quorum = Math.max(1, Math.min(_ADHOC_QUORUM, activeCount));   // 單檔市場 quorum=1（無從交叉驗證，靠自癒兜底）
+                if (_adhocEvidence[key].size < quorum) return;
+                const data = _loadAdhocClosures();
+                if (!data[market]) data[market] = {};
+                data[market][dateStr] = { detectedAt: new Date().toISOString(), symbols: [..._adhocEvidence[key]] };
+                _saveAdhocClosures(data);
+                delete _adhocEvidence[key];
+                console.log(`[AdhocClosure v15.938] ${market} ${dateStr} 標記為臨時休市（${quorum} 檔一致缺 bar）`);
+                try { _recordAppError('adhoc_closure_detected', new Error(`${market} ${dateStr}`), { market, dateStr }); } catch(_) {}
+                _closePairRefreshLastRun = 0;   // 解除 cooldown，讓下一次排程立即以修正後的日期重抓
+                renderAll();                    // previousTradingDate 已改變，既有正確 pair 立即上畫面（罕發事件，成本可接受）
+            } catch(_) {}
+        }
+        function _healAdhocClosure(market, dateStr) {
+            try {
+                const data = _loadAdhocClosures();
+                if (!(data[market] && data[market][dateStr])) return;
+                delete data[market][dateStr];
+                _saveAdhocClosures(data);
+                console.log(`[AdhocClosure v15.938] ${market} ${dateStr} 解除標記（chart 出現有效 close，原標記為誤判）`);
+                try { _recordAppError('adhoc_closure_healed', new Error(`${market} ${dateStr}`), { market, dateStr }); } catch(_) {}
+                _closePairRefreshLastRun = 0;
+                renderAll();
+            } catch(_) {}
+        }
+        // 證據判定：target 為 covered-year 行事曆交易日、近 N 天內、該市場已過 target 收盤 +60 分 buffer、
+        // chart 有 ≥3 根有效 bar 且存在早於 target 的 bar（排除新上市無資料）
+        function _maybeRecordAdhocEvidence(market, target, symbol, dated) {
+            try {
+                if (_isTradingDay(market, target) !== true) return;
+                const session = _marketSession(market, new Date());
+                if (!session || !session.localDate) return;
+                const ageMs = new Date(session.localDate + 'T00:00:00Z') - new Date(target + 'T00:00:00Z');
+                if (!(ageMs >= 0 && ageMs <= _ADHOC_LOOKBACK_DAYS * 86400000)) return;
+                if (target === session.localDate) {
+                    const hm = String(session.localHHMM || '').split(':');
+                    const nowMin = (parseInt(hm[0], 10) || 0) * 60 + (parseInt(hm[1], 10) || 0);
+                    if (!(session.status === 'closed' && nowMin >= (session.closeMin || 0) + 60)) return;
+                }
+                const valid = (dated || []).filter(b => b && typeof b.close === 'number' && b.close > 0);
+                if (valid.length < 3) return;
+                if (!valid.some(b => b.date < target)) return;
+                _recordAdhocClosureEvidence(market, target, symbol);
+            } catch(_) {}
+        }
+
         // 是否是該市場的交易日：true=是、false=明確不是、null=calendar 不涵蓋年份（fallback 週末判斷由呼叫端決定）
         function _isTradingDay(market, dateStr) {
             const cal = MARKET_CALENDARS[market];
@@ -1528,7 +1610,7 @@
                 try { _recordAppError && _recordAppError('calendar_unknown', new Error(`market=${market} year=${yr} not in MARKET_CALENDARS`)); } catch(_) {}
                 return null;
             }
-            return !cal.holidays.has(dateStr);
+            return !cal.holidays.has(dateStr) && !_isAdhocClosure(market, dateStr);   // v15.938：臨時休市（颱風假）記錄同等於假日
         }
         // 從 dateStr 向前找最近交易日；calendar unknown 回 null
         function _previousTradingDate(market, dateStr) {
@@ -2322,8 +2404,21 @@
                         close: p.close
                     }));
 
+                // v15.938 自癒：chart 回應中若出現「已標臨時休市但實際有有效 close」的日期 → 解除誤標
+                try {
+                    for (const bar of dated) {
+                        if (bar && typeof bar.close === 'number' && bar.close > 0 && _isAdhocClosure(marketKey, bar.date)) {
+                            _healAdhocClosure(marketKey, bar.date);
+                        }
+                    }
+                } catch(_) {}
+
                 const targetBar = dated.find(d => d.date === target);
-                if (!targetBar || !(typeof targetBar.close === 'number' && targetBar.close > 0)) return null;
+                if (!targetBar || !(typeof targetBar.close === 'number' && targetBar.close > 0)) {
+                    // v15.938：行事曆交易日卻收盤後仍無有效 bar → 累積臨時休市證據（達 quorum 才標記）
+                    try { _maybeRecordAdhocEvidence(marketKey, target, symbol, dated); } catch(_) {}
+                    return null;
+                }
 
                 const yahooPrevBar = dated.find(d => d.date === expectedPrevDate);
                 let prevClose = (yahooPrevBar && typeof yahooPrevBar.close === 'number' && yahooPrevBar.close > 0)
