@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.940 - 股票分割官方佐證全自動：價格尺度偵測命中後（既有 _caDetectCorporateActionCandidate，v15.922），新增 _caCorroborateCandidate 非同步向 Yahoo chart events=div,split 官方分割事件核對 —— 比例精確吻合（|num/den − cand.ratio| ≤ 0.001）且事件日在偵測窗 ±3 天 → 自動套用（applyCorporateAction 加 opts.auto，僅繞過兩個確認框；preview 安全檢查與「生效日後有賣出」硬擋保留；「生效日後有新買入批次」在 auto 模式降級為人工通知不默默調整）→ 顯眼 toast「已自動套用（Yahoo 官方核對）可復原」+ _recordAppError('split_auto_applied') 留痕。無官方事件/比例不合 → 不自動但補顯眼警示 toast + 面板「無官方佐證」徽章（修掉原本候選只默默躺面板兩次 confirm 才套用的無感知問題）。三道防護：(1) applyCorporateAction 套用前新增 _caActionAlreadyApplied 去重重查（原只在 candidate 建立時查，防 stale candidate / 跨裝置時序雙重套用，重複時回 true 移除候選列不動資料）；(2) undo/redo 快照補 corporateActionPlans（修既有缺口：undo 分割後 plan 卡 applied）；(3) 佐證網路失敗不自動不打擾（人工路徑不受影響）。CA 面板 fingerprint（v15.939）納入 corroborated 狀態確保徽章即時重繪。
         v15.939 - 過度更新全修（五項，全為早退/閘門型，不動架構）：(1) 公司行動工具面板 fingerprint 閘門 —— renderCorporateActionTool 原本每 60s renderAll tick 都做 4 次 innerHTML 重建（symbol select/最近紀錄/plan panel/preview），資料簽名（holdings+actions+plans+candidates）未變即早退；使用者輸入 preview 走 oninput 路徑不受影響。(2) 收盤快照預檢去重 —— _captureDailyPnlSnapshot 原本在去重檢查前就先算 2 次全 payload SHA-256（美股盤中 TW/HK 已收盤，每 60s 白算 4 次雜湊、隨 tradeHistory 增長變貴）；同條件 read-only 預檢先擋，正式 read→decide→write 仍在 await 後 sync 連續執行（v15.080 P1-1 不變）。(3) 分析表切 Tab 節流 —— 消費原本寫了從未讀的死變數 _lastAnalysisLoad：快取全新鮮且 10 秒內載過就不重跑 loadAnalysis（原每次切基本面/技術面 Tab 都全量重建兩張表 + 收尾 renderAll）。(4) 版本檢查改 HEAD 先行 —— 每 30 分鐘的檢查先 HEAD 比對 Last-Modified/ETag（0 byte），變動才 GET 全文抽版本（原無條件抓 ~900KB 整份 HTML）；HEAD 失敗降級照舊。(5) 死碼清理 —— 移除被 v15.912 版完全遮蔽的第一個 _showMissingFundNotice（含其中死的 symbols.json fetch 與 legacy Toast builder）。
         v15.938 - 颱風假判定修復（兩層）：台股 2026-07-10 颱風假未開盤但行事曆認定為交易日 → 前次收盤「尚無資料」+「快照未完整」，且已證實不修的話週一 07-13 台股今日損益整天「資料讀取中」（基準 = pair(07-10) 永遠抓不到）、週二前次收盤同被污染。(1) 立即修復：MARKET_CALENDARS.TW.holidays 加 2026-07-10（一行，_isTradingDay 全部 8 個 caller + 間接路徑自動歸位：previousTradingDate 接回 07-09、前次收盤顯示 (07-09)、週一損益基準恢復、快照/backfill 停止對 07-10 無限重試）。(2) 臨時休市自動偵測（未來颱風自癒）：新 STORAGE_KEYS.adhocClosures（pt_adhoc_closures_v1，per-market，不入 hash/Gist）；證據 = 收盤後 +60min Yahoo chart 有 ≥3 根相鄰有效 bar 卻獨缺 target（近 10 天內 covered-year 交易日）；同市場 ≥3 檔不同標的一致才標記（防個股停牌誤判，單檔市場 quorum=1 靠自癒兜底）；標記等效假日（_isTradingDay 同時查 holidays 與 adhoc set）；後續任何 chart 回應出現該日有效 close 即自動解除（自癒防誤標）；標記/解除時重置 close pair cooldown + renderAll 立即歸位。符合 v15.902 單一來源、v15.923 禁止跳日（07-09 成為合法相鄰日）、v15.924 covered-year 契約；_previousNonWeekendDate 降級 fallback（2027+）不經 _isTradingDay，不受影響（covered year 走不到）。
         v15.937 - 觀察清單三修（槓桿 CBOE 前綴 / 舊卡片補加密 / 刪除回歸修復）：(1) 批次查證（TradingView symbol search + Yahoo）AAPX/AAOX/AXTX/LITX/COHX/LNOK 六檔實際掛牌 Cboe BZX，v15.929 一律誤植 NASDAQ 才在 TV 全滅被丟去原生 fallback → 改 CBOE: 前綴 + nativeFallback:false 全部回 TV widget；MRVU 掛牌 NASDAQ（前綴本來就對，疑似連坐）僅關 fallback；舊存值由 healing 自動修正。(2) 持倉頁舊版觀察清單卡片的市場下拉補「加密」選項（v15.930 只補了 Pro modal，此處從未有過 → parity gap，非誤刪）。(3) 舊卡片 ✕ 刪除修復（v15.926 回歸）：renderWatchlist 的 onclick 用 JSON.stringify 產生雙引號截斷雙引號包的屬性，每顆 ✕ 點了都是 SyntaxError → 改 index 版 removeFromWatchlistAt(idx)（數字插值根絕引號問題，並免疫舊資料 symbol 大小寫不一致）。(4) 誤建防護：_normalizeWatchlistItem 補 market↔category 一致化（USDT 類代號選錯市場自動歸 CRYPTO，鏡射 modal 反向連動）；Pro 分頁空清單訊息點名其他分類檔數（個股原型 x／個股槓桿 y／加密 z），杜絕「標的落在非預期分頁看不見以為刪不掉」（ETHUSDT 誤建成港股案例）。不動 hash 計算／push-pull／pending，watchlist 增刪照走既有 user dirty 流程。
@@ -455,7 +456,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.939</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.940</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1289,7 +1290,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.939';
+        const APP_VERSION = 'v15.940';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3452,43 +3453,61 @@
             if (rc) rc.textContent = `(${_redoStack.length})`;
             if (rb) { rb.disabled = _redoStack.length === 0; rb.style.opacity = _redoStack.length === 0 ? '0.4' : '1'; }
         }
+        // v15.940：undo/redo 快照補 corporateActionPlans（修既有缺口：undo 分割後 plan 卡在 applied 狀態）
+        let _corporateActionPlansHistory = [];
+        let _corporateActionPlansRedoStack = [];
         function saveHistory() {
             if (history.length >= 50) {
                 history.shift();
                 _corporateActionsHistory.shift();
+                _corporateActionPlansHistory.shift();
             }
             history.push(JSON.parse(JSON.stringify(holdings)));
             _corporateActionsHistory.push(JSON.parse(JSON.stringify(corporateActions || [])));
+            _corporateActionPlansHistory.push(JSON.parse(JSON.stringify(corporateActionPlans || [])));
             _redoStack = []; // 新操作清除 redo
             _corporateActionsRedoStack = [];
+            _corporateActionPlansRedoStack = [];
             _syncUndoRedoBtns();
         }
         function undoLastAction() {
             if (history.length === 0) return;
             _redoStack.push(JSON.parse(JSON.stringify(holdings)));
             _corporateActionsRedoStack.push(JSON.parse(JSON.stringify(corporateActions || [])));
+            _corporateActionPlansRedoStack.push(JSON.parse(JSON.stringify(corporateActionPlans || [])));
             holdings = history.pop();
             const prevCorporateActions = _corporateActionsHistory.pop();
             if (Array.isArray(prevCorporateActions)) {
                 corporateActions = prevCorporateActions;
                 saveCorporateActions();
             }
+            const prevPlans = _corporateActionPlansHistory.pop();
+            if (Array.isArray(prevPlans)) {
+                corporateActionPlans = prevPlans;
+                saveCorporateActionPlans();
+            }
             _syncUndoRedoBtns();
-            _markAndAutoPush(['holdings', 'corporateActions']);
+            _markAndAutoPush(['holdings', 'corporateActions', 'corporateActionPlans']);
             renderAll();
         }
         function redoAction() {
             if (_redoStack.length === 0) return;
             history.push(JSON.parse(JSON.stringify(holdings)));
             _corporateActionsHistory.push(JSON.parse(JSON.stringify(corporateActions || [])));
+            _corporateActionPlansHistory.push(JSON.parse(JSON.stringify(corporateActionPlans || [])));
             holdings = _redoStack.pop();
             const nextCorporateActions = _corporateActionsRedoStack.pop();
             if (Array.isArray(nextCorporateActions)) {
                 corporateActions = nextCorporateActions;
                 saveCorporateActions();
             }
+            const nextPlans = _corporateActionPlansRedoStack.pop();
+            if (Array.isArray(nextPlans)) {
+                corporateActionPlans = nextPlans;
+                saveCorporateActionPlans();
+            }
             _syncUndoRedoBtns();
-            _markAndAutoPush(['holdings', 'corporateActions']);
+            _markAndAutoPush(['holdings', 'corporateActions', 'corporateActionPlans']);
             renderAll();
         }
         function setCurrency(c) {
@@ -8805,7 +8824,7 @@
                     + '#a' + (Array.isArray(corporateActions) ? corporateActions.length : 0) + ':'
                     + (Array.isArray(corporateActions) && corporateActions.length ? (corporateActions[corporateActions.length - 1].id || corporateActions[corporateActions.length - 1].createdAt || '') : '')
                     + '#p' + (Array.isArray(corporateActionPlans) ? corporateActionPlans.map(p => (p && (p.id || '')) + (p && (p.status || '')) + (p && (p.updatedAt || ''))).join(',') : '')
-                    + '#c' + _corporateActionCandidates.map(c => c.id).join(',');
+                    + '#c' + _corporateActionCandidates.map(c => c.id + (c.corroborated === true ? '+' : c.corroborated === false ? '-' : '')).join(',');
             } catch(_) { _fp = 'err' + Date.now(); }
             if (_fp === _caToolFingerprint) return;
             _caToolFingerprint = _fp;
@@ -8828,7 +8847,7 @@
             if (!panel) return;
             const detected = _corporateActionCandidates.map(c => `
                 <div style="padding:0.45rem 0;border-top:1px solid rgba(56,139,253,0.12);display:flex;justify-content:space-between;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-                    <span style="color:#fbbf24;font-weight:800;">疑似 ${c.symbol} ${c.oldShares}→${c.newShares}</span>
+                    <span style="color:#fbbf24;font-weight:800;">疑似 ${c.symbol} ${c.oldShares}→${c.newShares}${c.corroborated === true ? ' <span style="color:#10b981;font-size:0.78em;">官方已核對</span>' : c.corroborated === false ? ' <span style="color:#f87171;font-size:0.78em;">無官方佐證</span>' : ''}</span>
                     <span style="color:#7e93a6;">${_caFmt(c.oldPrice, 4)} → ${_caFmt(c.incomingPrice, 4)} · ${c.source}</span>
                     <span style="white-space:nowrap;">
                         <button onclick="applyCorporateActionCandidate('${c.id}')" style="padding:0.25rem 0.55rem;border-radius:6px;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.12);color:#10b981;font-weight:700;cursor:pointer;">套用</button>
@@ -8994,6 +9013,52 @@
             else _corporateActionCandidates.unshift(cand);
             _corporateActionCandidates = _corporateActionCandidates.slice(0, 8);
             try { renderCorporateActionTool(); } catch(_) {}
+            try { _caCorroborateCandidate(cand); } catch(_) {}   // v15.940：非同步官方佐證（fire-and-forget）
+        }
+        // v15.940：官方佐證自動套用 —— 價格尺度偵測命中後向 Yahoo 官方分割事件核對；
+        // 比例精確吻合（±0.001）且事件日在偵測窗（expectedDate ±3 天）→ 自動套用（僅繞過確認框，
+        // preview 安全檢查 / 生效日後交易硬擋 / 生效日後新批次全部保留並降級為人工通知）。
+        // 無官方事件或比例不合 → 不自動，但補顯眼通知（原本候選只默默躺在公司行動面板，容易漏看）。
+        let _caCorroborating = {};
+        async function _caCorroborateCandidate(cand) {
+            if (!cand || _caCorroborating[cand.id]) return;
+            _caCorroborating[cand.id] = true;
+            try {
+                const qs = _canonicalYahooSymbol(cand.symbol, getSymbolMarket(cand.symbol));
+                if (!qs) return;
+                const data = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(qs)}?interval=1d&range=3mo&events=div%2Csplit`);
+                const splits = data?.chart?.result?.[0]?.events?.splits || {};
+                const anchor = new Date((cand.expectedDate || _caToday()) + 'T12:00:00Z').getTime();
+                let official = null;
+                for (const k of Object.keys(splits)) {
+                    const ev = splits[k];
+                    const num = Number(ev?.numerator), den = Number(ev?.denominator);
+                    if (!(num > 0 && den > 0)) continue;
+                    const ratio = num / den;                                  // Yahoo 10:1 → 10（同 cand.ratio 語意：價格除以 ratio）
+                    const dayDiff = Math.abs(Number(ev.date) * 1000 - anchor) / 86400000;
+                    if (Math.abs(ratio - Number(cand.ratio)) <= 0.001 && dayDiff <= 3) {
+                        official = { ratio, date: new Date(Number(ev.date) * 1000).toISOString().slice(0, 10), splitRatio: ev.splitRatio || '' };
+                        break;
+                    }
+                }
+                const live = _corporateActionCandidates.find(c => String(c.id) === String(cand.id));
+                if (!live) return;   // 已被使用者套用/忽略
+                if (official) {
+                    live.corroborated = true;
+                    live.officialDate = official.date;
+                    console.log(`[SplitAuto v15.940] ${cand.symbol} 官方分割核對成功（${official.splitRatio || official.ratio} @ ${official.date}）→ 自動套用`);
+                    try { _recordAppError('split_auto_applied', new Error(`${cand.symbol} ${cand.oldShares}->${cand.newShares} @ ${official.date}`), { symbol: cand.symbol, ratio: cand.ratio, officialDate: official.date }); } catch(_) {}
+                    applyCorporateActionCandidate(cand.id, { auto: true });
+                } else {
+                    live.corroborated = false;   // 面板顯示「無官方佐證」徽章
+                    showWarnToast(`⚠ 偵測到 ${cand.symbol} 疑似分割 ${cand.oldShares}→${cand.newShares}（Yahoo 無官方事件佐證，未自動套用）— 請至股票分割工具確認`, 8000);
+                    try { renderCorporateActionTool(); } catch(_) {}
+                }
+            } catch(_) {
+                // 佐證網路失敗：不自動、不打擾（候選仍在面板，人工路徑不受影響）
+            } finally {
+                delete _caCorroborating[cand.id];
+            }
         }
         function _setCorporateActionDraftFromData(d) {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
@@ -9036,11 +9101,11 @@
             _setCorporateActionDraftFromData(p);
             applyCorporateAction(p.id);
         }
-        function applyCorporateActionCandidate(id) {
+        function applyCorporateActionCandidate(id, opts) {
             const cand = _corporateActionCandidates.find(c => String(c.id) === String(id));
             if (!cand) return showWarnToast('找不到疑似分割候選', 2500);
             _setCorporateActionDraftFromData(cand);
-            if (applyCorporateAction(cand.planId || null)) {
+            if (applyCorporateAction(cand.planId || null, opts)) {
                 _corporateActionCandidates = _corporateActionCandidates.filter(c => String(c.id) !== String(id));
                 renderCorporateActionTool();
             }
@@ -9061,14 +9126,26 @@
             _corporateActionCandidates = _corporateActionCandidates.filter(c => String(c.id) !== String(id));
             renderCorporateActionTool();
         }
-        function applyCorporateAction(sourcePlanId = null) {
+        function applyCorporateAction(sourcePlanId = null, opts = null) {
+            const auto = !!(opts && opts.auto);   // v15.940：官方佐證自動套用（僅繞過確認框，安全檢查全保留）
             const p = _buildCorporateActionPreview();
             if (!p.h) { showWarnToast('請先選擇持倉', 2500); return; }
             if (!p.ok) { showWarnToast(p.message || '分割預覽未通過安全檢查', 3500); return; }
             if (_hasTradeAfterActionDate(p.h.symbol, p.actionDate)) { showWarnToast('此標的在分割生效日後已有賣出紀錄；本版不支援回溯自動套用，請先手動確認資料。', 6000); return; }
-            if (_hasLotAfterActionDate(p.h, p.actionDate) && !confirm('此標的在分割生效日後有新增買入批次。直接調整所有現有 lots 可能不符合真實分割範圍，確定繼續？')) return;
-            const ok = confirm(`確定套用 ${p.h.symbol} 股票分割 ${p.oldShares} → ${p.newShares}？\n\n股數 ${_caFmt(p.quantityBefore, 8)} → ${_caFmt(p.quantityAfter, 8)}\n成本價 ${_caFmt(p.costPriceBefore, 6)} → ${_caFmt(p.costPriceAfter, 6)}\n\n此操作會保留回上一步紀錄，但不回溯修改歷史快照。`);
-            if (!ok) return;
+            if (_hasLotAfterActionDate(p.h, p.actionDate)) {
+                // v15.940：auto 模式遇「生效日後有新批次」降級為人工（新批次可能不在分割範圍，不可默默調整）
+                if (auto) { showWarnToast(`⚠ ${p.h.symbol} 官方分割已核對，但生效日後有新增買入批次 — 請至股票分割工具人工確認套用`, 8000); return; }
+                if (!confirm('此標的在分割生效日後有新增買入批次。直接調整所有現有 lots 可能不符合真實分割範圍，確定繼續？')) return;
+            }
+            if (!auto) {
+                const ok = confirm(`確定套用 ${p.h.symbol} 股票分割 ${p.oldShares} → ${p.newShares}？\n\n股數 ${_caFmt(p.quantityBefore, 8)} → ${_caFmt(p.quantityAfter, 8)}\n成本價 ${_caFmt(p.costPriceBefore, 6)} → ${_caFmt(p.costPriceAfter, 6)}\n\n此操作會保留回上一步紀錄，但不回溯修改歷史快照。`);
+                if (!ok) return;
+            }
+            // v15.940：套用前去重重查（原本只在 candidate 建立時查）—— 防 stale candidate / 跨裝置時序雙重套用
+            if (_caActionAlreadyApplied(p.h.symbol, p.ratio, p.actionDate)) {
+                showWarnToast(`${p.h.symbol} 此分割已套用過（可能來自其他裝置），已跳過重複套用`, 4500);
+                return true;   // 回 true 讓候選列正常移除
+            }
             saveHistory();
             const h = p.h;
             _ensureLots(h);
@@ -9096,7 +9173,8 @@
                 }
             }
             saveCorporateActions(); saveToStorage(); _markAndAutoPush(_caDomains); renderAll();
-            showImportToast(`✅ 已套用 ${h.symbol} ${p.oldShares}→${p.newShares} 分割`, 2600);
+            if (auto) showImportToast(`✅ 已自動套用 ${h.symbol} ${p.oldShares}→${p.newShares} 分割（Yahoo 官方核對）— 可按「復原」鍵還原`, 8000);
+            else showImportToast(`✅ 已套用 ${h.symbol} ${p.oldShares}→${p.newShares} 分割`, 2600);
             return true;
         }
         function _recentCorporateSplitAction(symbol) {
