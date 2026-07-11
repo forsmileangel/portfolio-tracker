@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.939 - 過度更新全修（五項，全為早退/閘門型，不動架構）：(1) 公司行動工具面板 fingerprint 閘門 —— renderCorporateActionTool 原本每 60s renderAll tick 都做 4 次 innerHTML 重建（symbol select/最近紀錄/plan panel/preview），資料簽名（holdings+actions+plans+candidates）未變即早退；使用者輸入 preview 走 oninput 路徑不受影響。(2) 收盤快照預檢去重 —— _captureDailyPnlSnapshot 原本在去重檢查前就先算 2 次全 payload SHA-256（美股盤中 TW/HK 已收盤，每 60s 白算 4 次雜湊、隨 tradeHistory 增長變貴）；同條件 read-only 預檢先擋，正式 read→decide→write 仍在 await 後 sync 連續執行（v15.080 P1-1 不變）。(3) 分析表切 Tab 節流 —— 消費原本寫了從未讀的死變數 _lastAnalysisLoad：快取全新鮮且 10 秒內載過就不重跑 loadAnalysis（原每次切基本面/技術面 Tab 都全量重建兩張表 + 收尾 renderAll）。(4) 版本檢查改 HEAD 先行 —— 每 30 分鐘的檢查先 HEAD 比對 Last-Modified/ETag（0 byte），變動才 GET 全文抽版本（原無條件抓 ~900KB 整份 HTML）；HEAD 失敗降級照舊。(5) 死碼清理 —— 移除被 v15.912 版完全遮蔽的第一個 _showMissingFundNotice（含其中死的 symbols.json fetch 與 legacy Toast builder）。
         v15.938 - 颱風假判定修復（兩層）：台股 2026-07-10 颱風假未開盤但行事曆認定為交易日 → 前次收盤「尚無資料」+「快照未完整」，且已證實不修的話週一 07-13 台股今日損益整天「資料讀取中」（基準 = pair(07-10) 永遠抓不到）、週二前次收盤同被污染。(1) 立即修復：MARKET_CALENDARS.TW.holidays 加 2026-07-10（一行，_isTradingDay 全部 8 個 caller + 間接路徑自動歸位：previousTradingDate 接回 07-09、前次收盤顯示 (07-09)、週一損益基準恢復、快照/backfill 停止對 07-10 無限重試）。(2) 臨時休市自動偵測（未來颱風自癒）：新 STORAGE_KEYS.adhocClosures（pt_adhoc_closures_v1，per-market，不入 hash/Gist）；證據 = 收盤後 +60min Yahoo chart 有 ≥3 根相鄰有效 bar 卻獨缺 target（近 10 天內 covered-year 交易日）；同市場 ≥3 檔不同標的一致才標記（防個股停牌誤判，單檔市場 quorum=1 靠自癒兜底）；標記等效假日（_isTradingDay 同時查 holidays 與 adhoc set）；後續任何 chart 回應出現該日有效 close 即自動解除（自癒防誤標）；標記/解除時重置 close pair cooldown + renderAll 立即歸位。符合 v15.902 單一來源、v15.923 禁止跳日（07-09 成為合法相鄰日）、v15.924 covered-year 契約；_previousNonWeekendDate 降級 fallback（2027+）不經 _isTradingDay，不受影響（covered year 走不到）。
         v15.937 - 觀察清單三修（槓桿 CBOE 前綴 / 舊卡片補加密 / 刪除回歸修復）：(1) 批次查證（TradingView symbol search + Yahoo）AAPX/AAOX/AXTX/LITX/COHX/LNOK 六檔實際掛牌 Cboe BZX，v15.929 一律誤植 NASDAQ 才在 TV 全滅被丟去原生 fallback → 改 CBOE: 前綴 + nativeFallback:false 全部回 TV widget；MRVU 掛牌 NASDAQ（前綴本來就對，疑似連坐）僅關 fallback；舊存值由 healing 自動修正。(2) 持倉頁舊版觀察清單卡片的市場下拉補「加密」選項（v15.930 只補了 Pro modal，此處從未有過 → parity gap，非誤刪）。(3) 舊卡片 ✕ 刪除修復（v15.926 回歸）：renderWatchlist 的 onclick 用 JSON.stringify 產生雙引號截斷雙引號包的屬性，每顆 ✕ 點了都是 SyntaxError → 改 index 版 removeFromWatchlistAt(idx)（數字插值根絕引號問題，並免疫舊資料 symbol 大小寫不一致）。(4) 誤建防護：_normalizeWatchlistItem 補 market↔category 一致化（USDT 類代號選錯市場自動歸 CRYPTO，鏡射 modal 反向連動）；Pro 分頁空清單訊息點名其他分類檔數（個股原型 x／個股槓桿 y／加密 z），杜絕「標的落在非預期分頁看不見以為刪不掉」（ETHUSDT 誤建成港股案例）。不動 hash 計算／push-pull／pending，watchlist 增刪照走既有 user dirty 流程。
         v15.936 - HAWK 交易所修正：WATCHLIST_PRO_SYMBOL_META 的 HAWK 由 NASDAQ:HAWK 改 NYSE:HAWK（HawkEye 360 掛牌 NYSE，2026-05-07 IPO；v15.929 誤植 NASDAQ 導致 TradingView 查無此標的，當時被歸因為標的問題丟去原生圖 fallback）。同時 nativeFallback true→false 讓 HAWK 回到 TradingView widget（自動串流跳動，非靜態日 K）。既有使用者已存的 tvSymbol='NASDAQ:HAWK' 會被 _normalizeWatchlistItem 的 healing 機制自動採用 meta 修正值（存值等於舊版 naive 猜測時重新推斷，不寫回陣列、不影響 hash）。一行 meta 修正，不動報價/損益/同步。
@@ -454,7 +455,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.938</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.939</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1288,7 +1289,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.938';
+        const APP_VERSION = 'v15.939';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3008,6 +3009,23 @@
                 if (withData === 0) return;
 
                 const complete = (withData === expectedHoldingsCount);
+
+                // v15.939：預檢去重（read-only）—— 與下方正式 dedup 同條件先擋一次，
+                // 避免每 60s tick 對「已捕捉、報價未推進」的快照白算 2 次全 payload SHA-256。
+                // 正式 read→decide→write 仍在 await 後 sync 連續執行（v15.080 P1-1 原則不變）。
+                {
+                    const preSlot = _loadDailyPnlSnapshots().markets[marketKey];
+                    if (preSlot && preSlot.current && preSlot.current.marketDate === target) {
+                        const preOldComplete = preSlot.current.complete !== false;
+                        if (preOldComplete && !complete) return;
+                        const preOldStatus = preSlot.current.quoteStatus || 'fresh_after_close';
+                        if (preOldStatus === 'fresh_after_close' && newStatus === 'pending_quote') return;
+                        if (preOldStatus === newStatus && preOldComplete === complete) {
+                            const preOldQA = preSlot.current.lastQuoteAt;
+                            if (preOldQA && quoteMeta.lastQuoteAt && new Date(quoteMeta.lastQuoteAt) <= new Date(preOldQA)) return;
+                        }
+                    }
+                }
 
                 // v15.080 hotfix P1-1：先把所有 await 跑完再做 read-modify-write，避免三市場並發 capture 互相覆蓋
                 let basisUserDataHash = null;
@@ -6993,6 +7011,7 @@
             return r[1] > c[1];
         }
 
+        let _lastVersionCheckMarker = '';   // v15.939：HEAD Last-Modified/ETag 記憶，未變不抓全文
         async function _checkAppVersion() {
             // 離線跳過（navigator.onLine 不一定可靠但能濾掉明顯 case）
             if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
@@ -7000,6 +7019,16 @@
             if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
 
             try {
+                // v15.939：先 HEAD 比對 Last-Modified/ETag（0 byte body），變動才 GET 全文抽版本字串
+                // （原每 30 分鐘無條件抓 ~900KB 全檔）；HEAD 失敗/無 header 則照舊走 GET
+                try {
+                    const h = await fetch('./portfolio-tracker-v15.html?_=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+                    if (h.ok) {
+                        const marker = (h.headers.get('last-modified') || '') + '|' + (h.headers.get('etag') || '');
+                        if (marker !== '|' && marker === _lastVersionCheckMarker) return;
+                        if (marker !== '|') _lastVersionCheckMarker = marker;
+                    }
+                } catch(_) {}
                 const r = await fetch('./portfolio-tracker-v15.html?_=' + Date.now(), { cache: 'no-store' });
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 const txt = await r.text();
@@ -8763,9 +8792,23 @@
         function _caFmt(v, max = 4) { return Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: max }); }
         function _caMoney(v, h) { const sym = typeof _nativeCurrencySymbol === 'function' ? _nativeCurrencySymbol(h) : '$'; return pv(`${sym}${_caFmt(v, 4)}`); }
         function _caToday() { try { return _taipeiToday(); } catch(_) { return new Date().toISOString().slice(0,10); } }
+        // v15.939：fingerprint 閘門 —— renderAll 每 60s tick 都呼叫本函式，原本資料未變也做 4 次 innerHTML 重建
+        // （symbol select / 最近紀錄 / plan panel / preview）。簽名涵蓋所有渲染來源；使用者輸入的 preview
+        // 走自己的 oninput 路徑（previewCorporateAction 直呼），不受閘門影響。
+        let _caToolFingerprint = null;
         function renderCorporateActionTool() {
             const sel = document.getElementById('ca-symbol');
             if (!sel) return;
+            let _fp = '';
+            try {
+                _fp = holdings.map(h => h.symbol + '|' + (h.market || '')).join(',')
+                    + '#a' + (Array.isArray(corporateActions) ? corporateActions.length : 0) + ':'
+                    + (Array.isArray(corporateActions) && corporateActions.length ? (corporateActions[corporateActions.length - 1].id || corporateActions[corporateActions.length - 1].createdAt || '') : '')
+                    + '#p' + (Array.isArray(corporateActionPlans) ? corporateActionPlans.map(p => (p && (p.id || '')) + (p && (p.status || '')) + (p && (p.updatedAt || ''))).join(',') : '')
+                    + '#c' + _corporateActionCandidates.map(c => c.id).join(',');
+            } catch(_) { _fp = 'err' + Date.now(); }
+            if (_fp === _caToolFingerprint) return;
+            _caToolFingerprint = _fp;
             const prev = sel.value;
             const options = holdings.map(h => `<option value="${h.symbol}">${h.market || getSymbolMarket(h.symbol)} ${h.symbol}</option>`).join('');
             sel.innerHTML = options || '<option value="">無持倉</option>';
@@ -10070,8 +10113,11 @@
             if (ctrl) ctrl.style.display = (n === 2 || n === 3) ? 'block' : 'none';
 
             // 切換到基本面/技術面時自動載入（快取是否有效由 loadAnalysis 內部判斷）
+            // v15.939：10s 節流 —— 快取全新鮮且 10 秒內載過就不重跑（_lastAnalysisLoad 原本寫了從未讀，
+            // 導致每次切 Tab 都全量重建兩張分析表 + 收尾 renderAll）
             if ((n === 2 || n === 3) && holdings.length > 0) {
-                loadAnalysis(false, false);
+                const _freshAndRecent = (Date.now() - _lastAnalysisLoad < 10000) && _isFundFresh() && _isTechFresh();
+                if (!_freshAndRecent) loadAnalysis(false, false);
             }
             // 切換到財報分析 Tab：首次 或 快取到期（12hr）時重新載入
             if (n === 4 && holdings.length > 0 && (!_earningsLoaded || !_isQsCacheFresh())) {
@@ -12297,52 +12343,8 @@
             }, 1000);
         }
 
-        // ── 偵測新標的並提示更新 symbols.json ──
-        async function _showMissingFundNotice(missingSymbols) {
-            // 取得目前 symbols.json
-            let currentSymbols = [];
-            try {
-                const r = await fetch('./data/symbols.json');
-                if (r.ok) currentSymbols = await r.json();
-            } catch(_) {}
-
-            // 合併新標的（去重）
-            const merged = [...new Set([...currentSymbols, ...missingSymbols])];
-            const newOnes = missingSymbols.filter(s => !currentSymbols.includes(s));
-            if (newOnes.length === 0) return; // 都已在 symbols.json 裡
-
-            // 建立提示 Toast（帶下載按鈕）
-            const notice = document.createElement('div');
-            notice.id = 'missing-fund-notice';
-            Object.assign(notice.style, {
-                position:'fixed', bottom:'1.5rem', left:'50%', transform:'translateX(-50%)',
-                background:'rgba(15,40,80,0.97)', border:'1.5px solid rgba(56,139,253,0.5)',
-                color:'#e2e8f0', padding:'0.9rem 1.2rem', borderRadius:'14px',
-                fontSize:'0.88rem', zIndex:'9999', maxWidth:'92vw',
-                boxShadow:'0 6px 24px rgba(0,0,0,0.6)', lineHeight:'1.6',
-                display:'flex', flexDirection:'column', gap:'0.55rem'
-            });
-            notice.innerHTML = `
-                <div style="color:#60a5fa;font-weight:700;">⚠ 新標的尚無基本面資料</div>
-                <div>以下標的不在 <code>data/symbols.json</code> 中，基本面欄位顯示 "-"：<br>
-                    <span style="color:#3b82f6;font-weight:600;">${newOnes.join('、')}</span></div>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <button id="sync-symbols-btn" onclick="_syncSymbols(${JSON.stringify(merged).replace(/"/g,'&quot;')})"
-                        style="flex:1;padding:0.45rem 0.8rem;background:linear-gradient(135deg,#60a5fa,#3b82f6);
-                               color:#060d1a;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;min-width:140px;">
-                        ↻ 一鍵更新清單</button>
-                    <button onclick="document.getElementById('missing-fund-notice')?.remove()"
-                        style="padding:0.45rem 0.8rem;background:rgba(100,116,139,0.3);color:#a8bdd0;
-                               border:1px solid rgba(100,116,139,0.3);border-radius:8px;cursor:pointer;font-size:0.85rem;">
-                        略過</button>
-                </div>
-                <div style="color:#7e93a6;font-size:0.78rem;">更新後基本面資料將於下次排程自動補齊。</div>`;
-            // 移除舊的通知
-            document.getElementById('missing-fund-notice')?.remove();
-            document.body.appendChild(notice);
-        }
-
-        // v15.912 override: route legacy missing-fund calls into the persistent symbol data center.
+        // v15.912 起由下方版本接手（原 legacy Toast 版被完全遮蔽，v15.939 移除死碼，含其中一個死的 symbols.json fetch）
+        // route legacy missing-fund calls into the persistent symbol data center.
         async function _showMissingFundNotice(missingSymbols) {
             try {
                 const currentSymbols = await _fetchSymbolsJsonList();
