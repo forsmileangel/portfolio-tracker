@@ -95,6 +95,22 @@
       "eps_cur_y": 2.35369,
       "eps_next_y": 2.75647,
       "fetched_at": 1783736524717
+    },
+    "SOL": {
+      "pe": null,
+      "fpe": null,
+      "peg": null,
+      "ps": null,
+      "pb": null,
+      "rev_yoy": null,
+      "rev_fwd": null,
+      "hist_avg_pe": null,
+      "eps_ttm": null,
+      "eps_cur_q": null,
+      "eps_next_q2": null,
+      "eps_cur_y": null,
+      "eps_next_y": null,
+      "fetched_at": 1783736525306
     }
   },
   "macro": {
@@ -103,33 +119,33 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7576.14013671875,
-        "chg1d": 0.43082648974473076,
-        "chg7d": 1.241439529323209
+        "price": 7575.39013671875,
+        "chg1d": 0.4208843399813908,
+        "chg7d": 1.2314171329212493
       },
       {
         "symbol": "^IXIC",
         "name": "Nasdaq",
         "cat": "股市",
-        "price": 26292.02734375,
-        "chg1d": 0.3248638686986545,
-        "chg7d": 1.7782034271495026
+        "price": 26281.607421875,
+        "chg1d": 0.2851036314995877,
+        "chg7d": 1.7378672098459385
       },
       {
         "symbol": "^SOX",
         "name": "費城半導體",
         "cat": "股市",
-        "price": 12996.0517578125,
-        "chg1d": 0.2781771436149691,
-        "chg7d": 2.929079639505744
+        "price": 12967.1630859375,
+        "chg1d": 0.05527072482638889,
+        "chg7d": 2.7002805808751926
       },
       {
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 15.229999542236328,
-        "chg1d": -3.851013917142561,
-        "chg7d": -2.1836875995631106
+        "price": 15.029999732971191,
+        "chg1d": -5.113638963471625,
+        "chg7d": -3.4682079154602308
       },
       {
         "symbol": "^TNX",
@@ -143,149 +159,53 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.95899963378906,
-        "chg1d": 0.018820281279307488,
-        "chg7d": 0.09815489077772167
+        "price": 100.96499633789062,
+        "chg1d": 0.024761141153016596,
+        "chg7d": 0.10410046292254978
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4111,
-        "chg1d": -0.47450968849226827,
-        "chg7d": -0.04134012283311626
+        "price": 4128.89990234375,
+        "chg1d": -0.04116097594305269,
+        "chg7d": 0.39389467410519763
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 71.62999725341797,
-        "chg1d": -0.6243126612169985,
-        "chg7d": 4.28009129060606
+        "price": 71.51000213623047,
+        "chg1d": -0.7907875698452634,
+        "chg7d": 4.1054004871083345
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 63746.671875,
-        "chg1d": 0.875923183424627,
-        "chg7d": 1.922596613707244
+        "price": 64122.6484375,
+        "chg1d": 1.4708873081696578,
+        "chg7d": 1.6395174273956037
       }
     ],
     "news": [
       {
-        "uuid": "ce62b576-c223-32f7-9cff-08087ddd19f9",
-        "title": "Rackspace Technology (RXT) Rebounds 22% After Brutal Week",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/ce62b576-c223-32f7-9cff-08087ddd19f9/rackspace-technology-%28rxt%29.html",
-        "providerPublishTime": 1783711356,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/WdtLVwDMWHa9DCrHM_3Y7w--~B/aD04NDM7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/81e640587f70ba6b184851e229e0447b",
-              "width": 1500,
-              "height": 843,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/qqockdLXa5sQSyVPmhv0pQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/81e640587f70ba6b184851e229e0447b",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "RXT",
-          "AMD",
-          "DOCN",
-          "PLTR",
-          "NVDA"
-        ],
-        "_sym": "AMD",
-        "titleZh": "Rackspace Technology (rxt)在殘酷的一週後反彈22%"
-      },
-      {
-        "uuid": "2f0d06b5-618a-3421-ba04-2a2245e1cbaf",
-        "title": "SK Hynix Shares Jump 14% in Nasdaq Debut",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/sk-hynix-shares-jump-14-190644495.html",
-        "providerPublishTime": 1783710404,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/K6E7B_J35bhQrNV47FOweg--~B/aD02ODM7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/mt_newswires_premium_news_706/bb98e6ffbbe3a8a99cef2782def22e41",
-              "width": 1024,
-              "height": 683,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Xa93DRLCspXRzsMwkeXPnw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/mt_newswires_premium_news_706/bb98e6ffbbe3a8a99cef2782def22e41",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SKHY",
-          "SKHYV",
-          "SPCX",
-          "NVDA",
-          "AAPL"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "SK海力士股票在納斯達克首次亮相上漲14%"
-      },
-      {
-        "uuid": "4403a62e-e235-3412-ae1e-3939d341def2",
-        "title": "Should You Buy Netflix Stock Before July 16? Here's My Honest Answer",
+        "uuid": "9c7381cd-71d1-33ce-ba36-4eaccb7154cf",
+        "title": "Mark Zuckerberg Is Turning Meta Into a Bigger Chipmaker. Its Newest In-House AI Chip Enters Production in September.",
         "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/4403a62e-e235-3412-ae1e-3939d341def2/should-you-buy-netflix-stock.html",
-        "providerPublishTime": 1783710143,
+        "link": "https://finance.yahoo.com/m/9c7381cd-71d1-33ce-ba36-4eaccb7154cf/mark-zuckerberg-is-turning.html",
+        "providerPublishTime": 1783738860,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/LGdlnv10KB1dxfjuZUmevg--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5e5d1bf27b0c9d8e798988b0cc67c325",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Y7HxLEs3ebMRDqtGCyeNMg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5e5d1bf27b0c9d8e798988b0cc67c325",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NFLX",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "您應該在7月16日之前購買Netflix股票嗎？這是我最誠實的答案"
-      },
-      {
-        "uuid": "ab5a3d7c-3d6f-33d4-9bab-1bfb4e593c30",
-        "title": "3 Under-the-Radar Stocks to Buy and Hold",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/ab5a3d7c-3d6f-33d4-9bab-1bfb4e593c30/3-under-the-radar-stocks-to.html",
-        "providerPublishTime": 1783709400,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/yiSNGhXMyk.QN7rFnOVLRA--~B/aD03Mzg7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/923c80254050c3e5f9aa0928b7b8a87d",
+              "url": "https://s.yimg.com/uu/api/res/1.2/M0xPHJJBDTyy2t1t3F0yMg--~B/aD03ODc7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/86447e25d1519a0574a98bbb00fe5f96",
               "width": 1400,
-              "height": 738,
+              "height": 787,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/0rSWNy13Lmy3LTuw.nSOcw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/923c80254050c3e5f9aa0928b7b8a87d",
+              "url": "https://s.yimg.com/uu/api/res/1.2/D28IXgajR54znaB2d5a.qw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/86447e25d1519a0574a98bbb00fe5f96",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -293,91 +213,79 @@
           ]
         },
         "relatedTickers": [
-          "AXSM",
+          "META",
+          "NVDA",
+          "AVGO",
+          "TSM"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Mark Zuckerberg正在將Meta轉變為更大的晶片製造商。其最新的內部AI晶片於9月投入生產。"
+      },
+      {
+        "uuid": "082a233e-c56a-3b99-a968-08ce2bfc43f7",
+        "title": "Dow Jones Futures: Watch Nvidia, Micron, Sandisk, Robinhood As Market Sets Up; Big Earnings Due",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/082a233e-c56a-3b99-a968-08ce2bfc43f7/dow-jones-futures%3A-watch.html",
+        "providerPublishTime": 1783737588,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/0T02XPD5GKU3j2ehXDrdDg--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/5e7ff7b358feaef0efdf2c6d084d69bf",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/qnsy4Sf20l7Ek07p6BdJ1w--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/5e7ff7b358feaef0efdf2c6d084d69bf",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SPCX",
+          "MS",
+          "GS",
+          "XMTR",
+          "JPM",
+          "^DJI",
           "^GSPC",
           "NVDA",
-          "MDGL",
-          "EXEL"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "3種要購買和持有的雷達下股票"
-      },
-      {
-        "uuid": "b12662be-a0cb-395f-80d5-9eac2f862825",
-        "title": "Micron now targets 40% of its DRAM output from U.S. soil",
-        "publisher": "TheStreet",
-        "link": "https://finance.yahoo.com/m/b12662be-a0cb-395f-80d5-9eac2f862825/micron-now-targets-40%25-of-its.html",
-        "providerPublishTime": 1783709220,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/AlLzBQ0KfiV5iDZderfX.g--~B/aD0yNTYwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/f0b8292bee0cd251ba7b667f4f2e6d44",
-              "width": 3840,
-              "height": 2560,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/tBdPY9YhC42KXLImBKkXCA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/f0b8292bee0cd251ba7b667f4f2e6d44",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU"
-        ],
-        "_sym": "MU",
-        "titleZh": "美光現在的目標是從美國土地上輸出40 ％的DRAM"
-      },
-      {
-        "uuid": "b0fec7d9-9d7d-310b-93dd-0b84753828c3",
-        "title": "Missed MU’s Monster Rally? SOXX Holders Cashed In Too",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/b0fec7d9-9d7d-310b-93dd-0b84753828c3/missed-mu%E2%80%99s-monster-rally%3F.html",
-        "providerPublishTime": 1783709130,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Vk6hix1rfS_H3jL0NCFgOg--~B/aD0xMDAxO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/13241ce3c87a731112a89ad91f3413cd",
-              "width": 1500,
-              "height": 1001,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/wqT34bhFf1aH0SI7flysdg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/13241ce3c87a731112a89ad91f3413cd",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
           "MU",
-          "SOXX"
+          "CL=F",
+          "TSM",
+          "GE",
+          "CSCO",
+          "^IXIC",
+          "ASML",
+          "UNH",
+          "JBHT",
+          "UAL",
+          "SNDK",
+          "HOOD"
         ],
         "_sym": "MU",
-        "titleZh": "錯過奇蹟大學的怪物拉力賽？ SOXX持有人也已兌現"
+        "titleZh": "道瓊斯期貨：觀看Nvidia、Micron、Sandisk、Robinhood市場上漲；大收益到期"
       },
       {
-        "uuid": "4397610c-2111-34fa-b1bc-c4a516abb3bf",
-        "title": "Oil Is Spiking and the Iran Ceasefire Is Cracking: What It Means for Your Stocks",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/4397610c-2111-34fa-b1bc-c4a516abb3bf/oil-is-spiking-and-the-iran.html",
-        "providerPublishTime": 1783708810,
+        "uuid": "e80a0abc-2b23-30f5-8ac1-54f53f2559fb",
+        "title": "Private Credit Is Coming to 401(k) Plans. These Are the Alternative Asset Managers Set to Cash In.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/e80a0abc-2b23-30f5-8ac1-54f53f2559fb/private-credit-is-coming-to.html",
+        "providerPublishTime": 1783737300,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Pa2VS_Vm_0A6gJ6hTOXqjA--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/c16836913cfdeb681411983b13d19b24",
-              "width": 1920,
-              "height": 1080,
+              "url": "https://s.yimg.com/uu/api/res/1.2/h3bGOKzm5dnmxLZMK3jOnw--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0b10054790bf559550396b9fa848ec28",
+              "width": 1400,
+              "height": 933,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vasWr3GSzEU_SjXQrEmLVA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/c16836913cfdeb681411983b13d19b24",
+              "url": "https://s.yimg.com/uu/api/res/1.2/xyyg0Lt0z2miHMSU.jqTBA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/0b10054790bf559550396b9fa848ec28",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -385,33 +293,30 @@
           ]
         },
         "relatedTickers": [
-          "XOM",
-          "CL=F",
-          "CVX",
-          "COP",
-          "MPC",
+          "BX",
+          "APO",
           "NVDA"
         ],
         "_sym": "NVDA",
-        "titleZh": "石油飆升，伊朗停火破裂：這對您的庫存意味著什麼"
+        "titleZh": "私人信貸即將加入401 (k)計劃。這些是設定為套現的替代資產管理公司。"
       },
       {
-        "uuid": "3c670967-37a4-3979-aecb-11a1aeee8919",
-        "title": "Cramer Just Turned Bearish for the First Time Since 2000: “We’re Out of Money”",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/3c670967-37a4-3979-aecb-11a1aeee8919/cramer-just-turned-bearish.html",
-        "providerPublishTime": 1783708238,
+        "uuid": "7079f238-f1a2-3d81-bad9-e1bfb9a6181d",
+        "title": "Has Meta ever had a stock split? What sets this ‘Mag 7’ stock apart",
+        "publisher": "TheStreet",
+        "link": "https://finance.yahoo.com/m/7079f238-f1a2-3d81-bad9-e1bfb9a6181d/has-meta-ever-had-a-stock.html",
+        "providerPublishTime": 1783734474,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/eZM5s4lmVUgft65TOy.Iag--~B/aD03Njc7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2c38ba9cf95e8a29d4ce8025b517bc6b",
-              "width": 1366,
-              "height": 767,
+              "url": "https://s.yimg.com/uu/api/res/1.2/BoyXtOfKvYD1fjN8yPhAvw--~B/aD0yNDcwO3c9Mzg0MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/thestreet_881/141963da0575fada6821cf829ae4ce21",
+              "width": 3840,
+              "height": 2470,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/uRBlwtpqVySqFzJy5IqCSg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2c38ba9cf95e8a29d4ce8025b517bc6b",
+              "url": "https://s.yimg.com/uu/api/res/1.2/Cr6mAvkMYsVQFIflZnuEeg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/thestreet_881/141963da0575fada6821cf829ae4ce21",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -419,100 +324,95 @@
           ]
         },
         "relatedTickers": [
-          "AMZN",
+          "META",
           "NVDA",
+          "AAPL",
+          "GOOG",
+          "MSFT",
+          "AMZN",
+          "TSLA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Meta是否曾經進行過股票分割？是什麼讓這款「Mag 7」庫存與眾不同"
+      },
+      {
+        "uuid": "bcdb248f-1a55-31ea-b2ff-87a22947d3e1",
+        "title": "Palantir CEO: “Something Has Gone Completely Wrong” With OpenAI and Anthropic",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/bcdb248f-1a55-31ea-b2ff-87a22947d3e1/palantir-ceo%3A-%E2%80%9Csomething-has.html",
+        "providerPublishTime": 1783733377,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WiS5GNZRVVdLHO.JGQurPQ--~B/aD0zOTY7dz01OTQ7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
+              "width": 594,
+              "height": 396,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7K_5VfmyP2xXLep7zGT5YQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/b40720e0d4952ee8877af7e472d25a4a",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "PLTR",
+          "NVDA",
+          "UBER"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Palantir首席執行官： OpenAI和Anthropic的“有些事情完全不對勁”"
+      },
+      {
+        "uuid": "4c6fbbbd-9061-3313-bcff-c3154b699816",
+        "title": "Micron–GM U.S. Chip Supply Pact Could Be A Game Changer For General Motors (GM)",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/technology/articles/micron-gm-u-chip-supply-001656462.html",
+        "providerPublishTime": 1783729016,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/WiWrDaLyIiiChjD7KtNhAg--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/9efbfcb932e294fa328b1e5f65049a07",
+              "width": 1194,
+              "height": 432,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/z15A6I8CsJtKpnVyKllmgQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/9efbfcb932e294fa328b1e5f65049a07",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "GM",
           "MU"
         ],
         "_sym": "MU",
-        "titleZh": "克萊默自2000年以來首次轉為看跌：「我們沒錢了」"
+        "titleZh": "Micron–GM美國晶片供應協定可能改變通用汽車（ GM ）的遊戲規則"
       },
       {
-        "uuid": "b86d79ca-7553-3ded-9d65-5e31bc6b1098",
-        "title": "Why I Can’t Stop Buying This “Boring” Chipmaker With Game Changing Upside",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/b86d79ca-7553-3ded-9d65-5e31bc6b1098/why-i-can%E2%80%99t-stop-buying-this.html",
-        "providerPublishTime": 1783707833,
+        "uuid": "88b2a59c-d1f4-36dc-86ac-70eba95291a7",
+        "title": "South Korean Memory Chip Maker’s Historic U.S. Debut Jolts Stocks",
+        "publisher": "The Wall Street Journal",
+        "link": "https://finance.yahoo.com/m/88b2a59c-d1f4-36dc-86ac-70eba95291a7/south-korean-memory-chip.html",
+        "providerPublishTime": 1783721875,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/YRkn81V6lgaiaXJnuezcCQ--~B/aD03Njg7dz0xMzY2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/a2465f23e75f2f6937382e3ec5021d07",
-              "width": 1366,
-              "height": 768,
+              "url": "https://s.yimg.com/uu/api/res/1.2/Fwf5HL4GsEGPbDfR3MJBPg--~B/aD02MzA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
+              "width": 1200,
+              "height": 630,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/uxky4HxCtcuOQJxbKC54KQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/a2465f23e75f2f6937382e3ec5021d07",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AVGO",
-          "NVDA",
-          "AMD",
-          "MRVL",
-          "GOOG",
-          "META"
-        ],
-        "_sym": "AMD",
-        "titleZh": "為什麼我無法停止購買這家改變遊戲規則的「無聊」晶片製造商"
-      },
-      {
-        "uuid": "7322d27a-255a-37b5-9323-5362371b82e3",
-        "title": "Billionaire Tech CEO: Our $25 Billion Backlog Shows “The Demand Is Booked” as “We’ve Never Seen a Buildout Like This Since the Great Wall of China”",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/7322d27a-255a-37b5-9323-5362371b82e3/billionaire-tech-ceo%3A-our-%2425.html",
-        "providerPublishTime": 1783706171,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ezxGPM9jZSHxIaTMkHiFNw--~B/aD03Njg7dz0xMzc2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2785f3e97f45a523f2e565d3950502a5",
-              "width": 1376,
-              "height": 768,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/.78K9HIVN540dr_sahVNbQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/2785f3e97f45a523f2e565d3950502a5",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "AMD",
-          "EQIX",
-          "DLR",
-          "DLR-PJ",
-          "DLR-PL",
-          "GOOG",
-          "MSFT"
-        ],
-        "_sym": "AMD",
-        "titleZh": "億萬富翁科技首席執行官：我們250億$的積壓顯示“需求已被預訂”為“自中國長城以來，我們從未見過這樣的構建”"
-      },
-      {
-        "uuid": "b86b96fb-7e5d-3817-b7c6-7cbc0627c8a2",
-        "title": "SK Hynix Stock Soars in Biggest US Listing Ever by a Foreign Company",
-        "publisher": "Investopedia",
-        "link": "https://finance.yahoo.com/m/b86b96fb-7e5d-3817-b7c6-7cbc0627c8a2/sk-hynix-stock-soars-in.html",
-        "providerPublishTime": 1783705776,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ZKK0GM2KnhXJ22MX_a7ZWg--~B/aD01NDY0O3c9ODE5MjthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/investopedia_245/1884a17b8680cd27476ffdee2f9e39be",
-              "width": 8192,
-              "height": 5464,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/BmGBejccLGUjNF.fiGd2oA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/investopedia_245/1884a17b8680cd27476ffdee2f9e39be",
+              "url": "https://s.yimg.com/uu/api/res/1.2/zIJaagDuCJitt1Cvcwyc7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -521,32 +421,283 @@
         },
         "relatedTickers": [
           "SKHY",
-          "005930.KS",
-          "MU"
+          "MU",
+          "AMD"
         ],
-        "_sym": "MU",
-        "titleZh": "SK海力士股票在美國有史以來規模最大的外國公司上市中飆升"
+        "_sym": "AMD",
+        "titleZh": "韓國記憶晶片製造商歷史悠久的美國首次亮相震撼股票"
       },
       {
-        "uuid": "8c1e01c0-53a1-3d0b-a71f-09b2eeb557c1",
-        "title": "The AI Sell-Off That Isn't About AI",
-        "publisher": "Zacks",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/ai-sell-off-isnt-ai-174600473.html",
-        "providerPublishTime": 1783705560,
+        "uuid": "2dcaeb64-d67f-3391-b8fa-166c85591f13",
+        "title": "Lumentum Stock Was Already Sold Out Before Its Big Rally",
+        "publisher": "Trefis",
+        "link": "https://finance.yahoo.com/m/2dcaeb64-d67f-3391-b8fa-166c85591f13/lumentum-stock-was-already.html",
+        "providerPublishTime": 1783720646,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/CvaJcxu7XFdF35j0KNDlVw--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/6c26ed98b7cdac0f2f776a3692796371",
+              "width": 1280,
+              "height": 720,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/MpktnzoR6GKjV7EXU1fxFA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/6c26ed98b7cdac0f2f776a3692796371",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LITE",
+          "VSAT",
+          "CSCO",
+          "ESE",
+          "EXTR",
+          "FFIV"
+        ],
+        "_sym": "LITE",
+        "titleZh": "Lumentum股票在大反彈前已售罄"
+      },
+      {
+        "uuid": "17d4a2c6-162e-34fa-987c-3d1ac4dc51b8",
+        "title": "SanDisk Stock Is Trading Like The Memory Cycle Is Dead",
+        "publisher": "Trefis",
+        "link": "https://finance.yahoo.com/m/17d4a2c6-162e-34fa-987c-3d1ac4dc51b8/sandisk-stock-is-trading-like.html",
+        "providerPublishTime": 1783719858,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/DiSWYCe7ns7UYuL97PPu9g--~B/aD03MTc7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/d1b20d83da82851caecb391399684fa2",
+              "width": 1280,
+              "height": 717,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/2BVf0XeA6BSvgKloKOdIKQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/d1b20d83da82851caecb391399684fa2",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK",
+          "MU",
+          "TXN",
+          "WDC",
+          "STX",
+          "HPE",
+          "NTAP"
+        ],
+        "_sym": "MU",
+        "titleZh": "SanDisk股票的交易就像記憶週期已死"
+      },
+      {
+        "uuid": "a35beef5-af03-319a-8df3-12afe9566280",
+        "title": "Why Is Meta (META) Stock Soaring Today",
+        "publisher": "StockStory",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/why-meta-meta-stock-soaring-210320840.html",
+        "providerPublishTime": 1783717400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Ol.OYXaTLDXSb6x604S3Pw--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/f2216b648a0db93b9cf1e78ef49e6e65",
+              "width": 1400,
+              "height": 700,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7aPjCAIn4fIyTLcmX_ixvg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/f2216b648a0db93b9cf1e78ef49e6e65",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "META",
+          "AVGO",
+          "TSM",
+          "NVDA",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "為什麼今天Meta (META)股票飆升"
+      },
+      {
+        "uuid": "3867d7ac-e12d-36cf-b091-ace87efefd74",
+        "title": "It’s SK Hynix Stock’s Big Day. Just Look at Micron Shares.",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/3867d7ac-e12d-36cf-b091-ace87efefd74/it%E2%80%99s-sk-hynix-stock%E2%80%99s-big.html",
+        "providerPublishTime": 1783716960,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/e2kRKoa_PQI2nQc92Fb8kg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/c90519638bed4bfed7c76da39707532a",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/8OGrqLzKw_Sud0jA9dMbxQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/c90519638bed4bfed7c76da39707532a",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SKHY",
+          "MU",
+          "000660.KS",
+          "GGTL",
+          "005930.KS",
+          "005935.KS",
+          "BAC"
+        ],
+        "_sym": "MU",
+        "titleZh": "今天是SK海力士股票的大日子。看看美光股票。"
+      },
+      {
+        "uuid": "5dd830ec-73ed-3952-a764-887366a50401",
+        "title": "SK Hynix: How It Measures Up After Day One",
+        "publisher": "The Wall Street Journal",
+        "link": "https://finance.yahoo.com/m/5dd830ec-73ed-3952-a764-887366a50401/sk-hynix%3A-how-it-measures-up.html",
+        "providerPublishTime": 1783716854,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/Fwf5HL4GsEGPbDfR3MJBPg--~B/aD02MzA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
+              "width": 1200,
+              "height": 630,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/zIJaagDuCJitt1Cvcwyc7A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/7b2c285183be07ca3c4e8242b25a59a8",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SKHY",
+          "AMD",
+          "CBRS",
+          "SPCX",
+          "NVDA",
+          "AVGO",
+          "MU"
+        ],
+        "_sym": "AMD",
+        "titleZh": "SK海力士：第一天後如何衡量"
+      },
+      {
+        "uuid": "b094791a-01ce-3dd2-8ea0-978934d1dc06",
+        "title": "Why the Pure Bitcoin-Miner Fund Crushed the Blockchain Basket, Up 184%",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/b094791a-01ce-3dd2-8ea0-978934d1dc06/why-the-pure-bitcoin-miner.html",
+        "providerPublishTime": 1783716537,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/t0gWHxJRXGtk1JF7qRYMUg--~B/aD0xMDAwO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/859859241034558057f076c1c9064a4e",
+              "width": 1500,
+              "height": 1000,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/pAr1dDOmkFlwstxY8h_Brw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/859859241034558057f076c1c9064a4e",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "BTC-USD",
+          "NVDA",
+          "AMD",
+          "MARA"
+        ],
+        "_sym": "AMD",
+        "titleZh": "為什麼純比特幣礦工基金壓垮了區塊鏈籃子，上漲184 ％"
+      },
+      {
+        "uuid": "5e3d4e15-fbc3-3cfd-8a43-b5115c6c94e1",
+        "title": "SK Hynix, Micron, Meta, Delta, Circle Internet, and More Stocks That Explain Today’s Market",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/5e3d4e15-fbc3-3cfd-8a43-b5115c6c94e1/sk-hynix%2C-micron%2C-meta%2C.html",
+        "providerPublishTime": 1783716300,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/1GyokYb3rhlU1hBCT9NaMg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/xpHfBAvtmcLfGwrHdK.gaA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SKHY",
+          "MU",
+          "INTC",
+          "GLW",
+          "DAL",
+          "SKHYV",
+          "MSTR",
+          "STRC",
+          "STRD",
+          "STRF",
+          "STRK",
+          "SNDK",
+          "META",
+          "CRCL",
+          "MRVL"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "SK Hynix、Micron、Meta、Delta、Circle Internet等股票解釋了當今市場"
+      },
+      {
+        "uuid": "b02c5cca-8316-3add-a2e5-c6dd52fe0b85",
+        "title": "Micron Jumps as Chip Sentiment Improves",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/micron-jumps-chip-sentiment-improves-202514381.html",
+        "providerPublishTime": 1783715114,
         "type": "STORY",
         "relatedTickers": [
           "MU",
-          "005930.KS"
+          "AVGO",
+          "SNDK",
+          "AMD",
+          "MRVL",
+          "AAPL"
         ],
-        "_sym": "MU",
-        "titleZh": "與AI無關的人工智能拋售"
+        "_sym": "AMD",
+        "titleZh": "隨著晶片情緒改善，美光跳躍"
       },
       {
         "uuid": "3cf6b0e9-95bb-3e07-af5c-4ff9c2cbe3bf",
         "title": "SK Hynix Stock Jumps After Making U.S. Trading Debut",
         "publisher": "Investor's Business Daily",
         "link": "https://finance.yahoo.com/m/3cf6b0e9-95bb-3e07-af5c-4ff9c2cbe3bf/sk-hynix-stock-jumps-after.html",
-        "providerPublishTime": 1783704993,
+        "providerPublishTime": 1783713943,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
@@ -566,8 +717,8 @@
         },
         "relatedTickers": [
           "SKHY",
-          "MU",
           "SNDK",
+          "MU",
           "ASML"
         ],
         "_sym": "SNDK",
@@ -603,110 +754,6 @@
         "titleZh": "Coherent的利潤率擴張是投資者應該關注的指標"
       },
       {
-        "uuid": "422f570c-81b4-3053-bb4c-b2acac9b3c45",
-        "title": "How OpenAI’s New GPT 5.6 Stacks Up Against SpaceX, Google, Anthropic",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/422f570c-81b4-3053-bb4c-b2acac9b3c45/how-openai%E2%80%99s-new-gpt-5.6.html",
-        "providerPublishTime": 1783702800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/UCjSzAOcWvKO8wlUQopPTw--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/62cd4322db88968f1d57e909bbc045cc",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/i8sA9Xpt30Yy0ZVBuk1QWA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/62cd4322db88968f1d57e909bbc045cc",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "GOOG",
-          "SPCX",
-          "AVGO",
-          "ORCL",
-          "ORCL-PD",
-          "AMD"
-        ],
-        "_sym": "AMD",
-        "titleZh": "OpenAI的新GPT 5.6如何對抗SpaceX、Google、Anthropic"
-      },
-      {
-        "uuid": "fec64481-3649-33bd-a9a9-b83e5dc71bc8",
-        "title": "Jim Cramer Says NVIDIA Is the Most Proprietary Chip Company in History, and the Market Is Getting Its Valuation Wrong",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/fec64481-3649-33bd-a9a9-b83e5dc71bc8/jim-cramer-says-nvidia-is-the.html",
-        "providerPublishTime": 1783702496,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/pd.zV_WYCZSewbnIwurwnw--~B/aD0xOTIwO3c9MjU2MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/88b81b0965b1b4854401fc4229449821",
-              "width": 2560,
-              "height": 1920,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ylBlJGLRmW_j33uL6HBp2A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/88b81b0965b1b4854401fc4229449821",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "ORCL",
-          "ORCL-PD",
-          "META",
-          "SOXX",
-          "SNDK"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "Jim Cramer表示NVIDIA是歷史上最專有的晶片公司，市場估值出錯"
-      },
-      {
-        "uuid": "7437b3a1-3fad-3e45-bc17-b9177222621e",
-        "title": "XSD vs. SMH: Should Your Semiconductor ETF Be Equal-Weight or Cap-Weight?",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/m/7437b3a1-3fad-3e45-bc17-b9177222621e/xsd-vs.-smh%3A-should-your.html",
-        "providerPublishTime": 1783701866,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1ewu_uwX1LNFVGCxV5Zeag--~B/aD04NDA7dz0xNTAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/23df8c4c88a5320240bdef0f3a4067f3",
-              "width": 1500,
-              "height": 840,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/CM4c7Lvi0r484pLuDugosA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/23df8c4c88a5320240bdef0f3a4067f3",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MRVL",
-          "NVDA",
-          "SMH",
-          "INTC",
-          "XSD",
-          "AMD",
-          "TSM",
-          "ASML"
-        ],
-        "_sym": "AMD",
-        "titleZh": "XSD與SMH ：您的半導體ETF應該相等重量還是上限重量？"
-      },
-      {
         "uuid": "ffba5a10-0bac-3f79-ba08-c853d225f632",
         "title": "AAOI Benefits From Strong 800G Transceivers Demand: More Upside Ahead?",
         "publisher": "Zacks",
@@ -736,22 +783,22 @@
         "titleZh": "AAOI受益於強勁的800G收發器需求：未來還會有更多好處嗎？"
       },
       {
-        "uuid": "41330aca-6ccb-3904-a0b7-9261c2524c71",
-        "title": "Nasdaq Edges Higher as SK Hynix Begins Trading",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/41330aca-6ccb-3904-a0b7-9261c2524c71/nasdaq-edges-higher-as-sk.html",
-        "providerPublishTime": 1783701171,
+        "uuid": "b32260bd-7ad5-3230-82ce-a4cd564ffb69",
+        "title": "US Stock Market Today: S&P 500 Futures Edge Higher On Persistent Higher Yield Concerns",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/us-stock-market-today-p-081449137.html",
+        "providerPublishTime": 1783671289,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_kc6REYMS1JrAuV5bYtjfA--~B/aD02NTt3PTMyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e",
-              "width": 320,
-              "height": 65,
+              "url": "https://s.yimg.com/uu/api/res/1.2/d4E4P3C1gbs8FgjLBwQDxQ--~B/aD00MzI7dz0xMTk0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
+              "width": 1194,
+              "height": 432,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/5waH37HKuL3X52B3V2GWrw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e",
+              "url": "https://s.yimg.com/uu/api/res/1.2/1NhR10SDcMRWs7cFC1fJiA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/de3693c96ca28c16427680d76341d044",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -759,31 +806,32 @@
           ]
         },
         "relatedTickers": [
-          "SKHY",
           "^GSPC",
-          "SNDK",
-          "^IXIC"
+          "^TNX",
+          "HPE",
+          "COST",
+          "LITE"
         ],
-        "_sym": "SNDK",
-        "titleZh": "隨著SK海力士開始交易，納斯達克的優勢越來越高"
+        "_sym": "LITE",
+        "titleZh": "今日美國股市：標準普爾500指數期貨因持續高收益的擔憂而走高"
       },
       {
-        "uuid": "5e3d4e15-fbc3-3cfd-8a43-b5115c6c94e1",
-        "title": "SK Hynix, Micron, Meta, Delta, Circle Internet, and More Stocks That Explain Today’s Market",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/5e3d4e15-fbc3-3cfd-8a43-b5115c6c94e1/sk-hynix%2C-micron%2C-meta%2C.html",
-        "providerPublishTime": 1783699920,
+        "uuid": "41b63c1b-9d33-321e-8d59-aaaa2a688b84",
+        "title": "Why Did Ciena Stock Gain 460%?",
+        "publisher": "Trefis",
+        "link": "https://finance.yahoo.com/m/41b63c1b-9d33-321e-8d59-aaaa2a688b84/why-did-ciena-stock-gain-460%25%3F.html",
+        "providerPublishTime": 1783647911,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/1GyokYb3rhlU1hBCT9NaMg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
+              "url": "https://s.yimg.com/uu/api/res/1.2/HDinKS6VobQHLNatNfOpVg--~B/aD04NTM7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/3ec89fb40665726434c600288f385a83",
               "width": 1280,
-              "height": 640,
+              "height": 853,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/xpHfBAvtmcLfGwrHdK.gaA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/7a544b4729d7b1d81e618b6c3c06ba8b",
+              "url": "https://s.yimg.com/uu/api/res/1.2/2l80sSmUvyB1GVUPzfIwUg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/3ec89fb40665726434c600288f385a83",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -791,26 +839,19 @@
           ]
         },
         "relatedTickers": [
-          "MU",
-          "SKHY",
-          "INTC",
+          "CIEN",
+          "CSCO",
           "GLW",
-          "000660.KS",
-          "STRC",
-          "STRD",
-          "STRF",
-          "STRK",
-          "DAL",
-          "MRVL",
-          "SNDK",
-          "MSTR",
-          "CRCL"
+          "LITE",
+          "ANET",
+          "AVGO",
+          "^GSPC"
         ],
-        "_sym": "SNDK",
-        "titleZh": "SK Hynix、Micron、Meta、Delta、Circle Internet等股票解釋了當今市場"
+        "_sym": "LITE",
+        "titleZh": "為什麼Ciena的股價上漲了460% ？"
       }
     ],
-    "fetched_at": 1783711864753
+    "fetched_at": 1783740118601
   },
   "earnings": {
     "AMD": {
