@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.942 - 港股報價延遲標示：今日損益卡於港股**盤中**在卡片底部加獨立註腳行「港股報價延遲約20分」（初版做在港股列行內小字，會擠壓市場列 flex 兩端排版，同版修正為註腳行）。背景：使用者反映港股抓不到即時 → 2026-07-13 開盤實測，GOOGLEFINANCE（CSV 報價源）對 7709/9747 開盤 14 分鐘仍顯示前日收盤（0.00%），Yahoo 免費港股亦延遲 15-21 分（09:44 只看得到 09:20 競價價）—— 免費世界無港股即時源（HKEX 即時需授權費），冷門槓桿 ETF 與 USD 櫃檯（9747）更慢。此為誠實標示非修復：來源不變，收盤後凍結值不標（非延遲問題）。使用者選最小方案（選項 2）；備選的港股改 Yahoo 直抓（帶真實報價時間戳，開盤窗較新）暫不做。
         v15.941 - 分割自動套用補反向護欄（使用者提問「會影響成本計算嗎」觸發的補強）：成本守恆機制確認完備 —— preview 硬檢查（|分割後總成本−分割前| ≤ max(0.05, 1e-6×基數)，auto 不繞過）、FIFO 逐批 qty×ratio / cost÷ratio 每批總成本不變（未來賣出成本歸屬一致）、均價從總成本反推非直接除、生效日後有賣出硬擋/有新批次 auto 降級。但**反向分割（ratio < 1）存在工具算不出的現實偏差**：畸零股現金返還（10÷8=1.25 股，券商實給 1 股+折現）、台股現金減資（Yahoo 同樣標為 reverse split 但有退還股款，總成本不該守恆）→ v15.941 起反向分割即使官方核對成功也**不自動套用**，降級為「官方已核對，請人工確認」通知（面板徽章保留）；正向分割（1→N）維持全自動。
         v15.940 - 股票分割官方佐證全自動：價格尺度偵測命中後（既有 _caDetectCorporateActionCandidate，v15.922），新增 _caCorroborateCandidate 非同步向 Yahoo chart events=div,split 官方分割事件核對 —— 比例精確吻合（|num/den − cand.ratio| ≤ 0.001）且事件日在偵測窗 ±3 天 → 自動套用（applyCorporateAction 加 opts.auto，僅繞過兩個確認框；preview 安全檢查與「生效日後有賣出」硬擋保留；「生效日後有新買入批次」在 auto 模式降級為人工通知不默默調整）→ 顯眼 toast「已自動套用（Yahoo 官方核對）可復原」+ _recordAppError('split_auto_applied') 留痕。無官方事件/比例不合 → 不自動但補顯眼警示 toast + 面板「無官方佐證」徽章（修掉原本候選只默默躺面板兩次 confirm 才套用的無感知問題）。三道防護：(1) applyCorporateAction 套用前新增 _caActionAlreadyApplied 去重重查（原只在 candidate 建立時查，防 stale candidate / 跨裝置時序雙重套用，重複時回 true 移除候選列不動資料）；(2) undo/redo 快照補 corporateActionPlans（修既有缺口：undo 分割後 plan 卡 applied）；(3) 佐證網路失敗不自動不打擾（人工路徑不受影響）。CA 面板 fingerprint（v15.939）納入 corroborated 狀態確保徽章即時重繪。
         v15.939 - 過度更新全修（五項，全為早退/閘門型，不動架構）：(1) 公司行動工具面板 fingerprint 閘門 —— renderCorporateActionTool 原本每 60s renderAll tick 都做 4 次 innerHTML 重建（symbol select/最近紀錄/plan panel/preview），資料簽名（holdings+actions+plans+candidates）未變即早退；使用者輸入 preview 走 oninput 路徑不受影響。(2) 收盤快照預檢去重 —— _captureDailyPnlSnapshot 原本在去重檢查前就先算 2 次全 payload SHA-256（美股盤中 TW/HK 已收盤，每 60s 白算 4 次雜湊、隨 tradeHistory 增長變貴）；同條件 read-only 預檢先擋，正式 read→decide→write 仍在 await 後 sync 連續執行（v15.080 P1-1 不變）。(3) 分析表切 Tab 節流 —— 消費原本寫了從未讀的死變數 _lastAnalysisLoad：快取全新鮮且 10 秒內載過就不重跑 loadAnalysis（原每次切基本面/技術面 Tab 都全量重建兩張表 + 收尾 renderAll）。(4) 版本檢查改 HEAD 先行 —— 每 30 分鐘的檢查先 HEAD 比對 Last-Modified/ETag（0 byte），變動才 GET 全文抽版本（原無條件抓 ~900KB 整份 HTML）；HEAD 失敗降級照舊。(5) 死碼清理 —— 移除被 v15.912 版完全遮蔽的第一個 _showMissingFundNotice（含其中死的 symbols.json fetch 與 legacy Toast builder）。
@@ -457,7 +458,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.941</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.942</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
@@ -1291,7 +1292,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.941';
+        const APP_VERSION = 'v15.942';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3843,6 +3844,11 @@
                     +   mkRow('US', '美股')
                     +   mkRow('HK', '港股')
                     + '</div>'
+                    // v15.942：港股免費報價源（GOOGLEFINANCE / Yahoo）皆延遲約 15-20 分，盤中提示避免誤以為即時
+                    // （2026-07-13 實測：開盤 14 分鐘 CSV 仍顯示前日收盤 0.00%）。獨立註腳行，不擠壓市場列 flex 排版；收盤凍結值不標。
+                    + ((byMk.HK && byMk.HK.count > 0 && byMk.HK.status === 'open')
+                        ? '<div style="margin-top:0.3rem;color:#607585;font-size:0.62rem;text-align:right;line-height:1.3;">港股報價延遲約20分</div>'
+                        : '')
                     + '</div>';
             })();
 
