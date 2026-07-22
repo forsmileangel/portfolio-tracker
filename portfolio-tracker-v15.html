@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.943 - 沉穩石墨 UI 改版：全站改為石墨深灰＋低彩度灰綠色票；移除背景科技網格、漂浮光球、玻璃模糊、藍色 glow、標題 shimmer 與高彩度漸層；統一卡片、按鈕、輸入框、Tab、表格、modal、toast、持倉列與觀察清單 Pro 的表面層級，正負損益改用柔和語意色，圓餅圖與原生圖表改低彩度配色。不改版面、DOM id、渲染流程、損益、報價、Gist、FSA、Storage Key 或 PWA 啟動邏輯。
         v15.942 - 港股報價延遲標示：今日損益卡於港股**盤中**在卡片底部加獨立註腳行「港股報價延遲約20分」（初版做在港股列行內小字，會擠壓市場列 flex 兩端排版，同版修正為註腳行）。背景：使用者反映港股抓不到即時 → 2026-07-13 開盤實測，GOOGLEFINANCE（CSV 報價源）對 7709/9747 開盤 14 分鐘仍顯示前日收盤（0.00%），Yahoo 免費港股亦延遲 15-21 分（09:44 只看得到 09:20 競價價）—— 免費世界無港股即時源（HKEX 即時需授權費），冷門槓桿 ETF 與 USD 櫃檯（9747）更慢。此為誠實標示非修復：來源不變，收盤後凍結值不標（非延遲問題）。使用者選最小方案（選項 2）；備選的港股改 Yahoo 直抓（帶真實報價時間戳，開盤窗較新）暫不做。
         v15.941 - 分割自動套用補反向護欄（使用者提問「會影響成本計算嗎」觸發的補強）：成本守恆機制確認完備 —— preview 硬檢查（|分割後總成本−分割前| ≤ max(0.05, 1e-6×基數)，auto 不繞過）、FIFO 逐批 qty×ratio / cost÷ratio 每批總成本不變（未來賣出成本歸屬一致）、均價從總成本反推非直接除、生效日後有賣出硬擋/有新批次 auto 降級。但**反向分割（ratio < 1）存在工具算不出的現實偏差**：畸零股現金返還（10÷8=1.25 股，券商實給 1 股+折現）、台股現金減資（Yahoo 同樣標為 reverse split 但有退還股款，總成本不該守恆）→ v15.941 起反向分割即使官方核對成功也**不自動套用**，降級為「官方已核對，請人工確認」通知（面板徽章保留）；正向分割（1→N）維持全自動。
         v15.940 - 股票分割官方佐證全自動：價格尺度偵測命中後（既有 _caDetectCorporateActionCandidate，v15.922），新增 _caCorroborateCandidate 非同步向 Yahoo chart events=div,split 官方分割事件核對 —— 比例精確吻合（|num/den − cand.ratio| ≤ 0.001）且事件日在偵測窗 ±3 天 → 自動套用（applyCorporateAction 加 opts.auto，僅繞過兩個確認框；preview 安全檢查與「生效日後有賣出」硬擋保留；「生效日後有新買入批次」在 auto 模式降級為人工通知不默默調整）→ 顯眼 toast「已自動套用（Yahoo 官方核對）可復原」+ _recordAppError('split_auto_applied') 留痕。無官方事件/比例不合 → 不自動但補顯眼警示 toast + 面板「無官方佐證」徽章（修掉原本候選只默默躺面板兩次 confirm 才套用的無感知問題）。三道防護：(1) applyCorporateAction 套用前新增 _caActionAlreadyApplied 去重重查（原只在 candidate 建立時查，防 stale candidate / 跨裝置時序雙重套用，重複時回 true 移除候選列不動資料）；(2) undo/redo 快照補 corporateActionPlans（修既有缺口：undo 分割後 plan 卡 applied）；(3) 佐證網路失敗不自動不打擾（人工路徑不受影響）。CA 面板 fingerprint（v15.939）納入 corroborated 狀態確保徽章即時重繪。
@@ -195,6 +196,32 @@
       }
     </script>
     <style>
+        :root {
+            color-scheme: dark;
+            --pt-bg: #111513;
+            --pt-surface-1: #171c1a;
+            --pt-surface-2: #1d2320;
+            --pt-surface-3: #242b27;
+            --pt-surface-hover: #29332e;
+            --pt-border: #303a34;
+            --pt-border-strong: #46564d;
+            --pt-text: #e6ebe7;
+            --pt-text-soft: #aab5ae;
+            --pt-text-muted: #78867e;
+            --pt-accent: #6f9b84;
+            --pt-accent-strong: #84ad97;
+            --pt-accent-soft: rgba(111,155,132,0.16);
+            --pt-positive: #79b88c;
+            --pt-positive-soft: rgba(121,184,140,0.15);
+            --pt-negative: #d47d7d;
+            --pt-negative-soft: rgba(212,125,125,0.15);
+            --pt-warning: #c6a15b;
+            --pt-warning-soft: rgba(198,161,91,0.15);
+            --pt-info: #7f9eb2;
+            --pt-info-soft: rgba(127,158,178,0.15);
+            --pt-shadow: 0 8px 24px rgba(0,0,0,0.22);
+        }
+
         /* 使用微軟正黑體，跨平台 fallback 順序：Windows → macOS → Android/Web */
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -204,20 +231,20 @@
             overflow-y: auto; 
             font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #060d1a 0%, #081b30 60%, #071224 100%);
+            background: var(--pt-bg);
             padding: 2rem;
             position: relative;
-            color: #e2e8f0;
+            color: var(--pt-text);
         }
         
-        .glass-card { background: linear-gradient(135deg, rgba(11,26,51,0.97) 0%, rgba(6,13,26,0.99) 100%); backdrop-filter: blur(20px); border: 1.5px solid rgba(56,139,253,0.18); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(96,165,250,0.08); position: relative; overflow: hidden; }
+        .glass-card { background: var(--pt-surface-1); border: 1px solid var(--pt-border); border-radius: 8px; box-shadow: var(--pt-shadow); position: relative; overflow: hidden; }
         
-        .stat-card { background: linear-gradient(135deg, rgba(56,139,253,0.15) 0%, rgba(37,99,235,0.1) 100%); border: 2px solid rgba(56,139,253,0.4); border-radius: 16px; padding: 1.5rem; transition: border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(56,139,253,0.2), inset 0 1px 0 rgba(255,255,255,0.1); container-type: inline-size; display:flex; flex-direction:column; }
+        .stat-card { background: var(--pt-surface-2); border: 1px solid var(--pt-border); border-radius: 8px; padding: 1.5rem; transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.16); container-type: inline-size; display:flex; flex-direction:column; }
         /* v15.076：5 張卡片內部區塊節奏統一，桌機 separator 對齊 */
         .stat-card-header { min-height: 56px; }
         .stat-card-amount { min-height: 36px; }
         .stat-card-subamt { min-height: 22px; }
-        .stat-card-mkblock { margin-top: auto; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .stat-card-mkblock { margin-top: auto; padding-top: 0.4rem; border-top: 1px solid var(--pt-border); }
         @media (max-width: 540px) {
             .stat-card-header, .stat-card-amount, .stat-card-subamt { min-height: auto; }
         }
@@ -227,79 +254,82 @@
         /* 損益主行：flex 讓百分比貼右 */
         .stat-pnl-row { display:flex; align-items:baseline; justify-content:space-between; gap:0.4rem; flex-wrap:nowrap; }
         .stat-pct { font-size: clamp(0.78rem, 4.5cqw, 1rem) !important; font-weight:600; white-space:nowrap; flex-shrink:0; }
-        .stat-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(56,139,253,0.12) 0%, transparent 70%); pointer-events: none; }
+        .stat-card::before { content: none; }
         
-        .holding-row { background: linear-gradient(135deg, rgba(15,30,60,0.6) 0%, rgba(10,20,40,0.8) 100%); border: 2px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; border-radius: 16px; padding: 0; margin-bottom: 2px; transition: border-color 0.3s; animation: slideIn 0.5s ease; position: relative; overflow: hidden; }
+        .holding-row { background: var(--pt-surface-2); border: 1px solid var(--pt-border); border-left: 3px solid var(--pt-accent); border-radius: 8px; padding: 0; margin-bottom: 2px; transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden; }
         .holding-header { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 1rem 0.65rem 1.25rem; cursor:pointer; gap:0.5rem; flex-wrap:wrap; user-select:none; }
-        .holding-header:hover { background:rgba(59,130,246,0.05); }
-        .holding-body { padding:0.25rem 1rem 0.85rem 1.25rem; border-top:1px solid rgba(255,255,255,0.06); }
-        .holding-row::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%); box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+        .holding-header:hover { background:var(--pt-accent-soft); }
+        .holding-body { padding:0.25rem 1rem 0.85rem 1.25rem; border-top:1px solid var(--pt-border); }
+        .holding-row::before { content: none; }
         body.privacy-active .pv-field { color: transparent !important; text-shadow: 0 0 7px rgba(200,200,200,0.4) !important; }
         body.privacy-active .pv-hint  { visibility: hidden; }
         
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         
-        input, select { width: 100%; padding: 0.75rem 1rem; background: rgba(6,13,26,0.85); border: 1.5px solid rgba(56,139,253,0.22); border-radius: 10px; color: #93c5fd; font-size: 0.95rem; transition: all 0.3s ease; font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif; font-weight: 500; }
-        input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.05); background: rgba(6,13,26,0.95); }
+        input, select, textarea { width: 100%; padding: 0.75rem 1rem; background: var(--pt-surface-1); border: 1px solid var(--pt-border); border-radius: 7px; color: var(--pt-text); font-size: 0.95rem; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif; font-weight: 500; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pt-accent); box-shadow: 0 0 0 3px rgba(111,155,132,0.2); background: var(--pt-surface-2); }
         
-        button { padding: 0.75rem 1.5rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, box-shadow 0.2s; font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif; text-transform: uppercase; letter-spacing: 1px; position: relative; overflow: hidden; }
+        button { padding: 0.75rem 1.5rem; border: 1px solid var(--pt-border); border-radius: 7px; font-weight: 600; cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s; font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif; text-transform: none; letter-spacing: 0; position: relative; overflow: hidden; background: var(--pt-surface-3); color: var(--pt-text); }
+        button:hover { border-color: var(--pt-border-strong); background: var(--pt-surface-hover); }
+        button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(111,155,132,0.24); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; }
         button::before { content: none; }
         
-        .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #fff; box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
-        .btn-delete { background: rgba(239,68,68,0.2); color: #ef4444; padding: 0.5rem; border-radius: 8px; border: 2px solid rgba(239,68,68,0.4); }
+        .btn-primary { background: var(--pt-accent); color: #101512; border-color: var(--pt-accent); box-shadow: none; }
+        .btn-primary:hover { background: var(--pt-accent-strong); border-color: var(--pt-accent-strong); }
+        .btn-delete { background: var(--pt-negative-soft); color: var(--pt-negative); padding: 0.5rem; border-radius: 7px; border: 1px solid rgba(212,125,125,0.38); }
         
-        .profit { color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.5); }
-        .loss { color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .profit { color: var(--pt-positive); text-shadow: none; }
+        .loss { color: var(--pt-negative); text-shadow: none; }
         .mono { font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', 'Heiti TC', sans-serif; font-weight: 600; }
         
-        .market-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; background: linear-gradient(135deg, rgba(30,58,110,0.35) 0%, rgba(20,40,80,0.3) 100%); border: 1.5px solid rgba(56,139,253,0.3); border-radius: 8px; font-size: 0.85rem; font-weight: 700; }
+        .market-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; background: var(--pt-accent-soft); border: 1px solid rgba(111,155,132,0.34); border-radius: 6px; color: var(--pt-accent-strong); font-size: 0.85rem; font-weight: 700; }
         
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(10deg); } }
-        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         #pieCanvas { max-width: 100%; height: 400px; }
         .csv-file-input-hidden { position:fixed !important; top:-9999px !important; left:-9999px !important; width:1px !important; height:1px !important; opacity:0 !important; overflow:hidden !important; padding:0 !important; border:none !important; }
         /* ── Tab System ── */
-        .tab-btn { background:rgba(8,16,32,0.7); color:#7e93a6; border:1.5px solid rgba(56,139,253,0.12); border-radius:12px 12px 0 0; padding:0.65rem 2rem; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.25s; letter-spacing:1px; text-transform:none; }
-        .tab-btn.active { background:linear-gradient(135deg,rgba(30,58,110,0.45) 0%,rgba(18,38,80,0.35) 100%); color:#93c5fd; border-color:rgba(56,139,253,0.4); border-bottom-color:transparent; }
+        .tab-btn { background:transparent; color:var(--pt-text-muted); border:0; border-bottom:2px solid transparent; border-radius:0; padding:0.65rem 1.5rem; font-size:1rem; font-weight:700; cursor:pointer; transition:color 0.2s, background 0.2s, border-color 0.2s; letter-spacing:0; text-transform:none; }
+        .tab-btn:hover { color:var(--pt-text-soft); background:rgba(255,255,255,0.025); }
+        .tab-btn.active { background:var(--pt-accent-soft); color:var(--pt-accent-strong); border-bottom-color:var(--pt-accent); }
         .tab-pane { display:none; }
         .tab-pane.active { display:block; }
         /* indicator badges */
-        .kd-up   { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(16,185,129,0.2); color:#10b981; font-weight:700; font-size:0.8rem; }
-        .kd-down { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(239,68,68,0.15); color:#ef4444; font-weight:700; font-size:0.8rem; }
-        .kd-neu  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#a8bdd0; font-weight:700; font-size:0.8rem; }
-        .rsi-ob  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(239,68,68,0.2); color:#ef4444; font-weight:700; font-size:0.8rem; }
-        .rsi-os  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(59,130,246,0.2); color:#60a5fa; font-weight:700; font-size:0.8rem; }
-        .rsi-neu { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(100,116,139,0.2); color:#a8bdd0; font-weight:700; font-size:0.8rem; }
+        .kd-up   { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:var(--pt-positive-soft); color:var(--pt-positive); font-weight:700; font-size:0.8rem; }
+        .kd-down { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:var(--pt-negative-soft); color:var(--pt-negative); font-weight:700; font-size:0.8rem; }
+        .kd-neu  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(120,134,126,0.16); color:var(--pt-text-soft); font-weight:700; font-size:0.8rem; }
+        .rsi-ob  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:var(--pt-negative-soft); color:var(--pt-negative); font-weight:700; font-size:0.8rem; }
+        .rsi-os  { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:var(--pt-info-soft); color:var(--pt-info); font-weight:700; font-size:0.8rem; }
+        .rsi-neu { display:inline-block; padding:0.15rem 0.5rem; border-radius:5px; background:rgba(120,134,126,0.16); color:var(--pt-text-soft); font-weight:700; font-size:0.8rem; }
         /* ── Unified Icon Badge ── */
-        .ic { display:inline-flex; align-items:center; justify-content:center; width:1.25em; height:1.25em; border-radius:4px; font-size:0.82em; font-style:normal; font-weight:700; vertical-align:-0.12em; line-height:1; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.1); color:inherit; }
+        .ic { display:inline-flex; align-items:center; justify-content:center; width:1.25em; height:1.25em; border-radius:4px; font-size:0.82em; font-style:normal; font-weight:700; vertical-align:-0.12em; line-height:1; background:rgba(111,155,132,0.09); border:1px solid rgba(111,155,132,0.14); color:inherit; }
 
         /* ── Watchlist Pro ── */
         .watchlist-pro-layout { display:grid; grid-template-columns:minmax(280px, 34%) minmax(0, 1fr); gap:1rem; align-items:stretch; }
         .watchlist-pro-list { display:flex; flex-direction:column; gap:0.45rem; max-height:650px; overflow-y:auto; padding-right:0.2rem; }
-        .watchlist-pro-row { width:100%; display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; column-gap:0.75rem; text-align:left; padding:0.8rem 0.95rem; min-height:clamp(76px, 5.2em, 120px); font-size:1rem; background:rgba(8,16,32,0.62); border:1px solid rgba(56,139,253,0.14); border-radius:8px; color:#e2e8f0; cursor:pointer; transition:border-color 0.18s, background 0.18s; }
-        .watchlist-pro-row:hover { border-color:rgba(96,165,250,0.35); background:rgba(15,30,60,0.76); }
-        .watchlist-pro-row.active { border-color:rgba(96,165,250,0.65); background:linear-gradient(135deg, rgba(37,99,235,0.28), rgba(14,165,233,0.12)); box-shadow:0 0 0 1px rgba(96,165,250,0.1) inset; }
+        .watchlist-pro-row { width:100%; display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; column-gap:0.75rem; text-align:left; padding:0.8rem 0.95rem; min-height:clamp(76px, 5.2em, 120px); font-size:1rem; background:var(--pt-surface-1); border:1px solid var(--pt-border); border-radius:8px; color:var(--pt-text); cursor:pointer; transition:border-color 0.18s, background 0.18s; }
+        .watchlist-pro-row:hover { border-color:var(--pt-border-strong); background:var(--pt-surface-hover); }
+        .watchlist-pro-row.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); box-shadow:none; }
         .watchlist-pro-main { min-width:0; display:flex; flex-direction:column; gap:0.3rem; line-height:1.35; }
-        .watchlist-pro-symbol { color:#f1f5f9; font-size:1rem; font-weight:800; letter-spacing:0; line-height:1.3; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .watchlist-pro-meta { color:#7e93a6; font-size:0.72rem; line-height:1.35; max-width:100%; overflow:hidden; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-word; }
-        .watchlist-pro-market { color:#60a5fa; font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(96,165,250,0.26); border-radius:5px; background:rgba(37,99,235,0.12); flex-shrink:0; white-space:nowrap; line-height:1.3; }
+        .watchlist-pro-symbol { color:var(--pt-text); font-size:1rem; font-weight:800; letter-spacing:0; line-height:1.3; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .watchlist-pro-meta { color:var(--pt-text-muted); font-size:0.72rem; line-height:1.35; max-width:100%; overflow:hidden; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-word; }
+        .watchlist-pro-market { color:var(--pt-accent-strong); font-size:0.7rem; font-weight:800; padding:0.12rem 0.42rem; border:1px solid rgba(111,155,132,0.3); border-radius:5px; background:var(--pt-accent-soft); flex-shrink:0; white-space:nowrap; line-height:1.3; }
         .watchlist-pro-side { display:flex; gap:0.35rem; align-items:center; flex-shrink:0; white-space:nowrap; }
         .watchlist-pro-quote { display:flex; flex-direction:column; align-items:flex-end; gap:0.1rem; flex-shrink:0; white-space:nowrap; line-height:1.35; min-width:5.8em; }
-        .watchlist-pro-quote.muted { color:#607585; font-size:0.8rem; font-weight:600; }
-        .watchlist-pro-price { color:#f1f5f9; font-size:0.95rem; font-weight:800; }
+        .watchlist-pro-quote.muted { color:var(--pt-text-muted); font-size:0.8rem; font-weight:600; }
+        .watchlist-pro-price { color:var(--pt-text); font-size:0.95rem; font-weight:800; }
         .watchlist-pro-chg { font-size:0.78rem; font-weight:700; }
-        .watchlist-pro-icon-btn { padding:0.5rem 0.7rem; min-width:3.6em; border-radius:7px; border:1px solid rgba(96,165,250,0.3); background:rgba(30,58,110,0.35); color:#bfdbfe; cursor:pointer; font-size:0.82rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; white-space:nowrap; }
-        .watchlist-pro-icon-btn.danger { border-color:rgba(239,68,68,0.28); background:rgba(239,68,68,0.12); color:#f87171; }
+        .watchlist-pro-icon-btn { padding:0.5rem 0.7rem; min-width:3.6em; border-radius:7px; border:1px solid var(--pt-border); background:var(--pt-surface-3); color:var(--pt-text-soft); cursor:pointer; font-size:0.82rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; white-space:nowrap; }
+        .watchlist-pro-icon-btn.danger { border-color:rgba(212,125,125,0.34); background:var(--pt-negative-soft); color:var(--pt-negative); }
         .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
-        .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid rgba(56,139,253,0.14); border-radius:10px; overflow:hidden; background:rgba(6,13,26,0.88); }
-        .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:#7e93a6; text-align:center; padding:2rem; }
+        .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid var(--pt-border); border-radius:8px; overflow:hidden; background:var(--pt-bg); }
+        .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:var(--pt-text-muted); text-align:center; padding:2rem; }
         .watchlist-pro-toolbar { display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.9rem; }
         .watchlist-pro-form-grid { display:grid; grid-template-columns:1fr 120px; gap:0.75rem; }
-        .watchlist-pro-field { padding:0.62rem 0.75rem; background:rgba(6,13,26,0.92); border:1.5px solid rgba(56,139,253,0.25); border-radius:8px; color:#e2e8f0; font-size:0.9rem; outline:none; }
-        .watchlist-pro-cat-btn { flex:1; min-width:64px; padding:0.42rem 0.5rem; border-radius:7px; border:1px solid rgba(56,139,253,0.18); background:rgba(8,16,32,0.5); color:#7e93a6; font-size:0.8rem; font-weight:800; cursor:pointer; text-transform:none; letter-spacing:0; line-height:1.2; transition:border-color 0.15s, background 0.15s, color 0.15s; }
-        .watchlist-pro-cat-btn.active { border-color:rgba(96,165,250,0.6); background:linear-gradient(135deg, rgba(37,99,235,0.3), rgba(14,165,233,0.14)); color:#dbeafe; }
+        .watchlist-pro-field { padding:0.62rem 0.75rem; background:var(--pt-surface-1); border:1px solid var(--pt-border); border-radius:7px; color:var(--pt-text); font-size:0.9rem; outline:none; }
+        .watchlist-pro-cat-btn { flex:1; min-width:64px; padding:0.42rem 0.5rem; border-radius:7px; border:1px solid var(--pt-border); background:var(--pt-surface-1); color:var(--pt-text-muted); font-size:0.8rem; font-weight:800; cursor:pointer; text-transform:none; letter-spacing:0; line-height:1.2; transition:border-color 0.15s, background 0.15s, color 0.15s; }
+        .watchlist-pro-cat-btn.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); color:var(--pt-accent-strong); }
 
         /* ── 凍結欄（持倉代碼）── */
         #tab-pane-2 table thead th:nth-child(1),
@@ -312,8 +342,8 @@
             position: sticky;
             left: 0;
             z-index: 3;
-            background: #070f20;
-            box-shadow: 3px 0 8px rgba(0,0,0,0.6);
+            background: var(--pt-surface-1);
+            box-shadow: 2px 0 0 var(--pt-border);
         }
         /* 表頭凍結欄需更高 z-index */
         #tab-pane-2 table thead th:nth-child(1),
@@ -325,29 +355,29 @@
         #holdings-table tfoot td:nth-child(1) { min-width:110px; max-width:110px; width:110px; }
         /* 持倉一覽 hover highlight */
         #holdings-table tbody tr { transition: background 0.15s; }
-        #holdings-table tbody tr:hover { background: rgba(255,204,128,0.18) !important; }
-        #holdings-table tbody tr:hover td:nth-child(1) { background: rgba(255,204,128,0.18) !important; }
-        #holdings-table tbody tr.hrow-selected { background: rgba(255,204,128,0.35) !important; }
-        #holdings-table tbody tr.hrow-selected td:nth-child(1) { background: rgba(255,204,128,0.35) !important; }
+        #holdings-table tbody tr:hover { background: rgba(111,155,132,0.10) !important; }
+        #holdings-table tbody tr:hover td:nth-child(1) { background: #1c2520 !important; }
+        #holdings-table tbody tr.hrow-selected { background: rgba(111,155,132,0.20) !important; }
+        #holdings-table tbody tr.hrow-selected td:nth-child(1) { background: #26372e !important; }
         /* 基本面 & 技術面 & 持倉一覽表頭凍結 */
         #tab-pane-2 table thead th,
         #tab-pane-3 table thead th,
-        #holdings-table thead th { position: sticky; top: 0; z-index: 4; background: rgba(8,16,40,0.97); }
+        #holdings-table thead th { position: sticky; top: 0; z-index: 4; background: rgba(23,28,26,0.98); }
         /* 基本面 & 技術面 click 鎖定高亮 */
         #tab-pane-2 table tbody tr { transition: background 0.15s; }
         #tab-pane-3 table tbody tr { transition: background 0.15s; }
         #tab-pane-2 table tbody tr:hover,
-        #tab-pane-3 table tbody tr:hover { background: rgba(255,204,128,0.12) !important; }
+        #tab-pane-3 table tbody tr:hover { background: rgba(111,155,132,0.10) !important; }
         #tab-pane-2 table tbody tr:hover td:nth-child(1),
-        #tab-pane-3 table tbody tr:hover td:nth-child(1) { background: rgba(255,204,128,0.12) !important; }
-        #tab-pane-2 table tbody tr.hrow-selected { background: rgba(255,204,128,0.35) !important; }
-        #tab-pane-2 table tbody tr.hrow-selected td:nth-child(1) { background: rgba(255,204,128,0.35) !important; }
-        #tab-pane-3 table tbody tr.hrow-selected { background: rgba(255,204,128,0.12) !important; }
-        #tab-pane-3 table tbody tr.hrow-selected td:nth-child(1) { background: rgba(255,204,128,0.12) !important; }
+        #tab-pane-3 table tbody tr:hover td:nth-child(1) { background: #1c2520 !important; }
+        #tab-pane-2 table tbody tr.hrow-selected { background: rgba(111,155,132,0.20) !important; }
+        #tab-pane-2 table tbody tr.hrow-selected td:nth-child(1) { background: #26372e !important; }
+        #tab-pane-3 table tbody tr.hrow-selected { background: rgba(111,155,132,0.20) !important; }
+        #tab-pane-3 table tbody tr.hrow-selected td:nth-child(1) { background: #26372e !important; }
         /* 新聞 & 總經 Tab 樣式 */
-        .news-item:hover { border-color: rgba(56,139,253,0.5) !important; background: linear-gradient(135deg,rgba(20,40,70,0.8) 0%,rgba(15,30,55,0.9) 100%) !important; }
-        .macro-card { background:rgba(15,30,60,0.5); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:0.75rem; transition: all 0.2s; }
-        .macro-card:hover { border-color: rgba(59,130,246,0.4); }
+        .news-item:hover { border-color: var(--pt-border-strong) !important; background: var(--pt-surface-hover) !important; }
+        .macro-card { background:var(--pt-surface-2); border:1px solid var(--pt-border); border-radius:8px; padding:0.75rem; transition: border-color 0.2s, background 0.2s; }
+        .macro-card:hover { border-color: var(--pt-border-strong); background:var(--pt-surface-hover); }
 
 /* ═══════════════════════════════════════
            行動版響應式樣式 (≤640px)
@@ -447,28 +477,254 @@
                 justify-self: start;
             }
         }
+
+        /* v15.943: calm graphite theme normalization */
+        #main-header-wrap {
+            background: transparent !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            padding: 0.75rem 1rem !important;
+        }
+        #main-title {
+            color: var(--pt-text) !important;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: currentColor !important;
+            text-shadow: none !important;
+            animation: none !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            font-size: 2.15rem !important;
+            font-weight: 750 !important;
+        }
+        #main-header .subtitle {
+            color: var(--pt-text-muted) !important;
+            letter-spacing: 0.04em !important;
+            text-transform: none !important;
+        }
+        #main-tabs { border-bottom: 1px solid var(--pt-border) !important; }
+
+        .glass-card,
+        .stat-card,
+        .holding-row,
+        .watchlist-pro-row,
+        .watchlist-pro-chart,
+        .macro-card {
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+        }
+        .glass-card { background: var(--pt-surface-1) !important; border-color: var(--pt-border) !important; }
+        .stat-card { background: var(--pt-surface-2) !important; border-color: var(--pt-border) !important; }
+        .holding-row { background: var(--pt-surface-2) !important; border-color: var(--pt-border) !important; border-left-color: var(--pt-accent) !important; }
+
+        input, select, textarea, .watchlist-pro-field {
+            background: var(--pt-surface-1) !important;
+            color: var(--pt-text) !important;
+            border-color: var(--pt-border) !important;
+            border-radius: 7px !important;
+            box-shadow: none !important;
+        }
+        input:focus, select:focus, textarea:focus, .watchlist-pro-field:focus {
+            border-color: var(--pt-accent) !important;
+            box-shadow: 0 0 0 3px rgba(111,155,132,0.2) !important;
+        }
+        input::placeholder, textarea::placeholder { color: var(--pt-text-muted); opacity: 0.85; }
+
+        button,
+        button[style*="rgba(15,30,60"],
+        button[style*="rgba(8,16,32"],
+        button[style*="rgba(6,13,26"] {
+            background: var(--pt-surface-3) !important;
+            color: var(--pt-text-soft) !important;
+            border-color: var(--pt-border) !important;
+            border-radius: 7px !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+        }
+        button:hover { background: var(--pt-surface-hover) !important; color: var(--pt-text) !important; border-color: var(--pt-border-strong) !important; }
+        button[style*="#2563eb"],
+        button[style*="#1d4ed8"],
+        button[style*="#3b82f6"],
+        button[style*="#60a5fa"],
+        .btn-primary,
+        #analysis-btn,
+        #earnings-btn,
+        #macro-btn,
+        #watchlist-pro-add-btn {
+            background: var(--pt-accent) !important;
+            color: #101512 !important;
+            border-color: var(--pt-accent) !important;
+        }
+        button[style*="#2563eb"]:hover,
+        button[style*="#1d4ed8"]:hover,
+        button[style*="#3b82f6"]:hover,
+        button[style*="#60a5fa"]:hover,
+        .btn-primary:hover,
+        #analysis-btn:hover,
+        #earnings-btn:hover,
+        #macro-btn:hover,
+        #watchlist-pro-add-btn:hover {
+            background: var(--pt-accent-strong) !important;
+            border-color: var(--pt-accent-strong) !important;
+        }
+        button[style*="#10b981"], button[style*="#059669"],
+        #buy-btn[style*="#10b981"], #submit-btn[style*="#10b981"],
+        button[onclick*="applyReviewedPrices"] {
+            background: var(--pt-positive-soft) !important;
+            color: var(--pt-positive) !important;
+            border-color: rgba(121,184,140,0.42) !important;
+        }
+        button[style*="#ef4444"], button[style*="#dc2626"],
+        #sell-btn[style*="#ef4444"], #submit-btn[style*="#ef4444"],
+        .btn-delete, .watchlist-pro-icon-btn.danger,
+        button[onclick*="confirmDelete"] {
+            background: var(--pt-negative-soft) !important;
+            color: var(--pt-negative) !important;
+            border-color: rgba(212,125,125,0.4) !important;
+        }
+        button[style*="#f59e0b"], button[style*="#d97706"],
+        button[onclick*="Rollback"], button[onclick*="rollback"] {
+            background: var(--pt-warning-soft) !important;
+            color: var(--pt-warning) !important;
+            border-color: rgba(198,161,91,0.42) !important;
+        }
+        button[style*="#7c3aed"], button[style*="#6d28d9"] {
+            background: var(--pt-info-soft) !important;
+            color: var(--pt-info) !important;
+            border-color: rgba(127,158,178,0.4) !important;
+        }
+
+        .tab-btn { background: transparent !important; color: var(--pt-text-muted) !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; }
+        .tab-btn:hover { background: rgba(255,255,255,0.025) !important; color: var(--pt-text-soft) !important; }
+        .tab-btn.active { background: var(--pt-accent-soft) !important; color: var(--pt-accent-strong) !important; border-bottom-color: var(--pt-accent) !important; }
+
+        table { color: var(--pt-text-soft); }
+        table th { color: var(--pt-accent-strong) !important; border-color: var(--pt-border) !important; }
+        table td { border-color: var(--pt-border) !important; }
+        table tbody tr[style*="background"] { background: transparent !important; }
+        table tbody tr:nth-child(even) { background: rgba(255,255,255,0.012); }
+        table tfoot tr { background: var(--pt-surface-2) !important; }
+        #tab-pane-2 table thead th,
+        #tab-pane-3 table thead th,
+        #holdings-table thead th { background: rgba(23,28,26,0.98) !important; }
+        #tab-pane-2 table tbody td:first-child,
+        #tab-pane-3 table tbody td:first-child,
+        #holdings-table tbody td:first-child { background-color: var(--pt-surface-1); }
+
+        #stats-grid [style*="background:linear-gradient"] {
+            background: var(--pt-accent-soft) !important;
+            color: var(--pt-accent-strong) !important;
+            box-shadow: none !important;
+        }
+        #stats-grid [style*="border-top"] { border-color: var(--pt-border) !important; }
+
+        div[style*="background:rgba(15,30,60"],
+        div[style*="background:rgba(8,16,32"],
+        div[style*="background:rgba(6,13,26"] {
+            background: var(--pt-surface-2) !important;
+            border-color: var(--pt-border) !important;
+            box-shadow: none !important;
+        }
+        div[id$="-modal"] > div {
+            background: var(--pt-surface-2) !important;
+            border: 1px solid var(--pt-border) !important;
+            border-radius: 8px !important;
+            box-shadow: var(--pt-shadow) !important;
+        }
+        #csv-drop-zone {
+            background: var(--pt-surface-1) !important;
+            border-color: var(--pt-border-strong) !important;
+            border-radius: 8px !important;
+        }
+        #csv-drop-zone [style*="background:rgba(96,165,250"] {
+            background: var(--pt-accent-soft) !important;
+            border-color: rgba(111,155,132,0.3) !important;
+        }
+        #import-modal [style*="background:rgba(59,130,246"] {
+            background: var(--pt-info-soft) !important;
+            border-color: rgba(127,158,178,0.3) !important;
+        }
+        [id$="-toast"], [id*="toast-"] {
+            border-radius: 8px !important;
+            box-shadow: var(--pt-shadow) !important;
+            border-color: var(--pt-border) !important;
+        }
+        .pt-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: max-content;
+            max-width: min(90vw, 560px);
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--pt-border-strong);
+            border-radius: 8px;
+            box-shadow: var(--pt-shadow);
+            color: var(--pt-text);
+            font-size: 0.9rem;
+            font-weight: 650;
+            line-height: 1.45;
+            text-align: center;
+            white-space: pre-line;
+            pointer-events: none;
+        }
+        .pt-toast-success { background: #23362d; border-color: rgba(121,184,140,0.45); }
+        .pt-toast-warning { background: #3a2929; border-color: rgba(212,125,125,0.45); }
+
+        [style*="color:#60a5fa"], [style*="color: #60a5fa"],
+        [style*="color:#93c5fd"], [style*="color: #93c5fd"],
+        [style*="color:#bfdbfe"], [style*="color: #bfdbfe"] { color: var(--pt-accent-strong) !important; }
+        [style*="color:#3b82f6"], [style*="color: #3b82f6"] { color: var(--pt-info) !important; }
+        [style*="color:#7e93a6"], [style*="color: #7e93a6"],
+        [style*="color:#607585"], [style*="color: #607585"] { color: var(--pt-text-muted) !important; }
+        [style*="color:#a8bdd0"], [style*="color: #a8bdd0"],
+        [style*="color:#94a3b8"], [style*="color: #94a3b8"] { color: var(--pt-text-soft) !important; }
+        [style*="color:#e2e8f0"], [style*="color: #e2e8f0"],
+        [style*="color:#f1f5f9"], [style*="color: #f1f5f9"],
+        [style*="color:#fff"], [style*="color: #fff"] { color: var(--pt-text) !important; }
+        [style*="color:#10b981"], [style*="color: #10b981"],
+        [style*="color:#22c55e"], [style*="color: #22c55e"] { color: var(--pt-positive) !important; }
+        [style*="color:#ef4444"], [style*="color: #ef4444"],
+        [style*="color:#f87171"], [style*="color: #f87171"] { color: var(--pt-negative) !important; }
+        [style*="color:#fbbf24"], [style*="color: #fbbf24"],
+        [style*="color:#f59e0b"], [style*="color: #f59e0b"] { color: var(--pt-warning) !important; }
+        [style*="background:rgba(37,99,235"], [style*="background: rgba(37,99,235"] {
+            background: var(--pt-info-soft) !important;
+            border-color: rgba(127,158,178,0.4) !important;
+        }
+
+        #pending-push-indicator {
+            color: var(--pt-warning) !important;
+            background: var(--pt-warning-soft) !important;
+            border-color: rgba(198,161,91,0.4) !important;
+        }
+        @media (max-width: 640px) {
+            .glass-card, .stat-card, .holding-row,
+            #import-modal > div, #confirm-modal > div, #review-modal > div { border-radius: 8px !important; }
+            #main-title { font-size: 1.35rem !important; }
+        }
     </style>
 </head>
 <body>
-    <!-- 背景裝飾 -->
-    <div style="position:fixed; top:0; left:0; right:0; bottom:0; background-image:linear-gradient(rgba(56,139,253,0.03) 1px, transparent 1px),linear-gradient(90deg, rgba(56,139,253,0.03) 1px, transparent 1px); background-size:50px 50px; pointer-events:none; z-index:0;"></div>
-    <div style="position:fixed; top:10%; right:10%; width:300px; height:300px; background:radial-gradient(circle, rgba(37,99,235,0.1) 0%, transparent 70%); border-radius:50%; filter:blur(60px); pointer-events:none; z-index:0; animation:float 6s ease-in-out infinite;"></div>
-    <div style="position:fixed; bottom:20%; left:5%; width:400px; height:400px; background:radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%); border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; animation:float 8s ease-in-out infinite reverse;"></div>
-
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(255,255,255,0.5); font-family:monospace; pointer-events:none;">v15.942</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.943</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
-            <div id="main-header-wrap" style="display:inline-block; position:relative; padding:1rem 2rem; background:linear-gradient(135deg, rgba(30,58,110,0.25) 0%, rgba(18,38,80,0.15) 100%); border-radius:20px; border:1.5px solid rgba(56,139,253,0.2); box-shadow:0 0 40px rgba(37,99,235,0.1); margin-bottom:0.5rem;">
-                <h1 id="main-title" style="color:#60a5fa; font-size:2.5rem; font-weight:900; margin:0 0 0.25rem 0; text-transform:uppercase; letter-spacing:3px; text-shadow:0 0 20px rgba(56,139,253,0.5); background:linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #93c5fd 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-size:200% auto; animation:shimmer 3s linear infinite;">Portfolio Tracker</h1>
-                <div class="subtitle" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#60a5fa; font-size:0.9rem; font-weight:500; letter-spacing:2px; text-transform:uppercase;">台股 • 美股 • 港股 持倉管理系統</div>
+            <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
+                <h1 id="main-title" style="color:var(--pt-text); font-size:2.15rem; font-weight:750; margin:0 0 0.25rem 0;">Portfolio Tracker</h1>
+                <div class="subtitle" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; color:var(--pt-text-muted); font-size:0.9rem; font-weight:500; letter-spacing:0.04em;">台股 • 美股 • 港股 持倉管理系統</div>
             </div>
         </div>
 
         <!-- Tab Navigation -->
-        <div style="display:flex; gap:0; margin-bottom:0; border-bottom:1.5px solid rgba(56,139,253,0.15); flex-wrap:wrap;">
+        <div id="main-tabs" style="display:flex; gap:0; margin-bottom:0; border-bottom:1px solid var(--pt-border); flex-wrap:wrap;">
             <button class="tab-btn active" id="tab-btn-1" onclick="switchTab(1)"><i class="ic">≡</i> 持倉管理</button>
             <button class="tab-btn" id="tab-btn-2" onclick="switchTab(2)"><i class="ic">△</i> 基本面</button>
             <button class="tab-btn" id="tab-btn-3" onclick="switchTab(3)"><i class="ic">◇</i> 技術面</button>
@@ -1292,7 +1548,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.942';
+        const APP_VERSION = 'v15.943';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4352,9 +4608,9 @@
             let others  = adjHoldings.filter(d => d.value < 0.5).reduce((sum, d) => sum + d.value, 0);
             if (others > 0) pieData.push({ name: '其他', value: others });
 
-            const cashColor   = '#22c55e';
-            const cryptoColor = '#22c55e';
-            const moxaColor   = '#22c55e';
+            const cashColor   = '#7f9f8d';
+            const cryptoColor = '#a08f72';
+            const moxaColor   = '#8f8198';
             if (showCashInPie   && cashTWD   > 0 && grandTotal > 0)
                 pieData.push({ name: '現金',     value: (cashTWD   / grandTotal) * 100, isCash:   true });
             if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
@@ -4372,8 +4628,8 @@
                 return b.value - a.value;
             });
 
-            // v15.904：藍青冷色系（Cool Tech Cyan）取代原九色花俏配色，跟頁面藍黑色系一致
-            const colors    = ['#1e3a8a','#2563eb','#3b82f6','#60a5fa','#06b6d4','#0891b2','#475569','#67e8f9'];
+            // v15.943：低彩度多色盤，保留資產辨識度但不搶主介面層級
+            const colors    = ['#6f8f82','#7f8e9f','#a38d6d','#7e9174','#9b7f84','#718b9a','#9189a0','#889087'];
             const pieColors = pieData.map((d, i) => d.isCash ? cashColor : d.isCrypto ? cryptoColor : d.isMoxa ? moxaColor : colors[i % colors.length]);
 
             if (chartInstance) chartInstance.destroy();
@@ -4382,7 +4638,7 @@
                 type: 'pie',
                 data: {
                     labels: pieData.map(d => d.name),
-                    datasets: [{ data: pieData.map(d => d.value), backgroundColor: pieColors, borderColor: '#060d1a', borderWidth: 3 }]
+                    datasets: [{ data: pieData.map(d => d.value), backgroundColor: pieColors, borderColor: '#171c1a', borderWidth: 2 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -5727,26 +5983,26 @@
             const priceH = Math.max(boxH - 150, 320);
             const wrap = document.createElement('div');
             wrap.className = 'wl-native-wrap';
-            wrap.style.cssText = 'height:100%;width:100%;background:#060d1a;';
+            wrap.style.cssText = 'height:100%;width:100%;background:#111513;';
             const priceDiv = document.createElement('div');
             priceDiv.style.cssText = `height:${priceH}px;width:100%;`;
             const rsiDiv = document.createElement('div');
-            rsiDiv.style.cssText = 'height:140px;width:100%;border-top:1px solid rgba(56,139,253,0.14);';
+            rsiDiv.style.cssText = 'height:140px;width:100%;border-top:1px solid #303a34;';
             wrap.appendChild(priceDiv); wrap.appendChild(rsiDiv); box.appendChild(wrap);
             const W = box.clientWidth || 600;
             const commonOpts = {
-                layout: { background: { color: 'transparent' }, textColor: '#7e93a6' },
-                grid: { vertLines: { color: 'rgba(56,139,253,0.06)' }, horzLines: { color: 'rgba(56,139,253,0.06)' } },
-                rightPriceScale: { borderColor: 'rgba(56,139,253,0.2)' },
-                timeScale: { borderColor: 'rgba(56,139,253,0.2)' },
+                layout: { background: { color: 'transparent' }, textColor: '#8f9c94' },
+                grid: { vertLines: { color: 'rgba(170,181,174,0.055)' }, horzLines: { color: 'rgba(170,181,174,0.055)' } },
+                rightPriceScale: { borderColor: '#303a34' },
+                timeScale: { borderColor: '#303a34' },
                 crosshair: { mode: 0 }
             };
             const priceChart = LWC.createChart(priceDiv, Object.assign({ width: W, height: priceH }, commonOpts));
-            const candle = priceChart.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#ef4444' });
+            const candle = priceChart.addCandlestickSeries({ upColor: '#79b88c', downColor: '#d47d7d', borderVisible: false, wickUpColor: '#79b88c', wickDownColor: '#d47d7d' });
             candle.setData(bars);
-            const ma20 = priceChart.addLineSeries({ color: '#fbbf24', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+            const ma20 = priceChart.addLineSeries({ color: '#c6a15b', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
             ma20.setData(_wlComputeMA(bars, 20));
-            const ma60 = priceChart.addLineSeries({ color: '#60a5fa', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+            const ma60 = priceChart.addLineSeries({ color: '#7f9eb2', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
             ma60.setData(_wlComputeMA(bars, 60));
             // v15.933：布林通道（20, 2）上下軌；中軌即上方 MA20 黃線。bars < 20 不畫避免殘缺通道。
             // v15.935：LinReg 通道（100, ±2σ，取代布林）—— 中軌紅虛線、上下軌藍細線（比照 TradingView 配色）
@@ -5755,20 +6011,20 @@
                 const lr = _wlComputeLinReg(bars, 100, 2);
                 if (lr) {
                     _lrPearson = lr.pearson;
-                    const lrMid = priceChart.addLineSeries({ color: 'rgba(239,68,68,0.75)', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+                    const lrMid = priceChart.addLineSeries({ color: 'rgba(212,125,125,0.72)', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
                     lrMid.setData(lr.mid);
-                    const lrUp = priceChart.addLineSeries({ color: 'rgba(125,211,252,0.7)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+                    const lrUp = priceChart.addLineSeries({ color: 'rgba(127,158,178,0.72)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
                     lrUp.setData(lr.upper);
-                    const lrDn = priceChart.addLineSeries({ color: 'rgba(125,211,252,0.7)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+                    const lrDn = priceChart.addLineSeries({ color: 'rgba(127,158,178,0.72)', lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
                     lrDn.setData(lr.lower);
                 }
             }
             const rsiChart = LWC.createChart(rsiDiv, Object.assign({ width: W, height: 140 }, commonOpts));
-            const rsi = rsiChart.addLineSeries({ color: '#c084fc', lineWidth: 1, priceLineVisible: false });
+            const rsi = rsiChart.addLineSeries({ color: '#9a8fa7', lineWidth: 1, priceLineVisible: false });
             rsi.setData(_wlComputeRSI(bars, 14));
             try {
-                rsi.createPriceLine({ price: 70, color: 'rgba(239,68,68,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '70' });
-                rsi.createPriceLine({ price: 30, color: 'rgba(16,185,129,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '30' });
+                rsi.createPriceLine({ price: 70, color: 'rgba(212,125,125,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '70' });
+                rsi.createPriceLine({ price: 30, color: 'rgba(121,184,140,0.5)', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '30' });
             } catch (_) {}
             try { priceChart.timeScale().fitContent(); rsiChart.timeScale().fitContent(); } catch (_) {}
             try {
@@ -9701,28 +9957,14 @@
         function showImportToast(msg, duration) {
             const toast = document.createElement('div');
             toast.textContent = msg;
-            Object.assign(toast.style, {
-                position:'fixed', bottom:'1.5rem', left:'50%', transform:'translateX(-50%)',
-                background:'rgba(16,185,129,0.93)', color:'#060d1a',
-                padding:'0.65rem 1.5rem', borderRadius:'20px', fontWeight:'700',
-                fontSize:'0.92rem', zIndex:'9999',
-                boxShadow:'0 4px 18px rgba(0,0,0,0.45)', pointerEvents:'none',
-                whiteSpace:'nowrap'
-            });
+            toast.className = 'pt-toast pt-toast-success';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), duration || 3000);
         }
         function showWarnToast(msg, duration) {
             const toast = document.createElement('div');
             toast.textContent = msg;
-            Object.assign(toast.style, {
-                position:'fixed', bottom:'1.5rem', left:'50%', transform:'translateX(-50%)',
-                background:'rgba(239,68,68,0.93)', color:'#fff',
-                padding:'0.65rem 1.5rem', borderRadius:'20px', fontWeight:'700',
-                fontSize:'0.9rem', zIndex:'9999',
-                boxShadow:'0 4px 18px rgba(0,0,0,0.45)', pointerEvents:'none',
-                whiteSpace:'pre-line', textAlign:'center', maxWidth:'90vw'
-            });
+            toast.className = 'pt-toast pt-toast-warning';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), duration || 4000);
         }
@@ -12965,14 +13207,14 @@
                         const pct     = Math.max(0, Math.min(100, (refPrice - tgtLow) / (tgtHigh - tgtLow) * 100));
                         const meanPct = Math.max(0, Math.min(100, (tgtMean  - tgtLow) / (tgtHigh - tgtLow) * 100));
                         barHtml = `
-                        <div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(96,165,250,0.12);">
+                        <div style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #303a34;">
                             <div style="position:relative;height:6px;border-radius:3px;
-                                background:linear-gradient(to right,rgba(239,68,68,0.3),rgba(56,139,253,0.3),rgba(16,185,129,0.3));">
+                                background:linear-gradient(to right,rgba(212,125,125,0.32),rgba(127,158,178,0.24),rgba(121,184,140,0.32));">
                                 <div style="position:absolute;top:-4px;left:${meanPct}%;transform:translateX(-50%);
-                                    width:2px;height:14px;background:#60a5fa;border-radius:1px;" title="平均目標 $${fmtTgt(tgtMean)}"></div>
+                                    width:2px;height:14px;background:#7f9eb2;border-radius:1px;" title="平均目標 $${fmtTgt(tgtMean)}"></div>
                                 <div style="position:absolute;top:50%;left:${pct}%;transform:translate(-50%,-50%);
-                                    width:10px;height:10px;border-radius:50%;background:#60a5fa;
-                                    border:2px solid #0f1e3c;box-shadow:0 0 5px #60a5fa90;"
+                                    width:10px;height:10px;border-radius:50%;background:#7f9eb2;
+                                    border:2px solid #171c1a;"
                                     title="${isProxy?sym+'昨收':'目前股價'} $${fmtTgt(refPrice)}"></div>
                             </div>
                             <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
