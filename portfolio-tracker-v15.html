@@ -81,7 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-        v15.943 - 沉穩石墨 UI 改版：全站改為石墨深灰＋低彩度灰綠色票；移除背景科技網格、漂浮光球、玻璃模糊、藍色 glow、標題 shimmer 與高彩度漸層；統一卡片、按鈕、輸入框、Tab、表格、modal、toast、持倉列與觀察清單 Pro 的表面層級，正負損益改用柔和語意色，圓餅圖與原生圖表改低彩度配色。不改版面、DOM id、渲染流程、損益、報價、Gist、FSA、Storage Key 或 PWA 啟動邏輯。
+        v15.943 - 沉穩石墨 UI 改版：全站改為石墨深灰＋低彩度灰綠色票；移除背景科技網格、漂浮光球、玻璃模糊、藍色 glow、標題 shimmer 與高彩度漸層；統一卡片、按鈕、輸入框、Tab、表格、modal、toast、持倉列與觀察清單 Pro 的表面層級，正負損益改用柔和語意色，圓餅圖與原生圖表改低彩度配色；補強交易模式選中狀態，買入使用灰綠實色、賣出使用柔和紅色與清楚邊框。不改版面、DOM id、渲染流程、損益、報價、Gist、FSA、Storage Key 或 PWA 啟動邏輯。
         v15.942 - 港股報價延遲標示：今日損益卡於港股**盤中**在卡片底部加獨立註腳行「港股報價延遲約20分」（初版做在港股列行內小字，會擠壓市場列 flex 兩端排版，同版修正為註腳行）。背景：使用者反映港股抓不到即時 → 2026-07-13 開盤實測，GOOGLEFINANCE（CSV 報價源）對 7709/9747 開盤 14 分鐘仍顯示前日收盤（0.00%），Yahoo 免費港股亦延遲 15-21 分（09:44 只看得到 09:20 競價價）—— 免費世界無港股即時源（HKEX 即時需授權費），冷門槓桿 ETF 與 USD 櫃檯（9747）更慢。此為誠實標示非修復：來源不變，收盤後凍結值不標（非延遲問題）。使用者選最小方案（選項 2）；備選的港股改 Yahoo 直抓（帶真實報價時間戳，開盤窗較新）暫不做。
         v15.941 - 分割自動套用補反向護欄（使用者提問「會影響成本計算嗎」觸發的補強）：成本守恆機制確認完備 —— preview 硬檢查（|分割後總成本−分割前| ≤ max(0.05, 1e-6×基數)，auto 不繞過）、FIFO 逐批 qty×ratio / cost÷ratio 每批總成本不變（未來賣出成本歸屬一致）、均價從總成本反推非直接除、生效日後有賣出硬擋/有新批次 auto 降級。但**反向分割（ratio < 1）存在工具算不出的現實偏差**：畸零股現金返還（10÷8=1.25 股，券商實給 1 股+折現）、台股現金減資（Yahoo 同樣標為 reverse split 但有退還股款，總成本不該守恆）→ v15.941 起反向分割即使官方核對成功也**不自動套用**，降級為「官方已核對，請人工確認」通知（面板徽章保留）；正向分割（1→N）維持全自動。
         v15.940 - 股票分割官方佐證全自動：價格尺度偵測命中後（既有 _caDetectCorporateActionCandidate，v15.922），新增 _caCorroborateCandidate 非同步向 Yahoo chart events=div,split 官方分割事件核對 —— 比例精確吻合（|num/den − cand.ratio| ≤ 0.001）且事件日在偵測窗 ±3 天 → 自動套用（applyCorporateAction 加 opts.auto，僅繞過兩個確認框；preview 安全檢查與「生效日後有賣出」硬擋保留；「生效日後有新買入批次」在 auto 模式降級為人工通知不默默調整）→ 顯眼 toast「已自動套用（Yahoo 官方核對）可復原」+ _recordAppError('split_auto_applied') 留痕。無官方事件/比例不合 → 不自動但補顯眼警示 toast + 面板「無官方佐證」徽章（修掉原本候選只默默躺面板兩次 confirm 才套用的無感知問題）。三道防護：(1) applyCorporateAction 套用前新增 _caActionAlreadyApplied 去重重查（原只在 candidate 建立時查，防 stale candidate / 跨裝置時序雙重套用，重複時回 true 移除候選列不動資料）；(2) undo/redo 快照補 corporateActionPlans（修既有缺口：undo 分割後 plan 卡 applied）；(3) 佐證網路失敗不自動不打擾（人工路徑不受影響）。CA 面板 fingerprint（v15.939）納入 corroborated 狀態確保徽章即時重繪。
@@ -592,6 +592,43 @@
             color: var(--pt-warning) !important;
             border-color: rgba(198,161,91,0.42) !important;
         }
+        .trade-mode-btn {
+            min-width: 7.25rem;
+            background: var(--pt-surface-3) !important;
+            color: var(--pt-text-muted) !important;
+            border: 1px solid var(--pt-border) !important;
+            box-shadow: none !important;
+        }
+        .trade-mode-btn:hover {
+            background: var(--pt-surface-hover) !important;
+            color: var(--pt-text-soft) !important;
+        }
+        .trade-mode-btn.is-active-buy,
+        .trade-mode-btn.is-active-buy:hover {
+            background: var(--pt-accent) !important;
+            color: #101512 !important;
+            border-color: var(--pt-accent-strong) !important;
+            box-shadow: inset 0 0 0 1px rgba(230,235,231,0.2) !important;
+        }
+        .trade-mode-btn.is-active-sell,
+        .trade-mode-btn.is-active-sell:hover {
+            background: var(--pt-negative-soft) !important;
+            color: var(--pt-negative) !important;
+            border-color: rgba(212,125,125,0.72) !important;
+            box-shadow: inset 0 0 0 1px rgba(212,125,125,0.24) !important;
+        }
+        .trade-submit-btn.is-buy,
+        .trade-submit-btn.is-buy:hover {
+            background: var(--pt-positive-soft) !important;
+            color: var(--pt-positive) !important;
+            border-color: rgba(121,184,140,0.42) !important;
+        }
+        .trade-submit-btn.is-sell,
+        .trade-submit-btn.is-sell:hover {
+            background: var(--pt-negative-soft) !important;
+            color: var(--pt-negative) !important;
+            border-color: rgba(212,125,125,0.48) !important;
+        }
         button[style*="#7c3aed"], button[style*="#6d28d9"] {
             background: var(--pt-info-soft) !important;
             color: var(--pt-info) !important;
@@ -882,8 +919,8 @@
         <div class="glass-card" style="padding:2rem; margin-bottom:2rem;">
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.5rem;">
                 <div style="display:flex; gap:0; border-radius:12px; overflow:hidden; border:2px solid rgba(148,163,184,0.15); width:fit-content;">
-                    <button onclick="setTradeType('buy')" id="buy-btn" style="padding:0.6rem 2rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 買入</button>
-                    <button onclick="setTradeType('sell')" id="sell-btn" style="padding:0.6rem 2rem; background:rgba(15,30,60,0.6); color:#7e93a6; font-weight:700; font-size:1rem;">▼ 賣出</button>
+                    <button onclick="setTradeType('buy')" id="buy-btn" class="trade-mode-btn is-active-buy" aria-pressed="true" style="padding:0.6rem 2rem; font-weight:700; font-size:1rem;">▲ 買入</button>
+                    <button onclick="setTradeType('sell')" id="sell-btn" class="trade-mode-btn" aria-pressed="false" style="padding:0.6rem 2rem; font-weight:700; font-size:1rem;">▼ 賣出</button>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
                     <button onclick="undoLastAction()" title="還原上一步" style="padding:0.45rem 0.75rem; background:rgba(56,139,253,0.1); color:#60a5fa; border:1px solid rgba(56,139,253,0.3); border-radius:8px; font-size:0.82rem; font-weight:600; text-transform:none; letter-spacing:0; cursor:pointer;">↩ 上一步 <span id="undo-count">(0)</span></button>
@@ -897,7 +934,7 @@
                 <div><label id="form-qty-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入股數 *</label><input id="form-quantity" type="number" step="0.0001" placeholder="數量"></div>
                 <div><label id="form-price-label" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:0.5rem; display:block;">買入價格 * <span id="form-price-ccy" style="color:#60a5fa; font-weight:700;">(USD)</span></label><input id="form-cost" type="number" step="0.0001" placeholder="此次買入均價"></div>
             </div>
-            <button id="submit-btn" onclick="addHolding()" style="margin-top:1.5rem; width:100%; padding:0.85rem; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:700; font-size:1rem;">▲ 確認買入</button>
+            <button id="submit-btn" class="trade-submit-btn is-buy" onclick="addHolding()" style="margin-top:1.5rem; width:100%; padding:0.85rem; font-weight:700; font-size:1rem;">▲ 確認買入</button>
         </div>
 
         <!-- Holdings Table -->
@@ -3778,19 +3815,20 @@
         }
         function setTradeType(type) {
             tradeType = type;
-            document.getElementById('buy-btn').style.background = type === 'buy' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(15,30,60,0.6)';
-            document.getElementById('buy-btn').style.color = type === 'buy' ? '#060d1a' : '#64748b';
-            document.getElementById('sell-btn').style.background = type === 'sell' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(15,30,60,0.6)';
-            document.getElementById('sell-btn').style.color = type === 'sell' ? '#fff' : '#64748b';
+            const buyBtn = document.getElementById('buy-btn');
+            const sellBtn = document.getElementById('sell-btn');
+            buyBtn.classList.toggle('is-active-buy', type === 'buy');
+            sellBtn.classList.toggle('is-active-sell', type === 'sell');
+            buyBtn.setAttribute('aria-pressed', type === 'buy' ? 'true' : 'false');
+            sellBtn.setAttribute('aria-pressed', type === 'sell' ? 'true' : 'false');
             document.getElementById('form-qty-label').textContent = type === 'buy' ? '買入股數 *' : '賣出股數 *';
             document.getElementById('form-price-label').textContent = type === 'buy' ? '買入價格 *' : '賣出價格 *';
             document.getElementById('trade-hint').textContent = type === 'buy' ? '買入時若代碼已存在將自動加倉並重算加權平均成本' : '賣出時將從持倉中扣除股數，賣至歸零將移除該持倉';
             const submitBtn = document.getElementById('submit-btn');
             if (submitBtn) {
                 submitBtn.textContent = type === 'buy' ? '▲ 確認買入' : '▼ 確認賣出';
-                submitBtn.style.background = type === 'buy'
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                submitBtn.classList.toggle('is-buy', type === 'buy');
+                submitBtn.classList.toggle('is-sell', type === 'sell');
             }
         }
 
