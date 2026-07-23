@@ -1,16 +1,16 @@
 {
-  "generated": "2026-07-22T13:38:43.118850+00:00",
+  "generated": "2026-07-23T02:15:35.851175+00:00",
   "data": {
     "AAOI": {
       "pe": null,
-      "fpe": 24.9916,
+      "fpe": 23.1601,
       "peg": null,
-      "ps": 18.8753,
-      "pb": 8.5155,
+      "ps": 17.492,
+      "pb": 7.8915,
       "rev_yoy": 0.514,
       "rev_fwd": 1.4994999,
       "hist_avg_pe": null,
-      "eps_ttm": -0.75,
+      "eps_ttm": -0.61,
       "eps_cur_q": 0.015,
       "eps_next_q2": 0.27833,
       "eps_cur_y": 0.8883,
@@ -171,9 +171,13 @@
           "surprise_pct": -0.4484
         }
       ],
-      "prev_close": 103.02,
-      "prev_prev_close": 103.02,
+      "prev_close": 119.26,
+      "prev_prev_close": 119.26,
       "recent_closes": [
+        {
+          "date": "2026-07-22",
+          "close": 110.52
+        },
         {
           "date": "2026-07-21",
           "close": 119.26
@@ -197,72 +201,68 @@
         {
           "date": "2026-07-14",
           "close": 125.45
-        },
-        {
-          "date": "2026-07-13",
-          "close": 111.88
         }
       ],
-      "daily_k": 41.0,
-      "daily_d": 27.3,
+      "daily_k": 44.5,
+      "daily_d": 33.1,
       "daily_cross": "none",
-      "weekly_k": 18.2,
-      "weekly_d": 24.5,
+      "weekly_k": 15.7,
+      "weekly_d": 23.7,
       "weekly_cross": "none",
-      "hourly_k": 89.6,
-      "hourly_d": 83.9,
+      "hourly_k": 16.6,
+      "hourly_d": 32.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -14.4906,
-        "signal": -14.42,
-        "histogram": -0.0706,
-        "bullish": false
+        "macd": -13.7982,
+        "signal": -14.1711,
+        "histogram": 0.3729,
+        "bullish": true
       },
       "weekly_macd": {
-        "macd": 13.6392,
-        "signal": 23.6562,
-        "histogram": -10.017,
+        "macd": 12.942,
+        "signal": 23.5168,
+        "histogram": -10.5748,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 3.2787,
-        "signal": 1.4634,
-        "histogram": 1.8153,
-        "bullish": true
+        "macd": 1.9786,
+        "signal": 2.7241,
+        "histogram": -0.7454,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 45.0,
+        "rsi": 42.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 50.2,
+        "rsi": 47.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 67.6,
+        "rsi": 50.2,
         "overbought": false,
         "oversold": false
       }
     },
     "AXTI": {
       "pe": null,
-      "fpe": 72.635,
+      "fpe": 68.0977,
       "peg": null,
-      "ps": 38.5537,
-      "pb": 11.2391,
+      "ps": 36.1453,
+      "pb": 10.537,
       "rev_yoy": 0.391,
       "rev_fwd": 0.554,
       "hist_avg_pe": null,
-      "eps_ttm": -0.32,
+      "eps_ttm": -0.3,
       "eps_cur_q": 0.072,
       "eps_next_q2": 0.102,
       "eps_cur_y": 0.298,
       "eps_next_y": 0.778,
       "gross_margin": 0.2134,
       "operating_margin": -0.0589,
-      "next_earnings_date": "2026-07-30",
+      "next_earnings_date": null,
       "earnings_proxy_symbol": null,
       "no_earnings": false,
       "target_mean_price": 96.5,
@@ -416,9 +416,13 @@
           "surprise_pct": 0.7826
         }
       ],
-      "prev_close": 48.83,
-      "prev_prev_close": 48.83,
+      "prev_close": 56.51,
+      "prev_prev_close": 56.51,
       "recent_closes": [
+        {
+          "date": "2026-07-22",
+          "close": 52.98
+        },
         {
           "date": "2026-07-21",
           "close": 56.51
@@ -442,65 +446,61 @@
         {
           "date": "2026-07-14",
           "close": 57.57
-        },
-        {
-          "date": "2026-07-13",
-          "close": 50.46
         }
       ],
-      "daily_k": 33.8,
-      "daily_d": 26.0,
-      "daily_cross": "golden",
-      "weekly_k": 13.7,
-      "weekly_d": 23.8,
+      "daily_k": 41.0,
+      "daily_d": 31.0,
+      "daily_cross": "none",
+      "weekly_k": 12.6,
+      "weekly_d": 23.4,
       "weekly_cross": "none",
-      "hourly_k": 91.3,
-      "hourly_d": 86.7,
+      "hourly_k": 20.0,
+      "hourly_d": 36.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -10.3663,
-        "signal": -10.7057,
-        "histogram": 0.3394,
+        "macd": -9.7295,
+        "signal": -10.3862,
+        "histogram": 0.6567,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 6.1618,
-        "signal": 14.1153,
-        "histogram": -7.9535,
+        "macd": 5.8802,
+        "signal": 14.0589,
+        "histogram": -8.1788,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.6182,
-        "signal": 0.6107,
-        "histogram": 1.0075,
-        "bullish": true
+        "macd": 1.3254,
+        "signal": 1.6581,
+        "histogram": -0.3327,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 43.1,
+        "rsi": 41.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 47.3,
+        "rsi": 46.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 64.6,
+        "rsi": 53.5,
         "overbought": false,
         "oversold": false
       }
     },
     "STX": {
-      "pe": 84.7747,
-      "fpe": 31.3147,
-      "peg": 0.5551,
+      "pe": 84.7108,
+      "fpe": 31.886,
+      "peg": 0.617,
       "ps": null,
-      "pb": 182.752,
+      "pb": 186.0861,
       "rev_yoy": 0.441,
       "rev_fwd": 0.4064,
-      "hist_avg_pe": 71.03,
-      "eps_ttm": 10.52,
+      "hist_avg_pe": 71.29,
+      "eps_ttm": 10.72,
       "eps_cur_q": 5.09318,
       "eps_next_q2": 5.865,
       "eps_cur_y": 14.8899,
@@ -661,9 +661,13 @@
           "surprise_pct": 0.1676
         }
       ],
-      "prev_close": 802.45,
-      "prev_prev_close": 802.45,
+      "prev_close": 891.83,
+      "prev_prev_close": 891.83,
       "recent_closes": [
+        {
+          "date": "2026-07-22",
+          "close": 908.1
+        },
         {
           "date": "2026-07-21",
           "close": 891.83
@@ -687,51 +691,47 @@
         {
           "date": "2026-07-14",
           "close": 878.31
-        },
-        {
-          "date": "2026-07-13",
-          "close": 860.66
         }
       ],
-      "daily_k": 50.1,
-      "daily_d": 39.2,
+      "daily_k": 63.9,
+      "daily_d": 47.4,
       "daily_cross": "none",
-      "weekly_k": 44.4,
-      "weekly_d": 56.3,
+      "weekly_k": 45.6,
+      "weekly_d": 56.7,
       "weekly_cross": "none",
-      "hourly_k": 89.8,
-      "hourly_d": 85.8,
+      "hourly_k": 81.8,
+      "hourly_d": 85.2,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -21.4302,
-        "signal": -11.7092,
-        "histogram": -9.721,
+        "macd": -15.4126,
+        "signal": -12.5323,
+        "histogram": -2.8803,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 137.5432,
-        "signal": 142.3503,
-        "histogram": -4.8071,
+        "macd": 138.8411,
+        "signal": 142.6099,
+        "histogram": -3.7688,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 27.0693,
-        "signal": 18.0407,
-        "histogram": 9.0286,
+        "macd": 31.044,
+        "signal": 30.2931,
+        "histogram": 0.7509,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 51.8,
+        "rsi": 53.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 62.3,
+        "rsi": 62.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 68.9,
+        "rsi": 66.8,
         "overbought": false,
         "oversold": false
       }
@@ -761,12 +761,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 66508.87,
-      "prev_prev_close": 66505.125,
+      "prev_close": 66081.05,
+      "prev_prev_close": 65230.0273,
       "recent_closes": [
         {
-          "date": "2026-07-22",
-          "close": 65578.0469
+          "date": "2026-07-23",
+          "close": 65804.0938
         },
         {
           "date": "2026-07-21",
@@ -793,72 +793,72 @@
           "close": 63789.2812
         }
       ],
-      "daily_k": 79.0,
-      "daily_d": 77.4,
+      "daily_k": 80.6,
+      "daily_d": 77.9,
       "daily_cross": "none",
-      "weekly_k": 31.2,
-      "weekly_d": 30.5,
+      "weekly_k": 31.6,
+      "weekly_d": 30.6,
       "weekly_cross": "golden",
-      "hourly_k": 19.8,
-      "hourly_d": 24.3,
+      "hourly_k": 37.3,
+      "hourly_d": 46.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 551.0263,
-        "signal": 188.7545,
-        "histogram": 362.2719,
+        "macd": 568.9988,
+        "signal": 192.273,
+        "histogram": 376.7258,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -5383.3734,
-        "signal": -5591.0246,
-        "histogram": 207.6512,
+        "macd": -5365.3412,
+        "signal": -5587.4182,
+        "histogram": 222.077,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": -66.1381,
-        "signal": 32.8614,
-        "histogram": -98.9995,
+        "macd": -31.0254,
+        "signal": -18.1434,
+        "histogram": -12.8821,
         "bullish": false
       },
       "daily_rsi": {
-        "rsi": 56.7,
+        "rsi": 57.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 41.0,
+        "rsi": 41.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 39.3,
+        "rsi": 45.1,
         "overbought": false,
         "oversold": false
       }
     },
     "NVDA": {
-      "pe": 31.7443,
-      "fpe": 16.1395,
-      "peg": 0.5599,
-      "ps": 19.8065,
-      "pb": 25.6865,
+      "pe": 31.7455,
+      "fpe": 16.4783,
+      "peg": 0.5709,
+      "ps": 20.2623,
+      "pb": 26.2776,
       "rev_yoy": 0.852,
-      "rev_fwd": 0.4225,
-      "hist_avg_pe": 93.31,
-      "eps_ttm": 6.53,
-      "eps_cur_q": null,
-      "eps_next_q2": null,
-      "eps_cur_y": 8.9859,
-      "eps_next_y": 12.8436,
+      "rev_fwd": 0.42470002,
+      "hist_avg_pe": 93.5,
+      "eps_ttm": 6.68,
+      "eps_cur_q": 2.08225,
+      "eps_next_q2": 2.34964,
+      "eps_cur_y": 8.9885,
+      "eps_next_y": 12.869,
       "gross_margin": 0.7414,
       "operating_margin": 0.656,
       "next_earnings_date": "2026-08-26",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 302.3103,
+      "target_mean_price": 302.8276,
       "target_low_price": 180.0,
       "target_high_price": 500.0,
-      "target_median_price": 294.0,
+      "target_median_price": 300.0,
       "number_of_analysts": 58,
       "earnings_history": [
         {
@@ -1006,9 +1006,13 @@
           "surprise_pct": 0.0554
         }
       ],
-      "prev_close": 203.28,
-      "prev_prev_close": 203.28,
+      "prev_close": 207.29,
+      "prev_prev_close": 207.29,
       "recent_closes": [
+        {
+          "date": "2026-07-22",
+          "close": 212.06
+        },
         {
           "date": "2026-07-21",
           "close": 207.29
@@ -1032,69 +1036,65 @@
         {
           "date": "2026-07-14",
           "close": 211.8
-        },
-        {
-          "date": "2026-07-13",
-          "close": 203.53
         }
       ],
-      "daily_k": 60.9,
-      "daily_d": 67.3,
-      "daily_cross": "none",
-      "weekly_k": 34.3,
-      "weekly_d": 36.4,
-      "weekly_cross": "none",
-      "hourly_k": 63.8,
-      "hourly_d": 60.0,
+      "daily_k": 69.2,
+      "daily_d": 67.9,
+      "daily_cross": "golden",
+      "weekly_k": 38.9,
+      "weekly_d": 38.0,
+      "weekly_cross": "golden",
+      "hourly_k": 83.6,
+      "hourly_d": 82.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 0.0842,
-        "signal": -0.7983,
-        "histogram": 0.8824,
+        "macd": 0.6584,
+        "signal": -0.4765,
+        "histogram": 1.1349,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 5.7014,
-        "signal": 6.6242,
-        "histogram": -0.9228,
+        "macd": 6.1697,
+        "signal": 6.7179,
+        "histogram": -0.5482,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.0604,
-        "signal": -0.4455,
-        "histogram": 0.3851,
+        "macd": 1.8576,
+        "signal": 1.0178,
+        "histogram": 0.8398,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 52.2,
+        "rsi": 56.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 54.6,
+        "rsi": 57.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 47.9,
+        "rsi": 60.6,
         "overbought": false,
         "oversold": false
       }
     },
     "AMD": {
-      "pe": 176.6722,
-      "fpe": 39.2321,
+      "pe": 181.6875,
+      "fpe": 40.9374,
       "peg": 1.276,
       "ps": null,
-      "pb": 13.3575,
+      "pb": 13.9664,
       "rev_yoy": 0.378,
       "rev_fwd": 0.574,
-      "hist_avg_pe": 176.28,
-      "eps_ttm": 2.99,
-      "eps_cur_q": null,
-      "eps_next_q2": null,
+      "hist_avg_pe": 177.05,
+      "eps_ttm": 3.04,
+      "eps_cur_q": 1.60898,
+      "eps_next_q2": 1.83751,
       "eps_cur_y": 7.4332,
-      "eps_next_y": 13.4647,
+      "eps_next_y": 13.4921,
       "gross_margin": 0.5306,
       "operating_margin": 0.144,
       "next_earnings_date": null,
@@ -1105,13 +1105,158 @@
       "target_high_price": 725.0,
       "target_median_price": 540.0,
       "number_of_analysts": 47,
-      "earnings_history": [],
+      "earnings_history": [
+        {
+          "quarter": "2020 Q3",
+          "eps_estimate": 0.17,
+          "eps_actual": 0.18,
+          "surprise_pct": 0.0878
+        },
+        {
+          "quarter": "2020 Q4",
+          "eps_estimate": 0.36,
+          "eps_actual": 0.41,
+          "surprise_pct": 0.1549
+        },
+        {
+          "quarter": "2021 Q1",
+          "eps_estimate": 0.48,
+          "eps_actual": 0.52,
+          "surprise_pct": 0.0946
+        },
+        {
+          "quarter": "2021 Q2",
+          "eps_estimate": 0.44,
+          "eps_actual": 0.52,
+          "surprise_pct": 0.1831
+        },
+        {
+          "quarter": "2021 Q3",
+          "eps_estimate": 0.54,
+          "eps_actual": 0.63,
+          "surprise_pct": 0.1695
+        },
+        {
+          "quarter": "2021 Q4",
+          "eps_estimate": 0.66,
+          "eps_actual": 0.73,
+          "surprise_pct": 0.1004
+        },
+        {
+          "quarter": "2022 Q1",
+          "eps_estimate": 0.76,
+          "eps_actual": 0.92,
+          "surprise_pct": 0.2138
+        },
+        {
+          "quarter": "2022 Q2",
+          "eps_estimate": 0.92,
+          "eps_actual": 1.13,
+          "surprise_pct": 0.2223
+        },
+        {
+          "quarter": "2022 Q3",
+          "eps_estimate": 1.04,
+          "eps_actual": 1.05,
+          "surprise_pct": 0.0137
+        },
+        {
+          "quarter": "2022 Q4",
+          "eps_estimate": 0.7,
+          "eps_actual": 0.67,
+          "surprise_pct": -0.0483
+        },
+        {
+          "quarter": "2023 Q1",
+          "eps_estimate": 0.67,
+          "eps_actual": 0.69,
+          "surprise_pct": 0.0251
+        },
+        {
+          "quarter": "2023 Q2",
+          "eps_estimate": 0.56,
+          "eps_actual": 0.6,
+          "surprise_pct": 0.065
+        },
+        {
+          "quarter": "2023 Q3",
+          "eps_estimate": 0.57,
+          "eps_actual": 0.58,
+          "surprise_pct": 0.0105
+        },
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 0.68,
+          "eps_actual": 0.7,
+          "surprise_pct": 0.0359
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": 0.77,
+          "eps_actual": 0.77,
+          "surprise_pct": -0.0001
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": 0.61,
+          "eps_actual": 0.62,
+          "surprise_pct": 0.0204
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 0.68,
+          "eps_actual": 0.69,
+          "surprise_pct": 0.0126
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 0.92,
+          "eps_actual": 0.92,
+          "surprise_pct": 0.0046
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 1.09,
+          "eps_actual": 1.09,
+          "surprise_pct": 0.0036
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": 0.93,
+          "eps_actual": 0.96,
+          "surprise_pct": 0.0283
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": 0.48,
+          "eps_actual": 0.48,
+          "surprise_pct": -0.0055
+        },
+        {
+          "quarter": "2025 Q4",
+          "eps_estimate": 1.17,
+          "eps_actual": 1.2,
+          "surprise_pct": 0.0248
+        },
+        {
+          "quarter": "2026 Q1",
+          "eps_estimate": 1.32,
+          "eps_actual": 1.53,
+          "surprise_pct": 0.1598
+        },
+        {
+          "quarter": "2026 Q2",
+          "eps_estimate": 1.29,
+          "eps_actual": 1.37,
+          "surprise_pct": 0.0582
+        }
+      ],
       "prev_close": 544.43,
       "prev_prev_close": 544.43,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 537.9885
+          "close": 552.33
         },
         {
           "date": "2026-07-21",
@@ -1138,59 +1283,59 @@
           "close": 548.13
         }
       ],
-      "daily_k": 55.2,
-      "daily_d": 47.1,
+      "daily_k": 59.4,
+      "daily_d": 48.5,
       "daily_cross": "none",
-      "weekly_k": 71.8,
-      "weekly_d": 78.0,
+      "weekly_k": 75.1,
+      "weekly_d": 79.1,
       "weekly_cross": "none",
-      "hourly_k": 85.6,
-      "hourly_d": 86.6,
+      "hourly_k": 83.2,
+      "hourly_d": 88.5,
       "hourly_cross": "death",
       "daily_macd": {
-        "macd": 6.508,
-        "signal": 10.1733,
-        "histogram": -3.6653,
+        "macd": 7.6417,
+        "signal": 10.3801,
+        "histogram": -2.7384,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 81.9564,
-        "signal": 75.1827,
-        "histogram": 6.7736,
+        "macd": 83.1059,
+        "signal": 75.4126,
+        "histogram": 7.6932,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 9.695,
-        "signal": 6.7934,
-        "histogram": 2.9016,
+        "macd": 12.5587,
+        "signal": 11.1623,
+        "histogram": 1.3964,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 53.7,
+        "rsi": 56.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 68.0,
+        "rsi": 69.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.3,
+        "rsi": 62.8,
         "overbought": false,
         "oversold": false
       }
     },
     "ASTS": {
       "pe": null,
-      "fpe": -241.6603,
+      "fpe": -238.0861,
       "peg": null,
-      "ps": 287.3406,
-      "pb": 9.0254,
+      "ps": 283.0908,
+      "pb": 8.8919,
       "rev_yoy": 19.522,
       "rev_fwd": 3.2797,
       "hist_avg_pe": null,
-      "eps_ttm": -1.8,
+      "eps_ttm": -1.76,
       "eps_cur_q": -0.28728,
       "eps_next_q2": -0.28998,
       "eps_cur_y": -1.3355,
@@ -1238,15 +1383,15 @@
         },
         {
           "quarter": "2023 Q3",
-          "eps_estimate": -0.16,
+          "eps_estimate": -0.19,
           "eps_actual": -0.24,
-          "surprise_pct": -0.5
+          "surprise_pct": -0.2632
         },
         {
           "quarter": "2023 Q4",
-          "eps_estimate": -0.19,
+          "eps_estimate": -0.21,
           "eps_actual": -0.23,
-          "surprise_pct": -0.2105
+          "surprise_pct": -0.0952
         },
         {
           "quarter": "2024 Q2",
@@ -1256,9 +1401,9 @@
         },
         {
           "quarter": "2024 Q2",
-          "eps_estimate": -0.21,
+          "eps_estimate": -0.19,
           "eps_actual": -0.16,
-          "surprise_pct": 0.2403
+          "surprise_pct": 0.1606
         },
         {
           "quarter": "2024 Q3",
@@ -1275,8 +1420,8 @@
         {
           "quarter": "2025 Q1",
           "eps_estimate": -0.18,
-          "eps_actual": -0.12,
-          "surprise_pct": 0.2924
+          "eps_actual": -0.18,
+          "surprise_pct": -0.0189
         },
         {
           "quarter": "2025 Q2",
@@ -1314,7 +1459,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 62.835
+          "close": 61.95
         },
         {
           "date": "2026-07-21",
@@ -1341,72 +1486,72 @@
           "close": 68.82
         }
       ],
-      "daily_k": 31.6,
-      "daily_d": 23.6,
+      "daily_k": 30.2,
+      "daily_d": 23.1,
       "daily_cross": "none",
-      "weekly_k": 16.0,
-      "weekly_d": 23.7,
+      "weekly_k": 15.7,
+      "weekly_d": 23.6,
       "weekly_cross": "none",
-      "hourly_k": 79.8,
-      "hourly_d": 78.3,
+      "hourly_k": 33.7,
+      "hourly_d": 48.0,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -6.8503,
-        "signal": -6.0346,
-        "histogram": -0.8157,
+        "macd": -6.871,
+        "signal": -5.9758,
+        "histogram": -0.8952,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": -2.7516,
-        "signal": 1.1534,
-        "histogram": -3.905,
+        "macd": -2.8222,
+        "signal": 1.1393,
+        "histogram": -3.9615,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.634,
-        "signal": 1.3176,
-        "histogram": 0.3163,
-        "bullish": true
+        "macd": 1.1267,
+        "signal": 1.3474,
+        "histogram": -0.2207,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 40.2,
+        "rsi": 39.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 43.1,
+        "rsi": 42.7,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 60.6,
+        "rsi": 54.8,
         "overbought": false,
         "oversold": false
       }
     },
     "AVGO": {
-      "pe": 63.7137,
-      "fpe": 19.6111,
+      "pe": 64.522,
+      "fpe": 20.3904,
       "peg": 0.4344,
-      "ps": 24.0602,
-      "pb": 20.7078,
+      "ps": 25.0163,
+      "pb": 21.5307,
       "rev_yoy": 0.479,
-      "rev_fwd": 0.6257,
-      "hist_avg_pe": 142.37,
-      "eps_ttm": 5.99,
+      "rev_fwd": 0.6292,
+      "hist_avg_pe": 142.87,
+      "eps_ttm": 6.15,
       "eps_cur_q": 3.23823,
       "eps_next_q2": 3.87377,
-      "eps_cur_y": 11.6239,
+      "eps_cur_y": 11.6283,
       "eps_next_y": 19.4607,
       "gross_margin": 0.7628,
       "operating_margin": 0.4899,
       "next_earnings_date": "2026-09-03",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 524.5067,
+      "target_mean_price": 525.44,
       "target_low_price": 215.88,
       "target_high_price": 675.0,
-      "target_median_price": 525.0,
+      "target_median_price": 530.0,
       "number_of_analysts": 45,
       "earnings_history": [
         {
@@ -1559,7 +1704,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 381.615
+          "close": 396.81
         },
         {
           "date": "2026-07-21",
@@ -1586,62 +1731,62 @@
           "close": 389.11
         }
       ],
-      "daily_k": 50.0,
-      "daily_d": 50.1,
-      "daily_cross": "none",
-      "weekly_k": 19.5,
-      "weekly_d": 27.1,
+      "daily_k": 61.3,
+      "daily_d": 53.8,
+      "daily_cross": "golden",
+      "weekly_k": 23.2,
+      "weekly_d": 28.3,
       "weekly_cross": "none",
-      "hourly_k": 53.7,
-      "hourly_d": 62.4,
+      "hourly_k": 90.8,
+      "hourly_d": 86.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -3.9988,
-        "signal": -5.2426,
-        "histogram": 1.2438,
+        "macd": -2.7694,
+        "signal": -4.9679,
+        "histogram": 2.1985,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 10.8142,
-        "signal": 15.7538,
-        "histogram": -4.9396,
+        "macd": 12.0263,
+        "signal": 15.9963,
+        "histogram": -3.9699,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.5759,
-        "signal": 1.051,
-        "histogram": 0.5249,
+        "macd": 4.5494,
+        "signal": 3.1905,
+        "histogram": 1.3589,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 47.9,
+        "rsi": 53.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 51.6,
+        "rsi": 54.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 46.2,
+        "rsi": 68.0,
         "overbought": false,
         "oversold": false
       }
     },
     "COHR": {
-      "pe": 148.2345,
-      "fpe": 37.5536,
+      "pe": 151.5486,
+      "fpe": 37.8421,
       "peg": null,
-      "ps": 9.1806,
-      "pb": 5.6741,
+      "ps": 9.2511,
+      "pb": 5.7177,
       "rev_yoy": 0.205,
-      "rev_fwd": 0.35599998,
-      "hist_avg_pe": 362.06,
-      "eps_ttm": 2.09,
+      "rev_fwd": 0.35669997,
+      "hist_avg_pe": 362.26,
+      "eps_ttm": 2.06,
       "eps_cur_q": 1.61709,
-      "eps_next_q2": 1.76981,
-      "eps_cur_y": 5.4543,
+      "eps_next_q2": 1.77092,
+      "eps_cur_y": 5.4547,
       "eps_next_y": 8.2498,
       "gross_margin": 0.3699,
       "operating_margin": 0.1357,
@@ -1799,12 +1944,12 @@
           "surprise_pct": 0.0112
         }
       ],
-      "prev_close": 317.18,
+      "prev_close": 317.22,
       "prev_prev_close": 317.22,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 309.835
+          "close": 312.19
         },
         {
           "date": "2026-07-21",
@@ -1831,40 +1976,40 @@
           "close": 310.77
         }
       ],
-      "daily_k": 50.5,
-      "daily_d": 33.4,
+      "daily_k": 51.5,
+      "daily_d": 33.7,
       "daily_cross": "none",
-      "weekly_k": 29.8,
-      "weekly_d": 41.4,
+      "weekly_k": 30.2,
+      "weekly_d": 41.5,
       "weekly_cross": "none",
-      "hourly_k": 83.6,
-      "hourly_d": 86.6,
-      "hourly_cross": "death",
+      "hourly_k": 63.2,
+      "hourly_d": 73.9,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -21.1048,
-        "signal": -19.3057,
-        "histogram": -1.7991,
+        "macd": -20.8091,
+        "signal": -19.1104,
+        "histogram": -1.6987,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 29.1029,
-        "signal": 42.1875,
-        "histogram": -13.0846,
+        "macd": 29.2908,
+        "signal": 42.2251,
+        "histogram": -12.9343,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 8.7129,
-        "signal": 6.9531,
-        "histogram": 1.7598,
-        "bullish": true
+        "macd": 7.4717,
+        "signal": 8.0167,
+        "histogram": -0.545,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 43.6,
+        "rsi": 44.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 52.1,
+        "rsi": 52.5,
         "overbought": false,
         "oversold": false
       },
@@ -1875,47 +2020,47 @@
       }
     },
     "META": {
-      "pe": 23.3592,
-      "fpe": 17.5886,
+      "pe": 23.4193,
+      "fpe": 16.9451,
       "peg": 0.9392,
-      "ps": 7.5829,
-      "pb": 6.6881,
+      "ps": 7.406,
+      "pb": 6.5321,
       "rev_yoy": 0.331,
-      "rev_fwd": 0.1965,
-      "hist_avg_pe": 39.95,
-      "eps_ttm": 27.49,
-      "eps_cur_q": 7.23001,
-      "eps_next_q2": 7.06608,
-      "eps_cur_y": 31.939,
-      "eps_next_y": 36.5091,
+      "rev_fwd": 0.2006,
+      "hist_avg_pe": 39.87,
+      "eps_ttm": 26.78,
+      "eps_cur_q": 7.22623,
+      "eps_next_q2": 7.06585,
+      "eps_cur_y": 32.3494,
+      "eps_next_y": 37.012,
       "gross_margin": 0.8194,
       "operating_margin": 0.4062,
       "next_earnings_date": "2026-07-29",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 822.6858,
+      "target_mean_price": 826.0134,
       "target_low_price": 664.46,
       "target_high_price": 1015.0,
-      "target_median_price": 821.16,
+      "target_median_price": 823.66,
       "number_of_analysts": 58,
       "earnings_history": [
         {
           "quarter": "2020 Q3",
-          "eps_estimate": 1.4,
+          "eps_estimate": 1.37,
           "eps_actual": 1.8,
-          "surprise_pct": 0.2888
+          "surprise_pct": 0.312
         },
         {
           "quarter": "2020 Q4",
           "eps_estimate": 1.91,
-          "eps_actual": 2.4,
-          "surprise_pct": 0.2557
+          "eps_actual": 2.71,
+          "surprise_pct": 0.4195
         },
         {
           "quarter": "2021 Q1",
-          "eps_estimate": 3.24,
+          "eps_estimate": 3.2,
           "eps_actual": 3.88,
-          "surprise_pct": 0.1991
+          "surprise_pct": 0.2143
         },
         {
           "quarter": "2021 Q2",
@@ -1925,39 +2070,39 @@
         },
         {
           "quarter": "2021 Q3",
-          "eps_estimate": 3.06,
+          "eps_estimate": 3.01,
           "eps_actual": 3.61,
-          "surprise_pct": 0.1794
+          "surprise_pct": 0.2004
         },
         {
           "quarter": "2021 Q4",
-          "eps_estimate": 3.17,
+          "eps_estimate": 3.18,
           "eps_actual": 3.22,
-          "surprise_pct": 0.0152
+          "surprise_pct": 0.0132
         },
         {
           "quarter": "2022 Q1",
           "eps_estimate": 3.83,
           "eps_actual": 3.67,
-          "surprise_pct": -0.0406
+          "surprise_pct": -0.041
         },
         {
           "quarter": "2022 Q2",
-          "eps_estimate": 2.53,
+          "eps_estimate": 2.55,
           "eps_actual": 2.72,
-          "surprise_pct": 0.0757
+          "surprise_pct": 0.0682
         },
         {
           "quarter": "2022 Q3",
           "eps_estimate": 2.55,
           "eps_actual": 2.46,
-          "surprise_pct": -0.0356
+          "surprise_pct": -0.0338
         },
         {
           "quarter": "2022 Q4",
-          "eps_estimate": 1.85,
+          "eps_estimate": 1.86,
           "eps_actual": 1.64,
-          "surprise_pct": -0.1132
+          "surprise_pct": -0.1206
         },
         {
           "quarter": "2023 Q1",
@@ -1979,9 +2124,9 @@
         },
         {
           "quarter": "2023 Q4",
-          "eps_estimate": 3.6,
+          "eps_estimate": 3.63,
           "eps_actual": 4.39,
-          "surprise_pct": 0.2196
+          "surprise_pct": 0.209
         },
         {
           "quarter": "2024 Q1",
@@ -1991,9 +2136,9 @@
         },
         {
           "quarter": "2024 Q2",
-          "eps_estimate": 4.36,
+          "eps_estimate": 4.32,
           "eps_actual": 4.71,
-          "surprise_pct": 0.0811
+          "surprise_pct": 0.0892
         },
         {
           "quarter": "2024 Q3",
@@ -2003,33 +2148,33 @@
         },
         {
           "quarter": "2024 Q4",
-          "eps_estimate": 5.3,
+          "eps_estimate": 5.29,
           "eps_actual": 6.03,
-          "surprise_pct": 0.1386
+          "surprise_pct": 0.1394
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 6.74,
+          "eps_estimate": 6.76,
           "eps_actual": 8.02,
-          "surprise_pct": 0.19
+          "surprise_pct": 0.1867
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": 5.21,
+          "eps_estimate": 5.22,
           "eps_actual": 6.43,
-          "surprise_pct": 0.2353
+          "surprise_pct": 0.2311
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": 5.86,
+          "eps_estimate": 5.9,
           "eps_actual": 7.14,
-          "surprise_pct": 0.2182
+          "surprise_pct": 0.2096
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": 6.67,
-          "eps_actual": 7.25,
-          "surprise_pct": 0.0866
+          "eps_estimate": 6.71,
+          "eps_actual": 1.05,
+          "surprise_pct": -0.8434
         },
         {
           "quarter": "2026 Q1",
@@ -2039,9 +2184,9 @@
         },
         {
           "quarter": "2026 Q2",
-          "eps_estimate": 6.82,
-          "eps_actual": 7.31,
-          "surprise_pct": 0.072
+          "eps_estimate": 6.66,
+          "eps_actual": 10.44,
+          "surprise_pct": 0.5679
         }
       ],
       "prev_close": 643.81,
@@ -2049,7 +2194,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 642.47
+          "close": 627.17
         },
         {
           "date": "2026-07-21",
@@ -2076,63 +2221,63 @@
           "close": 661.04
         }
       ],
-      "daily_k": 55.3,
-      "daily_d": 68.4,
+      "daily_k": 47.7,
+      "daily_d": 65.8,
       "daily_cross": "none",
-      "weekly_k": 61.6,
-      "weekly_d": 50.1,
+      "weekly_k": 58.1,
+      "weekly_d": 48.9,
       "weekly_cross": "none",
-      "hourly_k": 22.4,
-      "hourly_d": 36.0,
+      "hourly_k": 9.6,
+      "hourly_d": 12.0,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 16.295,
-        "signal": 13.734,
-        "histogram": 2.561,
+        "macd": 15.1762,
+        "signal": 13.6759,
+        "histogram": 1.5003,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -5.7149,
-        "signal": -12.5494,
-        "histogram": 6.8345,
+        "macd": -6.9354,
+        "signal": -12.7935,
+        "histogram": 5.8581,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": -4.391,
-        "signal": -5.0558,
-        "histogram": 0.6649,
-        "bullish": true
+        "macd": -7.9784,
+        "signal": -6.9452,
+        "histogram": -1.0332,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 55.5,
+        "rsi": 51.3,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 52.5,
+        "rsi": 50.6,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 34.7,
+        "rsi": 26.5,
         "overbought": false,
-        "oversold": false
+        "oversold": true
       }
     },
     "GOOGL": {
-      "pe": 26.4992,
-      "fpe": 23.6939,
-      "peg": 1.3859,
-      "ps": 10.0454,
-      "pb": 8.7987,
+      "pe": 26.4571,
+      "fpe": 23.2825,
+      "peg": 1.3668,
+      "ps": 9.8802,
+      "pb": 8.6574,
       "rev_yoy": 0.218,
       "rev_fwd": 0.19870001,
-      "hist_avg_pe": 18.31,
-      "eps_ttm": 13.12,
-      "eps_cur_q": 2.89484,
-      "eps_next_q2": 3.01407,
+      "hist_avg_pe": 18.28,
+      "eps_ttm": 12.93,
+      "eps_cur_q": 3.01407,
+      "eps_next_q2": 3.30976,
       "eps_cur_y": 14.2648,
-      "eps_next_y": 14.6734,
+      "eps_next_y": 14.693,
       "gross_margin": 0.6037,
       "operating_margin": 0.3612,
       "next_earnings_date": "2026-07-22",
@@ -2148,7 +2293,7 @@
           "quarter": "2020 Q3",
           "eps_estimate": 0.41,
           "eps_actual": 0.51,
-          "surprise_pct": 0.234
+          "surprise_pct": 0.2414
         },
         {
           "quarter": "2020 Q4",
@@ -2158,9 +2303,9 @@
         },
         {
           "quarter": "2021 Q1",
-          "eps_estimate": 0.8,
+          "eps_estimate": 0.79,
           "eps_actual": 1.12,
-          "surprise_pct": 0.3928
+          "surprise_pct": 0.4185
         },
         {
           "quarter": "2021 Q2",
@@ -2172,13 +2317,13 @@
           "quarter": "2021 Q3",
           "eps_estimate": 0.96,
           "eps_actual": 1.36,
-          "surprise_pct": 0.427
+          "surprise_pct": 0.4137
         },
         {
           "quarter": "2021 Q4",
-          "eps_estimate": 1.16,
+          "eps_estimate": 1.17,
           "eps_actual": 1.4,
-          "surprise_pct": 0.2044
+          "surprise_pct": 0.2002
         },
         {
           "quarter": "2022 Q1",
@@ -2188,45 +2333,45 @@
         },
         {
           "quarter": "2022 Q2",
-          "eps_estimate": 1.28,
+          "eps_estimate": 1.29,
           "eps_actual": 1.23,
-          "surprise_pct": -0.0367
+          "surprise_pct": -0.0443
         },
         {
           "quarter": "2022 Q3",
-          "eps_estimate": 1.29,
+          "eps_estimate": 1.27,
           "eps_actual": 1.21,
-          "surprise_pct": -0.0605
+          "surprise_pct": -0.0505
         },
         {
           "quarter": "2022 Q4",
-          "eps_estimate": 1.26,
+          "eps_estimate": 1.25,
           "eps_actual": 1.06,
-          "surprise_pct": -0.1601
+          "surprise_pct": -0.1527
         },
         {
           "quarter": "2023 Q1",
-          "eps_estimate": 1.2,
+          "eps_estimate": 1.19,
           "eps_actual": 1.05,
-          "surprise_pct": -0.1233
+          "surprise_pct": -0.1187
         },
         {
           "quarter": "2023 Q2",
           "eps_estimate": 1.07,
           "eps_actual": 1.17,
-          "surprise_pct": 0.0945
+          "surprise_pct": 0.0952
         },
         {
           "quarter": "2023 Q3",
           "eps_estimate": 1.34,
           "eps_actual": 1.44,
-          "surprise_pct": 0.0729
+          "surprise_pct": 0.0723
         },
         {
           "quarter": "2023 Q4",
           "eps_estimate": 1.45,
           "eps_actual": 1.55,
-          "surprise_pct": 0.0705
+          "surprise_pct": 0.0674
         },
         {
           "quarter": "2024 Q1",
@@ -2242,9 +2387,9 @@
         },
         {
           "quarter": "2024 Q3",
-          "eps_estimate": 1.84,
+          "eps_estimate": 1.85,
           "eps_actual": 1.89,
-          "surprise_pct": 0.0254
+          "surprise_pct": 0.024
         },
         {
           "quarter": "2024 Q4",
@@ -2262,7 +2407,7 @@
           "quarter": "2025 Q2",
           "eps_estimate": 2.01,
           "eps_actual": 2.81,
-          "surprise_pct": 0.3984
+          "surprise_pct": 0.401
         },
         {
           "quarter": "2025 Q3",
@@ -2284,9 +2429,15 @@
         },
         {
           "quarter": "2026 Q2",
-          "eps_estimate": 2.63,
+          "eps_estimate": 2.67,
           "eps_actual": 5.11,
-          "surprise_pct": 0.943
+          "surprise_pct": 0.9159
+        },
+        {
+          "quarter": "2026 Q3",
+          "eps_estimate": 2.9,
+          "eps_actual": 9.11,
+          "surprise_pct": 2.1423
         }
       ],
       "prev_close": 347.15,
@@ -2294,7 +2445,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 347.79
+          "close": 342.09
         },
         {
           "date": "2026-07-21",
@@ -2321,59 +2472,59 @@
           "close": 359.51
         }
       ],
-      "daily_k": 24.9,
-      "daily_d": 33.3,
+      "daily_k": 19.4,
+      "daily_d": 31.4,
       "daily_cross": "none",
-      "weekly_k": 31.4,
-      "weekly_d": 40.1,
+      "weekly_k": 28.5,
+      "weekly_d": 39.1,
       "weekly_cross": "none",
-      "hourly_k": 18.1,
-      "hourly_d": 22.4,
+      "hourly_k": 14.1,
+      "hourly_d": 21.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -3.4992,
-        "signal": -2.7393,
-        "histogram": -0.7598,
+        "macd": -3.9415,
+        "signal": -2.8232,
+        "histogram": -1.1183,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 14.0004,
-        "signal": 19.2306,
-        "histogram": -5.2301,
+        "macd": 13.5545,
+        "signal": 19.1414,
+        "histogram": -5.5869,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -3.5065,
-        "signal": -3.8858,
-        "histogram": 0.3793,
+        "macd": -3.3692,
+        "signal": -3.3943,
+        "histogram": 0.0251,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 43.8,
+        "rsi": 40.9,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 52.8,
+        "rsi": 51.1,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 30.7,
+        "rsi": 24.9,
         "overbought": false,
-        "oversold": false
+        "oversold": true
       }
     },
     "LITE": {
-      "pe": 144.2333,
-      "fpe": 44.7826,
+      "pe": 147.1099,
+      "fpe": 45.1949,
       "peg": null,
-      "ps": 25.693,
-      "pb": 19.8247,
+      "ps": 25.9406,
+      "pb": 20.0072,
       "rev_yoy": 0.901,
       "rev_fwd": 0.873,
-      "hist_avg_pe": 150.92,
-      "eps_ttm": 5.7,
+      "hist_avg_pe": 151.2,
+      "eps_ttm": 5.64,
       "eps_cur_q": 2.96892,
       "eps_next_q2": 3.63134,
       "eps_cur_y": 8.2324,
@@ -2539,7 +2690,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 821.78
+          "close": 829.7
         },
         {
           "date": "2026-07-21",
@@ -2566,69 +2717,69 @@
           "close": 814.8
         }
       ],
-      "daily_k": 72.4,
-      "daily_d": 58.1,
+      "daily_k": 71.3,
+      "daily_d": 57.7,
       "daily_cross": "none",
-      "weekly_k": 30.3,
-      "weekly_d": 31.2,
+      "weekly_k": 31.0,
+      "weekly_d": 31.4,
       "weekly_cross": "none",
-      "hourly_k": 83.9,
-      "hourly_d": 86.1,
-      "hourly_cross": "death",
+      "hourly_k": 48.9,
+      "hourly_d": 59.9,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -20.3991,
-        "signal": -30.4511,
-        "histogram": 10.052,
+        "macd": -19.542,
+        "signal": -29.9952,
+        "histogram": 10.4532,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 75.928,
-        "signal": 110.5777,
-        "histogram": -34.6497,
+        "macd": 76.5598,
+        "signal": 110.704,
+        "histogram": -34.1442,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 27.5881,
-        "signal": 24.7903,
-        "histogram": 2.7977,
-        "bullish": true
+        "macd": 22.627,
+        "signal": 25.2987,
+        "histogram": -2.6716,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 51.6,
+        "rsi": 52.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 56.4,
+        "rsi": 56.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 63.1,
+        "rsi": 61.6,
         "overbought": false,
         "oversold": false
       }
     },
     "MU": {
-      "pe": 21.3627,
-      "fpe": 6.1515,
-      "peg": 0.1272,
+      "pe": 21.931,
+      "fpe": 6.2409,
+      "peg": 0.1427,
       "ps": null,
-      "pb": 10.6005,
+      "pb": 10.7547,
       "rev_yoy": 3.457,
-      "rev_fwd": 0.8141,
-      "hist_avg_pe": 55.12,
-      "eps_ttm": 44.27,
+      "rev_fwd": 0.84019995,
+      "hist_avg_pe": 55.18,
+      "eps_ttm": 43.75,
       "eps_cur_q": 31.32898,
       "eps_next_q2": 34.86624,
-      "eps_cur_y": 73.39,
+      "eps_cur_y": 73.444,
       "eps_next_y": 153.7395,
       "gross_margin": 0.7257,
       "operating_margin": 0.8037,
       "next_earnings_date": null,
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 1491.9524,
+      "target_mean_price": 1507.381,
       "target_low_price": 361.0,
       "target_high_price": 2200.0,
       "target_median_price": 1550.0,
@@ -2784,7 +2935,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 945.725
+          "close": 959.48
         },
         {
           "date": "2026-07-21",
@@ -2811,85 +2962,85 @@
           "close": 983.12
         }
       ],
-      "daily_k": 50.0,
-      "daily_d": 35.2,
+      "daily_k": 52.4,
+      "daily_d": 35.9,
       "daily_cross": "none",
-      "weekly_k": 48.9,
-      "weekly_d": 64.1,
+      "weekly_k": 49.9,
+      "weekly_d": 64.4,
       "weekly_cross": "none",
-      "hourly_k": 81.1,
-      "hourly_d": 82.2,
-      "hourly_cross": "death",
+      "hourly_k": 65.5,
+      "hourly_d": 76.7,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -17.061,
-        "signal": -3.4677,
-        "histogram": -13.5933,
+        "macd": -15.9152,
+        "signal": -3.1772,
+        "histogram": -12.738,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 168.4381,
-        "signal": 163.7651,
-        "histogram": 4.673,
+        "macd": 169.5353,
+        "signal": 163.9845,
+        "histogram": 5.5508,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 25.4418,
-        "signal": 19.2338,
-        "histogram": 6.2079,
-        "bullish": true
+        "macd": 24.5584,
+        "signal": 24.8645,
+        "histogram": -0.3061,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 49.3,
+        "rsi": 50.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 63.4,
+        "rsi": 63.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.0,
+        "rsi": 59.1,
         "overbought": false,
         "oversold": false
       }
     },
     "NBIS": {
-      "pe": 82.4961,
-      "fpe": -131.9193,
+      "pe": 84.5581,
+      "fpe": -135.2167,
       "peg": null,
-      "ps": 61.6525,
-      "pb": 7.528,
+      "ps": 63.0942,
+      "pb": 7.7162,
       "rev_yoy": 6.839,
-      "rev_fwd": 2.375,
-      "hist_avg_pe": 102.76,
+      "rev_fwd": 2.379,
+      "hist_avg_pe": 103.04,
       "eps_ttm": 2.58,
       "eps_cur_q": -0.7475,
       "eps_next_q2": -1.12333,
-      "eps_cur_y": -2.95,
+      "eps_cur_y": -2.945,
       "eps_next_y": -1.6134,
       "gross_margin": 0.7206,
       "operating_margin": -0.3208,
       "next_earnings_date": "2026-08-06",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 258.7143,
+      "target_mean_price": 258.1333,
       "target_low_price": 120.0,
       "target_high_price": 410.0,
-      "target_median_price": 265.0,
-      "number_of_analysts": 14,
+      "target_median_price": 260.0,
+      "number_of_analysts": 15,
       "earnings_history": [
         {
           "quarter": "2018 Q2",
-          "eps_estimate": 0.2,
-          "eps_actual": 0.19,
-          "surprise_pct": -0.0223
+          "eps_estimate": 0.15,
+          "eps_actual": 0.11,
+          "surprise_pct": -0.2197
         },
         {
           "quarter": "2018 Q3",
-          "eps_estimate": 0.25,
-          "eps_actual": 0.24,
-          "surprise_pct": -0.024
+          "eps_estimate": 0.21,
+          "eps_actual": 1.61,
+          "surprise_pct": 6.5942
         },
         {
           "quarter": "2018 Q4",
@@ -2899,15 +3050,15 @@
         },
         {
           "quarter": "2019 Q1",
-          "eps_estimate": 0.36,
-          "eps_actual": 0.31,
-          "surprise_pct": -0.1201
+          "eps_estimate": 0.32,
+          "eps_actual": 0.27,
+          "surprise_pct": -0.1443
         },
         {
           "quarter": "2019 Q2",
-          "eps_estimate": 0.26,
-          "eps_actual": 0.25,
-          "surprise_pct": -0.032
+          "eps_estimate": 0.21,
+          "eps_actual": 0.16,
+          "surprise_pct": -0.2017
         },
         {
           "quarter": "2019 Q3",
@@ -2917,15 +3068,15 @@
         },
         {
           "quarter": "2019 Q4",
-          "eps_estimate": 0.36,
-          "eps_actual": 0.32,
-          "surprise_pct": -0.1005
+          "eps_estimate": 0.35,
+          "eps_actual": 0.22,
+          "surprise_pct": -0.3841
         },
         {
           "quarter": "2020 Q1",
-          "eps_estimate": 0.37,
-          "eps_actual": 0.25,
-          "surprise_pct": -0.316
+          "eps_estimate": 0.27,
+          "eps_actual": 0.04,
+          "surprise_pct": -0.8399
         },
         {
           "quarter": "2020 Q2",
@@ -2935,9 +3086,9 @@
         },
         {
           "quarter": "2020 Q3",
-          "eps_estimate": 0.06,
-          "eps_actual": 0.08,
-          "surprise_pct": 0.2913
+          "eps_estimate": -0.16,
+          "eps_actual": -0.14,
+          "surprise_pct": 0.1314
         },
         {
           "quarter": "2020 Q4",
@@ -2947,15 +3098,15 @@
         },
         {
           "quarter": "2021 Q1",
-          "eps_estimate": 0.14,
-          "eps_actual": 0.23,
-          "surprise_pct": 0.6316
+          "eps_estimate": 0.12,
+          "eps_actual": 0.03,
+          "surprise_pct": -0.7474
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 0.27,
-          "eps_actual": 0.08,
-          "surprise_pct": -0.702
+          "eps_estimate": 0.26,
+          "eps_actual": -0.15,
+          "surprise_pct": -1.5747
         },
         {
           "quarter": "2021 Q3",
@@ -2965,9 +3116,9 @@
         },
         {
           "quarter": "2021 Q4",
-          "eps_estimate": 0.03,
-          "eps_actual": 0.05,
-          "surprise_pct": 0.5858
+          "eps_estimate": -0.2,
+          "eps_actual": -0.13,
+          "surprise_pct": 0.3287
         },
         {
           "quarter": "2022 Q1",
@@ -3001,15 +3152,15 @@
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": -0.42,
-          "eps_actual": -0.38,
-          "surprise_pct": 0.0874
+          "eps_estimate": -0.41,
+          "eps_actual": 2.45,
+          "surprise_pct": 6.9712
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": -0.52,
-          "eps_actual": -0.4,
-          "surprise_pct": 0.2333
+          "eps_estimate": -0.39,
+          "eps_actual": -0.47,
+          "surprise_pct": -0.2025
         },
         {
           "quarter": "2026 Q1",
@@ -3029,7 +3180,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 212.84
+          "close": 218.16
         },
         {
           "date": "2026-07-21",
@@ -3056,80 +3207,225 @@
           "close": 194.09
         }
       ],
-      "daily_k": 53.7,
-      "daily_d": 34.7,
+      "daily_k": 54.7,
+      "daily_d": 35.0,
       "daily_cross": "none",
-      "weekly_k": 38.7,
-      "weekly_d": 52.2,
+      "weekly_k": 40.0,
+      "weekly_d": 52.6,
       "weekly_cross": "none",
-      "hourly_k": 90.8,
-      "hourly_d": 87.7,
+      "hourly_k": 68.9,
+      "hourly_d": 80.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -10.1097,
-        "signal": -8.4409,
-        "histogram": -1.6687,
+        "macd": -9.6932,
+        "signal": -8.3677,
+        "histogram": -1.3256,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 29.7538,
-        "signal": 32.4348,
-        "histogram": -2.6809,
+        "macd": 30.1782,
+        "signal": 32.5196,
+        "histogram": -2.3414,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 8.3215,
-        "signal": 5.5183,
-        "histogram": 2.8032,
+        "macd": 10.0456,
+        "signal": 9.22,
+        "histogram": 0.8255,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 49.1,
+        "rsi": 50.6,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 57.4,
+        "rsi": 58.2,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 64.2,
+        "rsi": 61.1,
         "overbought": false,
         "oversold": false
       }
     },
     "ORCL": {
-      "pe": 21.705,
-      "fpe": 11.6197,
-      "peg": 0.6859,
-      "ps": 5.4114,
-      "pb": 9.704,
+      "pe": 21.7716,
+      "fpe": 11.5554,
+      "peg": 0.718,
+      "ps": 5.3815,
+      "pb": 9.6503,
       "rev_yoy": 0.206,
-      "rev_fwd": 0.4614,
-      "hist_avg_pe": 80.44,
-      "eps_ttm": 5.83,
+      "rev_fwd": 0.46080002,
+      "hist_avg_pe": 80.42,
+      "eps_ttm": 5.78,
       "eps_cur_q": 1.73873,
       "eps_next_q2": 1.88617,
-      "eps_cur_y": 8.0442,
+      "eps_cur_y": 8.0514,
       "eps_next_y": 10.8902,
       "gross_margin": 0.6582,
       "operating_margin": 0.362,
       "next_earnings_date": "2026-09-09",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 249.2434,
-      "target_low_price": 145.0,
+      "target_mean_price": 248.1458,
+      "target_low_price": 110.0,
       "target_high_price": 400.0,
       "target_median_price": 240.0,
       "number_of_analysts": 41,
-      "earnings_history": [],
-      "prev_close": 127.13,
+      "earnings_history": [
+        {
+          "quarter": "2020 Q3",
+          "eps_estimate": 0.86,
+          "eps_actual": 0.93,
+          "surprise_pct": 0.0777
+        },
+        {
+          "quarter": "2020 Q4",
+          "eps_estimate": 1.0,
+          "eps_actual": 1.06,
+          "surprise_pct": 0.0613
+        },
+        {
+          "quarter": "2021 Q1",
+          "eps_estimate": 1.11,
+          "eps_actual": 1.16,
+          "surprise_pct": 0.0454
+        },
+        {
+          "quarter": "2021 Q2",
+          "eps_estimate": 1.33,
+          "eps_actual": 1.54,
+          "surprise_pct": 0.1562
+        },
+        {
+          "quarter": "2021 Q3",
+          "eps_estimate": 0.97,
+          "eps_actual": 1.03,
+          "surprise_pct": 0.064
+        },
+        {
+          "quarter": "2021 Q4",
+          "eps_estimate": 1.11,
+          "eps_actual": 1.21,
+          "surprise_pct": 0.0853
+        },
+        {
+          "quarter": "2022 Q1",
+          "eps_estimate": 1.18,
+          "eps_actual": 1.13,
+          "surprise_pct": -0.0402
+        },
+        {
+          "quarter": "2022 Q2",
+          "eps_estimate": 1.38,
+          "eps_actual": 1.54,
+          "surprise_pct": 0.1195
+        },
+        {
+          "quarter": "2022 Q3",
+          "eps_estimate": 1.08,
+          "eps_actual": 1.03,
+          "surprise_pct": -0.0422
+        },
+        {
+          "quarter": "2022 Q4",
+          "eps_estimate": 1.17,
+          "eps_actual": 1.21,
+          "surprise_pct": 0.0315
+        },
+        {
+          "quarter": "2023 Q1",
+          "eps_estimate": 1.2,
+          "eps_actual": 1.22,
+          "surprise_pct": 0.0144
+        },
+        {
+          "quarter": "2023 Q2",
+          "eps_estimate": 1.58,
+          "eps_actual": 1.67,
+          "surprise_pct": 0.0556
+        },
+        {
+          "quarter": "2023 Q3",
+          "eps_estimate": 1.15,
+          "eps_actual": 1.19,
+          "surprise_pct": 0.0346
+        },
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 1.33,
+          "eps_actual": 1.34,
+          "surprise_pct": 0.0095
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": 1.38,
+          "eps_actual": 1.41,
+          "surprise_pct": 0.0247
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": 1.65,
+          "eps_actual": 1.63,
+          "surprise_pct": -0.0114
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 1.33,
+          "eps_actual": 1.39,
+          "surprise_pct": 0.0429
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 1.48,
+          "eps_actual": 1.47,
+          "surprise_pct": -0.0077
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 1.49,
+          "eps_actual": 1.47,
+          "surprise_pct": -0.0135
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": 1.64,
+          "eps_actual": 1.7,
+          "surprise_pct": 0.0337
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": 1.48,
+          "eps_actual": 1.47,
+          "surprise_pct": -0.0062
+        },
+        {
+          "quarter": "2025 Q4",
+          "eps_estimate": 1.64,
+          "eps_actual": 2.26,
+          "surprise_pct": 0.3804
+        },
+        {
+          "quarter": "2026 Q1",
+          "eps_estimate": 1.69,
+          "eps_actual": 1.79,
+          "surprise_pct": 0.0569
+        },
+        {
+          "quarter": "2026 Q2",
+          "eps_estimate": 1.96,
+          "eps_actual": 2.11,
+          "surprise_pct": 0.0752
+        }
+      ],
+      "prev_close": 127.05,
       "prev_prev_close": 127.05,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 126.54
+          "close": 125.84
         },
         {
           "date": "2026-07-21",
@@ -3156,59 +3452,59 @@
           "close": 127.94
         }
       ],
-      "daily_k": 18.5,
-      "daily_d": 14.8,
+      "daily_k": 17.6,
+      "daily_d": 14.5,
       "daily_cross": "none",
-      "weekly_k": 10.1,
-      "weekly_d": 22.2,
+      "weekly_k": 10.0,
+      "weekly_d": 22.1,
       "weekly_cross": "none",
-      "hourly_k": 85.9,
-      "hourly_d": 79.6,
+      "hourly_k": 34.4,
+      "hourly_d": 44.6,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -14.2441,
-        "signal": -14.6375,
-        "histogram": 0.3935,
+        "macd": -14.2056,
+        "signal": -14.5107,
+        "histogram": 0.3052,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -12.0437,
-        "signal": -6.8736,
-        "histogram": -5.1701,
+        "macd": -12.0995,
+        "signal": -6.8848,
+        "histogram": -5.2147,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.1475,
-        "signal": -0.2927,
-        "histogram": 0.4402,
+        "macd": 0.179,
+        "signal": 0.075,
+        "histogram": 0.104,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 32.6,
+        "rsi": 32.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 36.0,
+        "rsi": 35.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 54.0,
+        "rsi": 50.3,
         "overbought": false,
         "oversold": false
       }
     },
     "PLTR": {
-      "pe": 145.5169,
-      "fpe": 61.834,
+      "pe": 150.0843,
+      "fpe": 59.4754,
       "peg": 1.9024,
-      "ps": 59.4054,
-      "pb": 36.7404,
+      "ps": 57.1637,
+      "pb": 35.339,
       "rev_yoy": 0.847,
       "rev_fwd": 0.4541,
-      "hist_avg_pe": 515.49,
-      "eps_ttm": 0.89,
+      "hist_avg_pe": 514.66,
+      "eps_ttm": 0.83,
       "eps_cur_q": 0.34665,
       "eps_next_q2": 0.37339,
       "eps_cur_y": 1.4761,
@@ -3368,7 +3664,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 129.51
+          "close": 124.57
         },
         {
           "date": "2026-07-21",
@@ -3395,59 +3691,59 @@
           "close": 133.72
         }
       ],
-      "daily_k": 64.1,
-      "daily_d": 68.1,
+      "daily_k": 52.5,
+      "daily_d": 64.2,
       "daily_cross": "death",
-      "weekly_k": 36.9,
-      "weekly_d": 33.5,
+      "weekly_k": 34.0,
+      "weekly_d": 32.5,
       "weekly_cross": "none",
-      "hourly_k": 22.6,
-      "hourly_d": 36.3,
+      "hourly_k": 10.1,
+      "hourly_d": 12.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 0.6285,
-        "signal": -0.2159,
-        "histogram": 0.8444,
+        "macd": 0.3276,
+        "signal": -0.1584,
+        "histogram": 0.486,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -6.9238,
-        "signal": -6.6654,
-        "histogram": -0.2584,
+        "macd": -7.3179,
+        "signal": -6.7442,
+        "histogram": -0.5737,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.2444,
-        "signal": 0.2307,
-        "histogram": -0.4751,
+        "macd": -2.2963,
+        "signal": -1.3233,
+        "histogram": -0.973,
         "bullish": false
       },
       "daily_rsi": {
-        "rsi": 48.5,
+        "rsi": 43.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 45.5,
+        "rsi": 43.7,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 34.1,
+        "rsi": 26.7,
         "overbought": false,
-        "oversold": false
+        "oversold": true
       }
     },
     "SNDK": {
-      "pe": 52.1195,
-      "fpe": 7.0904,
+      "pe": 54.3415,
+      "fpe": 7.4408,
       "peg": null,
-      "ps": 17.2117,
-      "pb": 16.3713,
+      "ps": 17.9639,
+      "pb": 17.1802,
       "rev_yoy": 2.51,
       "rev_fwd": 1.5375999,
-      "hist_avg_pe": 50.07,
-      "eps_ttm": 29.24,
+      "hist_avg_pe": 52.55,
+      "eps_ttm": 29.43,
       "eps_cur_q": 34.48265,
       "eps_next_q2": 44.27108,
       "eps_cur_y": 66.656,
@@ -3499,7 +3795,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 1523.975
+          "close": 1599.27
         },
         {
           "date": "2026-07-21",
@@ -3526,80 +3822,231 @@
           "close": 1757.8199
         }
       ],
-      "daily_k": 26.6,
-      "daily_d": 24.1,
+      "daily_k": 30.6,
+      "daily_d": 25.5,
       "daily_cross": "none",
-      "weekly_k": 39.0,
-      "weekly_d": 59.4,
+      "weekly_k": 41.5,
+      "weekly_d": 60.2,
       "weekly_cross": "none",
-      "hourly_k": 81.3,
-      "hourly_d": 81.8,
-      "hourly_cross": "death",
+      "hourly_k": 82.8,
+      "hourly_d": 86.4,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -88.4917,
-        "signal": -39.579,
-        "histogram": -48.9127,
+        "macd": -82.0918,
+        "signal": -37.8023,
+        "histogram": -44.2895,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 317.4626,
-        "signal": 345.0194,
-        "histogram": -27.5568,
+        "macd": 323.4691,
+        "signal": 346.2207,
+        "histogram": -22.7516,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 27.5623,
-        "signal": 14.1526,
-        "histogram": 13.4096,
+        "macd": 41.1751,
+        "signal": 34.155,
+        "histogram": 7.0201,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 44.7,
+        "rsi": 46.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 56.0,
+        "rsi": 57.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 52.6,
+        "rsi": 59.7,
         "overbought": false,
         "oversold": false
       }
     },
     "TSLA": {
-      "pe": 343.6727,
-      "fpe": 147.3226,
+      "pe": 346.3055,
+      "fpe": 145.7521,
       "peg": 4.7485,
-      "ps": 14.4601,
-      "pb": 16.876,
+      "ps": 14.3512,
+      "pb": 16.6961,
       "rev_yoy": 0.158,
-      "rev_fwd": 0.14739999,
-      "hist_avg_pe": 948.31,
-      "eps_ttm": 1.1,
-      "eps_cur_q": 0.53673,
-      "eps_next_q2": 0.55045,
-      "eps_cur_y": 2.1347,
+      "rev_fwd": 0.1479,
+      "hist_avg_pe": 947.66,
+      "eps_ttm": 1.08,
+      "eps_cur_q": 0.54625,
+      "eps_next_q2": 0.6183,
+      "eps_cur_y": 2.136,
       "eps_next_y": 2.5661,
       "gross_margin": 0.1906,
       "operating_margin": 0.042,
       "next_earnings_date": "2026-07-22",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 425.2154,
+      "target_mean_price": 425.0895,
       "target_low_price": 125.0,
       "target_high_price": 600.0,
-      "target_median_price": 460.0,
-      "number_of_analysts": 39,
-      "earnings_history": [],
+      "target_median_price": 460.55,
+      "number_of_analysts": 38,
+      "earnings_history": [
+        {
+          "quarter": "2020 Q3",
+          "eps_estimate": -0.01,
+          "eps_actual": 0.15,
+          "surprise_pct": 14.6077
+        },
+        {
+          "quarter": "2020 Q4",
+          "eps_estimate": 0.2,
+          "eps_actual": 0.25,
+          "surprise_pct": 0.2578
+        },
+        {
+          "quarter": "2021 Q1",
+          "eps_estimate": 0.35,
+          "eps_actual": 0.27,
+          "surprise_pct": -0.2391
+        },
+        {
+          "quarter": "2021 Q2",
+          "eps_estimate": 0.26,
+          "eps_actual": 0.31,
+          "surprise_pct": 0.1942
+        },
+        {
+          "quarter": "2021 Q3",
+          "eps_estimate": 0.32,
+          "eps_actual": 0.48,
+          "surprise_pct": 0.4986
+        },
+        {
+          "quarter": "2021 Q4",
+          "eps_estimate": 0.54,
+          "eps_actual": 0.62,
+          "surprise_pct": 0.1522
+        },
+        {
+          "quarter": "2022 Q1",
+          "eps_estimate": 0.79,
+          "eps_actual": 0.85,
+          "surprise_pct": 0.0688
+        },
+        {
+          "quarter": "2022 Q2",
+          "eps_estimate": 0.75,
+          "eps_actual": 1.07,
+          "surprise_pct": 0.4231
+        },
+        {
+          "quarter": "2022 Q3",
+          "eps_estimate": 0.6,
+          "eps_actual": 0.76,
+          "surprise_pct": 0.2689
+        },
+        {
+          "quarter": "2022 Q4",
+          "eps_estimate": 1.0,
+          "eps_actual": 1.05,
+          "surprise_pct": 0.0523
+        },
+        {
+          "quarter": "2023 Q1",
+          "eps_estimate": 1.11,
+          "eps_actual": 1.19,
+          "surprise_pct": 0.072
+        },
+        {
+          "quarter": "2023 Q2",
+          "eps_estimate": 0.85,
+          "eps_actual": 0.85,
+          "surprise_pct": -0.0043
+        },
+        {
+          "quarter": "2023 Q3",
+          "eps_estimate": 0.82,
+          "eps_actual": 0.91,
+          "surprise_pct": 0.1112
+        },
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 0.73,
+          "eps_actual": 0.66,
+          "surprise_pct": -0.0981
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": 0.74,
+          "eps_actual": 0.71,
+          "surprise_pct": -0.041
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": 0.49,
+          "eps_actual": 0.45,
+          "surprise_pct": -0.0814
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 0.62,
+          "eps_actual": 0.52,
+          "surprise_pct": -0.1615
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 0.6,
+          "eps_actual": 0.72,
+          "surprise_pct": 0.2049
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 0.77,
+          "eps_actual": 0.73,
+          "surprise_pct": -0.0511
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": 0.41,
+          "eps_actual": 0.27,
+          "surprise_pct": -0.3489
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": 0.4,
+          "eps_actual": 0.4,
+          "surprise_pct": -0.0111
+        },
+        {
+          "quarter": "2025 Q4",
+          "eps_estimate": 0.56,
+          "eps_actual": 0.5,
+          "surprise_pct": -0.1053
+        },
+        {
+          "quarter": "2026 Q1",
+          "eps_estimate": 0.45,
+          "eps_actual": 0.5,
+          "surprise_pct": 0.1096
+        },
+        {
+          "quarter": "2026 Q2",
+          "eps_estimate": 0.35,
+          "eps_actual": 0.41,
+          "surprise_pct": 0.1715
+        },
+        {
+          "quarter": "2026 Q3",
+          "eps_estimate": 0.54,
+          "eps_actual": 0.33,
+          "surprise_pct": -0.3835
+        }
+      ],
       "prev_close": 378.93,
       "prev_prev_close": 378.93,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 378.04
+          "close": 374.01
         },
         {
           "date": "2026-07-21",
@@ -3626,72 +4073,72 @@
           "close": 396.18
         }
       ],
-      "daily_k": 16.8,
-      "daily_d": 19.1,
+      "daily_k": 13.7,
+      "daily_d": 18.1,
       "daily_cross": "none",
-      "weekly_k": 25.7,
-      "weekly_d": 36.4,
+      "weekly_k": 24.0,
+      "weekly_d": 35.8,
       "weekly_cross": "none",
-      "hourly_k": 61.3,
-      "hourly_d": 59.6,
+      "hourly_k": 21.8,
+      "hourly_d": 31.9,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -6.718,
-        "signal": -4.1337,
-        "histogram": -2.5843,
+        "macd": -6.9232,
+        "signal": -4.0279,
+        "histogram": -2.8953,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": -3.6391,
-        "signal": -1.2774,
-        "histogram": -2.3617,
+        "macd": -3.9605,
+        "signal": -1.3417,
+        "histogram": -2.6189,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -2.3121,
-        "signal": -3.1246,
-        "histogram": 0.8124,
+        "macd": -2.2527,
+        "signal": -2.4131,
+        "histogram": 0.1604,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 43.0,
+        "rsi": 41.9,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 45.2,
+        "rsi": 44.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 41.7,
+        "rsi": 36.1,
         "overbought": false,
         "oversold": false
       }
     },
     "TSM": {
-      "pe": 36.2233,
-      "fpe": 19.5827,
-      "peg": 1.0187,
-      "ps": 0.4867,
-      "pb": 86.8495,
+      "pe": 36.9159,
+      "fpe": 19.7837,
+      "peg": 1.0744,
+      "ps": 0.492,
+      "pb": 87.7411,
       "rev_yoy": 0.36,
-      "rev_fwd": 0.3116,
+      "rev_fwd": 0.3133,
       "hist_avg_pe": 1.81,
-      "eps_ttm": 11.51,
+      "eps_ttm": 11.41,
       "eps_cur_q": 4.49778,
       "eps_next_q2": 4.9585,
-      "eps_cur_y": 17.0501,
+      "eps_cur_y": 16.7009,
       "eps_next_y": 21.2908,
       "gross_margin": 0.6423,
       "operating_margin": 0.6034,
       "next_earnings_date": "2026-10-15",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 522.816,
+      "target_mean_price": 527.2604,
       "target_low_price": 354.0,
       "target_high_price": 700.0,
-      "target_median_price": 513.0,
+      "target_median_price": 530.0,
       "number_of_analysts": 18,
       "earnings_history": [
         {
@@ -3839,12 +4286,12 @@
           "surprise_pct": 0.1089
         }
       ],
-      "prev_close": 424.4432,
+      "prev_close": 424.61,
       "prev_prev_close": 424.61,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 416.994
+          "close": 421.21
         },
         {
           "date": "2026-07-21",
@@ -3871,55 +4318,55 @@
           "close": 420.39
         }
       ],
-      "daily_k": 41.6,
-      "daily_d": 29.5,
+      "daily_k": 44.3,
+      "daily_d": 30.4,
       "daily_cross": "none",
-      "weekly_k": 41.9,
-      "weekly_d": 55.3,
+      "weekly_k": 43.4,
+      "weekly_d": 55.8,
       "weekly_cross": "none",
-      "hourly_k": 83.8,
-      "hourly_d": 86.7,
-      "hourly_cross": "death",
+      "hourly_k": 72.3,
+      "hourly_d": 78.0,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -5.0524,
-        "signal": -1.8979,
-        "histogram": -3.1545,
+        "macd": -4.6683,
+        "signal": -1.7703,
+        "histogram": -2.898,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 27.0083,
-        "signal": 30.1608,
-        "histogram": -3.1525,
+        "macd": 27.3521,
+        "signal": 30.2296,
+        "histogram": -2.8774,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 3.8157,
-        "signal": 1.9537,
-        "histogram": 1.8619,
+        "macd": 3.8535,
+        "signal": 3.5701,
+        "histogram": 0.2834,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 46.9,
+        "rsi": 48.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 58.9,
+        "rsi": 59.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 51.5,
+        "rsi": 55.1,
         "overbought": false,
         "oversold": false
       }
     },
     "SOXX": {
-      "pe": 38.4592,
+      "pe": 39.2715,
       "fpe": null,
       "peg": null,
       "ps": null,
-      "pb": 1.2828,
+      "pb": 1.3099,
       "rev_yoy": null,
       "rev_fwd": null,
       "hist_avg_pe": null,
@@ -3944,7 +4391,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 544.0297
+          "close": 555.52
         },
         {
           "date": "2026-07-21",
@@ -3971,59 +4418,59 @@
           "close": 567.92
         }
       ],
-      "daily_k": 40.5,
-      "daily_d": 32.6,
+      "daily_k": 44.9,
+      "daily_d": 34.1,
       "daily_cross": "none",
-      "weekly_k": 45.8,
-      "weekly_d": 62.1,
+      "weekly_k": 48.2,
+      "weekly_d": 63.0,
       "weekly_cross": "none",
-      "hourly_k": 80.6,
-      "hourly_d": 82.5,
+      "hourly_k": 85.0,
+      "hourly_d": 88.2,
       "hourly_cross": "death",
       "daily_macd": {
-        "macd": -10.6016,
-        "signal": -4.8126,
-        "histogram": -5.789,
+        "macd": -9.7629,
+        "signal": -4.7431,
+        "histogram": -5.0197,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 61.2875,
-        "signal": 64.1837,
-        "histogram": -2.8961,
+        "macd": 62.2041,
+        "signal": 64.367,
+        "histogram": -2.1628,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 4.6326,
-        "signal": 2.7585,
-        "histogram": 1.8741,
+        "macd": 6.5828,
+        "signal": 5.7026,
+        "histogram": 0.8802,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 46.1,
+        "rsi": 48.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 60.2,
+        "rsi": 61.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 51.1,
+        "rsi": 57.4,
         "overbought": false,
         "oversold": false
       }
     },
     "WDC": {
-      "pe": 31.9313,
-      "fpe": 28.8029,
-      "peg": 0.4337,
+      "pe": 32.7839,
+      "fpe": 30.0139,
+      "peg": 0.4879,
       "ps": null,
-      "pb": 25.542,
+      "pb": 26.6158,
       "rev_yoy": 0.455,
       "rev_fwd": 0.4106,
-      "hist_avg_pe": 35.32,
-      "eps_ttm": 16.73,
+      "hist_avg_pe": 35.52,
+      "eps_ttm": 16.98,
       "eps_cur_q": 3.29968,
       "eps_next_q2": 3.72878,
       "eps_cur_y": 9.9571,
@@ -4189,7 +4636,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 534.21
+          "close": 556.67
         },
         {
           "date": "2026-07-21",
@@ -4216,58 +4663,58 @@
           "close": 563.32
         }
       ],
-      "daily_k": 49.2,
-      "daily_d": 37.7,
+      "daily_k": 53.9,
+      "daily_d": 39.3,
       "daily_cross": "none",
-      "weekly_k": 35.6,
-      "weekly_d": 50.3,
+      "weekly_k": 37.6,
+      "weekly_d": 51.0,
       "weekly_cross": "none",
-      "hourly_k": 83.2,
-      "hourly_d": 85.0,
-      "hourly_cross": "death",
+      "hourly_k": 85.3,
+      "hourly_d": 88.0,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -17.8705,
-        "signal": -9.8717,
-        "histogram": -7.9988,
+        "macd": -16.1971,
+        "signal": -9.6863,
+        "histogram": -6.5107,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 83.987,
-        "signal": 89.7886,
-        "histogram": -5.8016,
+        "macd": 85.7787,
+        "signal": 90.147,
+        "histogram": -4.3682,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 17.278,
-        "signal": 13.8729,
-        "histogram": 3.4051,
+        "macd": 18.7995,
+        "signal": 18.3135,
+        "histogram": 0.486,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 47.7,
+        "rsi": 50.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 58.3,
+        "rsi": 59.7,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.2,
+        "rsi": 65.5,
         "overbought": false,
         "oversold": false
       }
     },
     "000660.KS": {
       "pe": null,
-      "fpe": 4.0564,
-      "peg": 0.4336,
-      "ps": 9.8349,
+      "fpe": 4.2094,
+      "peg": 0.4322,
+      "ps": 10.2058,
       "pb": null,
       "rev_yoy": 1.981,
       "rev_fwd": 0.4902,
-      "hist_avg_pe": 19.01,
+      "hist_avg_pe": 19.12,
       "eps_ttm": null,
       "eps_cur_q": 70975.38,
       "eps_next_q2": 89389.65,
@@ -4429,9 +4876,13 @@
           "surprise_pct": 0.4162
         }
       ],
-      "prev_close": 1836000.0,
+      "prev_close": 1830000.0,
       "prev_prev_close": 1836000.0,
       "recent_closes": [
+        {
+          "date": "2026-07-23",
+          "close": 1899000.0
+        },
         {
           "date": "2026-07-22",
           "close": 1830000.0
@@ -4455,64 +4906,55 @@
         {
           "date": "2026-07-14",
           "close": 1913000.0
-        },
-        {
-          "date": "2026-07-13",
-          "close": 1845000.0
         }
       ],
-      "daily_k": 23.0,
-      "daily_d": 22.9,
-      "daily_cross": "golden",
-      "weekly_k": 35.8,
-      "weekly_d": 57.2,
+      "daily_k": 27.1,
+      "daily_d": 24.3,
+      "daily_cross": "none",
+      "weekly_k": 37.5,
+      "weekly_d": 57.8,
       "weekly_cross": "none",
-      "hourly_k": 55.1,
-      "hourly_d": 67.1,
-      "hourly_cross": "death",
+      "hourly_k": 49.9,
+      "hourly_d": 58.8,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -127248.5964,
-        "signal": -59787.454,
-        "histogram": -67461.1424,
+        "macd": -126377.7125,
+        "signal": -73128.4853,
+        "histogram": -53249.2272,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 358020.1014,
-        "signal": 385808.4318,
-        "histogram": -27788.3304,
+        "macd": 363524.3749,
+        "signal": 386909.2865,
+        "histogram": -23384.9116,
         "bullish": false
       },
-      "hourly_macd": {
-        "macd": -16666.8652,
-        "signal": -35036.6773,
-        "histogram": 18369.8121,
-        "bullish": true
-      },
+      "hourly_macd": null,
       "daily_rsi": {
-        "rsi": 41.1,
+        "rsi": 43.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 54.9,
+        "rsi": 56.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 38.9,
+        "rsi": 51.5,
         "overbought": false,
         "oversold": false
       }
     },
     "005930.KS": {
       "pe": null,
-      "fpe": 3.9927,
-      "peg": 0.1819,
-      "ps": 4.4049,
+      "fpe": 4.1268,
+      "peg": 0.183,
+      "ps": 4.5528,
       "pb": null,
       "rev_yoy": 0.692,
       "rev_fwd": 0.2871,
-      "hist_avg_pe": 28.34,
+      "hist_avg_pe": 28.44,
       "eps_ttm": null,
       "eps_cur_q": 11032.471,
       "eps_next_q2": 14246.684,
@@ -4674,9 +5116,13 @@
           "surprise_pct": 0.3996
         }
       ],
-      "prev_close": 259000.0,
+      "prev_close": 260500.0,
       "prev_prev_close": 259000.0,
       "recent_closes": [
+        {
+          "date": "2026-07-23",
+          "close": 269000.0
+        },
         {
           "date": "2026-07-22",
           "close": 260500.0
@@ -4700,51 +5146,42 @@
         {
           "date": "2026-07-14",
           "close": 263000.0
-        },
-        {
-          "date": "2026-07-13",
-          "close": 254500.0
         }
       ],
-      "daily_k": 25.5,
-      "daily_d": 21.3,
+      "daily_k": 34.0,
+      "daily_d": 25.5,
       "daily_cross": "none",
-      "weekly_k": 31.2,
-      "weekly_d": 50.8,
+      "weekly_k": 33.4,
+      "weekly_d": 51.6,
       "weekly_cross": "none",
-      "hourly_k": 67.4,
-      "hourly_d": 75.7,
-      "hourly_cross": "death",
+      "hourly_k": 66.5,
+      "hourly_d": 71.0,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -16058.8998,
-        "signal": -11167.363,
-        "histogram": -4891.5368,
+        "macd": -15179.0479,
+        "signal": -12050.1386,
+        "histogram": -3128.9093,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 35542.0068,
-        "signal": 42904.8484,
-        "histogram": -7362.8417,
+        "macd": 36259.9555,
+        "signal": 43048.4382,
+        "histogram": -6788.4827,
         "bullish": false
       },
-      "hourly_macd": {
-        "macd": 1110.4161,
-        "signal": -1145.1469,
-        "histogram": 2255.563,
-        "bullish": true
-      },
+      "hourly_macd": null,
       "daily_rsi": {
-        "rsi": 42.8,
+        "rsi": 45.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 54.1,
+        "rsi": 55.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 47.5,
+        "rsi": 56.9,
         "overbought": false,
         "oversold": false
       }
@@ -4862,12 +5299,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 10.57,
+      "prev_close": 10.56,
       "prev_prev_close": 10.56,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 10.64
+          "close": 11.15
         },
         {
           "date": "2026-07-21",
@@ -4894,59 +5331,59 @@
           "close": 9.52
         }
       ],
-      "daily_k": 84.1,
-      "daily_d": 71.4,
+      "daily_k": 79.1,
+      "daily_d": 69.8,
       "daily_cross": "none",
-      "weekly_k": 25.2,
-      "weekly_d": 17.0,
+      "weekly_k": 26.8,
+      "weekly_d": 17.6,
       "weekly_cross": "none",
-      "hourly_k": 86.0,
-      "hourly_d": 80.0,
+      "hourly_k": 62.9,
+      "hourly_d": 65.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.3227,
-        "signal": -0.8911,
-        "histogram": 0.5685,
+        "macd": -0.2617,
+        "signal": -0.8534,
+        "histogram": 0.5916,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -18.8129,
-        "signal": -23.9815,
-        "histogram": 5.1686,
+        "macd": -18.7722,
+        "signal": -23.9733,
+        "histogram": 5.2011,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.4395,
-        "signal": 0.378,
-        "histogram": 0.0615,
+        "macd": 0.5375,
+        "signal": 0.5054,
+        "histogram": 0.0322,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 55.6,
+        "rsi": 58.3,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 27.0,
+        "rsi": 27.6,
         "overbought": false,
         "oversold": true
       },
       "hourly_rsi": {
-        "rsi": 71.6,
-        "overbought": true,
+        "rsi": 67.1,
+        "overbought": false,
         "oversold": false
       }
     },
     "BMNR": {
       "pe": null,
-      "fpe": 18.3989,
+      "fpe": 18.8723,
       "peg": null,
-      "ps": 168.8088,
-      "pb": 0.8643,
+      "ps": 174.8711,
+      "pb": 0.8865,
       "rev_yoy": 21.678,
       "rev_fwd": 2.4333,
       "hist_avg_pe": 56.95,
-      "eps_ttm": -4.5,
+      "eps_ttm": -4.63,
       "eps_cur_q": 0.02,
       "eps_next_q2": 0.1,
       "eps_cur_y": null,
@@ -4987,12 +5424,12 @@
           "surprise_pct": -1.7125
         }
       ],
-      "prev_close": 17.225,
+      "prev_close": 17.23,
       "prev_prev_close": 17.23,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 17.295
+          "close": 17.74
         },
         {
           "date": "2026-07-21",
@@ -5019,46 +5456,46 @@
           "close": 16.29
         }
       ],
-      "daily_k": 86.0,
-      "daily_d": 74.3,
+      "daily_k": 81.8,
+      "daily_d": 72.9,
       "daily_cross": "none",
-      "weekly_k": 36.5,
-      "weekly_d": 25.3,
+      "weekly_k": 38.6,
+      "weekly_d": 26.0,
       "weekly_cross": "none",
-      "hourly_k": 86.3,
-      "hourly_d": 80.3,
+      "hourly_k": 62.8,
+      "hourly_d": 65.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 0.0366,
-        "signal": -0.413,
-        "histogram": 0.4496,
+        "macd": 0.0831,
+        "signal": -0.3898,
+        "histogram": 0.4729,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -3.1799,
-        "signal": -3.4409,
-        "histogram": 0.261,
+        "macd": -3.1444,
+        "signal": -3.4338,
+        "histogram": 0.2894,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.3911,
-        "signal": 0.3376,
-        "histogram": 0.0534,
+        "macd": 0.4646,
+        "signal": 0.4404,
+        "histogram": 0.0242,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 58.8,
+        "rsi": 61.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 45.8,
+        "rsi": 46.6,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 71.5,
-        "overbought": true,
+        "rsi": 67.1,
+        "overbought": false,
         "oversold": false
       }
     },
@@ -5092,7 +5529,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 1.71
+          "close": 1.575
         },
         {
           "date": "2026-07-21",
@@ -5119,61 +5556,61 @@
           "close": 1.475
         }
       ],
-      "daily_k": 52.4,
-      "daily_d": 37.2,
+      "daily_k": 45.8,
+      "daily_d": 35.0,
       "daily_cross": "none",
-      "weekly_k": 6.3,
-      "weekly_d": 8.0,
+      "weekly_k": 5.3,
+      "weekly_d": 7.7,
       "weekly_cross": "none",
-      "hourly_k": 67.6,
-      "hourly_d": 74.5,
+      "hourly_k": 13.7,
+      "hourly_d": 24.6,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.3942,
-        "signal": -0.5154,
-        "histogram": 0.1212,
+        "macd": -0.4012,
+        "signal": -0.512,
+        "histogram": 0.1108,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -1.5172,
-        "signal": -1.4517,
-        "histogram": -0.0655,
+        "macd": -1.528,
+        "signal": -1.4539,
+        "histogram": -0.0741,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.097,
-        "signal": 0.0793,
-        "histogram": 0.0177,
-        "bullish": true
+        "macd": 0.0288,
+        "signal": 0.0584,
+        "histogram": -0.0296,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 43.1,
+        "rsi": 41.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 36.1,
+        "rsi": 35.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 56.3,
+        "rsi": 45.1,
         "overbought": false,
         "oversold": false
       }
     },
     "CRCL": {
       "pe": null,
-      "fpe": 35.1398,
+      "fpe": 33.7963,
       "peg": null,
-      "ps": 6.4348,
-      "pb": 4.9707,
+      "ps": 6.1784,
+      "pb": 4.7807,
       "rev_yoy": 0.2,
-      "rev_fwd": 0.3378,
+      "rev_fwd": 0.32759997,
       "hist_avg_pe": 468.22,
-      "eps_ttm": -0.23,
-      "eps_cur_q": 0.16508,
-      "eps_next_q2": 0.22208,
+      "eps_ttm": -0.21,
+      "eps_cur_q": 0.16351,
+      "eps_next_q2": 0.2557,
       "eps_cur_y": 1.355,
       "eps_next_y": 1.9576,
       "gross_margin": 0.0811,
@@ -5181,7 +5618,7 @@
       "next_earnings_date": "2026-08-05",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 121.4386,
+      "target_mean_price": 120.7568,
       "target_low_price": 50.0,
       "target_high_price": 243.0,
       "target_median_price": 113.0,
@@ -5189,21 +5626,21 @@
       "earnings_history": [
         {
           "quarter": "2025 Q3",
-          "eps_estimate": -0.16,
-          "eps_actual": 1.12,
-          "surprise_pct": 8.1392
+          "eps_estimate": -0.81,
+          "eps_actual": -4.48,
+          "surprise_pct": -4.5036
         },
         {
           "quarter": "2025 Q4",
-          "eps_estimate": 0.22,
-          "eps_actual": 0.82,
-          "surprise_pct": 2.7002
+          "eps_estimate": 0.18,
+          "eps_actual": 0.64,
+          "surprise_pct": 2.49
         },
         {
           "quarter": "2026 Q1",
-          "eps_estimate": 0.25,
-          "eps_actual": 0.56,
-          "surprise_pct": 1.2892
+          "eps_estimate": 0.16,
+          "eps_actual": 0.43,
+          "surprise_pct": 1.6545
         },
         {
           "quarter": "2026 Q2",
@@ -5212,12 +5649,12 @@
           "surprise_pct": 0.1858
         }
       ],
-      "prev_close": 71.09,
+      "prev_close": 71.08,
       "prev_prev_close": 71.08,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 68.79
+          "close": 66.16
         },
         {
           "date": "2026-07-21",
@@ -5244,63 +5681,63 @@
           "close": 63.22
         }
       ],
-      "daily_k": 56.2,
-      "daily_d": 40.4,
+      "daily_k": 50.0,
+      "daily_d": 38.4,
       "daily_cross": "none",
-      "weekly_k": 10.8,
-      "weekly_d": 12.8,
+      "weekly_k": 9.2,
+      "weekly_d": 12.2,
       "weekly_cross": "none",
-      "hourly_k": 70.2,
-      "hourly_d": 76.6,
-      "hourly_cross": "death",
+      "hourly_k": 14.3,
+      "hourly_d": 25.2,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -4.7269,
-        "signal": -6.4472,
-        "histogram": 1.7202,
+        "macd": -4.9,
+        "signal": -6.4354,
+        "histogram": 1.5354,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -8.5484,
-        "signal": -5.1396,
-        "histogram": -3.4088,
+        "macd": -8.7582,
+        "signal": -5.1816,
+        "histogram": -3.5766,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 2.1616,
-        "signal": 1.7717,
-        "histogram": 0.3899,
-        "bullish": true
+        "macd": 0.776,
+        "signal": 1.3628,
+        "histogram": -0.5868,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 47.0,
+        "rsi": 44.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 42.1,
+        "rsi": 40.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 57.4,
+        "rsi": 47.0,
         "overbought": false,
         "oversold": false
       }
     },
     "GOOG": {
-      "pe": 26.4398,
-      "fpe": 23.6438,
+      "pe": 26.3819,
+      "fpe": 23.3,
       "peg": 1.3631,
-      "ps": 10.018,
-      "pb": 8.7789,
+      "ps": 9.875,
+      "pb": 8.6529,
       "rev_yoy": 0.218,
       "rev_fwd": 0.19870001,
-      "hist_avg_pe": 17.18,
-      "eps_ttm": 13.12,
-      "eps_cur_q": 2.90706,
-      "eps_next_q2": 3.01427,
+      "hist_avg_pe": 17.15,
+      "eps_ttm": 12.96,
+      "eps_cur_q": 3.01427,
+      "eps_next_q2": 3.3393,
       "eps_cur_y": 14.2648,
-      "eps_next_y": 14.6715,
+      "eps_next_y": 14.6742,
       "gross_margin": 0.6037,
       "operating_margin": 0.3612,
       "next_earnings_date": "2026-07-22",
@@ -5455,6 +5892,12 @@
           "eps_estimate": 2.63,
           "eps_actual": 5.11,
           "surprise_pct": 0.943
+        },
+        {
+          "quarter": "2026 Q3",
+          "eps_estimate": 2.91,
+          "eps_actual": 9.11,
+          "surprise_pct": 2.129
         }
       ],
       "prev_close": 346.19,
@@ -5462,7 +5905,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 346.8217
+          "close": 341.91
         },
         {
           "date": "2026-07-21",
@@ -5489,55 +5932,55 @@
           "close": 357.33
         }
       ],
-      "daily_k": 24.3,
-      "daily_d": 33.2,
+      "daily_k": 19.4,
+      "daily_d": 31.6,
       "daily_cross": "none",
-      "weekly_k": 27.7,
-      "weekly_d": 37.2,
+      "weekly_k": 24.8,
+      "weekly_d": 36.2,
       "weekly_cross": "none",
-      "hourly_k": 16.2,
-      "hourly_d": 21.3,
+      "hourly_k": 11.9,
+      "hourly_d": 18.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -3.0655,
-        "signal": -2.4664,
-        "histogram": -0.5991,
+        "macd": -3.4574,
+        "signal": -2.545,
+        "histogram": -0.9125,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 13.6554,
-        "signal": 18.5981,
-        "histogram": -4.9427,
+        "macd": 13.2636,
+        "signal": 18.5198,
+        "histogram": -5.2562,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -3.6153,
-        "signal": -3.944,
-        "histogram": 0.3287,
+        "macd": -3.3883,
+        "signal": -3.4583,
+        "histogram": 0.07,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 44.6,
+        "rsi": 42.0,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 53.1,
+        "rsi": 51.6,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 29.8,
+        "rsi": 25.3,
         "overbought": false,
         "oversold": true
       }
     },
     "MSTR": {
       "pe": null,
-      "fpe": 22.5641,
+      "fpe": 22.4139,
       "peg": null,
-      "ps": 74.7112,
-      "pb": 0.9503,
+      "ps": 74.4915,
+      "pb": 0.9439,
       "rev_yoy": 0.119,
       "rev_fwd": 0.0279,
       "hist_avg_pe": 12.65,
@@ -5577,15 +6020,15 @@
         },
         {
           "quarter": "2021 Q2",
-          "eps_estimate": 0.05,
-          "eps_actual": 0.15,
-          "surprise_pct": 2.1864
+          "eps_estimate": -0.1,
+          "eps_actual": -1.14,
+          "surprise_pct": -10.3331
         },
         {
           "quarter": "2021 Q3",
-          "eps_estimate": 0.1,
-          "eps_actual": 0.17,
-          "surprise_pct": 0.7114
+          "eps_estimate": 0.09,
+          "eps_actual": -3.07,
+          "surprise_pct": -36.5728
         },
         {
           "quarter": "2021 Q4",
@@ -5595,9 +6038,9 @@
         },
         {
           "quarter": "2022 Q1",
-          "eps_estimate": 0.15,
-          "eps_actual": -0.01,
-          "surprise_pct": -1.0593
+          "eps_estimate": 0.07,
+          "eps_actual": -0.84,
+          "surprise_pct": -12.5479
         },
         {
           "quarter": "2022 Q2",
@@ -5607,21 +6050,21 @@
         },
         {
           "quarter": "2022 Q3",
-          "eps_estimate": -0.08,
-          "eps_actual": -9.28,
-          "surprise_pct": -108.8343
+          "eps_estimate": -1.37,
+          "eps_actual": -9.4,
+          "surprise_pct": -5.8595
         },
         {
           "quarter": "2022 Q4",
-          "eps_estimate": 0.1,
-          "eps_actual": -0.1,
-          "surprise_pct": -1.9412
+          "eps_estimate": 0.01,
+          "eps_actual": -0.24,
+          "surprise_pct": -48.8
         },
         {
           "quarter": "2023 Q1",
-          "eps_estimate": 0.1,
-          "eps_actual": -2.05,
-          "surprise_pct": -21.8583
+          "eps_estimate": null,
+          "eps_actual": -2.19,
+          "surprise_pct": -1097.5
         },
         {
           "quarter": "2023 Q2",
@@ -5643,9 +6086,9 @@
         },
         {
           "quarter": "2024 Q1",
-          "eps_estimate": 0.02,
-          "eps_actual": 0.56,
-          "surprise_pct": 25.3479
+          "eps_estimate": -0.06,
+          "eps_actual": 0.5,
+          "surprise_pct": 8.75
         },
         {
           "quarter": "2024 Q2",
@@ -5655,15 +6098,15 @@
         },
         {
           "quarter": "2024 Q3",
-          "eps_estimate": -0.02,
-          "eps_actual": -0.76,
-          "surprise_pct": -34.4419
+          "eps_estimate": -0.11,
+          "eps_actual": -0.57,
+          "surprise_pct": -4.1946
         },
         {
           "quarter": "2024 Q4",
-          "eps_estimate": -0.02,
-          "eps_actual": -1.56,
-          "surprise_pct": -93.5455
+          "eps_estimate": -0.12,
+          "eps_actual": -1.72,
+          "surprise_pct": -12.9837
         },
         {
           "quarter": "2025 Q1",
@@ -5673,15 +6116,15 @@
         },
         {
           "quarter": "2025 Q2",
-          "eps_estimate": -0.02,
-          "eps_actual": -16.53,
-          "surprise_pct": -707.5298
+          "eps_estimate": -0.11,
+          "eps_actual": -16.49,
+          "surprise_pct": -148.9091
         },
         {
           "quarter": "2025 Q3",
-          "eps_estimate": 21.48,
-          "eps_actual": 32.52,
-          "surprise_pct": 0.514
+          "eps_estimate": 6.76,
+          "eps_actual": 32.6,
+          "surprise_pct": 3.8249
         },
         {
           "quarter": "2025 Q4",
@@ -5707,7 +6150,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 100.68
+          "close": 100.01
         },
         {
           "date": "2026-07-21",
@@ -5734,51 +6177,51 @@
           "close": 97.58
         }
       ],
-      "daily_k": 64.4,
-      "daily_d": 55.7,
+      "daily_k": 62.9,
+      "daily_d": 55.1,
       "daily_cross": "none",
-      "weekly_k": 17.3,
-      "weekly_d": 19.6,
+      "weekly_k": 17.0,
+      "weekly_d": 19.5,
       "weekly_cross": "none",
-      "hourly_k": 56.5,
-      "hourly_d": 61.4,
+      "hourly_k": 45.0,
+      "hourly_d": 43.7,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -6.2608,
-        "signal": -9.1374,
-        "histogram": 2.8766,
+        "macd": -6.2561,
+        "signal": -9.0631,
+        "histogram": 2.807,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -24.6896,
-        "signal": -23.0629,
-        "histogram": -1.6267,
+        "macd": -24.7431,
+        "signal": -23.0736,
+        "histogram": -1.6695,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.6428,
-        "signal": 1.4994,
-        "histogram": 0.1435,
-        "bullish": true
+        "macd": 0.9391,
+        "signal": 1.1872,
+        "histogram": -0.2481,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 45.9,
+        "rsi": 45.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 36.2,
+        "rsi": 36.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 58.4,
+        "rsi": 54.5,
         "overbought": false,
         "oversold": false
       }
     },
     "MSTU": {
-      "pe": 2.6432,
+      "pe": 2.6115,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -5802,12 +6245,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 2.145,
+      "prev_close": 2.15,
       "prev_prev_close": 2.15,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 2.09
+          "close": 2.065
         },
         {
           "date": "2026-07-21",
@@ -5834,45 +6277,45 @@
           "close": 1.98
         }
       ],
-      "daily_k": 61.5,
-      "daily_d": 51.6,
+      "daily_k": 60.0,
+      "daily_d": 51.1,
       "daily_cross": "none",
-      "weekly_k": 9.8,
-      "weekly_d": 13.5,
+      "weekly_k": 9.6,
+      "weekly_d": 13.4,
       "weekly_cross": "none",
-      "hourly_k": 54.7,
-      "hourly_d": 60.4,
+      "hourly_k": 45.5,
+      "hourly_d": 43.8,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.4596,
-        "signal": -0.6341,
-        "histogram": 0.1744,
+        "macd": -0.4562,
+        "signal": -0.6266,
+        "histogram": 0.1703,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -4.2168,
-        "signal": -5.0355,
-        "histogram": 0.8187,
+        "macd": -4.2188,
+        "signal": -5.0359,
+        "histogram": 0.8171,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.0626,
-        "signal": 0.0566,
-        "histogram": 0.0059,
-        "bullish": true
+        "macd": 0.0348,
+        "signal": 0.0443,
+        "histogram": -0.0095,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 41.2,
+        "rsi": 41.1,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 31.8,
+        "rsi": 31.7,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 57.3,
+        "rsi": 54.1,
         "overbought": false,
         "oversold": false
       }
@@ -5907,7 +6350,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 29.68
+          "close": 31.06
         },
         {
           "date": "2026-07-21",
@@ -5934,58 +6377,58 @@
           "close": 26.08
         }
       ],
-      "daily_k": 45.0,
-      "daily_d": 28.7,
+      "daily_k": 47.7,
+      "daily_d": 29.6,
       "daily_cross": "none",
-      "weekly_k": 27.4,
-      "weekly_d": 41.3,
+      "weekly_k": 28.3,
+      "weekly_d": 41.6,
       "weekly_cross": "none",
-      "hourly_k": 91.2,
-      "hourly_d": 87.9,
+      "hourly_k": 68.9,
+      "hourly_d": 80.3,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -4.833,
-        "signal": -4.1703,
-        "histogram": -0.6626,
+        "macd": -4.7238,
+        "signal": -4.1497,
+        "histogram": -0.5741,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 4.5118,
-        "signal": 5.6081,
-        "histogram": -1.0963,
+        "macd": 4.6219,
+        "signal": 5.6301,
+        "histogram": -1.0083,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.9498,
-        "signal": 1.2367,
-        "histogram": 0.7132,
+        "macd": 2.4545,
+        "signal": 2.2205,
+        "histogram": 0.234,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 45.6,
+        "rsi": 46.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 50.1,
+        "rsi": 50.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 63.3,
+        "rsi": 60.1,
         "overbought": false,
         "oversold": false
       }
     },
     "ONDS": {
-      "pe": 87.9511,
-      "fpe": -263.8533,
+      "pe": 88.8889,
+      "fpe": -266.6667,
       "peg": null,
-      "ps": 47.3071,
-      "pb": 3.4566,
+      "ps": 47.1892,
+      "pb": 3.4935,
       "rev_yoy": 10.799,
       "rev_fwd": 0.8668,
-      "hist_avg_pe": 18.78,
+      "hist_avg_pe": 18.88,
       "eps_ttm": 0.09,
       "eps_cur_q": -0.07,
       "eps_next_q2": -0.06,
@@ -6140,7 +6583,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 7.9156
+          "close": 8.0
         },
         {
           "date": "2026-07-21",
@@ -6167,46 +6610,46 @@
           "close": 7.36
         }
       ],
-      "daily_k": 62.7,
-      "daily_d": 39.2,
+      "daily_k": 54.9,
+      "daily_d": 36.6,
       "daily_cross": "none",
-      "weekly_k": 12.5,
-      "weekly_d": 15.6,
+      "weekly_k": 12.9,
+      "weekly_d": 15.7,
       "weekly_cross": "none",
-      "hourly_k": 86.3,
-      "hourly_d": 82.8,
-      "hourly_cross": "golden",
+      "hourly_k": 60.6,
+      "hourly_d": 71.9,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.5402,
-        "signal": -0.6682,
-        "histogram": 0.1281,
+        "macd": -0.5291,
+        "signal": -0.6605,
+        "histogram": 0.1314,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -0.3564,
-        "signal": 0.095,
-        "histogram": -0.4514,
+        "macd": -0.3497,
+        "signal": 0.0963,
+        "histogram": -0.446,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.2859,
-        "signal": 0.2091,
-        "histogram": 0.0768,
+        "macd": 0.3596,
+        "signal": 0.3391,
+        "histogram": 0.0205,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 49.2,
+        "rsi": 50.1,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 46.4,
+        "rsi": 46.8,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 73.2,
-        "overbought": true,
+        "rsi": 61.3,
+        "overbought": false,
         "oversold": false
       }
     },
@@ -6215,7 +6658,7 @@
       "fpe": null,
       "peg": null,
       "ps": null,
-      "pb": 2.5274,
+      "pb": 2.5258,
       "rev_yoy": null,
       "rev_fwd": null,
       "hist_avg_pe": null,
@@ -6240,7 +6683,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 53.955
+          "close": 53.92
         },
         {
           "date": "2026-07-21",
@@ -6267,35 +6710,35 @@
           "close": 53.17
         }
       ],
-      "daily_k": 55.9,
-      "daily_d": 38.5,
+      "daily_k": 51.2,
+      "daily_d": 36.9,
       "daily_cross": "none",
-      "weekly_k": 14.8,
+      "weekly_k": 14.7,
       "weekly_d": 15.5,
       "weekly_cross": "none",
-      "hourly_k": 90.5,
-      "hourly_d": 87.3,
+      "hourly_k": 54.4,
+      "hourly_d": 63.9,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.2343,
-        "signal": -2.6958,
-        "histogram": 0.4615,
+        "macd": -2.2203,
+        "signal": -2.6718,
+        "histogram": 0.4515,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -2.5273,
-        "signal": -0.1226,
-        "histogram": -2.4047,
+        "macd": -2.5301,
+        "signal": -0.1232,
+        "histogram": -2.407,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.7363,
-        "signal": 0.557,
-        "histogram": 0.1793,
+        "macd": 0.8195,
+        "signal": 0.7805,
+        "histogram": 0.0391,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 45.7,
+        "rsi": 45.8,
         "overbought": false,
         "oversold": false
       },
@@ -6305,8 +6748,8 @@
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 75.4,
-        "overbought": true,
+        "rsi": 66.9,
+        "overbought": false,
         "oversold": false
       }
     },
@@ -6379,12 +6822,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 296.55,
-      "prev_prev_close": 296.55,
+      "prev_close": 301.75,
+      "prev_prev_close": 275.05,
       "recent_closes": [
         {
-          "date": "2026-07-22",
-          "close": 301.75
+          "date": "2026-07-23",
+          "close": 305.25
         },
         {
           "date": "2026-07-21",
@@ -6411,61 +6854,61 @@
           "close": 311.15
         }
       ],
-      "daily_k": 33.4,
-      "daily_d": 28.8,
+      "daily_k": 35.4,
+      "daily_d": 29.4,
       "daily_cross": "golden",
-      "weekly_k": 46.2,
-      "weekly_d": 61.7,
+      "weekly_k": 47.5,
+      "weekly_d": 62.1,
       "weekly_cross": "none",
-      "hourly_k": 72.3,
-      "hourly_d": 76.8,
-      "hourly_cross": "death",
+      "hourly_k": 72.8,
+      "hourly_d": 75.7,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -6.2453,
-        "signal": -1.2507,
-        "histogram": -4.9947,
+        "macd": -5.931,
+        "signal": -1.1434,
+        "histogram": -4.7876,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 37.7145,
-        "signal": 39.8866,
-        "histogram": -2.1722,
+        "macd": 37.9937,
+        "signal": 39.9425,
+        "histogram": -1.9488,
         "bullish": false
       },
       "hourly_macd": null,
       "daily_rsi": {
-        "rsi": 45.8,
+        "rsi": 47.1,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 59.3,
+        "rsi": 59.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 46.2,
+        "rsi": 59.1,
         "overbought": false,
         "oversold": false
       }
     },
     "AAPL": {
-      "pe": 39.7167,
-      "fpe": 34.0341,
-      "peg": 2.6279,
-      "ps": 10.629,
-      "pb": 45.1873,
+      "pe": 39.6943,
+      "fpe": 33.809,
+      "peg": 2.6371,
+      "ps": 10.6026,
+      "pb": 44.8884,
       "rev_yoy": 0.166,
       "rev_fwd": 0.0924,
-      "hist_avg_pe": 59.46,
-      "eps_ttm": 8.26,
+      "hist_avg_pe": 59.41,
+      "eps_ttm": 8.21,
       "eps_cur_q": 1.89396,
       "eps_next_q2": 2.0179,
       "eps_cur_y": 8.7626,
       "eps_next_y": 9.6392,
       "gross_margin": 0.4786,
       "operating_margin": 0.3227,
-      "next_earnings_date": null,
+      "next_earnings_date": "2026-07-30",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
       "target_mean_price": 318.2512,
@@ -6478,13 +6921,13 @@
           "quarter": "2020 Q3",
           "eps_estimate": 0.52,
           "eps_actual": 0.65,
-          "surprise_pct": 0.2447
+          "surprise_pct": 0.2445
         },
         {
           "quarter": "2020 Q4",
           "eps_estimate": 0.7,
           "eps_actual": 0.73,
-          "surprise_pct": 0.0448
+          "surprise_pct": 0.045
         },
         {
           "quarter": "2021 Q1",
@@ -6502,7 +6945,7 @@
           "quarter": "2021 Q3",
           "eps_estimate": 1.01,
           "eps_actual": 1.3,
-          "surprise_pct": 0.2818
+          "surprise_pct": 0.2856
         },
         {
           "quarter": "2021 Q4",
@@ -6544,7 +6987,7 @@
           "quarter": "2023 Q2",
           "eps_estimate": 1.43,
           "eps_actual": 1.52,
-          "surprise_pct": 0.0628
+          "surprise_pct": 0.0637
         },
         {
           "quarter": "2023 Q3",
@@ -6556,19 +6999,19 @@
           "quarter": "2023 Q4",
           "eps_estimate": 1.39,
           "eps_actual": 1.46,
-          "surprise_pct": 0.0482
+          "surprise_pct": 0.0493
         },
         {
           "quarter": "2024 Q1",
-          "eps_estimate": 2.1,
+          "eps_estimate": 2.11,
           "eps_actual": 2.18,
-          "surprise_pct": 0.0366
+          "surprise_pct": 0.0355
         },
         {
           "quarter": "2024 Q2",
-          "eps_estimate": 1.51,
+          "eps_estimate": 1.5,
           "eps_actual": 1.53,
-          "surprise_pct": 0.0146
+          "surprise_pct": 0.0205
         },
         {
           "quarter": "2024 Q3",
@@ -6584,9 +7027,9 @@
         },
         {
           "quarter": "2025 Q1",
-          "eps_estimate": 2.35,
+          "eps_estimate": 2.34,
           "eps_actual": 2.4,
-          "surprise_pct": 0.0226
+          "surprise_pct": 0.0252
         },
         {
           "quarter": "2025 Q2",
@@ -6598,7 +7041,7 @@
           "quarter": "2025 Q3",
           "eps_estimate": 1.43,
           "eps_actual": 1.57,
-          "surprise_pct": 0.0948
+          "surprise_pct": 0.1012
         },
         {
           "quarter": "2025 Q4",
@@ -6610,7 +7053,7 @@
           "quarter": "2026 Q1",
           "eps_estimate": 2.67,
           "eps_actual": 2.84,
-          "surprise_pct": 0.0625
+          "surprise_pct": 0.0634
         },
         {
           "quarter": "2026 Q2",
@@ -6624,7 +7067,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 328.16
+          "close": 325.89
         },
         {
           "date": "2026-07-21",
@@ -6651,51 +7094,51 @@
           "close": 314.86
         }
       ],
-      "daily_k": 77.4,
-      "daily_d": 82.8,
+      "daily_k": 74.1,
+      "daily_d": 81.7,
       "daily_cross": "none",
-      "weekly_k": 85.4,
-      "weekly_d": 79.4,
+      "weekly_k": 84.2,
+      "weekly_d": 79.0,
       "weekly_cross": "none",
-      "hourly_k": 71.3,
-      "hourly_d": 63.5,
+      "hourly_k": 29.2,
+      "hourly_d": 30.7,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 8.7988,
-        "signal": 7.0106,
-        "histogram": 1.7882,
+        "macd": 8.6155,
+        "signal": 6.9712,
+        "histogram": 1.6443,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 16.1222,
-        "signal": 12.7748,
-        "histogram": 3.3474,
+        "macd": 15.9411,
+        "signal": 12.7386,
+        "histogram": 3.2026,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": -0.764,
-        "signal": -0.8698,
-        "histogram": 0.1059,
-        "bullish": true
+        "macd": -1.3272,
+        "signal": -1.2333,
+        "histogram": -0.0939,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 64.8,
+        "rsi": 62.6,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 66.5,
+        "rsi": 65.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 49.6,
+        "rsi": 47.0,
         "overbought": false,
         "oversold": false
       }
     },
     "AAPX": {
-      "pe": 44.5976,
+      "pe": 44.1348,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -6719,12 +7162,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 39.69,
+      "prev_close": 40.21,
       "prev_prev_close": 40.21,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 40.19
+          "close": 39.773
         },
         {
           "date": "2026-07-21",
@@ -6751,73 +7194,73 @@
           "close": 37.195
         }
       ],
-      "daily_k": 76.9,
-      "daily_d": 82.0,
+      "daily_k": 74.4,
+      "daily_d": 81.2,
       "daily_cross": "none",
-      "weekly_k": 81.7,
-      "weekly_d": 74.4,
+      "weekly_k": 80.7,
+      "weekly_d": 74.1,
       "weekly_cross": "none",
-      "hourly_k": 69.0,
-      "hourly_d": 63.2,
-      "hourly_cross": "none",
+      "hourly_k": 28.8,
+      "hourly_d": 26.9,
+      "hourly_cross": "golden",
       "daily_macd": {
-        "macd": 1.832,
-        "signal": 1.4019,
-        "histogram": 0.4302,
+        "macd": 1.7983,
+        "signal": 1.3945,
+        "histogram": 0.4038,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 2.8073,
-        "signal": 2.0641,
-        "histogram": 0.7432,
+        "macd": 2.774,
+        "signal": 2.0575,
+        "histogram": 0.7166,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": -0.2103,
-        "signal": -0.2192,
-        "histogram": 0.0089,
-        "bullish": true
+        "macd": -0.3217,
+        "signal": -0.3109,
+        "histogram": -0.0108,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 63.8,
+        "rsi": 61.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 63.8,
+        "rsi": 62.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 49.7,
+        "rsi": 48.7,
         "overbought": false,
         "oversold": false
       }
     },
     "INTC": {
       "pe": null,
-      "fpe": 63.4254,
+      "fpe": 63.1516,
       "peg": null,
-      "ps": 9.6621,
-      "pb": 4.6474,
+      "ps": 9.5934,
+      "pb": 4.6273,
       "rev_yoy": 0.072,
-      "rev_fwd": 0.1268,
+      "rev_fwd": 0.126,
       "hist_avg_pe": 572.41,
-      "eps_ttm": -0.6,
-      "eps_cur_q": 0.21657,
-      "eps_next_q2": 0.27442,
-      "eps_cur_y": 1.1104,
+      "eps_ttm": -0.58,
+      "eps_cur_q": 0.2175,
+      "eps_next_q2": 0.27504,
+      "eps_cur_y": 1.1191,
       "eps_next_y": 1.625,
       "gross_margin": 0.372,
       "operating_margin": 0.0688,
       "next_earnings_date": "2026-07-23",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 106.7024,
+      "target_mean_price": 108.625,
       "target_low_price": 45.0,
       "target_high_price": 200.0,
-      "target_median_price": 100.0,
-      "number_of_analysts": 41,
+      "target_median_price": 102.5,
+      "number_of_analysts": 40,
       "earnings_history": [
         {
           "quarter": "2020 Q3",
@@ -6969,7 +7412,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 103.065
+          "close": 102.62
         },
         {
           "date": "2026-07-21",
@@ -6996,51 +7439,51 @@
           "close": 107.76
         }
       ],
-      "daily_k": 42.3,
-      "daily_d": 28.4,
+      "daily_k": 41.6,
+      "daily_d": 28.2,
       "daily_cross": "none",
-      "weekly_k": 36.4,
-      "weekly_d": 53.4,
+      "weekly_k": 36.1,
+      "weekly_d": 53.3,
       "weekly_cross": "none",
-      "hourly_k": 81.7,
-      "hourly_d": 83.6,
-      "hourly_cross": "death",
+      "hourly_k": 47.9,
+      "hourly_d": 64.1,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -5.068,
-        "signal": -3.2428,
-        "histogram": -1.8251,
+        "macd": -5.1162,
+        "signal": -3.2686,
+        "histogram": -1.8476,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 16.5641,
-        "signal": 18.649,
-        "histogram": -2.0849,
+        "macd": 16.5286,
+        "signal": 18.6419,
+        "histogram": -2.1133,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.7322,
-        "signal": 1.1242,
-        "histogram": 0.608,
-        "bullish": true
+        "macd": 1.4889,
+        "signal": 1.6218,
+        "histogram": -0.1329,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 44.2,
+        "rsi": 44.0,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 56.2,
+        "rsi": 56.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 54.5,
+        "rsi": 49.3,
         "overbought": false,
         "oversold": false
       }
     },
     "MSFU": {
-      "pe": 24.6847,
+      "pe": 24.0922,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -7069,7 +7512,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 24.58
+          "close": 23.99
         },
         {
           "date": "2026-07-21",
@@ -7096,59 +7539,59 @@
           "close": 23.43
         }
       ],
-      "daily_k": 69.4,
-      "daily_d": 72.5,
+      "daily_k": 63.5,
+      "daily_d": 70.5,
       "daily_cross": "death",
-      "weekly_k": 30.1,
-      "weekly_d": 32.3,
+      "weekly_k": 28.8,
+      "weekly_d": 31.9,
       "weekly_cross": "none",
-      "hourly_k": 27.5,
-      "hourly_d": 44.9,
+      "hourly_k": 18.1,
+      "hourly_d": 18.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.1158,
-        "signal": -0.4821,
-        "histogram": 0.3663,
+        "macd": -0.1423,
+        "signal": -0.4615,
+        "histogram": 0.3192,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -2.6556,
-        "signal": -2.8684,
-        "histogram": 0.2128,
+        "macd": -2.7027,
+        "signal": -2.8779,
+        "histogram": 0.1751,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.0114,
-        "signal": 0.0637,
-        "histogram": -0.0523,
+        "macd": -0.2969,
+        "signal": -0.1769,
+        "histogram": -0.12,
         "bullish": false
       },
       "daily_rsi": {
-        "rsi": 50.1,
+        "rsi": 47.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 42.1,
+        "rsi": 41.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 42.9,
+        "rsi": 39.8,
         "overbought": false,
         "oversold": false
       }
     },
     "ARM": {
-      "pe": 337.5119,
-      "fpe": 92.1726,
+      "pe": 345.6097,
+      "fpe": 92.1368,
       "peg": 2.3901,
-      "ps": 61.8702,
-      "pb": 36.4081,
+      "ps": 61.5231,
+      "pb": 36.394,
       "rev_yoy": 0.201,
       "rev_fwd": 0.3539,
-      "hist_avg_pe": 434.18,
-      "eps_ttm": 0.84,
+      "hist_avg_pe": 434.15,
+      "eps_ttm": 0.82,
       "eps_cur_q": 0.40192,
       "eps_next_q2": 0.43524,
       "eps_cur_y": 2.1687,
@@ -7163,13 +7606,80 @@
       "target_high_price": 500.0,
       "target_median_price": 260.0,
       "number_of_analysts": 37,
-      "earnings_history": [],
+      "earnings_history": [
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 0.27,
+          "eps_actual": 0.36,
+          "surprise_pct": 0.3459
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": 0.25,
+          "eps_actual": 0.29,
+          "surprise_pct": 0.1635
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": 0.31,
+          "eps_actual": 0.36,
+          "surprise_pct": 0.1773
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 0.35,
+          "eps_actual": 0.4,
+          "surprise_pct": 0.1543
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 0.26,
+          "eps_actual": 0.3,
+          "surprise_pct": 0.1712
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 0.34,
+          "eps_actual": 0.39,
+          "surprise_pct": 0.14
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": 0.52,
+          "eps_actual": 0.55,
+          "surprise_pct": 0.0504
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": 0.35,
+          "eps_actual": 0.35,
+          "surprise_pct": -0.0031
+        },
+        {
+          "quarter": "2025 Q4",
+          "eps_estimate": 0.33,
+          "eps_actual": 0.39,
+          "surprise_pct": 0.177
+        },
+        {
+          "quarter": "2026 Q1",
+          "eps_estimate": 0.41,
+          "eps_actual": 0.43,
+          "surprise_pct": 0.0509
+        },
+        {
+          "quarter": "2026 Q2",
+          "eps_estimate": 0.58,
+          "eps_actual": 0.6,
+          "surprise_pct": 0.0357
+        }
+      ],
       "prev_close": 289.73,
       "prev_prev_close": 289.73,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 283.51
+          "close": 283.4
         },
         {
           "date": "2026-07-21",
@@ -7196,32 +7706,32 @@
           "close": 281.17
         }
       ],
-      "daily_k": 36.1,
+      "daily_k": 36.0,
       "daily_d": 27.6,
       "daily_cross": "none",
       "weekly_k": 38.9,
       "weekly_d": 55.4,
       "weekly_cross": "none",
-      "hourly_k": 74.9,
-      "hourly_d": 79.7,
-      "hourly_cross": "death",
+      "hourly_k": 34.6,
+      "hourly_d": 47.1,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -16.4464,
-        "signal": -11.6294,
-        "histogram": -4.8169,
+        "macd": -16.5229,
+        "signal": -11.7304,
+        "histogram": -4.7926,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 45.7431,
-        "signal": 47.9873,
-        "histogram": -2.2442,
+        "macd": 45.7343,
+        "signal": 47.9855,
+        "histogram": -2.2512,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 6.9019,
-        "signal": 6.254,
-        "histogram": 0.6479,
-        "bullish": true
+        "macd": 4.8314,
+        "signal": 5.8008,
+        "histogram": -0.9694,
+        "bullish": false
       },
       "daily_rsi": {
         "rsi": 43.3,
@@ -7229,26 +7739,26 @@
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 55.1,
+        "rsi": 55.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 58.9,
+        "rsi": 55.6,
         "overbought": false,
         "oversold": false
       }
     },
     "HAWK": {
       "pe": null,
-      "fpe": 111.5757,
+      "fpe": 116.0,
       "peg": null,
-      "ps": 12.5929,
-      "pb": -0.9118,
+      "ps": 12.9794,
+      "pb": -0.9479,
       "rev_yoy": 1.165,
       "rev_fwd": 0.258,
       "hist_avg_pe": null,
-      "eps_ttm": -0.19,
+      "eps_ttm": -0.2,
       "eps_cur_q": -0.1225,
       "eps_next_q2": 0.0475,
       "eps_cur_y": -0.0717,
@@ -7266,17 +7776,17 @@
       "earnings_history": [
         {
           "quarter": "2026 Q2",
-          "eps_estimate": -0.04,
+          "eps_estimate": -0.05,
           "eps_actual": -0.45,
-          "surprise_pct": -9.1386
+          "surprise_pct": -7.1109
         }
       ],
-      "prev_close": 18.48,
+      "prev_close": 18.4,
       "prev_prev_close": 18.4,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 18.41
+          "close": 19.14
         },
         {
           "date": "2026-07-21",
@@ -7303,267 +7813,26 @@
           "close": 19.41
         }
       ],
-      "daily_k": 28.7,
-      "daily_d": 24.2,
+      "daily_k": 35.4,
+      "daily_d": 26.4,
       "daily_cross": "none",
-      "weekly_k": 9.5,
-      "weekly_d": 13.7,
+      "weekly_k": 11.0,
+      "weekly_d": 14.2,
       "weekly_cross": "none",
-      "hourly_k": 77.4,
-      "hourly_d": 64.8,
+      "hourly_k": 75.6,
+      "hourly_d": 78.4,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -1.8192,
-        "signal": -1.9809,
-        "histogram": 0.1617,
+        "macd": -1.761,
+        "signal": -1.9693,
+        "histogram": 0.2083,
         "bullish": true
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": -0.1096,
-        "signal": -0.1939,
-        "histogram": 0.0843,
-        "bullish": true
-      },
-      "daily_rsi": {
-        "rsi": 38.3,
-        "overbought": false,
-        "oversold": false
-      },
-      "weekly_rsi": null,
-      "hourly_rsi": {
-        "rsi": 52.5,
-        "overbought": false,
-        "oversold": false
-      }
-    },
-    "MRVL": {
-      "pe": 70.3557,
-      "fpe": 32.9092,
-      "peg": 1.1017,
-      "ps": 21.1693,
-      "pb": 9.8411,
-      "rev_yoy": 0.276,
-      "rev_fwd": 0.45169997,
-      "hist_avg_pe": 163.83,
-      "eps_ttm": 2.91,
-      "eps_cur_q": 0.92727,
-      "eps_next_q2": 1.07067,
-      "eps_cur_y": 4.048,
-      "eps_next_y": 6.2212,
-      "gross_margin": 0.515,
-      "operating_margin": 0.1448,
-      "next_earnings_date": "2026-08-27",
-      "earnings_proxy_symbol": null,
-      "no_earnings": false,
-      "target_mean_price": 254.4142,
-      "target_low_price": 110.0,
-      "target_high_price": 400.0,
-      "target_median_price": 242.5,
-      "number_of_analysts": 40,
-      "earnings_history": [
-        {
-          "quarter": "2020 Q3",
-          "eps_estimate": 0.2,
-          "eps_actual": 0.21,
-          "surprise_pct": 0.0388
-        },
-        {
-          "quarter": "2020 Q4",
-          "eps_estimate": 0.25,
-          "eps_actual": 0.25,
-          "surprise_pct": 0.0006
-        },
-        {
-          "quarter": "2021 Q1",
-          "eps_estimate": 0.29,
-          "eps_actual": 0.29,
-          "surprise_pct": -0.0037
-        },
-        {
-          "quarter": "2021 Q2",
-          "eps_estimate": 0.27,
-          "eps_actual": 0.29,
-          "surprise_pct": 0.0621
-        },
-        {
-          "quarter": "2021 Q3",
-          "eps_estimate": 0.31,
-          "eps_actual": 0.34,
-          "surprise_pct": 0.0846
-        },
-        {
-          "quarter": "2021 Q4",
-          "eps_estimate": 0.38,
-          "eps_actual": 0.43,
-          "surprise_pct": 0.1215
-        },
-        {
-          "quarter": "2022 Q1",
-          "eps_estimate": 0.48,
-          "eps_actual": 0.5,
-          "surprise_pct": 0.0355
-        },
-        {
-          "quarter": "2022 Q2",
-          "eps_estimate": 0.51,
-          "eps_actual": 0.52,
-          "surprise_pct": 0.0134
-        },
-        {
-          "quarter": "2022 Q3",
-          "eps_estimate": 0.56,
-          "eps_actual": 0.57,
-          "surprise_pct": 0.009
-        },
-        {
-          "quarter": "2022 Q4",
-          "eps_estimate": 0.59,
-          "eps_actual": 0.57,
-          "surprise_pct": -0.0303
-        },
-        {
-          "quarter": "2023 Q1",
-          "eps_estimate": 0.47,
-          "eps_actual": 0.46,
-          "surprise_pct": -0.018
-        },
-        {
-          "quarter": "2023 Q2",
-          "eps_estimate": 0.29,
-          "eps_actual": 0.31,
-          "surprise_pct": 0.0576
-        },
-        {
-          "quarter": "2023 Q3",
-          "eps_estimate": 0.32,
-          "eps_actual": 0.33,
-          "surprise_pct": 0.0193
-        },
-        {
-          "quarter": "2023 Q4",
-          "eps_estimate": 0.4,
-          "eps_actual": 0.41,
-          "surprise_pct": 0.0221
-        },
-        {
-          "quarter": "2024 Q1",
-          "eps_estimate": 0.46,
-          "eps_actual": 0.46,
-          "surprise_pct": -0.0082
-        },
-        {
-          "quarter": "2024 Q2",
-          "eps_estimate": 0.24,
-          "eps_actual": 0.24,
-          "surprise_pct": 0.007
-        },
-        {
-          "quarter": "2024 Q3",
-          "eps_estimate": 0.29,
-          "eps_actual": 0.3,
-          "surprise_pct": 0.0228
-        },
-        {
-          "quarter": "2024 Q4",
-          "eps_estimate": 0.41,
-          "eps_actual": 0.43,
-          "surprise_pct": 0.0553
-        },
-        {
-          "quarter": "2025 Q1",
-          "eps_estimate": 0.59,
-          "eps_actual": 0.6,
-          "surprise_pct": 0.0157
-        },
-        {
-          "quarter": "2025 Q2",
-          "eps_estimate": 0.61,
-          "eps_actual": 0.62,
-          "surprise_pct": 0.0111
-        },
-        {
-          "quarter": "2025 Q3",
-          "eps_estimate": 0.67,
-          "eps_actual": 0.67,
-          "surprise_pct": -0.0051
-        },
-        {
-          "quarter": "2025 Q4",
-          "eps_estimate": 0.74,
-          "eps_actual": 0.76,
-          "surprise_pct": 0.0301
-        },
-        {
-          "quarter": "2026 Q1",
-          "eps_estimate": 0.79,
-          "eps_actual": 0.8,
-          "surprise_pct": 0.0105
-        },
-        {
-          "quarter": "2026 Q2",
-          "eps_estimate": 0.79,
-          "eps_actual": 0.8,
-          "surprise_pct": 0.0064
-        }
-      ],
-      "prev_close": 207.96,
-      "prev_prev_close": 207.96,
-      "recent_closes": [
-        {
-          "date": "2026-07-22",
-          "close": 204.735
-        },
-        {
-          "date": "2026-07-21",
-          "close": 207.96
-        },
-        {
-          "date": "2026-07-20",
-          "close": 194.94
-        },
-        {
-          "date": "2026-07-17",
-          "close": 188.68
-        },
-        {
-          "date": "2026-07-16",
-          "close": 188.3
-        },
-        {
-          "date": "2026-07-15",
-          "close": 206.26
-        },
-        {
-          "date": "2026-07-14",
-          "close": 222.44
-        }
-      ],
-      "daily_k": 29.6,
-      "daily_d": 20.6,
-      "daily_cross": "none",
-      "weekly_k": 36.6,
-      "weekly_d": 54.8,
-      "weekly_cross": "none",
-      "hourly_k": 76.8,
-      "hourly_d": 80.8,
-      "hourly_cross": "death",
-      "daily_macd": {
-        "macd": -15.0741,
-        "signal": -9.4321,
-        "histogram": -5.642,
-        "bullish": false
-      },
-      "weekly_macd": {
-        "macd": 35.5834,
-        "signal": 38.0134,
-        "histogram": -2.4301,
-        "bullish": false
-      },
-      "hourly_macd": {
-        "macd": 3.9618,
-        "signal": 3.2895,
-        "histogram": 0.6723,
+        "macd": 0.1918,
+        "signal": 0.0499,
+        "histogram": 0.1419,
         "bullish": true
       },
       "daily_rsi": {
@@ -7571,19 +7840,18 @@
         "overbought": false,
         "oversold": false
       },
-      "weekly_rsi": {
-        "rsi": 55.9,
-        "overbought": false,
-        "oversold": false
-      },
+      "weekly_rsi": null,
       "hourly_rsi": {
-        "rsi": 56.0,
+        "rsi": 58.7,
         "overbought": false,
         "oversold": false
       }
     },
+    "MRVL": {
+      "error": "Failed to parse json response from Yahoo Finance: {'code': 'Internal Server Error', 'description': 'Server caught an exception'}"
+    },
     "MRVU": {
-      "pe": 122.201,
+      "pe": 129.9865,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -7612,7 +7880,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 101.804
+          "close": 108.29
         },
         {
           "date": "2026-07-21",
@@ -7639,40 +7907,40 @@
           "close": 123.34
         }
       ],
-      "daily_k": 25.3,
-      "daily_d": 17.4,
+      "daily_k": 28.5,
+      "daily_d": 18.5,
       "daily_cross": "none",
-      "weekly_k": 24.5,
-      "weekly_d": 42.0,
+      "weekly_k": 25.4,
+      "weekly_d": 42.3,
       "weekly_cross": "none",
-      "hourly_k": 76.7,
-      "hourly_d": 81.0,
-      "hourly_cross": "death",
+      "hourly_k": 80.0,
+      "hourly_d": 83.8,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -23.727,
+        "macd": -23.2804,
         "signal": -17.5928,
-        "histogram": -6.1342,
+        "histogram": -5.6875,
         "bullish": false
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 3.6827,
-        "signal": 2.9942,
-        "histogram": 0.6885,
+        "macd": 4.4769,
+        "signal": 4.2187,
+        "histogram": 0.2582,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 40.2,
+        "rsi": 41.6,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 51.9,
+        "rsi": 53.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 55.2,
+        "rsi": 61.0,
         "overbought": false,
         "oversold": false
       }
@@ -7702,12 +7970,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 18.259,
+      "prev_close": 18.15,
       "prev_prev_close": 18.15,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 17.4
+          "close": 15.5
         },
         {
           "date": "2026-07-21",
@@ -7734,40 +8002,40 @@
           "close": 21.26
         }
       ],
-      "daily_k": 42.3,
-      "daily_d": 29.0,
+      "daily_k": 36.7,
+      "daily_d": 27.2,
       "daily_cross": "none",
-      "weekly_k": 8.6,
-      "weekly_d": 13.7,
+      "weekly_k": 7.6,
+      "weekly_d": 13.4,
       "weekly_cross": "none",
-      "hourly_k": 85.7,
-      "hourly_d": 84.5,
+      "hourly_k": 16.3,
+      "hourly_d": 31.7,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -7.4073,
-        "signal": -8.1449,
-        "histogram": 0.7376,
+        "macd": -7.4924,
+        "signal": -8.0781,
+        "histogram": 0.5856,
         "bullish": true
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 1.1032,
-        "signal": 0.7908,
-        "histogram": 0.3124,
-        "bullish": true
+        "macd": 0.4477,
+        "signal": 0.6798,
+        "histogram": -0.232,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 40.9,
+        "rsi": 39.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 47.8,
+        "rsi": 47.1,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 64.6,
+        "rsi": 48.3,
         "overbought": false,
         "oversold": false
       }
@@ -7797,12 +8065,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 7.53,
+      "prev_close": 7.57,
       "prev_prev_close": 7.57,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 7.0012
+          "close": 6.57
         },
         {
           "date": "2026-07-21",
@@ -7829,36 +8097,36 @@
           "close": 8.37
         }
       ],
-      "daily_k": 32.5,
-      "daily_d": 23.9,
+      "daily_k": 30.1,
+      "daily_d": 23.1,
       "daily_cross": "none",
-      "weekly_k": 5.8,
-      "weekly_d": 13.5,
+      "weekly_k": 5.6,
+      "weekly_d": 13.4,
       "weekly_cross": "none",
-      "hourly_k": 84.1,
-      "hourly_d": 85.7,
-      "hourly_cross": "death",
+      "hourly_k": 20.1,
+      "hourly_d": 35.7,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -5.5533,
-        "signal": -6.3181,
-        "histogram": 0.7648,
+        "macd": -5.5877,
+        "signal": -6.325,
+        "histogram": 0.7373,
         "bullish": true
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 0.4948,
-        "signal": 0.3627,
-        "histogram": 0.1321,
-        "bullish": true
+        "macd": 0.2702,
+        "signal": 0.3566,
+        "histogram": -0.0864,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 39.1,
+        "rsi": 38.6,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": null,
       "hourly_rsi": {
-        "rsi": 59.5,
+        "rsi": 51.3,
         "overbought": false,
         "oversold": false
       }
@@ -7893,7 +8161,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 67.7522
+          "close": 71.63
         },
         {
           "date": "2026-07-21",
@@ -7920,51 +8188,51 @@
           "close": 71.49
         }
       ],
-      "daily_k": 51.2,
-      "daily_d": 43.4,
+      "daily_k": 55.7,
+      "daily_d": 44.9,
       "daily_cross": "none",
-      "weekly_k": 61.1,
-      "weekly_d": 69.7,
+      "weekly_k": 64.8,
+      "weekly_d": 70.9,
       "weekly_cross": "none",
-      "hourly_k": 86.0,
-      "hourly_d": 87.1,
+      "hourly_k": 87.2,
+      "hourly_d": 90.6,
       "hourly_cross": "death",
       "daily_macd": {
-        "macd": 0.2162,
-        "signal": 1.1039,
-        "histogram": -0.8877,
+        "macd": 0.5231,
+        "signal": 1.1621,
+        "histogram": -0.6391,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 13.3894,
-        "signal": 12.3044,
-        "histogram": 1.085,
+        "macd": 13.6988,
+        "signal": 12.3663,
+        "histogram": 1.3325,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 2.2355,
-        "signal": 1.5582,
-        "histogram": 0.6773,
+        "macd": 3.012,
+        "signal": 2.657,
+        "histogram": 0.3549,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 51.5,
+        "rsi": 54.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 62.8,
+        "rsi": 64.2,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 57.8,
+        "rsi": 62.6,
         "overbought": false,
         "oversold": false
       }
     },
     "GGLL": {
-      "pe": 25.4785,
+      "pe": 24.7269,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -7993,7 +8261,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 106.44
+          "close": 103.3
         },
         {
           "date": "2026-07-21",
@@ -8020,51 +8288,51 @@
           "close": 114.56
         }
       ],
-      "daily_k": 23.2,
-      "daily_d": 31.5,
+      "daily_k": 18.4,
+      "daily_d": 29.9,
       "daily_cross": "none",
-      "weekly_k": 21.6,
-      "weekly_d": 31.9,
+      "weekly_k": 19.1,
+      "weekly_d": 31.1,
       "weekly_cross": "none",
-      "hourly_k": 15.4,
-      "hourly_d": 22.0,
+      "hourly_k": 16.4,
+      "hourly_d": 23.0,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.9543,
-        "signal": -2.5159,
-        "histogram": -0.4384,
+        "macd": -3.2012,
+        "signal": -2.5608,
+        "histogram": -0.6404,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 5.4473,
-        "signal": 8.8168,
-        "histogram": -3.3695,
+        "macd": 5.1968,
+        "signal": 8.7667,
+        "histogram": -3.5699,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -2.3139,
-        "signal": -2.563,
-        "histogram": 0.2491,
+        "macd": -2.1475,
+        "signal": -2.2095,
+        "histogram": 0.062,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 42.6,
+        "rsi": 40.3,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 49.7,
+        "rsi": 48.2,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 29.4,
+        "rsi": 24.4,
         "overbought": false,
         "oversold": true
       }
     },
     "MUU": {
-      "pe": 16.7105,
+      "pe": 17.074,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -8093,7 +8361,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 33.56
+          "close": 34.29
         },
         {
           "date": "2026-07-21",
@@ -8120,45 +8388,45 @@
           "close": 37.1325
         }
       ],
-      "daily_k": 43.9,
-      "daily_d": 30.7,
+      "daily_k": 45.6,
+      "daily_d": 31.3,
       "daily_cross": "none",
-      "weekly_k": 38.1,
-      "weekly_d": 54.0,
+      "weekly_k": 38.8,
+      "weekly_d": 54.2,
       "weekly_cross": "none",
-      "hourly_k": 81.3,
-      "hourly_d": 82.1,
-      "hourly_cross": "death",
+      "hourly_k": 69.6,
+      "hourly_d": 79.1,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.7543,
-        "signal": -1.769,
-        "histogram": -0.9853,
+        "macd": -2.6935,
+        "signal": -1.7537,
+        "histogram": -0.9398,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 7.841,
-        "signal": 8.0184,
-        "histogram": -0.1774,
+        "macd": 7.8993,
+        "signal": 8.03,
+        "histogram": -0.1308,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.6358,
-        "signal": 1.2213,
-        "histogram": 0.4145,
-        "bullish": true
+        "macd": 1.5695,
+        "signal": 1.5949,
+        "histogram": -0.0254,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 46.7,
+        "rsi": 47.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 56.5,
+        "rsi": 56.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.0,
+        "rsi": 57.9,
         "overbought": false,
         "oversold": false
       }
@@ -8193,7 +8461,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 31.13
+          "close": 33.09
         },
         {
           "date": "2026-07-21",
@@ -8220,45 +8488,45 @@
           "close": 33.17
         }
       ],
-      "daily_k": 53.8,
-      "daily_d": 61.0,
-      "daily_cross": "none",
-      "weekly_k": 26.9,
-      "weekly_d": 29.6,
-      "weekly_cross": "none",
-      "hourly_k": 59.1,
-      "hourly_d": 58.1,
+      "daily_k": 66.9,
+      "daily_d": 65.4,
+      "daily_cross": "golden",
+      "weekly_k": 31.5,
+      "weekly_d": 31.2,
+      "weekly_cross": "golden",
+      "hourly_k": 83.4,
+      "hourly_d": 82.2,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.2204,
-        "signal": -0.4536,
-        "histogram": 0.2333,
+        "macd": -0.0567,
+        "signal": -0.4117,
+        "histogram": 0.355,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 0.6901,
-        "signal": 1.0309,
-        "histogram": -0.3408,
+        "macd": 0.8464,
+        "signal": 1.0622,
+        "histogram": -0.2158,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.0513,
-        "signal": -0.1553,
-        "histogram": 0.1039,
+        "macd": 0.5515,
+        "signal": 0.2952,
+        "histogram": 0.2563,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 49.2,
+        "rsi": 54.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 51.1,
+        "rsi": 53.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 45.3,
+        "rsi": 60.0,
         "overbought": false,
         "oversold": false
       }
@@ -8288,12 +8556,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 17.8499,
+      "prev_close": 17.82,
       "prev_prev_close": 17.82,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 16.51
+          "close": 18.02
         },
         {
           "date": "2026-07-21",
@@ -8320,46 +8588,46 @@
           "close": 22.93
         }
       ],
-      "daily_k": 20.0,
-      "daily_d": 18.4,
+      "daily_k": 23.1,
+      "daily_d": 19.4,
       "daily_cross": "none",
-      "weekly_k": 28.0,
-      "weekly_d": 48.5,
+      "weekly_k": 29.4,
+      "weekly_d": 48.9,
       "weekly_cross": "none",
-      "hourly_k": 80.9,
-      "hourly_d": 81.4,
-      "hourly_cross": "death",
+      "hourly_k": 82.2,
+      "hourly_d": 85.9,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -3.8714,
-        "signal": -2.5106,
-        "histogram": -1.3607,
+        "macd": -3.7427,
+        "signal": -2.4746,
+        "histogram": -1.2681,
         "bullish": false
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 0.4864,
-        "signal": 0.2084,
-        "histogram": 0.278,
+        "macd": 0.7906,
+        "signal": 0.6347,
+        "histogram": 0.1559,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 42.3,
+        "rsi": 43.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 49.6,
+        "rsi": 50.7,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 51.4,
+        "rsi": 58.5,
         "overbought": false,
         "oversold": false
       }
     },
     "TSLL": {
-      "pe": 47.194,
+      "pe": 46.4314,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -8388,7 +8656,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 11.14
+          "close": 10.96
         },
         {
           "date": "2026-07-21",
@@ -8415,51 +8683,51 @@
           "close": 12.35
         }
       ],
-      "daily_k": 14.2,
-      "daily_d": 16.2,
+      "daily_k": 12.0,
+      "daily_d": 15.5,
       "daily_cross": "none",
-      "weekly_k": 18.0,
-      "weekly_d": 27.9,
+      "weekly_k": 16.9,
+      "weekly_d": 27.6,
       "weekly_cross": "none",
-      "hourly_k": 58.6,
-      "hourly_d": 57.5,
+      "hourly_k": 23.5,
+      "hourly_d": 33.7,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.5761,
-        "signal": -0.4243,
-        "histogram": -0.1519,
+        "macd": -0.5829,
+        "signal": -0.416,
+        "histogram": -0.1669,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": -0.8821,
-        "signal": -0.7278,
-        "histogram": -0.1544,
+        "macd": -0.8965,
+        "signal": -0.7306,
+        "histogram": -0.1659,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.1542,
-        "signal": -0.1993,
-        "histogram": 0.0451,
+        "macd": -0.144,
+        "signal": -0.155,
+        "histogram": 0.011,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 41.4,
+        "rsi": 40.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 41.5,
+        "rsi": 41.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 39.6,
+        "rsi": 35.0,
         "overbought": false,
         "oversold": false
       }
     },
     "TSMX": {
-      "pe": 45.5391,
+      "pe": 46.3035,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -8488,7 +8756,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 78.64
+          "close": 79.96
         },
         {
           "date": "2026-07-21",
@@ -8515,51 +8783,51 @@
           "close": 80.38
         }
       ],
-      "daily_k": 39.4,
-      "daily_d": 27.5,
+      "daily_k": 41.6,
+      "daily_d": 28.2,
       "daily_cross": "none",
-      "weekly_k": 36.2,
-      "weekly_d": 49.2,
+      "weekly_k": 37.3,
+      "weekly_d": 49.6,
       "weekly_cross": "none",
-      "hourly_k": 84.7,
-      "hourly_d": 87.2,
-      "hourly_cross": "death",
+      "hourly_k": 75.3,
+      "hourly_d": 79.8,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.8767,
-        "signal": -1.6854,
-        "histogram": -1.1914,
+        "macd": -2.7539,
+        "signal": -1.6386,
+        "histogram": -1.1152,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 7.0176,
-        "signal": 8.36,
-        "histogram": -1.3423,
+        "macd": 7.1229,
+        "signal": 8.381,
+        "histogram": -1.2581,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 1.3778,
-        "signal": 0.6878,
-        "histogram": 0.69,
+        "macd": 1.3897,
+        "signal": 1.2758,
+        "histogram": 0.1139,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 45.6,
+        "rsi": 46.7,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 54.2,
+        "rsi": 55.0,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 51.6,
+        "rsi": 55.1,
         "overbought": false,
         "oversold": false
       }
     },
     "USD": {
-      "pe": 48.3578,
+      "pe": 51.0059,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -8583,12 +8851,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 90.1,
+      "prev_close": 90.15,
       "prev_prev_close": 90.15,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 87.745
+          "close": 92.55
         },
         {
           "date": "2026-07-21",
@@ -8615,45 +8883,45 @@
           "close": 94.89
         }
       ],
-      "daily_k": 49.1,
-      "daily_d": 46.6,
+      "daily_k": 56.6,
+      "daily_d": 49.1,
       "daily_cross": "none",
-      "weekly_k": 35.5,
-      "weekly_d": 48.1,
+      "weekly_k": 39.5,
+      "weekly_d": 49.4,
       "weekly_cross": "none",
-      "hourly_k": 80.4,
-      "hourly_d": 82.1,
+      "hourly_k": 87.7,
+      "hourly_d": 90.6,
       "hourly_cross": "death",
       "daily_macd": {
-        "macd": -2.6113,
-        "signal": -2.0006,
-        "histogram": -0.6106,
+        "macd": -2.2275,
+        "signal": -1.9232,
+        "histogram": -0.3042,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 9.4611,
-        "signal": 10.6075,
-        "histogram": -1.1464,
+        "macd": 9.8444,
+        "signal": 10.6842,
+        "histogram": -0.8397,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.9338,
-        "signal": 0.446,
-        "histogram": 0.4878,
+        "macd": 2.0424,
+        "signal": 1.5558,
+        "histogram": 0.4866,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 46.7,
+        "rsi": 50.3,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 55.2,
+        "rsi": 57.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 49.8,
+        "rsi": 60.5,
         "overbought": false,
         "oversold": false
       }
@@ -8683,12 +8951,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 11.29,
-      "prev_prev_close": 11.29,
+      "prev_close": 11.34,
+      "prev_prev_close": 9.945,
       "recent_closes": [
         {
-          "date": "2026-07-22",
-          "close": 11.34
+          "date": "2026-07-23",
+          "close": 12.04
         },
         {
           "date": "2026-07-21",
@@ -8715,45 +8983,45 @@
           "close": 12.15
         }
       ],
-      "daily_k": 32.5,
-      "daily_d": 23.4,
+      "daily_k": 35.6,
+      "daily_d": 24.4,
       "daily_cross": "none",
-      "weekly_k": 23.1,
-      "weekly_d": 39.2,
+      "weekly_k": 24.1,
+      "weekly_d": 39.6,
       "weekly_cross": "none",
-      "hourly_k": 27.0,
-      "hourly_d": 47.1,
+      "hourly_k": 36.3,
+      "hourly_d": 43.5,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.7774,
-        "signal": -2.342,
-        "histogram": -0.4354,
+        "macd": -2.727,
+        "signal": -2.3388,
+        "histogram": -0.3883,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 1.9535,
-        "signal": 3.2153,
-        "histogram": -1.2618,
+        "macd": 2.0094,
+        "signal": 3.2265,
+        "histogram": -1.2171,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.3521,
-        "signal": 0.3345,
-        "histogram": 0.0176,
-        "bullish": true
+        "macd": 0.6269,
+        "signal": 0.6787,
+        "histogram": -0.0519,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 41.0,
+        "rsi": 42.6,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 46.5,
+        "rsi": 47.5,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 50.6,
+        "rsi": 66.3,
         "overbought": false,
         "oversold": false
       }
@@ -8783,12 +9051,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 57.8,
-      "prev_prev_close": 57.8,
+      "prev_close": 55.76,
+      "prev_prev_close": 52.58,
       "recent_closes": [
         {
-          "date": "2026-07-22",
-          "close": 55.76
+          "date": "2026-07-23",
+          "close": 57.98
         },
         {
           "date": "2026-07-21",
@@ -8815,45 +9083,45 @@
           "close": 65.2
         }
       ],
-      "daily_k": 17.4,
-      "daily_d": 15.3,
+      "daily_k": 18.8,
+      "daily_d": 15.8,
       "daily_cross": "none",
-      "weekly_k": 24.3,
-      "weekly_d": 45.2,
+      "weekly_k": 24.8,
+      "weekly_d": 45.4,
       "weekly_cross": "none",
-      "hourly_k": 19.7,
-      "hourly_d": 38.4,
+      "hourly_k": 21.0,
+      "hourly_d": 32.6,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -18.6982,
-        "signal": -13.3874,
-        "histogram": -5.3107,
+        "macd": -18.5145,
+        "signal": -13.3424,
+        "histogram": -5.1721,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 15.887,
-        "signal": 21.4794,
-        "histogram": -5.5924,
+        "macd": 16.0641,
+        "signal": 21.5148,
+        "histogram": -5.4507,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.9575,
-        "signal": 1.0983,
-        "histogram": -0.1409,
+        "macd": 2.1544,
+        "signal": 2.7103,
+        "histogram": -0.5558,
         "bullish": false
       },
       "daily_rsi": {
-        "rsi": 38.8,
+        "rsi": 39.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 46.9,
+        "rsi": 47.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 46.1,
+        "rsi": 57.3,
         "overbought": false,
         "oversold": false
       }
@@ -8883,12 +9151,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 34.69,
+      "prev_close": 34.65,
       "prev_prev_close": 34.65,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 32.99
+          "close": 33.6
         },
         {
           "date": "2026-07-21",
@@ -8915,40 +9183,40 @@
           "close": 33.77
         }
       ],
-      "daily_k": 45.7,
-      "daily_d": 30.0,
+      "daily_k": 47.0,
+      "daily_d": 30.4,
       "daily_cross": "none",
-      "weekly_k": 20.8,
-      "weekly_d": 31.4,
+      "weekly_k": 21.2,
+      "weekly_d": 31.5,
       "weekly_cross": "none",
-      "hourly_k": 84.6,
-      "hourly_d": 87.2,
-      "hourly_cross": "death",
+      "hourly_k": 60.7,
+      "hourly_d": 72.2,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -6.3184,
-        "signal": -6.0256,
-        "histogram": -0.2928,
+        "macd": -6.2372,
+        "signal": -5.9683,
+        "histogram": -0.2689,
         "bullish": false
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 1.7174,
-        "signal": 1.3482,
-        "histogram": 0.3692,
-        "bullish": true
+        "macd": 1.4693,
+        "signal": 1.5691,
+        "histogram": -0.0998,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 41.6,
+        "rsi": 42.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 47.0,
+        "rsi": 47.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.4,
+        "rsi": 58.8,
         "overbought": false,
         "oversold": false
       }
@@ -8978,12 +9246,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 30.88,
+      "prev_close": 30.92,
       "prev_prev_close": 30.92,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 30.025
+          "close": 30.23
         },
         {
           "date": "2026-07-21",
@@ -9010,40 +9278,40 @@
           "close": 29.9
         }
       ],
-      "daily_k": 68.9,
-      "daily_d": 53.4,
+      "daily_k": 67.7,
+      "daily_d": 53.0,
       "daily_cross": "none",
-      "weekly_k": 21.4,
+      "weekly_k": 21.6,
       "weekly_d": 22.8,
       "weekly_cross": "none",
-      "hourly_k": 85.2,
-      "hourly_d": 86.6,
-      "hourly_cross": "death",
+      "hourly_k": 49.0,
+      "hourly_d": 60.2,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -2.5119,
-        "signal": -3.3186,
-        "histogram": 0.8067,
+        "macd": -2.4731,
+        "signal": -3.2825,
+        "histogram": 0.8094,
         "bullish": true
       },
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 1.8391,
-        "signal": 1.6263,
-        "histogram": 0.2129,
-        "bullish": true
+        "macd": 1.486,
+        "signal": 1.6693,
+        "histogram": -0.1833,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 49.5,
+        "rsi": 49.8,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 53.7,
+        "rsi": 53.9,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 64.4,
+        "rsi": 60.4,
         "overbought": false,
         "oversold": false
       }
@@ -9073,12 +9341,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 34.34,
-      "prev_prev_close": 34.34,
+      "prev_close": 34.8,
+      "prev_prev_close": 32.06,
       "recent_closes": [
         {
-          "date": "2026-07-22",
-          "close": 34.8
+          "date": "2026-07-23",
+          "close": 35.04
         },
         {
           "date": "2026-07-21",
@@ -9105,40 +9373,40 @@
           "close": 35.88
         }
       ],
-      "daily_k": 34.4,
-      "daily_d": 30.0,
+      "daily_k": 35.7,
+      "daily_d": 30.4,
       "daily_cross": "golden",
-      "weekly_k": 46.4,
-      "weekly_d": 61.6,
+      "weekly_k": 47.2,
+      "weekly_d": 61.9,
       "weekly_cross": "none",
-      "hourly_k": 70.8,
-      "hourly_d": 76.3,
-      "hourly_cross": "death",
+      "hourly_k": 68.1,
+      "hourly_d": 73.7,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.5675,
-        "signal": -0.0298,
-        "histogram": -0.5377,
+        "macd": -0.5447,
+        "signal": -0.0206,
+        "histogram": -0.5241,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 4.3198,
-        "signal": 4.5334,
-        "histogram": -0.2136,
+        "macd": 4.339,
+        "signal": 4.5372,
+        "histogram": -0.1982,
         "bullish": false
       },
       "hourly_macd": null,
       "daily_rsi": {
-        "rsi": 46.2,
+        "rsi": 47.1,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 60.3,
+        "rsi": 60.6,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 45.4,
+        "rsi": 56.2,
         "overbought": false,
         "oversold": false
       }
@@ -9173,7 +9441,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 46.7
+          "close": 50.47
         },
         {
           "date": "2026-07-21",
@@ -9200,51 +9468,51 @@
           "close": 48.95
         }
       ],
-      "daily_k": 46.0,
-      "daily_d": 46.5,
-      "daily_cross": "none",
-      "weekly_k": 14.8,
-      "weekly_d": 22.8,
+      "daily_k": 57.1,
+      "daily_d": 50.2,
+      "daily_cross": "golden",
+      "weekly_k": 17.7,
+      "weekly_d": 23.8,
       "weekly_cross": "none",
-      "hourly_k": 53.4,
-      "hourly_d": 63.1,
+      "hourly_k": 92.6,
+      "hourly_d": 87.8,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -1.7399,
-        "signal": -2.1493,
-        "histogram": 0.4094,
+        "macd": -1.4321,
+        "signal": -2.0788,
+        "histogram": 0.6467,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 0.2458,
-        "signal": 1.7667,
-        "histogram": -1.5209,
+        "macd": 0.5465,
+        "signal": 1.8269,
+        "histogram": -1.2803,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.35,
-        "signal": 0.2251,
-        "histogram": 0.1249,
+        "macd": 1.1066,
+        "signal": 0.7591,
+        "histogram": 0.3475,
         "bullish": true
       },
       "daily_rsi": {
-        "rsi": 46.2,
+        "rsi": 51.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 48.1,
+        "rsi": 50.5,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 45.1,
+        "rsi": 69.7,
         "overbought": false,
         "oversold": false
       }
     },
     "PLTU": {
-      "pe": 72.5926,
+      "pe": 67.0104,
       "fpe": null,
       "peg": null,
       "ps": null,
@@ -9273,7 +9541,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 30.485
+          "close": 28.15
         },
         {
           "date": "2026-07-21",
@@ -9300,58 +9568,58 @@
           "close": 32.65
         }
       ],
-      "daily_k": 61.9,
-      "daily_d": 65.7,
+      "daily_k": 50.3,
+      "daily_d": 61.9,
       "daily_cross": "death",
-      "weekly_k": 28.8,
-      "weekly_d": 26.3,
+      "weekly_k": 26.2,
+      "weekly_d": 25.5,
       "weekly_cross": "none",
-      "hourly_k": 22.4,
-      "hourly_d": 36.1,
+      "hourly_k": 9.6,
+      "hourly_d": 12.1,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.1377,
-        "signal": -0.5856,
-        "histogram": 0.4479,
+        "macd": -0.2674,
+        "signal": -0.5401,
+        "histogram": 0.2727,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -6.5828,
-        "signal": -6.7093,
-        "histogram": 0.1265,
-        "bullish": true
+        "macd": -6.7691,
+        "signal": -6.7466,
+        "histogram": -0.0225,
+        "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.1352,
-        "signal": 0.0991,
-        "histogram": -0.2343,
+        "macd": -1.1218,
+        "signal": -0.6523,
+        "histogram": -0.4695,
         "bullish": false
       },
       "daily_rsi": {
-        "rsi": 46.6,
+        "rsi": 42.1,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 42.4,
+        "rsi": 41.1,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 33.9,
+        "rsi": 26.8,
         "overbought": false,
-        "oversold": false
+        "oversold": true
       }
     },
     "NOK": {
-      "pe": 64.7188,
-      "fpe": 21.0485,
-      "peg": 0.984,
+      "pe": 64.25,
+      "fpe": 20.896,
+      "peg": 1.0376,
       "ps": null,
-      "pb": 2.3959,
+      "pb": 2.3733,
       "rev_yoy": 0.024,
-      "rev_fwd": 0.0588,
-      "hist_avg_pe": 286.45,
+      "rev_fwd": 0.060300004,
+      "hist_avg_pe": 286.35,
       "eps_ttm": 0.16,
       "eps_cur_q": 0.06821,
       "eps_next_q2": 0.09159,
@@ -9513,12 +9781,12 @@
           "surprise_pct": 0.0702
         }
       ],
-      "prev_close": 10.65,
+      "prev_close": 10.63,
       "prev_prev_close": 10.63,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 10.355
+          "close": 10.28
         },
         {
           "date": "2026-07-21",
@@ -9545,45 +9813,45 @@
           "close": 11.7
         }
       ],
-      "daily_k": 16.7,
-      "daily_d": 16.3,
-      "daily_cross": "golden",
-      "weekly_k": 16.7,
-      "weekly_d": 32.4,
+      "daily_k": 15.8,
+      "daily_d": 16.0,
+      "daily_cross": "none",
+      "weekly_k": 16.4,
+      "weekly_d": 32.3,
       "weekly_cross": "none",
-      "hourly_k": 67.6,
-      "hourly_d": 73.7,
-      "hourly_cross": "death",
+      "hourly_k": 34.1,
+      "hourly_d": 43.6,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.9113,
-        "signal": -0.7402,
-        "histogram": -0.171,
+        "macd": -0.9212,
+        "signal": -0.7472,
+        "histogram": -0.174,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 1.0671,
-        "signal": 1.5775,
-        "histogram": -0.5104,
+        "macd": 1.0611,
+        "signal": 1.5763,
+        "histogram": -0.5152,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.0645,
-        "signal": 0.0371,
-        "histogram": 0.0274,
-        "bullish": true
+        "macd": 0.0093,
+        "signal": 0.0295,
+        "histogram": -0.0202,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 35.6,
+        "rsi": 35.2,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 47.6,
+        "rsi": 47.2,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 45.0,
+        "rsi": 42.4,
         "overbought": false,
         "oversold": false
       }
@@ -9618,7 +9886,7 @@
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 37.545
+          "close": 37.48
         },
         {
           "date": "2026-07-21",
@@ -9645,45 +9913,45 @@
           "close": 48.8
         }
       ],
-      "daily_k": 13.5,
+      "daily_k": 13.4,
       "daily_d": 13.5,
       "daily_cross": "none",
-      "weekly_k": 11.7,
+      "weekly_k": 11.6,
       "weekly_d": 25.2,
       "weekly_cross": "none",
-      "hourly_k": 66.6,
-      "hourly_d": 73.9,
-      "hourly_cross": "death",
+      "hourly_k": 33.4,
+      "hourly_d": 42.5,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -9.7205,
-        "signal": -8.5641,
-        "histogram": -1.1564,
+        "macd": -9.7652,
+        "signal": -8.623,
+        "histogram": -1.1422,
         "bullish": false
       },
       "weekly_macd": {
-        "macd": 4.6937,
-        "signal": 9.7912,
-        "histogram": -5.0975,
+        "macd": 4.6885,
+        "signal": 9.7902,
+        "histogram": -5.1016,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": 0.4195,
-        "signal": 0.2419,
-        "histogram": 0.1776,
-        "bullish": true
+        "macd": 0.0289,
+        "signal": 0.1731,
+        "histogram": -0.1442,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 35.1,
+        "rsi": 35.0,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 44.4,
+        "rsi": 44.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 43.7,
+        "rsi": 43.1,
         "overbought": false,
         "oversold": false
       }
@@ -9713,12 +9981,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 29.375,
+      "prev_close": 29.38,
       "prev_prev_close": 29.38,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 29.03
+          "close": 29.14
         },
         {
           "date": "2026-07-21",
@@ -9745,45 +10013,45 @@
           "close": 28.55
         }
       ],
-      "daily_k": 79.7,
-      "daily_d": 78.6,
+      "daily_k": 81.3,
+      "daily_d": 79.2,
       "daily_cross": "none",
-      "weekly_k": 29.0,
-      "weekly_d": 27.7,
+      "weekly_k": 29.4,
+      "weekly_d": 27.8,
       "weekly_cross": "golden",
-      "hourly_k": 60.0,
-      "hourly_d": 70.6,
+      "hourly_k": 36.1,
+      "hourly_d": 41.0,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.0622,
-        "signal": -0.4015,
-        "histogram": 0.3393,
+        "macd": -0.0492,
+        "signal": -0.3936,
+        "histogram": 0.3444,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -2.4853,
-        "signal": -2.5912,
-        "histogram": 0.106,
+        "macd": -2.4765,
+        "signal": -2.5895,
+        "histogram": 0.113,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.2123,
-        "signal": 0.1866,
-        "histogram": 0.0258,
-        "bullish": true
+        "macd": 0.137,
+        "signal": 0.1675,
+        "histogram": -0.0305,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 53.5,
+        "rsi": 54.5,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 41.1,
+        "rsi": 41.4,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 51.5,
+        "rsi": 53.7,
         "overbought": false,
         "oversold": false
       }
@@ -9813,12 +10081,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 18.32,
+      "prev_close": 18.33,
       "prev_prev_close": 18.33,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 18.35
+          "close": 18.33
         },
         {
           "date": "2026-07-21",
@@ -9845,35 +10113,35 @@
           "close": 17.88
         }
       ],
-      "daily_k": 84.9,
-      "daily_d": 81.4,
+      "daily_k": 82.5,
+      "daily_d": 80.6,
       "daily_cross": "none",
-      "weekly_k": 43.3,
+      "weekly_k": 43.1,
       "weekly_d": 31.4,
       "weekly_cross": "none",
-      "hourly_k": 66.4,
-      "hourly_d": 69.6,
+      "hourly_k": 40.1,
+      "hourly_d": 51.9,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 0.2758,
-        "signal": -0.024,
-        "histogram": 0.2997,
+        "macd": 0.2809,
+        "signal": -0.0144,
+        "histogram": 0.2953,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -2.2455,
-        "signal": -2.5177,
-        "histogram": 0.2722,
+        "macd": -2.2471,
+        "signal": -2.518,
+        "histogram": 0.2709,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 0.1406,
-        "signal": 0.1078,
-        "histogram": 0.0328,
-        "bullish": true
+        "macd": 0.135,
+        "signal": 0.1387,
+        "histogram": -0.0038,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 59.3,
+        "rsi": 59.4,
         "overbought": false,
         "oversold": false
       },
@@ -9883,13 +10151,54 @@
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 59.7,
+        "rsi": 54.4,
         "overbought": false,
         "oversold": false
       }
     },
     "ADA": {
-      "error": "Failed to perform, curl: (28) Operation timed out after 30002 milliseconds with 0 bytes received. See https://curl.se/libcurl/c/libcurl-errors.html first for more details."
+      "pe": null,
+      "fpe": null,
+      "peg": null,
+      "ps": null,
+      "pb": null,
+      "rev_yoy": null,
+      "rev_fwd": null,
+      "hist_avg_pe": null,
+      "eps_ttm": null,
+      "eps_cur_q": null,
+      "eps_next_q2": null,
+      "eps_cur_y": null,
+      "eps_next_y": null,
+      "gross_margin": null,
+      "operating_margin": null,
+      "next_earnings_date": null,
+      "earnings_proxy_symbol": null,
+      "no_earnings": false,
+      "target_mean_price": null,
+      "target_low_price": null,
+      "target_high_price": null,
+      "target_median_price": null,
+      "number_of_analysts": null,
+      "earnings_history": [],
+      "prev_close": null,
+      "prev_prev_close": null,
+      "recent_closes": [],
+      "daily_k": null,
+      "daily_d": null,
+      "daily_cross": null,
+      "weekly_k": null,
+      "weekly_d": null,
+      "weekly_cross": null,
+      "hourly_k": null,
+      "hourly_d": null,
+      "hourly_cross": null,
+      "daily_macd": null,
+      "weekly_macd": null,
+      "hourly_macd": null,
+      "daily_rsi": null,
+      "weekly_rsi": null,
+      "hourly_rsi": null
     },
     "BNB": {
       "pe": null,
@@ -9937,13 +10246,13 @@
     },
     "SUI": {
       "pe": null,
-      "fpe": 43.2619,
+      "fpe": 43.4106,
       "peg": null,
-      "ps": 6.5289,
-      "pb": 2.1764,
+      "ps": 6.5409,
+      "pb": 2.1839,
       "rev_yoy": 0.086,
       "rev_fwd": -0.0377,
-      "hist_avg_pe": 11.39,
+      "hist_avg_pe": 11.4,
       "eps_ttm": -0.49,
       "eps_cur_q": 0.47775,
       "eps_next_q2": 1.1874,
@@ -9954,18 +10263,163 @@
       "next_earnings_date": "2026-07-27",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 140.4211,
+      "target_mean_price": 140.3158,
       "target_low_price": 130.0,
       "target_high_price": 155.0,
       "target_median_price": 140.0,
       "number_of_analysts": 19,
-      "earnings_history": [],
-      "prev_close": 119.012,
+      "earnings_history": [
+        {
+          "quarter": "2020 Q2",
+          "eps_estimate": 0.2,
+          "eps_actual": 0.39,
+          "surprise_pct": 1.0052
+        },
+        {
+          "quarter": "2020 Q3",
+          "eps_estimate": 0.23,
+          "eps_actual": 0.27,
+          "surprise_pct": 0.1613
+        },
+        {
+          "quarter": "2020 Q4",
+          "eps_estimate": 0.58,
+          "eps_actual": 0.74,
+          "surprise_pct": 0.2803
+        },
+        {
+          "quarter": "2021 Q2",
+          "eps_estimate": 0.18,
+          "eps_actual": 0.23,
+          "surprise_pct": 0.2778
+        },
+        {
+          "quarter": "2021 Q3",
+          "eps_estimate": 0.58,
+          "eps_actual": 0.82,
+          "surprise_pct": 0.4114
+        },
+        {
+          "quarter": "2021 Q4",
+          "eps_estimate": 0.97,
+          "eps_actual": 2.02,
+          "surprise_pct": 1.082
+        },
+        {
+          "quarter": "2022 Q1",
+          "eps_estimate": 0.75,
+          "eps_actual": 0.2,
+          "surprise_pct": -0.7305
+        },
+        {
+          "quarter": "2022 Q2",
+          "eps_estimate": -0.01,
+          "eps_actual": 0.25,
+          "surprise_pct": 41.2067
+        },
+        {
+          "quarter": "2022 Q3",
+          "eps_estimate": 0.74,
+          "eps_actual": 1.05,
+          "surprise_pct": 0.4033
+        },
+        {
+          "quarter": "2022 Q4",
+          "eps_estimate": 1.42,
+          "eps_actual": 1.52,
+          "surprise_pct": 0.0685
+        },
+        {
+          "quarter": "2023 Q1",
+          "eps_estimate": 0.04,
+          "eps_actual": 0.18,
+          "surprise_pct": 3.3083
+        },
+        {
+          "quarter": "2023 Q2",
+          "eps_estimate": -0.08,
+          "eps_actual": -0.1,
+          "surprise_pct": -0.2004
+        },
+        {
+          "quarter": "2023 Q3",
+          "eps_estimate": 0.82,
+          "eps_actual": 0.78,
+          "surprise_pct": -0.0508
+        },
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 1.18,
+          "eps_actual": 1.49,
+          "surprise_pct": 0.2611
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": -0.08,
+          "eps_actual": 0.09,
+          "surprise_pct": 2.1057
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": -0.2,
+          "eps_actual": -0.22,
+          "surprise_pct": -0.0951
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 0.65,
+          "eps_actual": 0.59,
+          "surprise_pct": -0.0907
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 1.26,
+          "eps_actual": 0.94,
+          "surprise_pct": -0.2556
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 0.05,
+          "eps_actual": -0.15,
+          "surprise_pct": -4.2971
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": 0.08,
+          "eps_actual": 0.02,
+          "surprise_pct": -0.7428
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": 0.67,
+          "eps_actual": 0.82,
+          "surprise_pct": 0.2168
+        },
+        {
+          "quarter": "2025 Q4",
+          "eps_estimate": 1.15,
+          "eps_actual": 1.74,
+          "surprise_pct": 0.5172
+        },
+        {
+          "quarter": "2026 Q1",
+          "eps_estimate": 0.42,
+          "eps_actual": 1.12,
+          "surprise_pct": 1.6835
+        },
+        {
+          "quarter": "2026 Q2",
+          "eps_estimate": 0.23,
+          "eps_actual": 0.17,
+          "surprise_pct": -0.2585
+        }
+      ],
+      "prev_close": 119.04,
       "prev_prev_close": 119.04,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 119.25
+          "close": 119.66
         },
         {
           "date": "2026-07-21",
@@ -9992,51 +10446,225 @@
           "close": 119.78
         }
       ],
-      "daily_k": 30.2,
-      "daily_d": 34.3,
+      "daily_k": 32.7,
+      "daily_d": 35.1,
       "daily_cross": "none",
-      "weekly_k": 34.6,
-      "weekly_d": 36.3,
+      "weekly_k": 35.9,
+      "weekly_d": 36.8,
       "weekly_cross": "death",
-      "hourly_k": 17.8,
-      "hourly_d": 17.1,
-      "hourly_cross": "golden",
+      "hourly_k": 55.7,
+      "hourly_d": 47.1,
+      "hourly_cross": "none",
       "daily_macd": {
-        "macd": -0.4734,
-        "signal": -0.4947,
-        "histogram": 0.0213,
+        "macd": -0.4553,
+        "signal": -0.5096,
+        "histogram": 0.0542,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": -1.3906,
-        "signal": -0.7267,
-        "histogram": -0.6639,
+        "macd": -1.3579,
+        "signal": -0.7202,
+        "histogram": -0.6377,
         "bullish": false
       },
       "hourly_macd": {
-        "macd": -0.4295,
-        "signal": -0.3035,
-        "histogram": -0.126,
-        "bullish": false
+        "macd": -0.3094,
+        "signal": -0.3421,
+        "histogram": 0.0327,
+        "bullish": true
       },
       "daily_rsi": {
-        "rsi": 46.0,
+        "rsi": 47.0,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": {
-        "rsi": 44.9,
+        "rsi": 45.3,
         "overbought": false,
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 41.2,
+        "rsi": 48.5,
         "overbought": false,
         "oversold": false
       }
     },
     "SOL": {
-      "error": "Failed to perform, curl: (28) Operation timed out after 30002 milliseconds with 0 bytes received. See https://curl.se/libcurl/c/libcurl-errors.html first for more details."
+      "pe": null,
+      "fpe": null,
+      "peg": null,
+      "ps": null,
+      "pb": null,
+      "rev_yoy": null,
+      "rev_fwd": null,
+      "hist_avg_pe": null,
+      "eps_ttm": null,
+      "eps_cur_q": null,
+      "eps_next_q2": null,
+      "eps_cur_y": null,
+      "eps_next_y": null,
+      "gross_margin": null,
+      "operating_margin": null,
+      "next_earnings_date": null,
+      "earnings_proxy_symbol": null,
+      "no_earnings": false,
+      "target_mean_price": null,
+      "target_low_price": null,
+      "target_high_price": null,
+      "target_median_price": null,
+      "number_of_analysts": null,
+      "earnings_history": [
+        {
+          "quarter": "2019 Q4",
+          "eps_estimate": 0.05,
+          "eps_actual": 0.06,
+          "surprise_pct": 0.2
+        },
+        {
+          "quarter": "2020 Q1",
+          "eps_estimate": 0.02,
+          "eps_actual": 0.09,
+          "surprise_pct": 3.429
+        },
+        {
+          "quarter": "2020 Q2",
+          "eps_estimate": -0.03,
+          "eps_actual": -0.04,
+          "surprise_pct": -0.3333
+        },
+        {
+          "quarter": "2020 Q3",
+          "eps_estimate": null,
+          "eps_actual": 0.08,
+          "surprise_pct": null
+        },
+        {
+          "quarter": "2020 Q4",
+          "eps_estimate": 0.01,
+          "eps_actual": 0.05,
+          "surprise_pct": 9.0
+        },
+        {
+          "quarter": "2021 Q2",
+          "eps_estimate": -0.02,
+          "eps_actual": 0.05,
+          "surprise_pct": 3.5
+        },
+        {
+          "quarter": "2021 Q3",
+          "eps_estimate": 0.05,
+          "eps_actual": 0.11,
+          "surprise_pct": 1.2
+        },
+        {
+          "quarter": "2021 Q4",
+          "eps_estimate": 0.05,
+          "eps_actual": 0.02,
+          "surprise_pct": -0.6
+        },
+        {
+          "quarter": "2022 Q1",
+          "eps_estimate": 0.06,
+          "eps_actual": 0.04,
+          "surprise_pct": -0.36
+        },
+        {
+          "quarter": "2022 Q2",
+          "eps_estimate": -0.06,
+          "eps_actual": -0.02,
+          "surprise_pct": 0.6471
+        },
+        {
+          "quarter": "2022 Q3",
+          "eps_estimate": 0.02,
+          "eps_actual": -0.01,
+          "surprise_pct": -1.5999
+        },
+        {
+          "quarter": "2022 Q4",
+          "eps_estimate": 0.01,
+          "eps_actual": 0.05,
+          "surprise_pct": 5.6667
+        },
+        {
+          "quarter": "2023 Q1",
+          "eps_estimate": 0.08,
+          "eps_actual": 0.05,
+          "surprise_pct": -0.2925
+        },
+        {
+          "quarter": "2023 Q3",
+          "eps_estimate": 0.1,
+          "eps_actual": 0.14,
+          "surprise_pct": 0.3549
+        },
+        {
+          "quarter": "2023 Q4",
+          "eps_estimate": 0.07,
+          "eps_actual": -0.17,
+          "surprise_pct": -3.4286
+        },
+        {
+          "quarter": "2024 Q1",
+          "eps_estimate": null,
+          "eps_actual": -0.15,
+          "surprise_pct": -59.0
+        },
+        {
+          "quarter": "2024 Q2",
+          "eps_estimate": null,
+          "eps_actual": -0.02,
+          "surprise_pct": null
+        },
+        {
+          "quarter": "2024 Q3",
+          "eps_estimate": 0.07,
+          "eps_actual": 0.01,
+          "surprise_pct": -0.8571
+        },
+        {
+          "quarter": "2024 Q4",
+          "eps_estimate": 0.09,
+          "eps_actual": 0.09,
+          "surprise_pct": 0.0384
+        },
+        {
+          "quarter": "2025 Q1",
+          "eps_estimate": 0.08,
+          "eps_actual": -0.23,
+          "surprise_pct": -3.875
+        },
+        {
+          "quarter": "2025 Q2",
+          "eps_estimate": -0.03,
+          "eps_actual": 0.03,
+          "surprise_pct": 2.0
+        },
+        {
+          "quarter": "2025 Q3",
+          "eps_estimate": null,
+          "eps_actual": 0.56,
+          "surprise_pct": 113.12
+        }
+      ],
+      "prev_close": null,
+      "prev_prev_close": null,
+      "recent_closes": [],
+      "daily_k": null,
+      "daily_d": null,
+      "daily_cross": null,
+      "weekly_k": null,
+      "weekly_d": null,
+      "weekly_cross": null,
+      "hourly_k": null,
+      "hourly_d": null,
+      "hourly_cross": null,
+      "daily_macd": null,
+      "weekly_macd": null,
+      "hourly_macd": null,
+      "daily_rsi": null,
+      "weekly_rsi": null,
+      "hourly_rsi": null
     },
     "RAM": {
       "pe": null,
@@ -10063,12 +10691,12 @@
       "target_median_price": null,
       "number_of_analysts": null,
       "earnings_history": [],
-      "prev_close": 15.0,
+      "prev_close": 15.02,
       "prev_prev_close": 15.02,
       "recent_closes": [
         {
           "date": "2026-07-22",
-          "close": 13.78
+          "close": 14.42
         },
         {
           "date": "2026-07-21",
@@ -10095,31 +10723,31 @@
           "close": 16.72
         }
       ],
-      "daily_k": 33.5,
-      "daily_d": 25.5,
+      "daily_k": 36.2,
+      "daily_d": 26.4,
       "daily_cross": "none",
       "weekly_k": null,
       "weekly_d": null,
       "weekly_cross": null,
-      "hourly_k": 76.1,
-      "hourly_d": 80.7,
-      "hourly_cross": "death",
+      "hourly_k": 64.5,
+      "hourly_d": 70.8,
+      "hourly_cross": "none",
       "daily_macd": null,
       "weekly_macd": null,
       "hourly_macd": {
-        "macd": 0.549,
-        "signal": 0.4247,
-        "histogram": 0.1243,
-        "bullish": true
+        "macd": 0.4808,
+        "signal": 0.5171,
+        "histogram": -0.0363,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 38.5,
+        "rsi": 39.4,
         "overbought": false,
         "oversold": false
       },
       "weekly_rsi": null,
       "hourly_rsi": {
-        "rsi": 51.6,
+        "rsi": 56.2,
         "overbought": false,
         "oversold": false
       }
