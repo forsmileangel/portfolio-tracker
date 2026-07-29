@@ -1,6 +1,6 @@
 /* Portfolio Tracker – Service Worker
-   v3：移除所有快取與 fetch 攔截，只保留 PWA 資格 */
-const CACHE_NAME = 'portfolio-tracker-v3';
+   v4：維持 no-op，revision bump 讓舊 PWA 主動重載 v15.945 */
+const CACHE_NAME = 'portfolio-tracker-v4';
 
 // 安裝：直接接管，不預快取任何東西
 self.addEventListener('install', event => {
