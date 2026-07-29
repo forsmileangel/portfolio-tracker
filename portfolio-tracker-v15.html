@@ -82,6 +82,7 @@
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
         v15.944 - 跨日今日損益基準修正 + close pair 容量治理：(1) 根因：v15.938 的臨時休市自動偵測會把「Yahoo 暫時缺日 K」的日期永久寫入 pt_adhoc_closures_v1，該裝置的 _previousTradingDate 從此跳過該交易日（例：跳過週二回傳週一），且既有週一 pair 存在時 refresh 直接 skip 不再查 Yahoo、無法自癒 → 今日損益變成「今日現價 − 週一收盤」＝兩日合計。修法：休市紀錄分 provisional / confirmed，provisional 只在偵測當日有效（舊資料無 status 一律視為 provisional，不新增 migration key）；跨日後該日恢復為交易日並重新驗證 —— 出現有效 exact-date bar 即刪除誤判、仍達 quorum 且 target 前後都有 bar 才升級 confirmed；heal 改用 entry 判定（過期 provisional 殘骸一併清除）；_refreshClosePairForActiveHoldings 改多趟（最多 2 趟），日曆一被驗證改變就以修正後 target 重新產生 jobs，不等下一個 60s timer。新增 _marketLocalDate 純時區換算避免 _isTradingDay → _isAdhocClosure → _marketSession 遞迴。(2) 收緊今日損益 basis 契約：盤中只接受「前一交易日 exact final pair」的 close，移除 _todayPair.prevClose 替代路徑（日曆誤判時會退回更早交易日硬算）；缺基準改顯示「基準資料校驗中」，絕不以更早日期充數；closed_retained 維持用 targetDate final pair，總市值/總損益/成本/08:00 換日/分割調整公式不變。(3) close pair 保留最近 30 個日期（_CLOSE_PAIR_KEEP_DATES / _pruneClosePairDates），套用於全部五個入口：_saveClosePair、_mergeClosePairCache、_validateClosePairSystemPayload、_buildClosePairSystemPayload、_mergeClosePairSystemPayloadForPush（最後一處不可漏，否則遠端舊日期不會真正縮小）—— 實測 Gist payload 372KB 中 close pair 佔 291KB（23 檔/801 筆/53 日期），原本只寫不刪約 5.5 個月後撞 GitHub Gist API 1MB 截斷 → 退回 CDN 快取的 raw_url → 重演 v15.051「pull 到舊值覆蓋本地」；修剪後容量停止成長。不改 schema / device rank / final 驗證 / userDataHash / pending / master flag。(4) 使用者文字安全顯示：持倉 symbol·name、存款名稱·銀行、貸款銀行·名稱、已實現備註全部經 _escapeHtml；持倉交易按鈕改 data-symbol/data-market + dataset 讀取，不再把 symbol 插進 inline JS 字串（同 v15.937 ✕ 鈕引號破格的根因）。(5) 儲存容量可觀測性：新增 _handleStorageWriteError（辨識 QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22·1014，session 內只提示一次，錯誤日誌 best-effort 不可依賴），套用於 saveToStorage / _saveClosePair / _saveDailyPnlSnapshots（原註解自承「超出容量時靜默失敗」）；啟動 10 秒後逐 key 概算用量，>4MiB 才提示，純唯讀不標 dirty、不觸發 push。
+        v15.944 review follow-up - 跨日重新驗證證據不足時保留 provisional 過期狀態，不再把 detectedOnMarketDate 刷成今天；今日損益任一採計市場資料不完整時顯示「資料不足」而非部分合計；既有 close pair 首次載入即修剪至 30 日；loans / corporate actions / deposits / watchlist / trade history / snapshots / crypto 等主要 user-data 儲存路徑全部接上相同 quota 警告。版本號、Gist schema、hash、pending 與同步流程不變。
         v15.943 - 沉穩石墨 UI 改版：全站改為石墨深灰＋低彩度灰綠色票；移除背景科技網格、漂浮光球、玻璃模糊、藍色 glow、標題 shimmer 與高彩度漸層；統一卡片、按鈕、輸入框、Tab、表格、modal、toast、持倉列與觀察清單 Pro 的表面層級，正負損益改用柔和語意色，圓餅圖與原生圖表改低彩度配色；補強交易模式選中狀態，買入使用灰綠實色、賣出使用柔和紅色與清楚邊框；依實機回饋將全站石墨表面、邊框、次要文字與語意色亮度再提高一階。不改版面、DOM id、渲染流程、損益、報價、Gist、FSA、Storage Key 或 PWA 啟動邏輯。
         v15.942 - 港股報價延遲標示：今日損益卡於港股**盤中**在卡片底部加獨立註腳行「港股報價延遲約20分」（初版做在港股列行內小字，會擠壓市場列 flex 兩端排版，同版修正為註腳行）。背景：使用者反映港股抓不到即時 → 2026-07-13 開盤實測，GOOGLEFINANCE（CSV 報價源）對 7709/9747 開盤 14 分鐘仍顯示前日收盤（0.00%），Yahoo 免費港股亦延遲 15-21 分（09:44 只看得到 09:20 競價價）—— 免費世界無港股即時源（HKEX 即時需授權費），冷門槓桿 ETF 與 USD 櫃檯（9747）更慢。此為誠實標示非修復：來源不變，收盤後凍結值不標（非延遲問題）。使用者選最小方案（選項 2）；備選的港股改 Yahoo 直抓（帶真實報價時間戳，開盤窗較新）暫不做。
         v15.941 - 分割自動套用補反向護欄（使用者提問「會影響成本計算嗎」觸發的補強）：成本守恆機制確認完備 —— preview 硬檢查（|分割後總成本−分割前| ≤ max(0.05, 1e-6×基數)，auto 不繞過）、FIFO 逐批 qty×ratio / cost÷ratio 每批總成本不變（未來賣出成本歸屬一致）、均價從總成本反推非直接除、生效日後有賣出硬擋/有新批次 auto 降級。但**反向分割（ratio < 1）存在工具算不出的現實偏差**：畸零股現金返還（10÷8=1.25 股，券商實給 1 股+折現）、台股現金減資（Yahoo 同樣標為 reverse split 但有退還股款，總成本不該守恆）→ v15.941 起反向分割即使官方核對成功也**不自動套用**，降級為「官方已核對，請人工確認」通知（面板徽章保留）；正向分割（1→N）維持全自動。
@@ -1921,6 +1922,12 @@
                 // 升級 confirmed 的條件：跨日重新驗證 + 仍達 quorum + target 前後都有有效 bar（休市日才會前後夾空）
                 const isReverify = !!(existing && existing.detectedOnMarketDate && existing.detectedOnMarketDate !== marketDate);
                 const canConfirm = isReverify && !!(opts && opts.hasLaterBar);
+                // v15.944 review follow-up：跨日仍缺 target、但沒有 target 之後的 bar 時，只代表證據不足。
+                // 不可把 detectedOnMarketDate 刷成今天，否則過期 provisional 會重新生效並再次跳過前一交易日。
+                if (isReverify && !canConfirm) {
+                    delete _adhocEvidence[key];
+                    return;
+                }
                 const data = _loadAdhocClosures();
                 if (!data[market]) data[market] = {};
                 data[market][dateStr] = {
@@ -2492,8 +2499,17 @@
                         };
                     }
                 }
-                _closePairMemo = normalized;
-                return normalized;
+                const beforePrune = JSON.stringify(normalized);
+                const pruned = _pruneClosePairDates(normalized);
+                const afterPrune = JSON.stringify(pruned);
+                _closePairMemo = pruned;
+                // v15.944 review follow-up：升版後首次載入就清掉既有超窗資料，不必等下一筆 close pair 寫入。
+                if (afterPrune !== beforePrune) {
+                    try {
+                        localStorage.setItem(STORAGE_KEYS.closePairCache, afterPrune);
+                    } catch (e) { _handleStorageWriteError('closePairCachePrune', e); }
+                }
+                return pruned;
             } catch { return { version: 3, symbols: {} }; }
         }
         function _saveClosePair(data) {
@@ -3777,13 +3793,18 @@
             // （已收盤凍結，只接受 final close pair）；收盤後凍結值保留在今日損益，至隔日 08:00 才整批切入前次收盤損益。
             // 'not_open' / 'closed_or_holiday' 排除。（v15.924 修正註解：原 v15.082「只算 open」描述已被 v15.907 設計取代）
             const _eligibleTodayStatus = (s) => s === 'open' || s === 'closed_retained';
+            const _eligibleTodayMarkets = _MARKETS.filter(mk =>
+                _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].count > 0);
             const todayPnlTotal = {
                 pnlUSD: _MARKETS.reduce((s, mk) =>
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlUSD || 0) : s, 0),
                 pnlTWD: _MARKETS.reduce((s, mk) =>
                     _eligibleTodayStatus(todayPnlByMarket[mk].status) ? s + (todayPnlByMarket[mk].pnlTWD || 0) : s, 0),
                 hasAnyData: _MARKETS.some(mk =>
-                    _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0)
+                    _eligibleTodayStatus(todayPnlByMarket[mk].status) && todayPnlByMarket[mk].withData > 0),
+                complete: _eligibleTodayMarkets.length > 0
+                       && _eligibleTodayMarkets.every(mk =>
+                           todayPnlByMarket[mk].withData === todayPnlByMarket[mk].count)
             };
 
             // v15.902：前次收盤損益單一來源 = pt_close_pair_v1（Yahoo chart 5d 抓的 close pair）
@@ -4196,9 +4217,10 @@
                 const _idleStr = _activeStatuses.length === 0 ? '—'
                                : _activeStatuses.every(s => s === 'closed_or_holiday') ? '休市'
                                : '今日未開盤';
-                const totCol = tot.hasAnyData ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
-                const totStr = tot.hasAnyData ? fmtPnl(totVal, currency) : (_anyEligibleMk ? '資料讀取中' : _idleStr);
-                const totSubStr = tot.hasAnyData
+                const totCol = tot.complete ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                const totStr = tot.complete ? fmtPnl(totVal, currency)
+                             : (_anyEligibleMk ? (tot.hasAnyData ? '資料不足' : '資料讀取中') : _idleStr);
+                const totSubStr = tot.complete
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
                 // v15.070 (P3)：未開盤 / 休市時不顯示金額，避免「美股 今日未開盤 +$xxx」自相矛盾
@@ -4216,6 +4238,8 @@
                     } else if (m.withData === 0) {
                         // v15.944：盤中無基準 = 前一交易日 final pair 尚未就緒／臨時休市判定驗證中（非單純載入慢）
                         valStr = m.status === 'open' ? '基準資料校驗中' : '資料讀取中'; col = '#607585';
+                    } else if (m.withData < m.count) {
+                        valStr = `資料不足 (${m.withData}/${m.count})`; col = '#fbbf24';
                     } else {
                         // v15.924：closed_retained（收盤後凍結保留，至隔日 08:00 換日）加「已收盤」小標，與盤中浮動值區分
                         // （v15.907 後 status 不會再是 'closed'，原「已收盤，見前次收盤」分支為死碼，已移除）
@@ -4233,8 +4257,8 @@
                         + '</div>';
                 };
                 // v15.076：headline / sub 也要 pv()，但只在 hasAnyData（真有金額）才遮，狀態文字不遮
-                const totStrFinal = tot.hasAnyData ? pv(totStr) : totStr;
-                const totSubFinal = tot.hasAnyData && totSubStr ? pv(totSubStr) : totSubStr;
+                const totStrFinal = tot.complete ? pv(totStr) : totStr;
+                const totSubFinal = tot.complete && totSubStr ? pv(totSubStr) : totSubStr;
                 return '<div class="stat-card" style="border:1px solid rgba(56,139,253,0.25);">'
                     + '<div class="stat-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">'
                     +   '<div style="display:flex;align-items:center;gap:0.6rem;">'
@@ -4883,7 +4907,7 @@
             try {
                 loans = _normalizeLoans(loans);
                 localStorage.setItem(PT_LOANS_KEY, JSON.stringify(loans));
-            } catch(_) {}
+            } catch(e) { _handleStorageWriteError('loans', e); }
         }
         function loadLoans() {
             try { loans = _normalizeLoans(JSON.parse(localStorage.getItem(PT_LOANS_KEY)) || []); } catch(_) { loans = []; }
@@ -4926,7 +4950,7 @@
             try {
                 corporateActions = _normalizeCorporateActions(corporateActions);
                 localStorage.setItem(PT_CORPORATE_ACTIONS_KEY, JSON.stringify(corporateActions));
-            } catch(_) {}
+            } catch(e) { _handleStorageWriteError('corporateActions', e); }
         }
         function loadCorporateActions() {
             try { corporateActions = _normalizeCorporateActions(JSON.parse(localStorage.getItem(PT_CORPORATE_ACTIONS_KEY)) || []); }
@@ -4966,7 +4990,7 @@
             try {
                 corporateActionPlans = _normalizeCorporateActionPlans(corporateActionPlans);
                 localStorage.setItem(PT_CORPORATE_ACTION_PLANS_KEY, JSON.stringify(corporateActionPlans));
-            } catch(_) {}
+            } catch(e) { _handleStorageWriteError('corporateActionPlans', e); }
         }
         function loadCorporateActionPlans() {
             try { corporateActionPlans = _normalizeCorporateActionPlans(JSON.parse(localStorage.getItem(PT_CORPORATE_ACTION_PLANS_KEY)) || []); }
@@ -5005,11 +5029,13 @@
         }
 
         function saveCrypto() {
-            const v = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
-            if (v > 0) localStorage.setItem(PT_CRYPTO_KEY, v);
-            else localStorage.removeItem(PT_CRYPTO_KEY);
-            const cb = document.getElementById('crypto-pie-cb');
-            if (cb) localStorage.setItem(PT_CRYPTO_PIE_KEY, cb.checked ? '1' : '0');
+            try {
+                const v = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+                if (v > 0) localStorage.setItem(PT_CRYPTO_KEY, v);
+                else localStorage.removeItem(PT_CRYPTO_KEY);
+                const cb = document.getElementById('crypto-pie-cb');
+                if (cb) localStorage.setItem(PT_CRYPTO_PIE_KEY, cb.checked ? '1' : '0');
+            } catch(e) { _handleStorageWriteError('crypto', e); }
             _updateCryptoHint();
         }
         function loadCrypto() {
@@ -5021,11 +5047,13 @@
         }
 
         function saveMoxa() {
-            const v = parseFloat(document.getElementById('moxa-twd-input')?.value) || 0;
-            if (v > 0) localStorage.setItem(PT_MOXA_KEY, v);
-            else localStorage.removeItem(PT_MOXA_KEY);
-            const cb = document.getElementById('moxa-pie-cb');
-            if (cb) localStorage.setItem(PT_MOXA_PIE_KEY, cb.checked ? '1' : '0');
+            try {
+                const v = parseFloat(document.getElementById('moxa-twd-input')?.value) || 0;
+                if (v > 0) localStorage.setItem(PT_MOXA_KEY, v);
+                else localStorage.removeItem(PT_MOXA_KEY);
+                const cb = document.getElementById('moxa-pie-cb');
+                if (cb) localStorage.setItem(PT_MOXA_PIE_KEY, cb.checked ? '1' : '0');
+            } catch(e) { _handleStorageWriteError('moxa', e); }
         }
         function loadMoxa() {
             const v = parseFloat(localStorage.getItem(PT_MOXA_KEY)) || 0;
@@ -5037,8 +5065,10 @@
 
         function saveCash() {
             // 現金金額由存款頁籤自動計算，只需儲存圓餅圖勾選狀態
-            const cb = document.getElementById('cash-pie-cb');
-            if (cb) localStorage.setItem(PT_CASH_PIE_KEY, cb.checked ? '1' : '0');
+            try {
+                const cb = document.getElementById('cash-pie-cb');
+                if (cb) localStorage.setItem(PT_CASH_PIE_KEY, cb.checked ? '1' : '0');
+            } catch(e) { _handleStorageWriteError('cash', e); }
         }
         function loadCash() {
             const cb = document.getElementById('cash-pie-cb');
@@ -5068,7 +5098,9 @@
             return deposits.reduce((s, d) => s + _depositToTWD(d), 0);
         }
         function saveDeposits() {
-            localStorage.setItem(PT_DEPOSITS_KEY, JSON.stringify(deposits));
+            try {
+                localStorage.setItem(PT_DEPOSITS_KEY, JSON.stringify(deposits));
+            } catch(e) { _handleStorageWriteError('deposits', e); }
         }
         function loadDeposits() {
             try { deposits = JSON.parse(localStorage.getItem(PT_DEPOSITS_KEY)) || []; } catch(_) { deposits = []; }
@@ -5691,7 +5723,9 @@
             try { _markAndAutoPush(['watchlist']); } catch(_) {}
         }
         function saveWatchlist() {
-            localStorage.setItem(PT_WATCHLIST_KEY, JSON.stringify(watchlist));
+            try {
+                localStorage.setItem(PT_WATCHLIST_KEY, JSON.stringify(watchlist));
+            } catch(e) { _handleStorageWriteError('watchlist', e); }
         }
         function loadWatchlist() {
             try { watchlist = JSON.parse(localStorage.getItem(PT_WATCHLIST_KEY)) || []; } catch(_) { watchlist = []; }
@@ -6297,14 +6331,16 @@
         }
         // ==================== 已實現損益 ====================
         function saveTradeHistory() {
-            try { localStorage.setItem(PT_TRADE_HISTORY_KEY, JSON.stringify(tradeHistory)); } catch(_) {}
+            try { localStorage.setItem(PT_TRADE_HISTORY_KEY, JSON.stringify(tradeHistory)); }
+            catch(e) { _handleStorageWriteError('tradeHistory', e); }
         }
         function loadTradeHistory() {
             try { tradeHistory = JSON.parse(localStorage.getItem(PT_TRADE_HISTORY_KEY)) || []; } catch(_) { tradeHistory = []; }
         }
         // v15.905：期間補錄總報酬（不細分標的）
         function saveManualRealizedEntries() {
-            try { localStorage.setItem(PT_MANUAL_REALIZED_KEY, JSON.stringify(manualRealizedEntries)); } catch(_) {}
+            try { localStorage.setItem(PT_MANUAL_REALIZED_KEY, JSON.stringify(manualRealizedEntries)); }
+            catch(e) { _handleStorageWriteError('manualRealizedEntries', e); }
         }
         function loadManualRealizedEntries() {
             try { manualRealizedEntries = JSON.parse(localStorage.getItem(PT_MANUAL_REALIZED_KEY)) || []; } catch(_) { manualRealizedEntries = []; }
@@ -6346,7 +6382,8 @@
         const PT_SNAPSHOTS_KEY = 'pt_snapshots';
 
         function saveSnapshots() {
-            try { localStorage.setItem(PT_SNAPSHOTS_KEY, JSON.stringify(marketSnapshots)); } catch(_) {}
+            try { localStorage.setItem(PT_SNAPSHOTS_KEY, JSON.stringify(marketSnapshots)); }
+            catch(e) { _handleStorageWriteError('marketSnapshots', e); }
         }
         function loadSnapshots() {
             try { marketSnapshots = JSON.parse(localStorage.getItem(PT_SNAPSHOTS_KEY)) || []; } catch(_) { marketSnapshots = []; }
