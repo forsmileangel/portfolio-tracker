@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.944 - 跨日今日損益基準修正 + close pair 容量治理：(1) 根因：v15.938 的臨時休市自動偵測會把「Yahoo 暫時缺日 K」的日期永久寫入 pt_adhoc_closures_v1，該裝置的 _previousTradingDate 從此跳過該交易日（例：跳過週二回傳週一），且既有週一 pair 存在時 refresh 直接 skip 不再查 Yahoo、無法自癒 → 今日損益變成「今日現價 − 週一收盤」＝兩日合計。修法：休市紀錄分 provisional / confirmed，provisional 只在偵測當日有效（舊資料無 status 一律視為 provisional，不新增 migration key）；跨日後該日恢復為交易日並重新驗證 —— 出現有效 exact-date bar 即刪除誤判、仍達 quorum 且 target 前後都有 bar 才升級 confirmed；heal 改用 entry 判定（過期 provisional 殘骸一併清除）；_refreshClosePairForActiveHoldings 改多趟（最多 2 趟），日曆一被驗證改變就以修正後 target 重新產生 jobs，不等下一個 60s timer。新增 _marketLocalDate 純時區換算避免 _isTradingDay → _isAdhocClosure → _marketSession 遞迴。(2) 收緊今日損益 basis 契約：盤中只接受「前一交易日 exact final pair」的 close，移除 _todayPair.prevClose 替代路徑（日曆誤判時會退回更早交易日硬算）；缺基準改顯示「基準資料校驗中」，絕不以更早日期充數；closed_retained 維持用 targetDate final pair，總市值/總損益/成本/08:00 換日/分割調整公式不變。(3) close pair 保留最近 30 個日期（_CLOSE_PAIR_KEEP_DATES / _pruneClosePairDates），套用於全部五個入口：_saveClosePair、_mergeClosePairCache、_validateClosePairSystemPayload、_buildClosePairSystemPayload、_mergeClosePairSystemPayloadForPush（最後一處不可漏，否則遠端舊日期不會真正縮小）—— 實測 Gist payload 372KB 中 close pair 佔 291KB（23 檔/801 筆/53 日期），原本只寫不刪約 5.5 個月後撞 GitHub Gist API 1MB 截斷 → 退回 CDN 快取的 raw_url → 重演 v15.051「pull 到舊值覆蓋本地」；修剪後容量停止成長。不改 schema / device rank / final 驗證 / userDataHash / pending / master flag。(4) 使用者文字安全顯示：持倉 symbol·name、存款名稱·銀行、貸款銀行·名稱、已實現備註全部經 _escapeHtml；持倉交易按鈕改 data-symbol/data-market + dataset 讀取，不再把 symbol 插進 inline JS 字串（同 v15.937 ✕ 鈕引號破格的根因）。(5) 儲存容量可觀測性：新增 _handleStorageWriteError（辨識 QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22·1014，session 內只提示一次，錯誤日誌 best-effort 不可依賴），套用於 saveToStorage / _saveClosePair / _saveDailyPnlSnapshots（原註解自承「超出容量時靜默失敗」）；啟動 10 秒後逐 key 概算用量，>4MiB 才提示，純唯讀不標 dirty、不觸發 push。
         v15.943 - 沉穩石墨 UI 改版：全站改為石墨深灰＋低彩度灰綠色票；移除背景科技網格、漂浮光球、玻璃模糊、藍色 glow、標題 shimmer 與高彩度漸層；統一卡片、按鈕、輸入框、Tab、表格、modal、toast、持倉列與觀察清單 Pro 的表面層級，正負損益改用柔和語意色，圓餅圖與原生圖表改低彩度配色；補強交易模式選中狀態，買入使用灰綠實色、賣出使用柔和紅色與清楚邊框；依實機回饋將全站石墨表面、邊框、次要文字與語意色亮度再提高一階。不改版面、DOM id、渲染流程、損益、報價、Gist、FSA、Storage Key 或 PWA 啟動邏輯。
         v15.942 - 港股報價延遲標示：今日損益卡於港股**盤中**在卡片底部加獨立註腳行「港股報價延遲約20分」（初版做在港股列行內小字，會擠壓市場列 flex 兩端排版，同版修正為註腳行）。背景：使用者反映港股抓不到即時 → 2026-07-13 開盤實測，GOOGLEFINANCE（CSV 報價源）對 7709/9747 開盤 14 分鐘仍顯示前日收盤（0.00%），Yahoo 免費港股亦延遲 15-21 分（09:44 只看得到 09:20 競價價）—— 免費世界無港股即時源（HKEX 即時需授權費），冷門槓桿 ETF 與 USD 櫃檯（9747）更慢。此為誠實標示非修復：來源不變，收盤後凍結值不標（非延遲問題）。使用者選最小方案（選項 2）；備選的港股改 Yahoo 直抓（帶真實報價時間戳，開盤窗較新）暫不做。
         v15.941 - 分割自動套用補反向護欄（使用者提問「會影響成本計算嗎」觸發的補強）：成本守恆機制確認完備 —— preview 硬檢查（|分割後總成本−分割前| ≤ max(0.05, 1e-6×基數)，auto 不繞過）、FIFO 逐批 qty×ratio / cost÷ratio 每批總成本不變（未來賣出成本歸屬一致）、均價從總成本反推非直接除、生效日後有賣出硬擋/有新批次 auto 降級。但**反向分割（ratio < 1）存在工具算不出的現實偏差**：畸零股現金返還（10÷8=1.25 股，券商實給 1 股+折現）、台股現金減資（Yahoo 同樣標為 reverse split 但有退還股款，總成本不該守恆）→ v15.941 起反向分割即使官方核對成功也**不自動套用**，降級為「官方已核對，請人工確認」通知（面板徽章保留）；正向分割（1→N）維持全自動。
@@ -751,7 +752,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.943</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.944</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1585,7 +1586,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.943';
+        const APP_VERSION = 'v15.944';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1665,6 +1666,44 @@
             migrationMarker_v15_901_qm_v3: 'pt_v15_901_qm_v3_migrated',  // v15.901 hotfix v3：清 quote_moves（曾被 timestamp parser bug 寫入 dayChange=2026 等爆量值）
             migrationMarker_v15_903: 'pt_v15_903_migrated',  // v15.903：close pair 改讀 fundamentals.json（清 v1 cache）
         });
+
+        // ── v15.944：儲存寫入失敗可觀測性 ──
+        // 原本 saveToStorage / _saveClosePair / _saveDailyPnlSnapshots 都是靜默 catch（註解自承「超出容量時靜默失敗」），
+        // 容量爆掉時使用者完全無感、持倉存檔靜默失效。改為辨識 quota 錯誤並提示一次。
+        let _storageQuotaWarned = false;   // session 記憶體旗標，只提示一次避免洗版
+        function _isQuotaError(e) {
+            if (!e) return false;
+            const name = e.name || '';
+            return name === 'QuotaExceededError'
+                || name === 'NS_ERROR_DOM_QUOTA_REACHED'   // Firefox
+                || e.code === 22 || e.code === 1014;        // 舊版瀏覽器差異
+        }
+        function _handleStorageWriteError(scope, error) {
+            try { console.warn(`[Storage v15.944] ${scope} 寫入失敗：`, (error && (error.name || error.message)) || error); } catch(_) {}
+            if (!_isQuotaError(error)) return;              // 一般寫入失敗不得冒充 quota
+            if (_storageQuotaWarned) return;
+            _storageQuotaWarned = true;
+            // best-effort：容量已滿時錯誤日誌本身也可能寫不進去，不可依賴
+            try { _recordAppError('storage_quota', error, { scope }); } catch(_) {}
+            try { showWarnToast('⚠ 瀏覽器儲存空間已滿，最新變更可能未存檔 — 請至設定檢查錯誤日誌或清理資料', 10000); } catch(_) {}
+        }
+        // 啟動後估算用量（逐 key 概算 UTF-16 位元組）；超過 4 MiB 才提示。純唯讀，不標 dirty、不觸發 Gist push。
+        function _checkStorageUsage() {
+            try {
+                let bytes = 0;
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    bytes += (k.length + (localStorage.getItem(k) || '').length) * 2;
+                }
+                const mib = bytes / (1024 * 1024);
+                console.log(`[Storage v15.944] localStorage 約 ${mib.toFixed(2)} MiB`);
+                if (mib > 4) {
+                    try { _recordAppError('storage_usage_high', new Error(`localStorage ~${mib.toFixed(2)} MiB`), { mib: Number(mib.toFixed(2)) }); } catch(_) {}
+                    try { showWarnToast(`⚠ 本機儲存空間已用約 ${mib.toFixed(1)} MiB，接近瀏覽器上限 — 建議檢查設定頁錯誤日誌`, 8000); } catch(_) {}
+                }
+            } catch(_) {}
+        }
 
         // ────────────────────────────────────────────────────────
         // v15.901 一次性 migration：清除 v15.901-904 era 留下的污染快取
@@ -1835,13 +1874,41 @@
             _adhocClosuresMemo = data;
             try { localStorage.setItem(STORAGE_KEYS.adhocClosures, JSON.stringify(data)); } catch(_) {}
         }
-        function _isAdhocClosure(market, dateStr) {
-            const d = _loadAdhocClosures();
-            return !!(d[market] && d[market][dateStr]);
-        }
-        function _recordAdhocClosureEvidence(market, dateStr, symbol) {
+        // v15.944：市場當地日期（純時區換算，不查行事曆 —— 避免 _isTradingDay → _isAdhocClosure → _marketSession 遞迴）
+        function _marketLocalDate(market, now) {
             try {
-                if (_isAdhocClosure(market, dateStr)) return;
+                const cal = MARKET_CALENDARS[market];
+                const tz = (cal && cal.tz)
+                         || (market === 'TW' ? 'Asia/Taipei' : market === 'HK' ? 'Asia/Hong_Kong' : 'America/New_York');
+                return new Date(now || Date.now()).toLocaleDateString('en-CA', { timeZone: tz });
+            } catch(_) { return null; }
+        }
+        function _adhocClosureEntry(market, dateStr) {
+            const d = _loadAdhocClosures();
+            return (d[market] && d[market][dateStr]) || null;
+        }
+        // v15.944：舊資料（無 status 欄位）一律視為 provisional，不新增 migration key
+        function _adhocClosureStatus(market, dateStr) {
+            const e = _adhocClosureEntry(market, dateStr);
+            if (!e) return null;
+            return e.status === 'confirmed' ? 'confirmed' : 'provisional';
+        }
+        // v15.944：provisional 只在「偵測當天」有效 —— Yahoo 暫時缺日 K 造成的誤判不再永久跳過該交易日
+        // （v15.938 的永久標記會讓 _previousTradingDate 一直跳過週二 → 週三今日損益變成週二+週三合計）
+        function _isAdhocClosure(market, dateStr) {
+            const st = _adhocClosureStatus(market, dateStr);
+            if (!st) return false;
+            if (st === 'confirmed') return true;
+            const e = _adhocClosureEntry(market, dateStr);
+            const detectedOn = e && e.detectedOnMarketDate;
+            if (!detectedOn) return false;                       // 舊資料無此欄位 → 跨日即失效，待重新驗證
+            return detectedOn === _marketLocalDate(market);
+        }
+        // v15.944：任一 provisional 在本輪被確認/解除時設為 true，讓 refresh 同一輪重算 target
+        let _adhocCalendarChanged = false;
+        function _recordAdhocClosureEvidence(market, dateStr, symbol, opts) {
+            try {
+                if (_adhocClosureStatus(market, dateStr) === 'confirmed') return;   // 已確認無需再累積
                 const key = market + '|' + dateStr;
                 if (!_adhocEvidence[key]) _adhocEvidence[key] = new Set();
                 _adhocEvidence[key].add(_cleanSymbolKey(symbol));
@@ -1849,13 +1916,25 @@
                     .filter(h => h && Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === market).length;
                 const quorum = Math.max(1, Math.min(_ADHOC_QUORUM, activeCount));   // 單檔市場 quorum=1（無從交叉驗證，靠自癒兜底）
                 if (_adhocEvidence[key].size < quorum) return;
+                const existing = _adhocClosureEntry(market, dateStr);
+                const marketDate = _marketLocalDate(market);
+                // 升級 confirmed 的條件：跨日重新驗證 + 仍達 quorum + target 前後都有有效 bar（休市日才會前後夾空）
+                const isReverify = !!(existing && existing.detectedOnMarketDate && existing.detectedOnMarketDate !== marketDate);
+                const canConfirm = isReverify && !!(opts && opts.hasLaterBar);
                 const data = _loadAdhocClosures();
                 if (!data[market]) data[market] = {};
-                data[market][dateStr] = { detectedAt: new Date().toISOString(), symbols: [..._adhocEvidence[key]] };
+                data[market][dateStr] = {
+                    detectedAt: (existing && existing.detectedAt) || new Date().toISOString(),
+                    confirmedAt: canConfirm ? new Date().toISOString() : ((existing && existing.confirmedAt) || null),
+                    detectedOnMarketDate: marketDate,
+                    status: canConfirm ? 'confirmed' : 'provisional',
+                    symbols: [..._adhocEvidence[key]]
+                };
                 _saveAdhocClosures(data);
                 delete _adhocEvidence[key];
-                console.log(`[AdhocClosure v15.938] ${market} ${dateStr} 標記為臨時休市（${quorum} 檔一致缺 bar）`);
-                try { _recordAppError('adhoc_closure_detected', new Error(`${market} ${dateStr}`), { market, dateStr }); } catch(_) {}
+                _adhocCalendarChanged = true;
+                console.log(`[AdhocClosure v15.944] ${market} ${dateStr} 標記為臨時休市（${quorum} 檔一致缺 bar，status=${data[market][dateStr].status}）`);
+                try { _recordAppError('adhoc_closure_detected', new Error(`${market} ${dateStr} ${data[market][dateStr].status}`), { market, dateStr, status: data[market][dateStr].status }); } catch(_) {}
                 _closePairRefreshLastRun = 0;   // 解除 cooldown，讓下一次排程立即以修正後的日期重抓
                 renderAll();                    // previousTradingDate 已改變，既有正確 pair 立即上畫面（罕發事件，成本可接受）
             } catch(_) {}
@@ -1866,7 +1945,8 @@
                 if (!(data[market] && data[market][dateStr])) return;
                 delete data[market][dateStr];
                 _saveAdhocClosures(data);
-                console.log(`[AdhocClosure v15.938] ${market} ${dateStr} 解除標記（chart 出現有效 close，原標記為誤判）`);
+                _adhocCalendarChanged = true;
+                console.log(`[AdhocClosure v15.944] ${market} ${dateStr} 解除標記（chart 出現有效 close，原標記為誤判）`);
                 try { _recordAppError('adhoc_closure_healed', new Error(`${market} ${dateStr}`), { market, dateStr }); } catch(_) {}
                 _closePairRefreshLastRun = 0;
                 renderAll();
@@ -1889,7 +1969,8 @@
                 const valid = (dated || []).filter(b => b && typeof b.close === 'number' && b.close > 0);
                 if (valid.length < 3) return;
                 if (!valid.some(b => b.date < target)) return;
-                _recordAdhocClosureEvidence(market, target, symbol);
+                // v15.944：target 之後也有有效 bar → 該日被前後夾空，是真休市的強證據（供跨日升級 confirmed）
+                _recordAdhocClosureEvidence(market, target, symbol, { hasLaterBar: valid.some(b => b.date > target) });
             } catch(_) {}
         }
 
@@ -2359,6 +2440,24 @@
         // 純本機，不寫 Gist。每 symbol 只存最新一筆。
         // 公式：dayChange = close − prevClose；× quantity = 該檔 pnl；加總 = 該市場前次收盤損益
         // ────────────────────────────────────────────────────────
+        // v15.944：close pair 保留窗 —— 消費端只讀 targetDate / previousTradingDate（最多回看 2-3 天），
+        // 但快取原本只寫不刪：實測 23 檔 × 53 日期 = 291KB，佔 Gist payload 83%，約 5.5 個月後撞
+        // GitHub Gist API 1MB 截斷 → 退回 CDN 快取的 raw_url 路徑 → 重演 v15.051「pull 到舊值覆蓋本地」的坑。
+        // 保留 30 個日期遠超所需，且容量從此停止成長。不改 schema / device rank / final 驗證 / hash。
+        const _CLOSE_PAIR_KEEP_DATES = 30;
+        function _pruneClosePairDates(data) {
+            try {
+                const syms = data && data.symbols;
+                if (!syms || typeof syms !== 'object') return data;
+                for (const slot of Object.values(syms)) {
+                    if (!slot || !slot.byDate) continue;
+                    const dates = Object.keys(slot.byDate).filter(_isClosePairDateKey).sort();
+                    if (dates.length <= _CLOSE_PAIR_KEEP_DATES) continue;
+                    for (const d of dates.slice(0, dates.length - _CLOSE_PAIR_KEEP_DATES)) delete slot.byDate[d];
+                }
+            } catch(_) {}
+            return data;
+        }
         function _normalizeClosePairCache(raw) {
             const out = { version: 3, updatedAt: raw?.updatedAt || null, symbols: {} };
             const src = raw && typeof raw === 'object' && raw.symbols && typeof raw.symbols === 'object'
@@ -2398,11 +2497,11 @@
             } catch { return { version: 3, symbols: {} }; }
         }
         function _saveClosePair(data) {
+            const normalized = _pruneClosePairDates(_normalizeClosePairCache(data));   // v15.944：寫入前修剪
+            _closePairMemo = normalized;
             try {
-                const normalized = _normalizeClosePairCache(data);
                 localStorage.setItem(STORAGE_KEYS.closePairCache, JSON.stringify(normalized));
-                _closePairMemo = normalized;
-            } catch {}
+            } catch (e) { _handleStorageWriteError('closePairCache', e); }
         }
         function _getClosePairForDate(data, symbol, targetDate, marketKey) {
             if (!data || !symbol || !targetDate) return null;
@@ -2590,7 +2689,7 @@
             });
             out.version = 3;
             out.updatedAt = new Date().toISOString();
-            return out;
+            return _pruneClosePairDates(out);   // v15.944：雲端合併後修剪，pull 不會把舊日期灌回本機
         }
         function _validateClosePairSystemPayload(payload) {
             if (!payload || typeof payload !== 'object' || !payload.symbols || typeof payload.symbols !== 'object') return null;
@@ -2614,7 +2713,7 @@
                     };
                 }
             });
-            return Object.keys(out.symbols).length ? out : null;
+            return Object.keys(out.symbols).length ? _pruneClosePairDates(out) : null;   // v15.944
         }
         function _buildClosePairSystemPayload(userDataHash) {
             const deviceClass = _deviceClassForSystemData();
@@ -2632,7 +2731,7 @@
                 });
                 if (Object.keys(byDate).length) out.symbols[sym] = { market: slot.market || Object.values(byDate)[0]?.market || '', byDate };
             });
-            return Object.keys(out.symbols).length ? out : null;
+            return Object.keys(out.symbols).length ? _pruneClosePairDates(out) : null;   // v15.944：發佈前修剪
         }
         function _mergeClosePairSystemPayloadForPush(remotePayload, localPayload, deviceClass) {
             const remote = _validateClosePairSystemPayload(remotePayload) || { version: 1, updatedAt: null, userDataHash: null, symbols: {} };
@@ -2653,7 +2752,8 @@
             out.version = 1;
             out.updatedAt = new Date().toISOString();
             out.userDataHash = local.userDataHash || remote.userDataHash || null;
-            return Object.keys(out.symbols || {}).length ? out : null;
+            // v15.944：這一處不可漏 —— 遠端既有的舊日期若不修剪，Gist payload 永遠縮不回來
+            return Object.keys(out.symbols || {}).length ? _pruneClosePairDates(out) : null;
         }
 
         function _exactFundamentalCloseForDate(symbol, marketKey, dateKey) {
@@ -2704,7 +2804,8 @@
                 // v15.938 自癒：chart 回應中若出現「已標臨時休市但實際有有效 close」的日期 → 解除誤標
                 try {
                     for (const bar of dated) {
-                        if (bar && typeof bar.close === 'number' && bar.close > 0 && _isAdhocClosure(marketKey, bar.date)) {
+                        // v15.944：用 entry 而非 _isAdhocClosure —— 已過期的 provisional 也要清掉，不留殘骸
+                        if (bar && typeof bar.close === 'number' && bar.close > 0 && _adhocClosureEntry(marketKey, bar.date)) {
                             _healAdhocClosure(marketKey, bar.date);
                         }
                     }
@@ -2990,9 +3091,13 @@
             let resolved = 0, fetched = 0, missing = 0, finalSaved = 0;
             const now = new Date();
             const pd = _portfolioDay(now);
+            const seenJobs = new Set();
+            // v15.944：provisional 臨時休市可能在本輪被確認/解除而改變 previousTradingDate，
+            // 因此採多趟（最多 2 趟）—— 日曆一變就以修正後的 target 重新產生 jobs，不等下一個 60s timer。
+            for (let pass = 0; pass < 2; pass++) {
+            _adhocCalendarChanged = false;
             // 收集階段：沿用原 per-holding job 構建與 skip 檢查，建扁平 task 清單（market+symbol+target 去重）
             const tasks = [];
-            const seenJobs = new Set();
             for (const h of holdings) {
                 try {
                     const mk = _holdingMarketKey(h);
@@ -3038,6 +3143,10 @@
             }
             // 執行階段：併發池取代串行；JS 單執行緒，counter 與 data merge 無 race
             if (tasks.length > 0) await _runTaskPool(tasks, _CLOSE_PAIR_FETCH_CONCURRENCY);
+            // v15.944：本趟未改動日曆（或已無 job）→ 收工；改動了才用新 target 再跑一趟
+            if (!_adhocCalendarChanged || tasks.length === 0) break;
+            console.log(`[ClosePair v15.944] ${reason}: 臨時休市判定改變，以修正後日期重新計算 target（pass ${pass + 2}）`);
+            }
             if (resolved + fetched > 0) {
                 data.updatedAt = new Date().toISOString();
                 _saveClosePair(data);
@@ -3110,7 +3219,7 @@
         function _saveDailyPnlSnapshots(snap) {
             try {
                 localStorage.setItem(STORAGE_KEYS.dailyPnlSnapshots, JSON.stringify(snap));
-            } catch(_) {}
+            } catch(e) { _handleStorageWriteError('dailyPnlSnapshots', e); }   // v15.944
         }
 
         // ────────────────────────────────────────────────────────
@@ -3614,9 +3723,12 @@
                 // v15.906: row-level today PnL follows market session, not stale per-symbol marketOpenedToday.
                 const _todayMarketStatus = _todayState.status || null;
                 let dayChangePct = null, dayPnlUSD = null, dayPnlTWD = null;
+                // v15.944：盤中今日損益基準只接受「前一交易日的 exact final pair」的 close。
+                // 移除原 _todayPair.prevClose 替代路徑 —— 該路徑在日曆誤判（臨時休市誤標）時會退回更早交易日的收盤價，
+                // 使今日損益變成兩日合計（週三顯示週二+週三）。寧可顯示「基準資料校驗中」也不得用更早日期硬算。
                 const _todayBasisClose = _validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)
                     ? _prevPair.close
-                    : (_validFinalClosePair(_todayPair, _mkKey, _todayState.targetDate) ? _todayPair.prevClose : null);
+                    : null;
                 if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
                     const dayChange = h.currentPrice - _todayBasisClose;
                     dayChangePct = (dayChange / _todayBasisClose) * 100;
@@ -4102,7 +4214,8 @@
                         const lc = m.lastCompletedTradingDate ? m.lastCompletedTradingDate.slice(5) : '';
                         valStr = lc ? `休市，沿用 ${lc} 快照` : '休市'; col = '#607585';
                     } else if (m.withData === 0) {
-                        valStr = '資料讀取中'; col = '#607585';
+                        // v15.944：盤中無基準 = 前一交易日 final pair 尚未就緒／臨時休市判定驗證中（非單純載入慢）
+                        valStr = m.status === 'open' ? '基準資料校驗中' : '資料讀取中'; col = '#607585';
                     } else {
                         // v15.924：closed_retained（收盤後凍結保留，至隔日 08:00 換日）加「已收盤」小標，與盤中浮動值區分
                         // （v15.907 後 status 不會再是 'closed'，原「已收盤，見前次收盤」分支為死碼，已移除）
@@ -4236,8 +4349,8 @@
                 dayPnlCell = '<td style="padding:0.55rem 0.75rem;text-align:right;color:'+(dpp?'#10b981':'#ef4444')+';">'+dpStr+'</td>';
             }
 
-            return `<tr data-symbol="${h.symbol}" style="background:${bg};">
-                <td style="padding:0.55rem 0.75rem;font-weight:600;white-space:nowrap;"><button onclick="event.stopPropagation();_fillTradeForm('${h.symbol.replace(/'/g, "\\'")}','${h.market}')" style="padding:2px 7px;margin-right:6px;min-width:30px;min-height:28px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.35);border-radius:5px;color:#60a5fa;font-size:0.95rem;cursor:pointer;vertical-align:middle;line-height:1;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'}</button>${h.symbol}<br><small style="color:#7e93a6;font-weight:400;">${h.name||''}</small></td>
+            return `<tr data-symbol="${_escapeHtml(h.symbol)}" style="background:${bg};">
+                <td style="padding:0.55rem 0.75rem;font-weight:600;white-space:nowrap;"><button data-symbol="${_escapeHtml(h.symbol)}" data-market="${_escapeHtml(h.market || '')}" onclick="event.stopPropagation();_fillTradeForm(this.dataset.symbol, this.dataset.market)" style="padding:2px 7px;margin-right:6px;min-width:30px;min-height:28px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.35);border-radius:5px;color:#60a5fa;font-size:0.95rem;cursor:pointer;vertical-align:middle;line-height:1;">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'}</button>${_escapeHtml(h.symbol)}<br><small style="color:#7e93a6;font-weight:400;">${_escapeHtml(h.name||'')}</small></td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;">${h.quantity.toLocaleString('en-US',{maximumFractionDigits:4})}</td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;color:#a8bdd0;">${priceCcy}${h.costPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                 <td style="padding:0.55rem 0.75rem;text-align:right;color:#60a5fa;">${priceCcy}${h.currentPrice.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
@@ -4425,9 +4538,9 @@
                 <div class="holding-header" onclick="toggleHolding(${h.id})">
                     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; flex:1;">
                         <span class="market-badge">${h.market==='TW'?'🇹🇼':h.market==='HK'?'🇭🇰':'🇺🇸'} ${h.market}</span>
-                        <span class="mono" style="color:#f1f5f9;font-size:1rem;font-weight:600;">${h.symbol}</span>
+                        <span class="mono" style="color:#f1f5f9;font-size:1rem;font-weight:600;">${_escapeHtml(h.symbol)}</span>
                         <span style="padding:0.2rem 0.4rem;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:4px;font-size:0.72rem;font-weight:600;color:#60a5fa;">${h.percentage.toFixed(2)}%</span>
-                        ${h.name ? '<span style="color:#a8bdd0;font-size:0.8rem;">'+h.name+'</span>' : ''}
+                        ${h.name ? '<span style="color:#a8bdd0;font-size:0.8rem;">'+_escapeHtml(h.name)+'</span>' : ''}
                     </div>
                     <div style="display:flex; align-items:center; gap:0.6rem; flex-shrink:0;">
                         <span class="mono" style="font-size:0.88rem;font-weight:600;color:${isProfit?'#10b981':'#ef4444'};">${isProfit?'+':''}${pnlPct.toFixed(2)}%</span>
@@ -4692,7 +4805,7 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${color};">
                     <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
                         <div style="width:7px;height:7px;border-radius:2px;background:${color};flex-shrink:0;"></div>
-                        <span style="color:#e2e8f0;font-weight:600;">${d.name}</span>${subLabel}
+                        <span style="color:#e2e8f0;font-weight:600;">${_escapeHtml(d.name)}</span>${subLabel}
                     </div>
                     <span style="color:#3b82f6;font-weight:600;white-space:nowrap;">${d.value.toFixed(2)}%</span>
                 </div>`;
@@ -5010,7 +5123,7 @@
                     return `
                     <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem 0.75rem;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                         <div>
-                            <div style="color:#e2e8f0;font-weight:600;font-size:0.9rem;">${d.bank}</div>
+                            <div style="color:#e2e8f0;font-weight:600;font-size:0.9rem;">${_escapeHtml(d.bank)}</div>
                             <div style="color:#7e93a6;font-size:0.75rem;">${d.currency}</div>
                         </div>
                         <input type="number" class="mono pv-field"
@@ -5397,7 +5510,7 @@
             <div class="glass-card" style="padding:1rem 1.25rem;margin-bottom:0.85rem;opacity:${cardOpacity};">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.55rem;">
                     <div style="flex:1;min-width:200px;">
-                        <div style="color:#f1f5f9;font-size:1rem;font-weight:700;">${l.bank} · ${l.name}${headerLabel}</div>
+                        <div style="color:#f1f5f9;font-size:1rem;font-weight:700;">${_escapeHtml(l.bank)} · ${_escapeHtml(l.name)}${headerLabel}</div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-top:0.2rem;">建立 ${(l.createdAt || '').slice(0,10)} · 首次還款 ${l.firstPaymentDate} · 最後一期 ${l.finalPaymentDate || '未設定'}</div>
                     </div>
                     <button onclick="removeLoan(${l.id})" style="padding:0.22rem 0.6rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;color:#f87171;font-size:0.78rem;cursor:pointer;text-transform:none;letter-spacing:0;">刪除</button>
@@ -8100,7 +8213,7 @@
                     <div style="display:grid;grid-template-columns:1fr auto auto;gap:0.5rem 0.85rem;align-items:center;padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
                         <div>
                             <div style="color:#e2e8f0;font-weight:600;font-size:0.85rem;">${e.startDate} ~ ${e.endDate}</div>
-                            ${e.note ? `<div style="color:#7e93a6;font-size:0.73rem;margin-top:0.18rem;">${e.note}</div>` : ''}
+                            ${e.note ? `<div style="color:#7e93a6;font-size:0.73rem;margin-top:0.18rem;">${_escapeHtml(e.note)}</div>` : ''}
                         </div>
                         <div class="mono" style="text-align:right;font-weight:700;font-size:0.92rem;color:${color};">
                             ${pv(`${isPos ? '+' : '-'}${ccySym(e.currency)}${fmtAmt(Math.abs(amt), e.currency)}`)}${twdStr}
@@ -8881,7 +8994,7 @@
                 } else {
                     localStorage.removeItem(PT_STORAGE_KEY);
                 }
-            } catch(e) { /* 超出容量時靜默失敗 */ }
+            } catch(e) { _handleStorageWriteError('holdings', e); }   // v15.944：不再靜默（原註解自承「超出容量時靜默失敗」）
         }
 
         function loadFromStorage() {
@@ -12610,6 +12723,8 @@
 
             // v15.064：頁面啟動時更新錯誤日誌計數
             try { _renderErrorLogCount(); } catch(_) {}
+            // v15.944：啟動 10 秒後估算 localStorage 用量（不阻塞首繪、不標 dirty、不觸發 push）
+            setTimeout(() => { try { _checkStorageUsage(); } catch(_) {} }, 10000);
             // 啟動每分鐘自動更新報價
             startAutoRefresh();
             // 啟動後台自動更新（技術面1hr / 基本面4hr，由快取TTL決定刷新範圍）
