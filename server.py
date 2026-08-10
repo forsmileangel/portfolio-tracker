@@ -20,6 +20,13 @@ CACHE_PATH   = 'data/cache.json'
 
 PORT = int(os.environ.get('PORT', 3000))
 DIR  = os.path.dirname(os.path.abspath(__file__))
+MAX_UPSTREAM_BYTES = 2 * 1024 * 1024
+YAHOO_PROXY_HOSTS = {
+    'query1.finance.yahoo.com',
+    'query2.finance.yahoo.com',
+    'finance.yahoo.com',
+}
+SHEET_HOSTS = {'docs.google.com'}
 
 _yf_cache = {}
 _yf_lock  = threading.Lock()
@@ -132,6 +139,32 @@ def github_update_cache(cache_data):
     _github_put(CACHE_PATH, cache_data, 'update cache')
 
 
+def _validate_upstream_url(target, allowed_hosts, path_prefix=None):
+    parsed = urllib.parse.urlparse(target)
+    try:
+        host = (parsed.hostname or '').lower().rstrip('.')
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError('invalid target URL') from exc
+    if parsed.scheme.lower() != 'https' or host not in allowed_hosts:
+        raise ValueError('target host is not allowed')
+    if port not in (None, 443) or parsed.username or parsed.password:
+        raise ValueError('target URL is not allowed')
+    if path_prefix and not (parsed.path or '/').startswith(path_prefix):
+        raise ValueError('target path is not allowed')
+    return parsed.geturl()
+
+
+class _AllowlistedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def __init__(self, allowed_hosts, path_prefix=None):
+        self.allowed_hosts = allowed_hosts
+        self.path_prefix = path_prefix
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        _validate_upstream_url(newurl, self.allowed_hosts, self.path_prefix)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIR, **kwargs)
@@ -150,6 +183,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._send_json({'ok': True, 'service': 'portfolio-tracker-backend'})
         elif parsed.path == '/proxy':
             self._proxy(parsed)
+        elif parsed.path == '/fetch-sheet':
+            self._fetch_sheet(parsed)
         elif parsed.path == '/yfundamentals':
             self._fundamentals(parsed)
         else:
@@ -193,6 +228,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Cache-Control', 'no-store')
         self.end_headers()
         self.wfile.write(body)
 
@@ -202,22 +238,56 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if not target:
             self.send_error(400, 'Missing url parameter'); return
         try:
-            req = urllib.request.Request(target, headers={
+            safe_target = _validate_upstream_url(target, YAHOO_PROXY_HOSTS)
+            opener = urllib.request.build_opener(_AllowlistedRedirectHandler(YAHOO_PROXY_HOSTS))
+            req = urllib.request.Request(safe_target, headers={
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
                               ' Chrome/124.0 Safari/537.36',
                 'Accept': 'application/json, */*',
                 'Accept-Language': 'en-US,en;q=0.9',
             })
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                body = resp.read()
+            with opener.open(req, timeout=15) as resp:
+                body = resp.read(MAX_UPSTREAM_BYTES + 1)
+            if len(body) > MAX_UPSTREAM_BYTES:
+                raise ValueError('upstream response is too large')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Cache-Control', 'no-store')
             self.end_headers()
             self.wfile.write(body)
+        except ValueError as e:
+            self._send_json({'error': str(e)}, 403)
         except Exception as e:
             self.send_error(502, str(e))
+
+    def _fetch_sheet(self, parsed):
+        params = urllib.parse.parse_qs(parsed.query)
+        target = params.get('url', [''])[0]
+        if not target:
+            self.send_error(400, 'Missing url parameter'); return
+        try:
+            safe_target = _validate_upstream_url(target, SHEET_HOSTS, '/spreadsheets/')
+            opener = urllib.request.build_opener(_AllowlistedRedirectHandler(SHEET_HOSTS, '/spreadsheets/'))
+            req = urllib.request.Request(safe_target, headers={
+                'User-Agent': 'portfolio-tracker-backend',
+                'Accept': 'text/csv,text/plain;q=0.9,*/*;q=0.1',
+            })
+            with opener.open(req, timeout=15) as resp:
+                body = resp.read(MAX_UPSTREAM_BYTES + 1)
+            if len(body) > MAX_UPSTREAM_BYTES:
+                raise ValueError('sheet response is too large')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/csv; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            self.wfile.write(body)
+        except ValueError as e:
+            self._send_json({'error': str(e)}, 403)
+        except Exception as e:
+            self._send_json({'error': str(e)}, 502)
 
     def _fundamentals(self, parsed):
         params = urllib.parse.parse_qs(parsed.query)

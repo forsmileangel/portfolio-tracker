@@ -81,6 +81,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.947 - 月相指標與報價韌性優化：TradingView 技術圖新增可記憶的月相開關；觀察清單只抓目前分類、限制併發並以 Yahoo 報價時間與日期配對計算日漲跌，無法取得精確前一交易日資料時顯示「—」，失敗保留最後成功值並標示舊資料。CSV parser 支援 BOM、引號、換行與逗號數字；持倉市場 quote meta 僅在完整覆蓋時更新；新增受限的 Render Sheet CSV 備援與 Yahoo proxy allowlist。不改損益公式、close pair、Gist schema、userDataHash、pending 或 PWA 流程。
         v15.946 - 觀察清單交易所辨識、儲存回饋與持久排序：(1) 修正美股 TradingView symbol 無 mapping 時一律猜 NASDAQ 的問題；USD 靜態修正為 AMEX:USD，其餘美股依 Yahoo exchangeName/fullExchangeName 辨識 NASDAQ／NYSE／AMEX／CBOE，輸入後 debounce 查詢、儲存前等待完成，手動輸入永遠優先，查詢失敗保留既有 fallback。(2) 新增／編輯成功明確提示已儲存；localStorage 寫入失敗時回復本次陣列變更，不再顯示假成功。(3) 編輯模式新增桌機拖曳與全裝置上移／下移，僅重排目前分類佔用的原陣列位置，每次移動立即 saveWatchlist + watchlist dirty auto-push，重整、Gist 與 FSA 都保留順序。(4) 同版補上「置頂／置底」快捷排序，首尾按鈕會依目前位置自動禁用，與上下移動共用相同持久化流程。(5) 同版修正觀察清單今日漲跌：Yahoo `range=5d` 的 `chartPreviousClose` 是多日區間起點基準，不能直接當昨收；改用最後兩根有效日 K 的收盤價計算，資料不足才降級使用 meta fallback，修正 USD 78.59 被誤顯示為多日跌幅等問題。不新增 Storage Key／schema／migration，不改 userDataHash、pending、持倉、損益、快照或 PWA 流程。
         v15.945 - 久未開機裝置今日損益自癒：舊版 pt_adhoc_closures_v1 休市推論一律降為待重新驗證，confirmed 也必須在本次 session 經獨立 Yahoo dated-bar audit 才能改變 previousTradingDate；audit 不受 existing close pair skip 或本機推論日曆影響，看到 exact-date close 即解除誤判，證據不足時寧可顯示資料不足、不使用更早收盤價。Gist desktop/iOS final close pair 若包含被本機誤標日期的有效 close，可作為正面證據清除本機誤判後再合併，讓久未開機的 Android／桌機能自動修復。正式升版避免兩個不同程式都叫 v15.944，PWA 首次版本檢查提前至 15 秒；不改 Gist schema、userDataHash、pending、master flag、損益公式或 portfolio day。
         v15.944 - 跨日今日損益基準修正 + close pair 容量治理：(1) 根因：v15.938 的臨時休市自動偵測會把「Yahoo 暫時缺日 K」的日期永久寫入 pt_adhoc_closures_v1，該裝置的 _previousTradingDate 從此跳過該交易日（例：跳過週二回傳週一），且既有週一 pair 存在時 refresh 直接 skip 不再查 Yahoo、無法自癒 → 今日損益變成「今日現價 − 週一收盤」＝兩日合計。修法：休市紀錄分 provisional / confirmed，provisional 只在偵測當日有效（舊資料無 status 一律視為 provisional，不新增 migration key）；跨日後該日恢復為交易日並重新驗證 —— 出現有效 exact-date bar 即刪除誤判、仍達 quorum 且 target 前後都有 bar 才升級 confirmed；heal 改用 entry 判定（過期 provisional 殘骸一併清除）；_refreshClosePairForActiveHoldings 改多趟（最多 2 趟），日曆一被驗證改變就以修正後 target 重新產生 jobs，不等下一個 60s timer。新增 _marketLocalDate 純時區換算避免 _isTradingDay → _isAdhocClosure → _marketSession 遞迴。(2) 收緊今日損益 basis 契約：盤中只接受「前一交易日 exact final pair」的 close，移除 _todayPair.prevClose 替代路徑（日曆誤判時會退回更早交易日硬算）；缺基準改顯示「基準資料校驗中」，絕不以更早日期充數；closed_retained 維持用 targetDate final pair，總市值/總損益/成本/08:00 換日/分割調整公式不變。(3) close pair 保留最近 30 個日期（_CLOSE_PAIR_KEEP_DATES / _pruneClosePairDates），套用於全部五個入口：_saveClosePair、_mergeClosePairCache、_validateClosePairSystemPayload、_buildClosePairSystemPayload、_mergeClosePairSystemPayloadForPush（最後一處不可漏，否則遠端舊日期不會真正縮小）—— 實測 Gist payload 372KB 中 close pair 佔 291KB（23 檔/801 筆/53 日期），原本只寫不刪約 5.5 個月後撞 GitHub Gist API 1MB 截斷 → 退回 CDN 快取的 raw_url → 重演 v15.051「pull 到舊值覆蓋本地」；修剪後容量停止成長。不改 schema / device rank / final 驗證 / userDataHash / pending / master flag。(4) 使用者文字安全顯示：持倉 symbol·name、存款名稱·銀行、貸款銀行·名稱、已實現備註全部經 _escapeHtml；持倉交易按鈕改 data-symbol/data-market + dataset 讀取，不再把 symbol 插進 inline JS 字串（同 v15.937 ✕ 鈕引號破格的根因）。(5) 儲存容量可觀測性：新增 _handleStorageWriteError（辨識 QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22·1014，session 內只提示一次，錯誤日誌 best-effort 不可依賴），套用於 saveToStorage / _saveClosePair / _saveDailyPnlSnapshots（原註解自承「超出容量時靜默失敗」）；啟動 10 秒後逐 key 概算用量，>4MiB 才提示，純唯讀不標 dirty、不觸發 push。
@@ -327,6 +328,7 @@
         .watchlist-pro-quote.muted { color:var(--pt-text-muted); font-size:0.8rem; font-weight:600; }
         .watchlist-pro-price { color:var(--pt-text); font-size:0.95rem; font-weight:800; }
         .watchlist-pro-chg { font-size:0.78rem; font-weight:700; }
+        .watchlist-pro-quote-state { color:var(--pt-warning); font-size:0.65rem; font-weight:700; margin-left:0.2rem; }
         .watchlist-pro-icon-btn { padding:0.5rem 0.7rem; min-width:3.6em; border-radius:7px; border:1px solid var(--pt-border); background:var(--pt-surface-3); color:var(--pt-text-soft); cursor:pointer; font-size:0.82rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; white-space:nowrap; }
         .watchlist-pro-icon-btn.danger { border-color:rgba(212,125,125,0.34); background:var(--pt-negative-soft); color:var(--pt-negative); }
         .watchlist-pro-icon-btn:disabled { opacity:0.32; cursor:not-allowed; }
@@ -336,6 +338,10 @@
         .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
         .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid var(--pt-border); border-radius:8px; overflow:hidden; background:var(--pt-bg); }
         .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:var(--pt-text-muted); text-align:center; padding:2rem; }
+        .watchlist-pro-chart-tools { display:flex; align-items:center; justify-content:flex-end; gap:0.6rem; margin-left:auto; flex-wrap:wrap; }
+        .watchlist-moon-toggle { display:inline-flex; align-items:center; gap:0.35rem; padding:0.28rem 0.45rem; border:1px solid var(--pt-border); border-radius:6px; color:var(--pt-text-muted); font-size:0.72rem; font-weight:700; cursor:pointer; user-select:none; }
+        .watchlist-moon-toggle input { width:14px; height:14px; margin:0; accent-color:var(--pt-accent-strong); cursor:pointer; }
+        .watchlist-moon-toggle.is-disabled { opacity:0.55; }
         .watchlist-pro-toolbar { display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.9rem; }
         .watchlist-pro-form-grid { display:grid; grid-template-columns:1fr 120px; gap:0.75rem; }
         .watchlist-pro-field { padding:0.62rem 0.75rem; background:var(--pt-surface-1); border:1px solid var(--pt-border); border-radius:7px; color:var(--pt-text); font-size:0.9rem; outline:none; }
@@ -771,7 +777,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.946</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.947</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1339,7 +1345,13 @@
                                 <div id="watchlist-tv-title" style="color:#f1f5f9;font-size:1.05rem;font-weight:800;">請選擇標的</div>
                                 <div id="watchlist-tv-subtitle" style="color:#7e93a6;font-size:0.76rem;margin-top:0.2rem;">MA / LinReg / Stochastic / MACD / RSI</div>
                             </div>
-                            <div id="watchlist-tv-source" style="color:#607585;font-size:0.72rem;text-align:right;">TradingView widget</div>
+                            <div class="watchlist-pro-chart-tools">
+                                <label id="watchlist-moon-control" class="watchlist-moon-toggle" style="display:none;" title="顯示或隱藏月相">
+                                    <input type="checkbox" id="watchlist-moon-toggle" onchange="setWatchlistMoonPhasesEnabled(this.checked)" aria-label="月相">
+                                    <span>月相</span>
+                                </label>
+                                <div id="watchlist-tv-source" style="color:#607585;font-size:0.72rem;text-align:right;">TradingView widget</div>
+                            </div>
                         </div>
                         <div id="watchlist-tv-container" class="watchlist-pro-chart">
                             <div class="watchlist-pro-placeholder">
@@ -1606,7 +1618,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.946';
+        const APP_VERSION = 'v15.947';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1637,6 +1649,7 @@
             privacy:          'pt_privacy_mode',
             font:             'pt_font',
             fontSize:         'font_size',
+            watchlistMoonPhases: 'pt_watchlist_moon_phases_v1', // v15.947：TradingView 月相 UI 偏好（本機，不同步）
             // Gist 同步
             gistToken:        'pt_gist_token_v15',
             gistId:           'pt_gist_id_v15',
@@ -2501,21 +2514,54 @@
         // - 完全無法判斷 → 不存 quote move（只更新 price）
         // 回傳 { prices, sheetRates, quoteMoves }
         // ────────────────────────────────────────────────────────
+        function _parseCsvRows(csvText) {
+            const text = String(csvText || '').replace(/^\uFEFF/, '');
+            const rows = [];
+            let row = [], field = '', quoted = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (ch === '"') {
+                    if (quoted && text[i + 1] === '"') { field += '"'; i++; }
+                    else quoted = !quoted;
+                } else if (ch === ',' && !quoted) {
+                    row.push(field); field = '';
+                } else if ((ch === '\n' || ch === '\r') && !quoted) {
+                    row.push(field); field = '';
+                    if (row.some(cell => String(cell).trim() !== '')) rows.push(row);
+                    row = [];
+                    if (ch === '\r' && text[i + 1] === '\n') i++;
+                } else {
+                    field += ch;
+                }
+            }
+            if (field.length || row.length) {
+                row.push(field);
+                if (row.some(cell => String(cell).trim() !== '')) rows.push(row);
+            }
+            return rows;
+        }
+        function _parseCsvNumber(raw) {
+            const normalized = String(raw ?? '').trim().replace(/,/g, '');
+            if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)%?$/.test(normalized)) return NaN;
+            return parseFloat(normalized);
+        }
         function _parseQuoteCsv(csvText) {
             const prices = {};
             const sheetRates = {};
             const quoteMoves = {};
-            if (!csvText) return { prices, sheetRates, quoteMoves };
+            const diagnostics = { rows: 0, accepted: 0, skipped: 0 };
+            if (!csvText) return { prices, sheetRates, quoteMoves, diagnostics };
 
-            const lines = csvText.trim().split(/\r?\n/);
-            if (lines.length === 0) return { prices, sheetRates, quoteMoves };
+            const rows = _parseCsvRows(csvText);
+            diagnostics.rows = rows.length;
+            if (rows.length === 0) return { prices, sheetRates, quoteMoves, diagnostics };
 
             // 解析 header（第一行）
-            const firstCols = lines[0].split(',').map(c => c.replace(/"/g,'').trim());
+            const firstCols = rows[0].map(c => String(c).trim());
             // 檢查第一行是否真為 header（值無法 parseFloat）
-            const firstValIsNumeric = !isNaN(parseFloat(firstCols[1]));
+            const firstValIsNumeric = Number.isFinite(_parseCsvNumber(firstCols[1]));
             const headerCols = firstValIsNumeric ? null : firstCols;
-            const dataLines = headerCols ? lines.slice(1) : lines;
+            const dataRows = headerCols ? rows.slice(1) : rows;
 
             // 判定 col[i] 語意：'pct' / 'change' / 'skip' / 'unknown'
             // hotfix v3：加 timestamp / 日期欄位黑名單 → 'skip'，禁止 numeric fallback
@@ -2533,10 +2579,14 @@
             const col2Sem = headerCols ? _colSemantic(headerCols[2] || '') : 'unknown';
             const col3Sem = headerCols ? _colSemantic(headerCols[3] || '') : 'unknown';
 
-            dataLines.forEach(line => {
-                const cols = line.trim().split(',').map(c => c.replace(/"/g,'').trim());
-                const val = parseFloat(cols[1]);
-                if (cols.length < 2 || !cols[0] || isNaN(val) || val <= 0) return;
+            dataRows.forEach(rawCols => {
+                const cols = rawCols.map(c => String(c).trim());
+                const val = _parseCsvNumber(cols[1]);
+                if (cols.length < 2 || !cols[0] || !Number.isFinite(val) || val <= 0) {
+                    diagnostics.skipped++;
+                    return;
+                }
+                diagnostics.accepted++;
                 if (cols[0] === 'USD_TWD') { sheetRates.USD_TWD = val; return; }
                 if (cols[0] === 'HKD_TWD') { sheetRates.HKD_TWD = val; return; }
                 prices[cols[0]] = val;
@@ -2544,7 +2594,6 @@
                 // 解析 col[2] / col[3] 為 dayChange / dayChangePct
                 // hotfix v3：嚴格 regex + header 黑名單（時間/日期欄位 skip）+ unknown 一律不 numeric fallback
                 // 防止 parseFloat("2026/5/7 下午 2:49:39") 回 2026 把 timestamp 當 dayChange
-                const cleanNumRegex = /^[+-]?\d+(\.\d+)?%?$/;
                 let dayChange = null, dayChangePct = null;
                 const tryFields = [
                     { idx: 2, sem: col2Sem },
@@ -2554,7 +2603,8 @@
                     if (f.sem === 'skip') return;            // header 是時間/日期欄 → 直接跳過
                     const raw = cols[f.idx];
                     if (raw == null || raw === '') return;
-                    if (!cleanNumRegex.test(raw)) return;    // 拒絕含 / : - 空格等非純數字字串
+                    const normalizedRaw = String(raw).replace(/,/g, '').trim();
+                    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)%?$/.test(normalizedRaw)) return;    // 拒絕日期與非數字內容
                     let sem = f.sem;
                     if (sem === 'unknown') {
                         // header 已存在但這欄看不出語意 → 不准 numeric fallback（除非值帶 %）
@@ -2567,8 +2617,8 @@
                             else sem = 'change';
                         }
                     }
-                    const num = parseFloat(raw);
-                    if (isNaN(num) || !isFinite(num)) return;
+                    const num = _parseCsvNumber(raw);
+                    if (!Number.isFinite(num)) return;
                     // 合理性檢查
                     if (sem === 'change' && Math.abs(num) > val * 5) return;     // dayChange 不該 > 價格 × 5
                     if (sem === 'pct' && Math.abs(num) > 200) return;            // dayChangePct 不該 > 200%
@@ -2581,7 +2631,7 @@
                 }
             });
 
-            return { prices, sheetRates, quoteMoves };
+            return { prices, sheetRates, quoteMoves, diagnostics };
         }
 
         // ────────────────────────────────────────────────────────
@@ -5770,13 +5820,16 @@
         let _watchlistProEditMode = false;
         let _watchlistProEditIndex = -1;
         let _watchlistSelectedSymbol = null;
-        let _watchlistRenderedTvSymbol = null;
+        let _watchlistMoonPhasesEnabled = (() => {
+            try { return localStorage.getItem(STORAGE_KEYS.watchlistMoonPhases) === '1'; } catch(_) { return false; }
+        })();
+        let _watchlistRenderedTvKey = null;
         let _watchlistProCategory = 'proto';      // v15.929：proto | lev | crypto（純記憶體，不入 localStorage / Gist / hash）
         let _wlNativeCharts = [];                 // v15.929：lightweight-charts 實例（visual-only，重畫/切走時釋放）
         let _watchlistRenderedNativeKey = null;   // v15.929：已渲染原生圖 key，避免重抓重畫
-        let _watchlistQuotes = {};            // v15.928：{ [displaySymbol]: { price, prevClose, changeAbs, changePct, ts } | { _error:true, ts } }；純記憶體、不入 localStorage / hash / Gist
-        let _watchlistQuotesLoading = false;  // v15.928：報價抓取中
-        let _watchlistQuotesLastFetch = 0;    // v15.928：上次抓取時間（stale guard）
+        let _watchlistQuotes = {};            // v15.947：{ [displaySymbol]: { price, prevClose, changeAbs, changePct, quoteAt, fetchedAt } }；純記憶體、不入 localStorage / hash / Gist
+        let _watchlistQuotesLoadingCategories = new Set();
+        let _watchlistQuoteInflight = new Map();
         let _watchlistProTvResolveTimer = null;
         let _watchlistProTvResolveSeq = 0;
         let _watchlistProTvManuallyEdited = false;
@@ -5840,6 +5893,7 @@
             if (cat !== 'proto' && cat !== 'lev' && cat !== 'crypto') return;
             _watchlistProCategory = cat;
             renderWatchlistPro();   // 純前端切換，不標 dirty、不碰同步
+            refreshWatchlistQuotes(false, cat);
         }
         function _watchlistBaseSymbol(symbol, market) {
             const s = String(symbol || '').trim().toUpperCase();
@@ -5982,7 +6036,7 @@
             watchlist.splice(index, 1);
             if (_watchlistSelectedSymbol === item.symbol) {
                 _watchlistSelectedSymbol = null;
-                _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedTvKey = null;
             }
             saveWatchlist();
             _markWatchlistChanged();
@@ -6029,16 +6083,81 @@
             const d = abs >= 100 ? 2 : (abs >= 1 ? 2 : 4);
             return p.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
         }
+        function _watchlistLocalDate(tsSec, timezone) {
+            const n = Number(tsSec);
+            if (!Number.isFinite(n) || n <= 0) return null;
+            try {
+                return new Intl.DateTimeFormat('en-CA', {
+                    timeZone: timezone || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit'
+                }).format(new Date(n * 1000));
+            } catch(_) {
+                return new Date(n * 1000).toISOString().slice(0, 10);
+            }
+        }
+        function _watchlistDatedBars(result, timezone) {
+            const timestamps = Array.isArray(result?.timestamp) ? result.timestamp : [];
+            const closes = Array.isArray(result?.indicators?.quote?.[0]?.close)
+                ? result.indicators.quote[0].close : [];
+            return timestamps.map((ts, index) => ({
+                ts: Number(ts),
+                date: _watchlistLocalDate(ts, timezone),
+                close: Number(closes[index])
+            })).filter(bar => Number.isFinite(bar.ts) && !!bar.date && Number.isFinite(bar.close) && bar.close > 0)
+              .sort((a, b) => a.ts - b.ts);
+        }
+        function _watchlistQuoteFromChartResult(result, yahooSymbol) {
+            const meta = result?.meta || {};
+            const timezone = meta.exchangeTimezoneName || _exchangeTz(String(yahooSymbol || '').toUpperCase());
+            const bars = _watchlistDatedBars(result, timezone);
+            const latestBar = bars.length ? bars[bars.length - 1] : null;
+            const regularMarketTime = Number(meta.regularMarketTime);
+            const hasQuoteTime = Number.isFinite(regularMarketTime) && regularMarketTime > 0;
+            const quoteDate = hasQuoteTime
+                ? _watchlistLocalDate(regularMarketTime, timezone)
+                : (latestBar?.date || null);
+            const priceMeta = Number(meta.regularMarketPrice);
+            const price = Number.isFinite(priceMeta) && priceMeta > 0 ? priceMeta : latestBar?.close;
+            if (!Number.isFinite(price) || price <= 0) throw new Error('報價缺值');
+
+            // 只接受報價日之前最近一根日 K；chartPreviousClose 是 range 起點，不是昨收。
+            let previousBar = null;
+            if (quoteDate) {
+                for (let i = bars.length - 1; i >= 0; i--) {
+                    if (bars[i].date < quoteDate) { previousBar = bars[i]; break; }
+                }
+            } else if (bars.length >= 2) {
+                previousBar = bars[bars.length - 2];
+            }
+            const prevClose = previousBar?.close ?? null;
+            const changeAbs = prevClose == null ? null : price - prevClose;
+            const changePct = prevClose > 0 ? (changeAbs / prevClose) * 100 : null;
+            const quoteAt = hasQuoteTime ? regularMarketTime * 1000 : (latestBar ? latestBar.ts * 1000 : null);
+            const fetchedAt = Date.now();
+            return {
+                price,
+                prevClose,
+                changeAbs,
+                changePct,
+                quoteAt,
+                fetchedAt,
+                priceDate: quoteDate || latestBar?.date || null,
+                prevDate: previousBar?.date || null,
+                ts: fetchedAt
+            };
+        }
         function _watchlistQuoteHtml(sym) {
             const q = _watchlistQuotes[sym];
-            if (!q) return `<div class="watchlist-pro-quote muted">${_watchlistQuotesLoading ? '載入中…' : '—'}</div>`;
+            const loading = _watchlistQuotesLoadingCategories.has(_watchlistProCategory);
+            if (!q) return `<div class="watchlist-pro-quote muted">${loading ? '載入中…' : '—'}</div>`;
             if (q._error) return `<div class="watchlist-pro-quote muted" title="報價抓取失敗">報價失敗</div>`;
-            const up = (q.changePct ?? 0) >= 0;
-            const color = up ? '#10b981' : '#ef4444';
+            const up = q.changePct == null ? null : q.changePct >= 0;
+            const color = up == null ? 'var(--pt-text-muted)' : (up ? 'var(--pt-positive)' : 'var(--pt-negative)');
             const sign = up ? '+' : '';
             const pct = q.changePct == null ? '—' : `${sign}${q.changePct.toFixed(2)}%`;
+            const stale = q.stale ? '<span class="watchlist-pro-quote-state" title="最新抓取失敗，保留上一筆報價">舊資料</span>' : '';
+            const quoteTitle = q.quoteAt ? `報價時間 ${new Date(q.quoteAt).toLocaleString('zh-TW')}` : '報價時間未知';
             return `<div class="watchlist-pro-quote">
-                        <span class="watchlist-pro-price">${pv(_fmtWlPrice(q.price))}</span>
+                        <span class="watchlist-pro-price" title="${quoteTitle}">${pv(_fmtWlPrice(q.price))}${stale}</span>
                         <span class="watchlist-pro-chg" style="color:${color};">${pv(pct)}</span>
                     </div>`;
         }
@@ -6046,34 +6165,55 @@
             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=5d`;
             const data = await yfFetch(url);
             const result = data?.chart?.result?.[0];
-            const meta = result?.meta;
-            const closes = Array.isArray(result?.indicators?.quote?.[0]?.close)
-                ? result.indicators.quote[0].close.filter(v => v != null && Number.isFinite(Number(v))).map(Number)
-                : [];
-            const price = meta?.regularMarketPrice ?? (closes.length ? closes[closes.length - 1] : null);
-            // range=5d 時 chartPreviousClose 是區間起點前收，不是上一交易日；今日漲跌必須取最後兩根有效日 K。
-            const prevClose = closes.length >= 2
-                ? closes[closes.length - 2]
-                : (meta?.previousClose ?? meta?.chartPreviousClose ?? null);
-            if (price == null || prevClose == null) throw new Error('報價缺值');
-            const changeAbs = price - prevClose;
-            const changePct = prevClose ? (changeAbs / prevClose) * 100 : null;
-            return { price, prevClose, changeAbs, changePct, ts: Date.now() };
+            return _watchlistQuoteFromChartResult(result, yahooSymbol);
         }
-        async function refreshWatchlistQuotes(force) {
-            if (_watchlistQuotesLoading) return;
-            if (!force && Date.now() - _watchlistQuotesLastFetch < 30000) { renderWatchlistPro(); return; }
-            const targets = watchlist.map(_normalizeWatchlistItem).filter(w => w.symbol && (w.yahooSymbol || '').trim());
-            if (targets.length === 0) { renderWatchlistPro(); return; }
-            _watchlistQuotesLoading = true;
+        async function refreshWatchlistQuotes(force = false, category = _watchlistProCategory) {
+            const cat = ['proto', 'lev', 'crypto'].includes(category) ? category : _watchlistProCategory;
+            const targets = watchlist.map(_normalizeWatchlistItem)
+                .filter(w => w.symbol && w.category === cat && (w.yahooSymbol || '').trim());
+            const grouped = new Map();
+            const now = Date.now();
+            targets.forEach(w => {
+                const yahoo = w.yahooSymbol.trim().toUpperCase();
+                const old = _watchlistQuotes[w.symbol];
+                const fetchedAt = Number(old?.fetchedAt || old?.ts || 0);
+                if (!force && old && !old._error && fetchedAt > 0 && now - fetchedAt < 30000) return;
+                if (!grouped.has(yahoo)) grouped.set(yahoo, new Set());
+                grouped.get(yahoo).add(w.symbol);
+            });
+            if (!grouped.size) { renderWatchlistPro(); return; }
+
+            _watchlistQuotesLoadingCategories.add(cat);
             renderWatchlistPro();
-            await Promise.all(targets.map(async w => {
-                try { _watchlistQuotes[w.symbol] = await _fetchOneWatchlistQuote(w.yahooSymbol.trim()); }
-                catch (e) { _watchlistQuotes[w.symbol] = { _error: true, ts: Date.now() }; }
-            }));
-            _watchlistQuotesLoading = false;
-            _watchlistQuotesLastFetch = Date.now();
-            renderWatchlistPro();
+            const tasks = [...grouped.entries()].map(([yahoo, symbols]) => async () => {
+                let request = _watchlistQuoteInflight.get(yahoo);
+                if (!request) {
+                    request = _fetchOneWatchlistQuote(yahoo);
+                    _watchlistQuoteInflight.set(yahoo, request);
+                }
+                try {
+                    const quote = await request;
+                    symbols.forEach(symbol => { _watchlistQuotes[symbol] = { ...quote, stale: false }; });
+                } catch (e) {
+                    const failedAt = Date.now();
+                    symbols.forEach(symbol => {
+                        const old = _watchlistQuotes[symbol];
+                        if (old && !old._error && Number.isFinite(Number(old.price)) && Number(old.price) > 0) {
+                            _watchlistQuotes[symbol] = { ...old, stale: true, lastErrorAt: failedAt };
+                        } else {
+                            _watchlistQuotes[symbol] = { _error: true, failedAt };
+                        }
+                    });
+                } finally {
+                    if (_watchlistQuoteInflight.get(yahoo) === request) _watchlistQuoteInflight.delete(yahoo);
+                }
+            });
+            try {
+                await _runTaskPool(tasks, 4);
+            } finally {
+                _watchlistQuotesLoadingCategories.delete(cat);
+                renderWatchlistPro();
+            }
         }
         function renderWatchlistPro() {
             const list = document.getElementById('watchlist-pro-list');
@@ -6092,16 +6232,21 @@
             if (addBtn) addBtn.style.display = _watchlistProEditMode ? '' : 'none';
             if (editBtn) editBtn.textContent = _watchlistProEditMode ? '完成編輯' : '編輯模式';
             const tsEl = document.getElementById('watchlist-pro-quote-ts');
+            const categoryLoading = _watchlistQuotesLoadingCategories.has(_watchlistProCategory);
             if (tsEl) {
                 let newest = 0;
-                Object.values(_watchlistQuotes).forEach(q => { if (q && q.ts > newest) newest = q.ts; });
-                tsEl.textContent = _watchlistQuotesLoading ? '報價更新中…' : (newest ? '報價 ' + new Date(newest).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '');
+                items.forEach(w => {
+                    const q = _watchlistQuotes[w.symbol];
+                    const quoteAt = Number(q?.quoteAt || q?.fetchedAt || q?.ts || 0);
+                    if (quoteAt > newest) newest = quoteAt;
+                });
+                tsEl.textContent = categoryLoading ? '報價更新中…' : (newest ? '來源報價 ' + new Date(newest).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) : '');
             }
             const refreshBtn = document.getElementById('watchlist-pro-refresh-btn');
-            if (refreshBtn) { refreshBtn.disabled = _watchlistQuotesLoading; refreshBtn.textContent = _watchlistQuotesLoading ? '報價更新中…' : '↻ 報價'; }
+            if (refreshBtn) { refreshBtn.disabled = categoryLoading; refreshBtn.textContent = categoryLoading ? '報價更新中…' : '↻ 報價'; }
             if ((!_watchlistSelectedSymbol || !items.some(w => w.symbol === _watchlistSelectedSymbol)) && items.length) {
                 _watchlistSelectedSymbol = items[0].symbol;
-                _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedTvKey = null;
                 _watchlistRenderedNativeKey = null;
             }
             if (items.length === 0) {
@@ -6237,6 +6382,27 @@
                 row.classList.remove('is-dragging', 'is-drag-over');
             });
         }
+        function _updateWatchlistMoonControl(mode) {
+            const control = document.getElementById('watchlist-moon-control');
+            const input = document.getElementById('watchlist-moon-toggle');
+            const isTv = mode === 'tv';
+            if (input) {
+                input.checked = !!_watchlistMoonPhasesEnabled;
+                input.disabled = !isTv;
+            }
+            if (control) {
+                control.style.display = isTv ? 'inline-flex' : 'none';
+                control.classList.toggle('is-disabled', !isTv);
+            }
+        }
+        function setWatchlistMoonPhasesEnabled(enabled) {
+            _watchlistMoonPhasesEnabled = !!enabled;
+            try {
+                localStorage.setItem(STORAGE_KEYS.watchlistMoonPhases, _watchlistMoonPhasesEnabled ? '1' : '0');
+            } catch(e) { _handleStorageWriteError('watchlistMoonPhases', e); }
+            _watchlistRenderedTvKey = null;
+            renderWatchlistPro();
+        }
         function _renderWatchlistTradingView(item) {
             const box = document.getElementById('watchlist-tv-container');
             const title = document.getElementById('watchlist-tv-title');
@@ -6244,7 +6410,8 @@
             const source = document.getElementById('watchlist-tv-source');
             if (!box) return;
             if (!item) {
-                _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedTvKey = null;
+                _updateWatchlistMoonControl('none');
                 if (title) title.textContent = '請選擇標的';
                 if (subtitle) subtitle.textContent = 'MA / LinReg / Stochastic / MACD / RSI';
                 if (source) source.textContent = 'TradingView widget';
@@ -6252,16 +6419,19 @@
                 return;
             }
             const tvSymbol = String(item.tvSymbol || '').trim().toUpperCase();
+            _updateWatchlistMoonControl(tvSymbol ? 'tv' : 'none');
+            const studyLabel = _watchlistMoonPhasesEnabled ? ' / 月相' : '';
             if (title) title.textContent = `${item.symbol} 技術圖`;
-            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · MA / LinReg / Stoch / MACD / RSI` : '請設定 TradingView symbol';
+            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · MA / LinReg / Stoch / MACD / RSI${studyLabel}` : '請設定 TradingView symbol';
             if (source) source.textContent = 'visual-only';
             if (!tvSymbol) {
-                _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedTvKey = null;
                 box.innerHTML = '<div class="watchlist-pro-placeholder"><div style="font-weight:800;color:#a8bdd0;">請設定 TradingView symbol</div><div style="font-size:0.78rem;color:#607585;">進入編輯模式後補上，例如 NASDAQ:SNXX 或 HKEX:7709</div></div>';
                 return;
             }
-            if (_watchlistRenderedTvSymbol === tvSymbol && box.querySelector('.tradingview-widget-container__widget')) return;
-            _watchlistRenderedTvSymbol = tvSymbol;
+            const renderKey = `${tvSymbol}|moon:${_watchlistMoonPhasesEnabled ? '1' : '0'}`;
+            if (_watchlistRenderedTvKey === renderKey && box.querySelector('.tradingview-widget-container__widget')) return;
+            _watchlistRenderedTvKey = renderKey;
             box.innerHTML = '';
             const wrap = document.createElement('div');
             wrap.className = 'tradingview-widget-container';
@@ -6275,6 +6445,14 @@
             script.type = 'text/javascript';
             script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
             script.async = true;
+            const studies = [
+                'MASimple@tv-basicstudies',
+                'STD;Linear_Regression',
+                'STD;Stochastic',
+                'STD;MACD',
+                'STD;RSI'
+            ];
+            if (_watchlistMoonPhasesEnabled) studies.push('MoonPhases@tv-basicstudies');
             script.text = JSON.stringify({
                 autosize: true,
                 symbol: tvSymbol,
@@ -6287,13 +6465,7 @@
                 calendar: false,
                 hide_side_toolbar: false,
                 support_host: 'https://www.tradingview.com',
-                studies: [
-                    'MASimple@tv-basicstudies',
-                    'STD;Linear_Regression',
-                    'STD;Stochastic',
-                    'STD;MACD',
-                    'STD;RSI'
-                ]
+                studies
             });
             wrap.appendChild(widget);
             wrap.appendChild(script);
@@ -6348,7 +6520,7 @@
                 _renderWatchlistTradingView(item);
                 return;
             }
-            _watchlistRenderedTvSymbol = null;   // 切回 TV 時可重建
+            _watchlistRenderedTvKey = null;   // 切回 TV 時可重建
             _renderWatchlistNativeChart(item, route);
         }
         function _disposeWatchlistNativeCharts() {
@@ -6464,6 +6636,7 @@
             const key = `${item.symbol}|${route.kind}|${route.fetchSymbol}`;
             if (_watchlistRenderedNativeKey === key && box.querySelector('.wl-native-wrap')) return;
             _watchlistRenderedNativeKey = key;
+            _updateWatchlistMoonControl('native');
             if (title) title.textContent = `${item.symbol} 技術圖`;
             if (subtitle) subtitle.textContent = `${route.kind === 'crypto' ? route.fetchSymbol : (item.tvSymbol || route.fetchSymbol)} · K線 / MA20 / MA60 / LinReg / RSI`;
             if (source) source.textContent = '原生圖載入中…';
@@ -6710,7 +6883,7 @@
             }
             _watchlistSelectedSymbol = item.symbol;
             _watchlistProCategory = item.category || _watchlistProCategory;   // 切到該標的分類，避免存完看不到
-            _watchlistRenderedTvSymbol = null;
+            _watchlistRenderedTvKey = null;
             _watchlistRenderedNativeKey = null;
             _markWatchlistChanged();
             hideWatchlistProModal();
@@ -6726,7 +6899,7 @@
             watchlist.splice(index, 1);
             if (_watchlistSelectedSymbol === item.symbol) {
                 _watchlistSelectedSymbol = null;
-                _watchlistRenderedTvSymbol = null;
+                _watchlistRenderedTvKey = null;
                 _watchlistRenderedNativeKey = null;
             }
             saveWatchlist();
@@ -10688,10 +10861,23 @@
         }
 
         // ── Sheet CSV fetch（多 proxy fallback，解決 CORS）──
+        const _SHEET_BACKEND_BASE = (() => {
+            const h = window.location.hostname;
+            if (h === 'localhost' || h === '127.0.0.1') return '';
+            try { return (localStorage.getItem(STORAGE_KEYS.backendUrl) || '').replace(/\/+$/, ''); } catch(_) { return ''; }
+        })();
+        const _SHEET_BACKEND_ENABLED = window.location.hostname === 'localhost'
+            || window.location.hostname === '127.0.0.1'
+            || !!_SHEET_BACKEND_BASE;
         const _SHEET_PROXIES = [
-            u => 'https://api.allorigins.win/raw?url='          + encodeURIComponent(u),
-            u => 'https://api.codetabs.com/v1/proxy?quest='     + encodeURIComponent(u),
-            u => 'https://corsproxy.io/?'                       + encodeURIComponent(u),
+            { id: 'allorigins', timeoutMs: 6000, build: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
+            { id: 'codetabs', timeoutMs: 6000, build: u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
+            { id: 'corsproxy', timeoutMs: 6000, build: u => 'https://corsproxy.io/?' + encodeURIComponent(u) },
+            ...(_SHEET_BACKEND_ENABLED ? [{
+                id: 'portfolio-backend',
+                timeoutMs: 15000,
+                build: u => (_SHEET_BACKEND_BASE || '') + '/fetch-sheet?url=' + encodeURIComponent(u)
+            }] : [])
         ];
         // v15.932：記住上次成功的 CSV proxy（仿 _yfProxyIdx）；v15.934：持久化至 localStorage
         let _sheetProxyIdx = (() => {
@@ -10703,15 +10889,15 @@
         async function _fetchSheetCSV(sheetUrl, signal) {
             const lastErrors = [];
             for (let i = 0; i < _SHEET_PROXIES.length; i++) {
+                if (signal?.aborted) break;
                 const idx = (_sheetProxyIdx + i) % _SHEET_PROXIES.length;
-                const mkProxy = _SHEET_PROXIES[idx];
+                const proxy = _SHEET_PROXIES[idx];
                 const ctrl = new AbortController();
-                const tid  = setTimeout(() => ctrl.abort(), 7000);
-                // 若外部 signal 已 abort，立即停止
-                signal?.addEventListener('abort', () => ctrl.abort());
+                const tid  = setTimeout(() => ctrl.abort(), proxy.timeoutMs);
+                const abortHandler = () => ctrl.abort();
+                signal?.addEventListener('abort', abortHandler, { once: true });
                 try {
-                    const res = await fetch(mkProxy(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
-                    clearTimeout(tid);
+                    const res = await fetch(proxy.build(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
                     if (res.ok) {
                         if (idx !== _sheetProxyIdx) {   // v15.934：變動才寫 localStorage
                             _sheetProxyIdx = idx;
@@ -10719,10 +10905,12 @@
                         }
                         return res;
                     }
-                    lastErrors.push(`HTTP ${res.status}`);
+                    lastErrors.push(`${proxy.id}: HTTP ${res.status}`);
                 } catch(e) {
+                    lastErrors.push(`${proxy.id}: ${e?.message || 'fetch error'}`);
+                } finally {
                     clearTimeout(tid);
-                    lastErrors.push(e?.message || 'fetch error');
+                    signal?.removeEventListener('abort', abortHandler);
                 }
             }
             // v15.064：三 proxy 全滅時記錄錯誤日誌（包含每個 proxy 的失敗原因）
@@ -10746,7 +10934,7 @@
                 const fxPromise = _fetchFxRates(true);
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 25000);
+                const timeoutId = setTimeout(() => controller.abort(), 35000);
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(timeoutId);
                 if (!res) {
@@ -10816,6 +11004,25 @@
             return null;
         }
 
+        function _quoteCoverageForUpdatedSymbols(updatedSymbols) {
+            const updated = updatedSymbols instanceof Set ? updatedSymbols : new Set(updatedSymbols || []);
+            const coverage = {};
+            const fullMarkets = [];
+            const partialMarkets = [];
+            ['TW', 'HK', 'US'].forEach(market => {
+                const active = holdings.filter(h => Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === market);
+                const updatedHoldings = active.filter(h => updated.has(h.symbol));
+                coverage[market] = {
+                    expected: active.length,
+                    updated: updatedHoldings.length,
+                    missing: active.filter(h => !updated.has(h.symbol)).map(h => h.symbol)
+                };
+                if (active.length > 0 && updatedHoldings.length === active.length) fullMarkets.push(market);
+                else if (updatedHoldings.length > 0) partialMarkets.push(market);
+            });
+            return { coverage, fullMarkets, partialMarkets };
+        }
+
         // 直接套用股價（不跳確認視窗）
         // v15.906: CSV quote refresh can arrive after analysis marked symbols as not opened.
         // When a market is open, stale per-symbol false flags should not block 今日漲跌.
@@ -10836,24 +11043,35 @@
                 });
             } catch(_) {}
         }
+        function _clearStaleMarketOpenedForSymbols(symbols) {
+            try {
+                if (!window._marketOpenedToday || !symbols) return;
+                const updated = symbols instanceof Set ? symbols : new Set(symbols);
+                holdings.forEach(h => {
+                    if (updated.has(h.symbol) && window._marketOpenedToday[h.symbol] === false) {
+                        delete window._marketOpenedToday[h.symbol];
+                    }
+                });
+            } catch(_) {}
+        }
         function directApplyPrices(prices) {
             saveHistory();
             let updated = 0;
-            const updatedMarkets = new Set();   // v15.072：只標實際被刷到的市場
+            const updatedSymbols = new Set();
             holdings.forEach(h => {
                 const newP = _lookupPrice(prices, h);
                 if (newP != null && !isNaN(newP) && newP > 0 && _acceptIncomingPriceForHolding(h, newP, 'csv-manual')) {
                     h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
                     updated++;
-                    const mk = _holdingMarketKey(h);
-                    if (mk === 'TW' || mk === 'HK' || mk === 'US') updatedMarkets.add(mk);
+                    updatedSymbols.add(h.symbol);
                 }
             });
-            // v15.072：手動 CSV apply 也只 mark 實際刷到的市場
-            if (updatedMarkets.size > 0) {
-                try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-manual'); } catch(_) {}
-                try { _clearStaleMarketOpenedForOpenMarkets([...updatedMarkets]); } catch(_) {}
+            const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
+            // v15.947：只有完整覆蓋該市場的 active holdings 才推進 quote meta 的 freshness。
+            if (quoteCoverage.fullMarkets.length > 0) {
+                try { _markBatchQuoteRefresh(quoteCoverage.fullMarkets, 'csv-manual'); } catch(_) {}
             }
+            try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
             // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
             // （避免 currentPrice 已新但 prevClose 為空，今日漲幅顯示「-」過久）
             // v15.934 錯峰：1500→8000ms —— 損益數字只等 close pair（v15.902 起不讀 _prevCloseCache），
@@ -10870,7 +11088,10 @@
             } catch(_) {}
             _scheduleRefreshClosePair('csv-manual', { force: true });   // v15.902；v15.934 手動必跑
             renderAll();
-            showImportToast(`✅ 已更新 ${updated} 檔股價`, 2000);
+            const partialNote = quoteCoverage.partialMarkets.length
+                ? `；${quoteCoverage.partialMarkets.join('、')}市場尚有缺漏`
+                : '';
+            showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}`, 2500);
         }
 
         function manualPriceReview() {
@@ -11299,34 +11520,46 @@
             return 'America/New_York';
         }
 
+        const _yfFetchInflight = new Map();
         async function yfFetch(url) {
-            const errors = [];
-            const n = YF_PROXIES.length;
-            for (let attempt = 0; attempt < n; attempt++) {
-                const idx = (_yfProxyIdx + attempt) % n;
-                const mkProxy = YF_PROXIES[idx];
-                const ctrl = new AbortController();
-                // 超時從 12s 縮短至 5s，失敗時可更快切換到下一個 proxy
-                const tid  = setTimeout(() => ctrl.abort(), 5000);
-                try {
-                    const res  = await fetch(mkProxy(url), { signal: ctrl.signal });
-                    clearTimeout(tid);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const text = await res.text();
-                    // 確認是 JSON（proxy 可能回傳 HTML 錯誤頁）
-                    if (!text.trimStart().startsWith('{') && !text.trimStart().startsWith('['))
-                        throw new Error('非 JSON 回應');
-                    if (idx !== _yfProxyIdx) {   // v15.934：變動才寫 localStorage
-                        _yfProxyIdx = idx;
-                        try { localStorage.setItem(STORAGE_KEYS.yfProxyIdx, String(idx)); } catch(_) {}
+            const key = String(url);
+            const existing = _yfFetchInflight.get(key);
+            if (existing) return existing;
+            const request = (async () => {
+                const errors = [];
+                const n = YF_PROXIES.length;
+                const startIdx = _yfProxyIdx;
+                for (let attempt = 0; attempt < n; attempt++) {
+                    const idx = (startIdx + attempt) % n;
+                    const mkProxy = YF_PROXIES[idx];
+                    const ctrl = new AbortController();
+                    // 超時從 12s 縮短至 5s，失敗時可更快切換到下一個 proxy
+                    const tid  = setTimeout(() => ctrl.abort(), 5000);
+                    try {
+                        const res  = await fetch(mkProxy(key), { signal: ctrl.signal, cache: 'no-store' });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const text = await res.text();
+                        // 確認是 JSON（proxy 可能回傳 HTML 錯誤頁）
+                        if (!text.trimStart().startsWith('{') && !text.trimStart().startsWith('['))
+                            throw new Error('非 JSON 回應');
+                        if (idx !== _yfProxyIdx) {   // v15.934：變動才寫 localStorage
+                            _yfProxyIdx = idx;
+                            try { localStorage.setItem(STORAGE_KEYS.yfProxyIdx, String(idx)); } catch(_) {}
+                        }
+                        return JSON.parse(text);
+                    } catch(e) {
+                        errors.push(e.message);
+                    } finally {
+                        clearTimeout(tid);
                     }
-                    return JSON.parse(text);
-                } catch(e) {
-                    clearTimeout(tid);
-                    errors.push(e.message);
                 }
+                throw new Error('所有代理均失敗（' + errors.join('；') + '）');
+            })();
+            _yfFetchInflight.set(key, request);
+            try { return await request; }
+            finally {
+                if (_yfFetchInflight.get(key) === request) _yfFetchInflight.delete(key);
             }
-            throw new Error('所有代理均失敗（' + errors.join('；') + '）');
         }
 
         // #endregion Gist Silent Pull
@@ -14164,7 +14397,7 @@
                 // 匯率：快取 1hr 內不打 API（按需更新策略）
                 const fxPromise = _fetchFxRates(false);
                 const controller  = new AbortController();
-                const tid = setTimeout(() => controller.abort(), 25000);
+                const tid = setTimeout(() => controller.abort(), 35000);
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
                 if (!res) return;
@@ -14187,22 +14420,22 @@
 
                 // 靜默更新股價（不存入 undo 歷史）
                 let updated = 0;
-                const updatedMarkets = new Set();   // v15.072：只標實際被刷到的市場
+                const updatedSymbols = new Set();
                 holdings.forEach(h => {
                     const np = _lookupPrice(prices, h);
                     if (np != null && !isNaN(np) && np > 0 && _acceptIncomingPriceForHolding(h, np, 'csv-silent')) {
                         h.currentPrice = parseFloat(np);
                         updated++;
-                        const mk = _holdingMarketKey(h);
-                        if (mk === 'TW' || mk === 'HK' || mk === 'US') updatedMarkets.add(mk);
+                        updatedSymbols.add(h.symbol);
                     }
                 });
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
-                    // v15.072：CSV 不一定覆蓋三市場，只給有實際刷到報價的市場 mark lastQuoteAt
-                    if (updatedMarkets.size > 0) {
-                        try { _markBatchQuoteRefresh([...updatedMarkets], 'csv-silent'); } catch(_) {}
-                        try { _clearStaleMarketOpenedForOpenMarkets([...updatedMarkets]); } catch(_) {}
+                    const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
+                    // v15.947：partial market 只更新現價，不推進該市場的 quote freshness。
+                    if (quoteCoverage.fullMarkets.length > 0) {
+                        try { _markBatchQuoteRefresh(quoteCoverage.fullMarkets, 'csv-silent'); } catch(_) {}
                     }
+                    try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
                     // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
                     // v15.934 錯峰：1500→8000ms（同 directApplyPrices，close pair 優先）
                     try {
