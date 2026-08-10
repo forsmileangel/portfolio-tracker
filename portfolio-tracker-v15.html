@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.947 修正補記 - TradingView 公開 widget 只載入前 5 個 study；月相開啟時改為優先載入 MoonPhases，保留 MA、LinReg、MACD、RSI，確保月相圓點與背景區段實際繪製
   v15.0 - 基於 v13，加入持倉保留勾選功能，預設空白持倉
   v15.1 - 配色改為藍黑色系
   v15.2 - Service Worker 自動偵測新版本並更新，不再需要手動清快取
@@ -6420,9 +6421,11 @@
             }
             const tvSymbol = String(item.tvSymbol || '').trim().toUpperCase();
             _updateWatchlistMoonControl(tvSymbol ? 'tv' : 'none');
-            const studyLabel = _watchlistMoonPhasesEnabled ? ' / 月相' : '';
             if (title) title.textContent = `${item.symbol} 技術圖`;
-            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · MA / LinReg / Stoch / MACD / RSI${studyLabel}` : '請設定 TradingView symbol';
+            const studySetLabel = _watchlistMoonPhasesEnabled
+                ? 'MA / LinReg / MACD / RSI / 月相'
+                : 'MA / LinReg / Stoch / MACD / RSI';
+            if (subtitle) subtitle.textContent = tvSymbol ? `${tvSymbol} · ${studySetLabel}` : '請設定 TradingView symbol';
             if (source) source.textContent = 'visual-only';
             if (!tvSymbol) {
                 _watchlistRenderedTvKey = null;
@@ -6445,14 +6448,22 @@
             script.type = 'text/javascript';
             script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
             script.async = true;
-            const studies = [
-                'MASimple@tv-basicstudies',
-                'STD;Linear_Regression',
-                'STD;Stochastic',
-                'STD;MACD',
-                'STD;RSI'
-            ];
-            if (_watchlistMoonPhasesEnabled) studies.push('MoonPhases@tv-basicstudies');
+            // 公開 Advanced Chart widget 目前只會載入前 5 個預設 study；月相開啟時取代重複性較高的 Stoch，避免第 6 個被靜默忽略。
+            const studies = _watchlistMoonPhasesEnabled
+                ? [
+                    'MoonPhases@tv-basicstudies',
+                    'MASimple@tv-basicstudies',
+                    'STD;Linear_Regression',
+                    'STD;MACD',
+                    'STD;RSI'
+                ]
+                : [
+                    'MASimple@tv-basicstudies',
+                    'STD;Linear_Regression',
+                    'STD;Stochastic',
+                    'STD;MACD',
+                    'STD;RSI'
+                ];
             script.text = JSON.stringify({
                 autosize: true,
                 symbol: tvSymbol,
