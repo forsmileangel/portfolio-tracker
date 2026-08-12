@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.948 - Yahoo 報價日期配對修正：新增有效 timestamp/close 成對過濾 helper，修正基本面 fallback、技術面刷新、槓桿代理標的與總經漲跌的日期錯位
   v15.947 修正補記 - TradingView 公開 widget 只載入前 5 個 study；月相開啟時改為優先載入 MoonPhases，保留 MA、LinReg、MACD、RSI，確保月相圓點與背景區段實際繪製
   v15.0 - 基於 v13，加入持倉保留勾選功能，預設空白持倉
   v15.1 - 配色改為藍黑色系
@@ -82,6 +83,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.948 - Yahoo 報價日期配對修正：新增共用有效收盤配對 helper，將 Yahoo timestamp 與 close 依相同 index 成對後再排除無效日期、null、非數字與非正價格；套用至基本面缺資料 fallback、技術面快取更新、槓桿／代理標的 5 日昨收修正及總經單日／七日漲跌，避免尾端或中央 null 讓日期與收盤價錯位。保留觀察清單精確日期邏輯、range=1d chartPreviousClose 備援、close pair、報價來源順序與快取結構；不改 UI、Gist、FSA、Storage Key、userDataHash、pending、snapshot、損益公式或 PWA。
         v15.947 - 月相指標與報價韌性優化：TradingView 技術圖新增可記憶的月相開關；觀察清單只抓目前分類、限制併發並以 Yahoo 報價時間與日期配對計算日漲跌，無法取得精確前一交易日資料時顯示「—」，失敗保留最後成功值並標示舊資料。CSV parser 支援 BOM、引號、換行與逗號數字；持倉市場 quote meta 僅在完整覆蓋時更新；新增受限的 Render Sheet CSV 備援與 Yahoo proxy allowlist。不改損益公式、close pair、Gist schema、userDataHash、pending 或 PWA 流程。
         v15.946 - 觀察清單交易所辨識、儲存回饋與持久排序：(1) 修正美股 TradingView symbol 無 mapping 時一律猜 NASDAQ 的問題；USD 靜態修正為 AMEX:USD，其餘美股依 Yahoo exchangeName/fullExchangeName 辨識 NASDAQ／NYSE／AMEX／CBOE，輸入後 debounce 查詢、儲存前等待完成，手動輸入永遠優先，查詢失敗保留既有 fallback。(2) 新增／編輯成功明確提示已儲存；localStorage 寫入失敗時回復本次陣列變更，不再顯示假成功。(3) 編輯模式新增桌機拖曳與全裝置上移／下移，僅重排目前分類佔用的原陣列位置，每次移動立即 saveWatchlist + watchlist dirty auto-push，重整、Gist 與 FSA 都保留順序。(4) 同版補上「置頂／置底」快捷排序，首尾按鈕會依目前位置自動禁用，與上下移動共用相同持久化流程。(5) 同版修正觀察清單今日漲跌：Yahoo `range=5d` 的 `chartPreviousClose` 是多日區間起點基準，不能直接當昨收；改用最後兩根有效日 K 的收盤價計算，資料不足才降級使用 meta fallback，修正 USD 78.59 被誤顯示為多日跌幅等問題。不新增 Storage Key／schema／migration，不改 userDataHash、pending、持倉、損益、快照或 PWA 流程。
         v15.945 - 久未開機裝置今日損益自癒：舊版 pt_adhoc_closures_v1 休市推論一律降為待重新驗證，confirmed 也必須在本次 session 經獨立 Yahoo dated-bar audit 才能改變 previousTradingDate；audit 不受 existing close pair skip 或本機推論日曆影響，看到 exact-date close 即解除誤判，證據不足時寧可顯示資料不足、不使用更早收盤價。Gist desktop/iOS final close pair 若包含被本機誤標日期的有效 close，可作為正面證據清除本機誤判後再合併，讓久未開機的 Android／桌機能自動修復。正式升版避免兩個不同程式都叫 v15.944，PWA 首次版本檢查提前至 15 秒；不改 Gist schema、userDataHash、pending、master flag、損益公式或 portfolio day。
@@ -778,7 +780,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.947</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.948</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1619,7 +1621,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.947';
+        const APP_VERSION = 'v15.948';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -12172,6 +12174,22 @@
         // #endregion Local Sync
 
         // #region Analysis Data (fundamentals.json + Yahoo chart)
+        function _validYahooClosePairs(result) {
+            const timestamps = Array.isArray(result?.timestamp) ? result.timestamp : [];
+            const closes = Array.isArray(result?.indicators?.quote?.[0]?.close)
+                ? result.indicators.quote[0].close : [];
+            const pairs = [];
+            const count = Math.min(timestamps.length, closes.length);
+            for (let i = 0; i < count; i++) {
+                const ts = Number(timestamps[i]);
+                const close = Number(closes[i]);
+                if (Number.isFinite(ts) && ts > 0 && Number.isFinite(close) && close > 0) {
+                    pairs.push({ ts, close });
+                }
+            }
+            return pairs.sort((a, b) => a.ts - b.ts);
+        }
+
         async function fetchSymbolDataFromYahoo(symbol) {
             const BASE1    = 'https://query1.finance.yahoo.com';
             const fundBase = BACKEND_URL || '';
@@ -12405,13 +12423,13 @@
             // 昨收價 & 前日收盤：判斷今日是否開盤後，選正確 index
             let prevClose     = fund?.prev_close      ?? null;
             let prevPrevClose = fund?.prev_prev_close ?? null;
-            const dailyTs3   = dailyData?.chart?.result?.[0]?.timestamp ?? [];
-            const lastDailyTs = dailyTs3[dailyTs3.length - 1];
+            const dailyPairs3 = _validYahooClosePairs(dailyData?.chart?.result?.[0]);
+            const lastDailyTs = dailyPairs3.length ? dailyPairs3[dailyPairs3.length - 1].ts : null;
             const _tz3 = _exchangeTz(symbol);
             const todayET3    = new Date().toLocaleDateString('en-US', {timeZone:_tz3});
             const barET3      = lastDailyTs ? new Date(lastDailyTs*1000).toLocaleDateString('en-US',{timeZone:_tz3}) : '';
             const marketOpenedToday = (todayET3 === barET3);
-            const valid3 = Array.isArray(dailyC) ? dailyC.filter(c => c != null) : [];
+            const valid3 = dailyPairs3.map(pair => pair.close);
             if (marketOpenedToday) {
                 // 最後一根 = 今日進行中 → [-2]=昨日, [-3]=前日
                 if (prevClose == null && valid3.length >= 2)     prevClose     = valid3[valid3.length - 2];
@@ -12463,13 +12481,13 @@
             const weeklyC  = weeklyQ.close, dailyC = dailyQ.close, hourlyC = hourlyQ.close;
             // prevClose & marketOpenedToday
             // 用 _exchangeTz() 依標的市場選擇正確時區判斷今日是否開盤
-            const dailyTs  = dailyData?.chart?.result?.[0]?.timestamp ?? [];
-            const lastTs   = dailyTs[dailyTs.length - 1];
+            const dailyPairs = _validYahooClosePairs(dailyData?.chart?.result?.[0]);
+            const lastTs   = dailyPairs.length ? dailyPairs[dailyPairs.length - 1].ts : null;
             const _tz      = _exchangeTz(symbol);
             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
             const barET    = lastTs ? new Date(lastTs*1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
             const opened   = (todayET === barET);
-            const valid    = Array.isArray(dailyC) ? dailyC.filter(c => c != null) : [];
+            const valid    = dailyPairs.map(pair => pair.close);
             const adjC     = valid.slice();
             if (!opened) { while (adjC.length >= 2 && adjC[adjC.length-1] === adjC[adjC.length-2]) adjC.pop(); }
             let prevClose = null, prevPrevClose = null;
@@ -13032,13 +13050,12 @@
                         const _BASE_pc = 'https://query1.finance.yahoo.com';
                         const _pd5 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=5d`);
                         const _pr5 = _pd5?.chart?.result?.[0];
-                        const _pts = _pr5?.timestamp ?? [];
-                        const _praw = _pr5?.indicators?.quote?.[0]?.close ?? [];
                         const _pccy = _pr5?.meta?.currency ?? '';
                         const _pscale = (HK_USD_PRICED.has(_psym) && _pccy === 'HKD')
                             ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
-                        const _pcls = _praw.filter(c => c != null).map(c => c * _pscale);
-                        const _plast = _pts[_pts.length - 1];
+                        const _ppairs = _validYahooClosePairs(_pr5);
+                        const _pcls = _ppairs.map(pair => pair.close * _pscale);
+                        const _plast = _ppairs.length ? _ppairs[_ppairs.length - 1].ts : null;
                         const _ptz = _exchangeTz(_psym);
                         const _ptd = new Date().toLocaleDateString('en-US', {timeZone: _ptz});
                         const _pbd = _plast ? new Date(_plast * 1000).toLocaleDateString('en-US', {timeZone: _ptz}) : '';
@@ -14198,15 +14215,14 @@
                 try {
                     const data = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?interval=1d&range=10d`);
                     const ch = data?.chart?.result?.[0];
-                    const ts = ch?.timestamp ?? [];
-                    const closes = (ch?.indicators?.quote?.[0]?.close ?? []).filter(v => v != null);
-                    if (closes.length >= 2) {
-                        const cur = closes[closes.length-1];
-                        const prev1 = closes[closes.length-2];
+                    const closePairs = _validYahooClosePairs(ch);
+                    if (closePairs.length >= 2) {
+                        const cur = closePairs[closePairs.length - 1].close;
+                        const prev1 = closePairs[closePairs.length - 2].close;
                         const sevenAgo = Date.now()/1000 - 7*24*3600;
-                        let old7 = closes[0];
-                        for (let j = ts.length-1; j >= 0; j--) {
-                            if (ts[j] <= sevenAgo && closes[j] != null) { old7 = closes[j]; break; }
+                        let old7 = closePairs[0].close;
+                        for (let j = closePairs.length - 1; j >= 0; j--) {
+                            if (closePairs[j].ts <= sevenAgo) { old7 = closePairs[j].close; break; }
                         }
                         results.push({ ...m, price: cur, chg1d:(cur-prev1)/prev1*100, chg7d:(cur-old7)/old7*100 });
                     } else {
