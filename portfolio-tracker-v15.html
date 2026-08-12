@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 三欄與本月到期清單；持倉總資產列加可點月還標示；_lookupPrice 支援 .HK
   v15.948 - Yahoo 報價日期配對修正：新增有效 timestamp/close 成對過濾 helper，修正基本面 fallback、技術面刷新、槓桿代理標的與總經漲跌的日期錯位
   v15.947 修正補記 - TradingView 公開 widget 只載入前 5 個 study；月相開啟時改為優先載入 MoonPhases，保留 MA、LinReg、MACD、RSI，確保月相圓點與背景區段實際繪製
   v15.0 - 基於 v13，加入持倉保留勾選功能，預設空白持倉
@@ -83,6 +84,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 頂部改三欄（貸款總額／每月應還／淨資產）並列出本月尚未到期明細；持倉總資產列在有未結清月還時加可點的「月還 NT$xx」標示（不從總資產扣除）。每月應還 = 未結清貸款本期實際應付（nextInterest + nextPrincipal；最後一期小於月付時用實際金額；月付過低／未設定不計入）。純顯示，不寫流水帳、不產生 pending。_lookupPrice 港股支援有無 .HK 後綴。不改 _projectLoanBalance、五張統計卡、圓餅、Gist schema、userDataHash、pending、close pair 或損益公式。
         v15.948 - Yahoo 報價日期配對修正：新增共用有效收盤配對 helper，將 Yahoo timestamp 與 close 依相同 index 成對後再排除無效日期、null、非數字與非正價格；套用至基本面缺資料 fallback、技術面快取更新、槓桿／代理標的 5 日昨收修正及總經單日／七日漲跌，避免尾端或中央 null 讓日期與收盤價錯位。保留觀察清單精確日期邏輯、range=1d chartPreviousClose 備援、close pair、報價來源順序與快取結構；不改 UI、Gist、FSA、Storage Key、userDataHash、pending、snapshot、損益公式或 PWA。
         v15.947 - 月相指標與報價韌性優化：TradingView 技術圖新增可記憶的月相開關；觀察清單只抓目前分類、限制併發並以 Yahoo 報價時間與日期配對計算日漲跌，無法取得精確前一交易日資料時顯示「—」，失敗保留最後成功值並標示舊資料。CSV parser 支援 BOM、引號、換行與逗號數字；持倉市場 quote meta 僅在完整覆蓋時更新；新增受限的 Render Sheet CSV 備援與 Yahoo proxy allowlist。不改損益公式、close pair、Gist schema、userDataHash、pending 或 PWA 流程。
         v15.946 - 觀察清單交易所辨識、儲存回饋與持久排序：(1) 修正美股 TradingView symbol 無 mapping 時一律猜 NASDAQ 的問題；USD 靜態修正為 AMEX:USD，其餘美股依 Yahoo exchangeName/fullExchangeName 辨識 NASDAQ／NYSE／AMEX／CBOE，輸入後 debounce 查詢、儲存前等待完成，手動輸入永遠優先，查詢失敗保留既有 fallback。(2) 新增／編輯成功明確提示已儲存；localStorage 寫入失敗時回復本次陣列變更，不再顯示假成功。(3) 編輯模式新增桌機拖曳與全裝置上移／下移，僅重排目前分類佔用的原陣列位置，每次移動立即 saveWatchlist + watchlist dirty auto-push，重整、Gist 與 FSA 都保留順序。(4) 同版補上「置頂／置底」快捷排序，首尾按鈕會依目前位置自動禁用，與上下移動共用相同持久化流程。(5) 同版修正觀察清單今日漲跌：Yahoo `range=5d` 的 `chartPreviousClose` 是多日區間起點基準，不能直接當昨收；改用最後兩根有效日 K 的收盤價計算，資料不足才降級使用 meta fallback，修正 USD 78.59 被誤顯示為多日跌幅等問題。不新增 Storage Key／schema／migration，不改 userDataHash、pending、持倉、損益、快照或 PWA 流程。
@@ -780,7 +782,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.948</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.949</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -901,6 +903,10 @@
                 </span>
                 <span style="color:#7e93a6;font-size:0.78rem;">＝</span>
                 <span id="ta-total" class="mono" style="color:#f1f5f9;font-size:0.95rem;font-weight:800;"></span>
+                <span id="ta-loan-wrap" style="display:none; align-items:center; gap:0.35rem;">
+                    <span style="color:#7e93a6;font-size:0.78rem;">｜</span>
+                    <span onclick="switchTab(8)" title="前往貸款" style="color:#c4b38a;font-size:0.78rem;cursor:pointer;border-bottom:1px dotted rgba(196,179,138,0.45);">月還 <span id="ta-loan-monthly" class="mono pv-field" style="color:#e8d7a8;font-weight:700;"></span></span>
+                </span>
             </div>
             <!-- 標題列 + 輸入欄 -->
             <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.25rem;">
@@ -1621,7 +1627,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.948';
+        const APP_VERSION = 'v15.949';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4983,6 +4989,7 @@
                 if (taMoxa)   taMoxa.innerHTML   = pv(fmtTWD(moxaTWD));
                 if (taMoxaWrap) taMoxaWrap.style.display = moxaTWD > 0 ? 'inline-flex' : 'none';
                 if (taTotal)  taTotal.innerHTML  = pv(fmtTWD(totalTWD));
+                _renderTotalAssetsLoanChip();
                 taBar.style.display = hasAny ? 'flex' : 'none';
             }
 
@@ -5588,6 +5595,49 @@
                 .filter(l => l && l.active !== false)
                 .reduce((s, l) => s + _projectLoanBalance(l).balance, 0);
         }
+        // v15.949：本期實際應付（一般期 = 月付；最後一期 = 利息+剩餘本金）。只讀、不寫資料。
+        function _loanRepaymentView(loan) {
+            if (!loan || loan.active === false) return null;
+            const n = _normalizeLoan(loan);
+            const proj = _projectLoanBalance(n);
+            if (!proj || proj.paidOff || !(proj.balance > 0)) return null;
+            if (proj.warning === 'monthly_payment_missing' || proj.warning === 'monthly_payment_too_low') return null;
+            // 月付尚未高過本期利息時無法還本，不計入每月應還（含首次還款日前、warning 還未寫入的情況）
+            if (!(_numOr(proj.nextPrincipal, 0) > 0)) return null;
+            const amount = _numOr(proj.nextInterest, 0) + _numOr(proj.nextPrincipal, 0);
+            if (!(amount > 0)) return null;
+            return { loan: n, proj, amount, dueDate: proj.nextDueDate || '' };
+        }
+        function _activeMonthlyRepaymentTWD() {
+            return (loans || []).reduce((sum, loan) => {
+                const view = _loanRepaymentView(loan);
+                return sum + (view ? view.amount : 0);
+            }, 0);
+        }
+        function _loansDueThisMonth() {
+            const yearMonth = String(_taipeiToday() || '').slice(0, 7);
+            if (!/^\d{4}-\d{2}$/.test(yearMonth)) return [];
+            return (loans || []).map(_loanRepaymentView).filter(view => {
+                return view && String(view.dueDate).startsWith(yearMonth);
+            }).sort((a, b) => {
+                if (a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+                const bankCmp = String(a.loan.bank).localeCompare(String(b.loan.bank), 'zh-Hant');
+                if (bankCmp) return bankCmp;
+                return String(a.loan.name).localeCompare(String(b.loan.name), 'zh-Hant');
+            });
+        }
+        function _renderTotalAssetsLoanChip() {
+            const wrap = document.getElementById('ta-loan-wrap');
+            const amountEl = document.getElementById('ta-loan-monthly');
+            if (!wrap) return;
+            const monthly = _activeMonthlyRepaymentTWD();
+            if (!(monthly > 0)) {
+                wrap.style.display = 'none';
+                return;
+            }
+            wrap.style.display = 'inline-flex';
+            if (amountEl) amountEl.innerHTML = pv('NT$ ' + Math.round(monthly).toLocaleString('en-US'));
+        }
 
         function addLoan() {
             const bank  = document.getElementById('loan-bank-input')?.value.trim();
@@ -5681,26 +5731,46 @@
             loans = _normalizeLoans(loans);
             const fmtN = v => Math.round(v || 0).toLocaleString('en-US');
             const loansTotalTWD = _activeLoansTotalTWD();
+            const monthlyRepayTWD = _activeMonthlyRepaymentTWD();
             const grandTotal    = _grandTotalTWD();
             const netWorthTWD   = grandTotal - loansTotalTWD;
             const activeCount = loans.filter(l => l && l.active !== false && _projectLoanBalance(l).balance > 0).length;
+            const dueThisMonth = _loansDueThisMonth();
+            const dueListHtml = dueThisMonth.length
+                ? `<div style="margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(148,163,184,0.12);">
+                    <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.35rem;letter-spacing:0.04em;">本月到期</div>
+                    ${dueThisMonth.map(row => `
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.75rem;flex-wrap:wrap;padding:0.14rem 0;font-size:0.78rem;">
+                        <span style="color:#c5d0d8;">${_escapeHtml(row.loan.bank)} · ${_escapeHtml(row.loan.name)}　${String(row.dueDate).slice(5)}</span>
+                        <span class="mono pv-field" style="color:#e8d7a8;">${pv('NT$ ' + fmtN(row.amount))}</span>
+                    </div>`).join('')}
+                </div>`
+                : `<div style="margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(148,163,184,0.12);color:#607585;font-size:0.72rem;">本月無到期</div>`;
 
             const statsHtml = `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                    <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▤</i> 貸款管理</h2>
+                    <div>${_pvBtnHtml()}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;">
                     <div>
-                        <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0 0 0.45rem 0;"><i class="ic">▤</i> 貸款管理</h2>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">貸款總額（TWD）</div>
-                        <div class="mono pv-field" style="font-size:1.55rem;font-weight:800;color:#f87171;line-height:1.1;">${pv('NT$ ' + fmtN(loansTotalTWD))}</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">貸款總額（剩餘本金）</div>
+                        <div class="mono pv-field" style="font-size:1.45rem;font-weight:800;color:#f87171;line-height:1.1;">${pv('NT$ ' + fmtN(loansTotalTWD))}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.35rem;">共 ${activeCount} 筆未還清；餘額由今天日期即時推導</div>
                     </div>
-                    <div style="text-align:right;min-width:180px;">
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;letter-spacing:0.04em;">每月應還</div>
+                        <div class="mono pv-field" style="font-size:1.45rem;font-weight:800;color:#fbbf24;line-height:1.1;">${pv('NT$ ' + fmtN(monthlyRepayTWD))}</div>
+                        <div style="color:#607585;font-size:0.72rem;margin-top:0.35rem;">未結清貸款本期實際應付</div>
+                    </div>
+                    <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">淨資產（只在貸款頁顯示）</div>
                         <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:${netWorthTWD >= 0 ? '#10b981' : '#ef4444'};">${pv('NT$ ' + fmtN(netWorthTWD))}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.25rem;">既有總資產 - 貸款總額</div>
-                        <div style="margin-top:0.45rem;">${_pvBtnHtml()}</div>
                     </div>
                 </div>
+                ${dueListHtml}
                 <div id="loans-sync-time" style="color:#607585;font-size:0.72rem;margin-top:0.6rem;">${_syncTimeText('loans')}</div>
             </div>`;
 
@@ -5744,6 +5814,7 @@
                 : sorted.map(l => _buildLoanCardHtml(l)).join('');
 
             pane.innerHTML = statsHtml + formHtml + cardsHtml;
+            _renderTotalAssetsLoanChip();
         }
 
         function _buildLoanCardHtml(rawLoan) {
@@ -11013,6 +11084,13 @@
                 const withoutTW = h.symbol.replace(/\.TW$/i, '');
                 if (prices[withTW]    != null) return prices[withTW];
                 if (prices[withoutTW] != null) return prices[withoutTW];
+            }
+            // v15.949：港股同樣允許有無 .HK 後綴（9747 ↔ 9747.HK）
+            if (h.market === 'HK') {
+                const withHK    = h.symbol + '.HK';
+                const withoutHK = h.symbol.replace(/\.HK$/i, '');
+                if (prices[withHK]    != null) return prices[withHK];
+                if (prices[withoutHK] != null) return prices[withoutHK];
             }
             return null;
         }
