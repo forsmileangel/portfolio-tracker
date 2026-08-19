@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.951 - 9747→7747 櫃台轉換與成本預演：以 7747.HK 接續 9747 的報價與 close pair，保留 9747 持倉直到使用者確認；新增 1:1 股數、FIFO lots、系統匯率估算與券商平均成本覆蓋預覽，套用後寫入 corporateActions 並同步。
   v15.950 - 7747 港股圖表修正：TradingView 免費 Advanced Chart 不提供 HKEX:7747，觀察清單改走 Yahoo 原生 K 線備援
   v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 三欄與本月到期清單；持倉總資產列加可點月還標示；_lookupPrice 支援 .HK
   v15.948 - Yahoo 報價日期配對修正：新增有效 timestamp/close 成對過濾 helper，修正基本面 fallback、技術面刷新、槓桿代理標的與總經漲跌的日期錯位
@@ -85,6 +86,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.951 - 9747→7747 櫃台轉換與成本預演：9747 美元櫃台停牌後，持倉仍保留 9747 顯示，但報價與 close pair 改接 7747.HK；新增 1:1 股數、FIFO lots、匯率估算與券商平均成本覆蓋預覽，只有使用者確認後才轉成 7747.HK，並以 counterMigration corporate action 留下可同步紀錄。不自動修改觀察清單，不改 PT_SCHEMA_VERSION、Gist/FSA 結構、userDataHash、pending、snapshot、損益公式或 Storage Key。
         v15.950 - 7747 港股圖表修正：確認 HKEX:7747 在 TradingView 完整網站有行情，但免費 Advanced Chart widget 會回覆 Invalid symbol／僅限 TradingView，與月相或技術指標無關；觀察清單 metadata 為 7747 與 7747.HK 啟用既有 Yahoo 原生圖 fallback，使用 7747.HK 日 K 繪製 K 線、MA20／MA60、LinReg 與 RSI，並歸類為個股槓桿。只調整 visual-only 圖表路由，不改持倉、報價快取、close pair、損益、snapshot、Gist、FSA、userDataHash、pending、Storage Key 或 PWA 流程。
         v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 頂部改三欄（貸款總額／每月應還／淨資產）並列出本月尚未到期明細；持倉總資產列在有未結清月還時加可點的「月還 NT$xx」標示（不從總資產扣除）。每月應還 = 未結清貸款本期實際應付（nextInterest + nextPrincipal；最後一期小於月付時用實際金額；月付過低／未設定不計入）。純顯示，不寫流水帳、不產生 pending。_lookupPrice 港股支援有無 .HK 後綴。不改 _projectLoanBalance、五張統計卡、圓餅、Gist schema、userDataHash、pending、close pair 或損益公式。
         v15.948 - Yahoo 報價日期配對修正：新增共用有效收盤配對 helper，將 Yahoo timestamp 與 close 依相同 index 成對後再排除無效日期、null、非數字與非正價格；套用至基本面缺資料 fallback、技術面快取更新、槓桿／代理標的 5 日昨收修正及總經單日／七日漲跌，避免尾端或中央 null 讓日期與收盤價錯位。保留觀察清單精確日期邏輯、range=1d chartPreviousClose 備援、close pair、報價來源順序與快取結構；不改 UI、Gist、FSA、Storage Key、userDataHash、pending、snapshot、損益公式或 PWA。
@@ -343,6 +345,21 @@
         .watchlist-pro-drag-handle { display:inline-flex; align-items:center; justify-content:center; align-self:stretch; min-width:1.7rem; color:var(--pt-text-muted); cursor:grab; user-select:none; touch-action:none; font-size:1.15rem; line-height:1; }
         .watchlist-pro-drag-handle:active { cursor:grabbing; color:var(--pt-accent-strong); }
         .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
+
+        .counter-migration-panel { margin:0 0 0.9rem; padding:0.85rem; border:1px solid var(--pt-border); border-radius:8px; background:var(--pt-surface-2); }
+        .counter-migration-panel[hidden] { display:none; }
+        .counter-migration-title { color:var(--pt-accent-strong); font-size:0.86rem; font-weight:800; }
+        .counter-migration-copy { color:var(--pt-text-muted); font-size:0.74rem; line-height:1.5; margin-top:0.18rem; }
+        .counter-migration-grid { display:grid; grid-template-columns:minmax(145px, 1fr) minmax(145px, 1fr); gap:0.55rem; margin-top:0.7rem; }
+        .counter-migration-field label { display:block; color:var(--pt-text-muted); font-size:0.72rem; margin-bottom:0.2rem; }
+        .counter-migration-field input, .counter-migration-field select { padding:0.48rem 0.6rem; font-size:0.82rem; }
+        .counter-migration-preview { margin-top:0.65rem; padding:0.65rem 0.75rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); color:var(--pt-text-soft); font-size:0.77rem; line-height:1.55; }
+        .counter-migration-preview.is-warning { border-color:rgba(213,176,113,0.55); background:var(--pt-warning-soft); }
+        .counter-migration-preview.is-ready { border-color:rgba(139,198,156,0.55); background:var(--pt-positive-soft); }
+        .counter-migration-actions { display:flex; justify-content:flex-end; gap:0.5rem; flex-wrap:wrap; margin-top:0.65rem; }
+        .counter-migration-actions button { padding:0.5rem 0.8rem; font-size:0.78rem; }
+        .counter-migration-apply { background:var(--pt-positive-soft); color:var(--pt-positive); border-color:rgba(139,198,156,0.55); }
+        @media (max-width:540px) { .counter-migration-grid { grid-template-columns:1fr; } .counter-migration-actions button { flex:1 1 100%; } }
         .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid var(--pt-border); border-radius:8px; overflow:hidden; background:var(--pt-bg); }
         .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:var(--pt-text-muted); text-align:center; padding:2rem; }
         .watchlist-pro-chart-tools { display:flex; align-items:center; justify-content:flex-end; gap:0.6rem; margin-left:auto; flex-wrap:wrap; }
@@ -784,7 +801,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.950</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.951</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -992,6 +1009,25 @@
                 <div>
                     <div style="color:#60a5fa; font-size:0.92rem; font-weight:800;"><i class="ic">◇</i> 公司行動 / 股票分割</div>
                     <div style="color:#7e93a6; font-size:0.76rem; margin-top:0.18rem;">手動套用 split / reverse split，調整股數、成本與 FIFO lots；不回溯歷史快照。</div>
+                </div>
+            </div>
+            <div id="counter-migration-panel" class="counter-migration-panel" hidden>
+                <div class="counter-migration-title"><i class="ic">⇄</i> 9747 → 7747 櫃台轉換預覽</div>
+                <div class="counter-migration-copy">9747 美元櫃台已於 2026-08-18 停牌；目前仍保留 9747 顯示，報價接續自 7747.HK。數量依公告 1:1，只有按下確認後才會轉換持倉。</div>
+                <div class="counter-migration-grid">
+                    <div class="counter-migration-field">
+                        <label for="counter-migration-symbol">待轉換持倉</label>
+                        <select id="counter-migration-symbol" onchange="previewCounterMigration()"></select>
+                    </div>
+                    <div class="counter-migration-field">
+                        <label for="counter-broker-cost">券商完成後平均成本（HKD，可選）</label>
+                        <input id="counter-broker-cost" type="number" min="0" step="0.0001" placeholder="留空＝系統匯率估算" oninput="previewCounterMigration()">
+                    </div>
+                </div>
+                <div id="counter-migration-preview" class="counter-migration-preview">等待選擇 9747 持倉。</div>
+                <div class="counter-migration-actions">
+                    <button type="button" onclick="refreshCounterMigrationQuote()">↻ 更新 7747 報價</button>
+                    <button type="button" id="counter-migration-apply-btn" class="counter-migration-apply" onclick="applyCounterMigration()" disabled>確認券商完成後套用</button>
                 </div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:0.55rem; align-items:end;">
@@ -1629,7 +1665,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.950';
+        const APP_VERSION = 'v15.951';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -2738,7 +2774,7 @@
             if (!key) return [];
             try {
                 return _normalizeCorporateActions(corporateActions)
-                    .filter(a => _cleanSymbolKey(a.symbol) === key && a.actionDate && a.ratio > 0 && isFinite(a.ratio))
+                    .filter(a => (a.type === 'split' || a.type === 'reverseSplit') && _cleanSymbolKey(a.symbol) === key && a.actionDate && a.ratio > 0 && isFinite(a.ratio))
                     .sort((a, b) => String(a.actionDate).localeCompare(String(b.actionDate)));
             } catch(_) {
                 return [];
@@ -3025,6 +3061,7 @@
         // 從 Yahoo chart 10d 抓 close pair：target 與 prevDate 都必須精確匹配市場行事曆。
         // Yahoo 的精確前交易日 close=null 時，只可用同日期 fundamentals / cache 補值，不可跳到更早交易日。
         async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate, options) {
+            let querySymbol = '';
             try {
                 const session = _marketSession(marketKey, new Date());
                 const target = targetDate || session.lastCompletedTradingDate;
@@ -3032,8 +3069,11 @@
                 const expectedPrevDate = _expectedPrevTradingDate(marketKey, target);   // v15.924：未涵蓋年份降級
                 if (!expectedPrevDate || !_isPossibleTradingDay(marketKey, target)) return null;
                 const final = !!(options && options.final);
-                const querySymbol = _canonicalYahooSymbol(symbol, marketKey);
+                const migration = _counterMigrationForSymbol(symbol, marketKey);
+                querySymbol = migration?.targetSymbol || _canonicalYahooSymbol(symbol, marketKey);
                 if (!querySymbol) return null;
+                const holdingContext = migration ? { symbol, market: marketKey } : null;
+                const quoteScale = migration ? _counterQuoteScaleToHolding(holdingContext, migration.targetCurrency) : 1;
 
                 const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(querySymbol)}?interval=1d&range=10d`;
                 const data = await yfFetch(url);
@@ -3075,32 +3115,66 @@
                 let prevClose = (yahooPrevBar && typeof yahooPrevBar.close === 'number' && yahooPrevBar.close > 0)
                     ? yahooPrevBar.close : null;
                 let prevSource = 'yahoo';
+                let prevScale = quoteScale;
                 if (!(prevClose > 0)) {
-                    prevClose = _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
+                    prevClose = migration
+                        ? _exactFundamentalCloseForDate(querySymbol, marketKey, expectedPrevDate)
+                        : _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
                     prevSource = 'fundamentals';
+                    if (migration && !(prevClose > 0)) {
+                        prevClose = _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
+                        prevScale = 1;
+                        if (prevClose > 0) prevSource = 'fundamentals-source';
+                    } else if (migration && prevClose > 0) {
+                        prevScale = quoteScale;
+                    } else if (!migration && prevClose > 0) {
+                        prevScale = 1;
+                    }
                 }
                 if (!(prevClose > 0)) {
-                    prevClose = _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
+                    prevClose = migration
+                        ? _exactCachedCloseForDate(querySymbol, marketKey, expectedPrevDate)
+                        : _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
                     prevSource = 'cache';
+                    if (!(prevClose > 0) && migration) {
+                        prevClose = _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
+                        prevScale = 1;
+                        if (prevClose > 0) prevSource = 'cache-source';
+                    }
                 }
                 if (!(prevClose > 0)) return null;
 
                 return {
                     market: marketKey,
                     targetDate: target,
-                    close:     targetBar.close,
+                    close:     targetBar.close * quoteScale,
                     prevDate:  expectedPrevDate,
-                    prevClose,
+                    prevClose: prevClose * prevScale,
                     fetchedAt: new Date().toISOString(),
                     source:    (final ? 'yahoo-chart-10d-final' : 'yahoo-chart-10d')
                              + (prevSource !== 'yahoo' ? `+prev-${prevSource}` : '')
-                             + (querySymbol !== _cleanSymbolKey(symbol) ? ':' + querySymbol : ''),
+                             + (querySymbol !== _cleanSymbolKey(symbol) ? ':' + querySymbol : '')
+                             + (migration ? ':counter-7747' : ''),
                     final
                 };
             } catch(e) {
-                _recordAppError('close_pair_fetch', e, { symbol, querySymbol: _canonicalYahooSymbol(symbol, marketKey), marketKey });
+                _recordAppError('close_pair_fetch', e, { symbol, querySymbol: querySymbol || _canonicalYahooSymbol(symbol, marketKey), marketKey });
                 return null;
             }
+        }
+
+        function _counterScaleClosePairForHolding(pair, h) {
+            const migration = _counterMigrationForHolding(h);
+            if (!pair || !migration) return pair;
+            const scale = _counterQuoteScaleToHolding(h, migration.targetCurrency);
+            return {
+                ...pair,
+                close: Number(pair.close) * scale,
+                prevClose: Number(pair.prevClose) * scale,
+                source: `${pair.source || 'close-pair'}:counter-7747`,
+                quoteSymbol: migration.targetSymbol,
+                quoteCurrency: migration.targetCurrency
+            };
         }
 
         // v15.903：從 fundamentals.json 解析 close pair（優先來源，比打 Yahoo 快）
@@ -3378,7 +3452,9 @@
                         if (existing && !job.final && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
                         tasks.push(async () => {
                             try {
-                                let pair = job.forceYahoo ? null : _resolveClosePairFromFundamentals(h.symbol, mk, job.target, { final: job.final });
+                                const quoteSymbol = _counterQuoteSymbolForHolding(h);
+                                let pair = job.forceYahoo ? null : _resolveClosePairFromFundamentals(quoteSymbol, mk, job.target, { final: job.final });
+                                if (pair && _counterMigrationForHolding(h)) pair = _counterScaleClosePairForHolding(pair, h);
                                 if (pair) {
                                     resolved++;
                                 } else {
@@ -3488,16 +3564,17 @@
         function _loadMarketQuoteMeta() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEYS.marketQuoteMeta);
-                if (!raw) return { TW: null, HK: null, US: null };
+                if (!raw) return { TW: null, HK: null, US: null, counterQuotes: {} };
                 const parsed = JSON.parse(raw);
-                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null };
+                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null, counterQuotes: {} };
                 return {
                     TW: parsed.TW || null,
                     HK: parsed.HK || null,
-                    US: parsed.US || null
+                    US: parsed.US || null,
+                    counterQuotes: parsed.counterQuotes && typeof parsed.counterQuotes === 'object' ? parsed.counterQuotes : {}
                 };
             } catch(_) {
-                return { TW: null, HK: null, US: null };
+                return { TW: null, HK: null, US: null, counterQuotes: {} };
             }
         }
         function _markBatchQuoteRefresh(markets, source) {
@@ -5165,11 +5242,13 @@
                 const oldShares = parseFloat(a.oldShares);
                 const newShares = parseFloat(a.newShares);
                 if (!a.symbol || !isFinite(ratio) || ratio <= 0) return null;
+                const isCounterMigration = a.type === 'counterMigration' || a.actionKind === 'counterMigration';
                 return {
                     id: a.id || Date.now() + Math.random(),
                     symbol: String(a.symbol || '').trim().toUpperCase(),
                     market: String(a.market || getSymbolMarket(a.symbol || '') || 'US').toUpperCase(),
-                    type: a.type === 'reverseSplit' ? 'reverseSplit' : 'split',
+                    type: isCounterMigration ? 'counterMigration' : (a.type === 'reverseSplit' ? 'reverseSplit' : 'split'),
+                    actionKind: isCounterMigration ? 'counterMigration' : (a.actionKind || ''),
                     actionDate: a.actionDate || '',
                     oldShares: isFinite(oldShares) && oldShares > 0 ? oldShares : 1,
                     newShares: isFinite(newShares) && newShares > 0 ? newShares : ratio,
@@ -5184,6 +5263,16 @@
                     totalCostAfter: parseFloat(a.totalCostAfter) || 0,
                     marketValueBefore: parseFloat(a.marketValueBefore) || 0,
                     marketValueAfter: parseFloat(a.marketValueAfter) || 0,
+                    sourceSymbol: a.sourceSymbol || '',
+                    targetSymbol: a.targetSymbol || '',
+                    sourceCurrency: a.sourceCurrency || '',
+                    targetCurrency: a.targetCurrency || '',
+                    fxRate: parseFloat(a.fxRate) || 0,
+                    costMethod: a.costMethod || '',
+                    brokerAverageCost: parseFloat(a.brokerAverageCost) || 0,
+                    unitRatio: parseFloat(a.unitRatio) || 0,
+                    sourceHoldingId: a.sourceHoldingId ?? '',
+                    appliedAt: a.appliedAt || '',
                     note: a.note || '',
                     createdAt: a.createdAt || new Date().toISOString()
                 };
@@ -9929,6 +10018,221 @@
         function _caFmt(v, max = 4) { return Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: max }); }
         function _caMoney(v, h) { const sym = typeof _nativeCurrencySymbol === 'function' ? _nativeCurrencySymbol(h) : '$'; return pv(`${sym}${_caFmt(v, 4)}`); }
         function _caToday() { try { return _taipeiToday(); } catch(_) { return new Date().toISOString().slice(0,10); } }
+
+        let _counterMigrationPreviewState = null;
+        let _counterMigrationUiFingerprint = null;
+        function _counterMigrationMoney(value, currency) {
+            const prefix = currency === 'HKD' ? 'HK$' : currency === 'TWD' ? 'NT$' : '$';
+            const text = `${prefix}${_caFmt(value, 4)}`;
+            return typeof pv === 'function' ? pv(text) : text;
+        }
+        function _counterMigrationTargetHolding(source) {
+            const target = _counterMigrationForHolding(source)?.targetSymbol;
+            if (!target) return null;
+            return holdings.find(h => _cleanSymbolKey(h.symbol) === target || _cleanSymbolKey(h.symbol) === target.replace(/\.HK$/i, '')) || null;
+        }
+        function _counterMigrationLotsForPreview(h) {
+            try { _ensureLots(h); } catch(_) {}
+            return (h.lots || []).map(l => ({
+                qty: _caNum(l.qty ?? l.quantity),
+                cost: _caNum(l.cost ?? l.costPrice),
+                date: l.date || h.addedDate || _caToday()
+            })).filter(l => l.qty > 0 && l.cost > 0);
+        }
+        function _counterMigrationPreviewDraft() {
+            const symbol = _cleanSymbolKey(document.getElementById('counter-migration-symbol')?.value);
+            const h = _counterMigrationCandidates().find(x => _cleanSymbolKey(x.symbol) === symbol) || _counterMigrationCandidates()[0] || null;
+            const brokerRaw = parseFloat(document.getElementById('counter-broker-cost')?.value);
+            const brokerAverageCost = Number.isFinite(brokerRaw) && brokerRaw > 0 ? brokerRaw : null;
+            return { h, brokerAverageCost };
+        }
+        function _buildCounterMigrationPreview() {
+            const d = _counterMigrationPreviewDraft();
+            if (!d.h) return { ok: false, h: null, message: '目前沒有可轉換的 9747 持倉。' };
+            const migration = _counterMigrationForHolding(d.h);
+            const rate = _counterMigrationRate();
+            const sourceLots = _counterMigrationLotsForPreview(d.h);
+            const sourceQuantity = _caNum(d.h.quantity) || sourceLots.reduce((sum, l) => sum + l.qty, 0);
+            const sourceTotal = sourceLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
+            const sourceAverage = sourceQuantity > 0 ? sourceTotal / sourceQuantity : 0;
+            if (!migration || !(sourceQuantity > 0) || !(sourceAverage > 0) || !(rate > 0)) {
+                return { ok: false, h: d.h, message: '持倉批次或 USD/HKD 匯率資料不足，暫時無法預覽。' };
+            }
+            const existingTarget = _counterMigrationTargetHolding(d.h);
+            let existingTargetLots = [];
+            let existingQuantity = 0, existingTotal = 0;
+            if (existingTarget) {
+                existingTargetLots = _counterMigrationLotsForPreview(existingTarget);
+                existingQuantity = _caNum(existingTarget.quantity) || existingTargetLots.reduce((sum, l) => sum + l.qty, 0);
+                existingTotal = existingTargetLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
+            }
+            const estimatedLots = sourceLots.map(l => ({ ...l, cost: _counterRoundPrice(l.cost * rate) }));
+            const estimatedTotal = estimatedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
+            const estimatedAverage = sourceQuantity > 0 ? estimatedTotal / sourceQuantity : 0;
+            let scaleFactor = 1;
+            let message = '';
+            let costMethod = 'systemCrossRate';
+            if (d.brokerAverageCost != null) {
+                costMethod = 'brokerAverageProportional';
+                const desiredFinalTotal = d.brokerAverageCost * (existingQuantity + sourceQuantity);
+                const requiredSourceTotal = desiredFinalTotal - existingTotal;
+                const requiredSourceAverage = sourceQuantity > 0 ? requiredSourceTotal / sourceQuantity : 0;
+                if (!(requiredSourceAverage > 0)) {
+                    return { ok: false, h: d.h, message: '券商平均成本低於既有 7747 成本，無法產生正數的轉入批次成本。' };
+                }
+                scaleFactor = requiredSourceAverage / estimatedAverage;
+                message = '已依券商平均成本按比例重縮放每一個 FIFO lot，保留原批次相對差異。';
+            }
+            const convertedLots = estimatedLots.map(l => ({
+                qty: _caRoundQty(l.qty),
+                cost: _caRoundPrice(l.cost * scaleFactor),
+                date: l.date
+            }));
+            if (d.brokerAverageCost != null && convertedLots.length) {
+                const desiredSourceTotal = d.brokerAverageCost * (existingQuantity + sourceQuantity) - existingTotal;
+                const roundedSourceTotal = convertedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
+                const last = convertedLots[convertedLots.length - 1];
+                if (last.qty > 0) last.cost = _caRoundPrice(last.cost + (desiredSourceTotal - roundedSourceTotal) / last.qty);
+            }
+            const convertedTotal = convertedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
+            const finalQuantity = existingQuantity + sourceQuantity;
+            const finalTotal = existingTotal + convertedTotal;
+            const finalAverage = finalQuantity > 0 ? finalTotal / finalQuantity : 0;
+            const entry = _counterMigrationQuoteEntry(d.h);
+            const targetCurrentPrice = Number(entry?.quotePrice) > 0 ? Number(entry.quotePrice) : 0;
+            const beforeTwd = sourceTotal * Number(exchangeRates.USD_TWD || 0) + existingTotal * Number(exchangeRates.HKD_TWD || 0);
+            const afterTwd = finalTotal * Number(exchangeRates.HKD_TWD || 0);
+            return {
+                ok: true, h: d.h, migration, rate, sourceLots, convertedLots, existingTarget,
+                existingTargetLots, sourceQuantity, sourceTotal, sourceAverage, estimatedAverage,
+                convertedTotal, existingQuantity, existingTotal, finalQuantity, finalTotal, finalAverage,
+                targetCurrentPrice, beforeTwd, afterTwd, brokerAverageCost: d.brokerAverageCost,
+                costMethod, message, quoteEntry: entry || null
+            };
+        }
+        function previewCounterMigration() {
+            const panel = document.getElementById('counter-migration-panel');
+            const box = document.getElementById('counter-migration-preview');
+            const btn = document.getElementById('counter-migration-apply-btn');
+            if (!panel || !box || !btn) return;
+            const candidates = _counterMigrationCandidates();
+            if (!candidates.length) {
+                panel.hidden = true;
+                _counterMigrationPreviewState = null;
+                btn.disabled = true;
+                return;
+            }
+            panel.hidden = false;
+            const p = _buildCounterMigrationPreview();
+            _counterMigrationPreviewState = p;
+            box.classList.toggle('is-ready', !!p.ok);
+            box.classList.toggle('is-warning', !p.ok);
+            btn.disabled = !p.ok;
+            if (!p.ok) { box.innerHTML = `<span>${_escapeHtml(p.message || '暫時無法預覽。')}</span>`; return; }
+            const lotText = p.convertedLots.map((l, i) => `第 ${i + 1} 批 ${_caFmt(l.qty, 8)} 股 @ ${_counterMigrationMoney(l.cost, 'HKD')}`).join('；');
+            const brokerText = p.brokerAverageCost != null
+                ? `<div><span>券商覆蓋</span> <b>${_counterMigrationMoney(p.brokerAverageCost, 'HKD')}</b>（${_escapeHtml(p.message)}）</div>`
+                : '<div><span>成本方法</span> <b>系統 USD/HKD 匯率估算</b></div>';
+            const targetText = p.existingTarget ? `會併入既有 ${_escapeHtml(p.existingTarget.symbol)}，共 ${_caFmt(p.finalQuantity, 8)} 股` : `會把目前持倉改為 ${_escapeHtml(p.migration.targetSymbol)}，共 ${_caFmt(p.finalQuantity, 8)} 股`;
+            box.innerHTML = `
+                <div>${_escapeHtml(_counterMigrationQuoteLabel(p.h))}</div>
+                <div>轉換比例 <b>1:1</b>｜匯率 1 USD ≈ <b>${_caFmt(p.rate, 6)} HKD</b>｜${targetText}</div>
+                <div>目前成本 <b>${_counterMigrationMoney(p.sourceAverage, 'USD')}</b>／股 → 系統估算 <b>${_counterMigrationMoney(p.estimatedAverage, 'HKD')}</b>／股</div>
+                <div>轉換後平均成本 <b>${_counterMigrationMoney(p.finalAverage, 'HKD')}</b>／股｜成本換算 ${_counterMigrationMoney(p.sourceTotal, 'USD')} → ${_counterMigrationMoney(p.convertedTotal, 'HKD')}</div>
+                ${brokerText}
+                <div style="color:var(--pt-text-muted);font-size:0.72rem;margin-top:0.25rem;">FIFO 批次：${lotText || '無有效批次'}；預估總資產 TWD ${_caFmt(p.beforeTwd, 2)} → ${_caFmt(p.afterTwd, 2)}</div>
+                <div style="color:var(--pt-warning);font-size:0.72rem;margin-top:0.25rem;">產品預計約 2026-09-18 終止，實際日期以券商與公告為準。</div>`;
+        }
+        function renderCounterMigrationPanel() {
+            const panel = document.getElementById('counter-migration-panel');
+            const sel = document.getElementById('counter-migration-symbol');
+            if (!panel || !sel) return;
+            const candidates = _counterMigrationCandidates();
+            const fp = candidates.map(h => `${h.id}|${h.symbol}|${h.quantity}`).join(',');
+            if (fp !== _counterMigrationUiFingerprint) {
+                const prev = sel.value;
+                sel.innerHTML = candidates.map(h => `<option value="${_escapeHtml(h.symbol)}">${_escapeHtml(h.symbol)} · ${_caFmt(h.quantity, 8)} 股</option>`).join('') || '<option value="">無持倉</option>';
+                if (candidates.some(h => h.symbol === prev)) sel.value = prev;
+                else if (candidates.length) sel.value = candidates[0].symbol;
+                _counterMigrationUiFingerprint = fp;
+            }
+            previewCounterMigration();
+        }
+        async function refreshCounterMigrationQuote() {
+            const btn = document.getElementById('counter-migration-apply-btn');
+            try {
+                const result = await _refreshCounterMigrationQuotes('manual-counter');
+                renderAll();
+                showImportToast(result.fresh > 0 ? `已更新 ${result.fresh} 筆 7747 接續報價` : '7747 報價暫時無法取得，保留上一筆資料', 3000);
+            } catch(_) {
+                showWarnToast('7747 報價更新失敗，已保留上一筆資料', 3500);
+            } finally {
+                if (btn) btn.disabled = !_counterMigrationPreviewState?.ok;
+            }
+        }
+        function applyCounterMigration() {
+            const p = _buildCounterMigrationPreview();
+            if (!p.ok || !p.h) { showWarnToast(p.message || '轉換預覽未通過', 3500); return false; }
+            const quoteText = _counterMigrationQuoteLabel(p.h);
+            const methodText = p.brokerAverageCost != null ? `券商平均成本 ${_counterMigrationMoney(p.brokerAverageCost, 'HKD')}` : '系統 USD/HKD 匯率估算';
+            const targetText = p.existingTarget ? `併入既有 ${p.existingTarget.symbol}` : `改為 ${p.migration.targetSymbol}`;
+            if (!confirm(`確定套用 9747 → 7747 櫃台轉換？\n\n${targetText}\n數量 ${_caFmt(p.sourceQuantity, 8)} → ${_caFmt(p.finalQuantity, 8)}（1:1）\n成本 ${_counterMigrationMoney(p.sourceAverage, 'USD')} → ${_counterMigrationMoney(p.finalAverage, 'HKD')}\n${methodText}\n${quoteText}\n\n套用後會保留 FIFO 批次日期與相對成本差異，並寫入公司行動紀錄。`)) return false;
+            const source = p.h;
+            const sourceSymbol = source.symbol;
+            const sourceId = source.id;
+            const sourceQuantityBefore = _caNum(source.quantity);
+            const sourceTotalBefore = _caTotalCost(source);
+            const sourcePriceBefore = _caNum(source.currentPrice);
+            const target = p.existingTarget;
+            saveHistory();
+            if (target) {
+                _ensureLots(target);
+                target.lots = target.lots.concat(p.convertedLots.map(l => ({ ...l })));
+                target.lots.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+                target.quantity = _caRoundQty(target.lots.reduce((sum, l) => sum + _caNum(l.qty), 0));
+                target.costPrice = target.quantity > 0 ? _caRoundPrice(_caTotalCost(target) / target.quantity) : 0;
+                target.currentPrice = p.targetCurrentPrice > 0 ? _counterRoundQuote(p.targetCurrentPrice) : target.currentPrice;
+                target.name = target.name || source.name || '';
+                target.addedDate = [target.addedDate, source.addedDate].filter(Boolean).sort()[0] || target.addedDate;
+                target.persist = !!(target.persist || source.persist);
+                holdings = holdings.filter(h => h !== source);
+            } else {
+                source.symbol = p.migration.targetSymbol;
+                source.market = 'HK';
+                source.lots = p.convertedLots.map(l => ({ ...l }));
+                source.quantity = _caRoundQty(p.finalQuantity);
+                source.costPrice = source.quantity > 0 ? _caRoundPrice(_caTotalCost(source) / source.quantity) : 0;
+                source.currentPrice = p.targetCurrentPrice > 0 ? _counterRoundQuote(p.targetCurrentPrice) : 0;
+            }
+            const finalHolding = target || source;
+            corporateActions.push({
+                id: Date.now(), symbol: sourceSymbol, market: 'HK', type: 'counterMigration', actionKind: 'counterMigration',
+                actionDate: p.migration.effectiveDate, oldShares: 1, newShares: 1, ratio: 1,
+                quantityBefore: sourceQuantityBefore, quantityAfter: finalHolding.quantity,
+                costPriceBefore: sourceQuantityBefore > 0 ? sourceTotalBefore / sourceQuantityBefore : 0,
+                costPriceAfter: finalHolding.costPrice,
+                currentPriceBefore: sourcePriceBefore, currentPriceAfter: finalHolding.currentPrice,
+                totalCostBefore: sourceTotalBefore, totalCostAfter: _caTotalCost(finalHolding),
+                marketValueBefore: sourceQuantityBefore * sourcePriceBefore,
+                marketValueAfter: _caMarketValue(finalHolding),
+                sourceSymbol, targetSymbol: p.migration.targetSymbol,
+                sourceCurrency: p.migration.sourceCurrency, targetCurrency: p.migration.targetCurrency,
+                fxRate: p.rate, costMethod: p.costMethod, brokerAverageCost: p.brokerAverageCost || 0,
+                unitRatio: p.migration.unitRatio, sourceHoldingId: sourceId,
+                appliedAt: new Date().toISOString(),
+                note: '9747 USD counter → 7747 HKD counter；數量 1:1', createdAt: new Date().toISOString()
+            });
+            delete window._counterMigrationQuoteMeta[sourceSymbol];
+            saveCorporateActions();
+            saveToStorage();
+            _markAndAutoPush(['holdings', 'corporateActions']);
+            _counterMigrationUiFingerprint = null;
+            _closePairRefreshLastRun = 0;
+            _scheduleRefreshClosePair('counter-migration', { force: true });
+            renderAll();
+            showImportToast(`已套用 9747 → 7747 櫃台轉換（${p.costMethod === 'brokerAverageProportional' ? '券商成本' : '系統估算'}），可按復原鍵還原`, 6000);
+            return true;
+        }
         // v15.939：fingerprint 閘門 —— renderAll 每 60s tick 都呼叫本函式，原本資料未變也做 4 次 innerHTML 重建
         // （symbol select / 最近紀錄 / plan panel / preview）。簽名涵蓋所有渲染來源；使用者輸入的 preview
         // 走自己的 oninput 路徑（previewCorporateAction 直呼），不受閘門影響。
@@ -9936,6 +10240,7 @@
         function renderCorporateActionTool() {
             const sel = document.getElementById('ca-symbol');
             if (!sel) return;
+            renderCounterMigrationPanel();
             let _fp = '';
             try {
                 _fp = holdings.map(h => h.symbol + '|' + (h.market || '')).join(',')
@@ -9955,7 +10260,9 @@
             const recent = document.getElementById('ca-recent');
             if (recent) {
                 const rows = _normalizeCorporateActions(corporateActions).slice(-4).reverse();
-                recent.innerHTML = rows.length ? `最近紀錄：${rows.map(a => `${a.actionDate || ''} ${a.symbol} ${a.oldShares}→${a.newShares}`).join(' ｜ ')}` : '尚無股票分割紀錄';
+                recent.innerHTML = rows.length ? `最近紀錄：${rows.map(a => a.type === 'counterMigration'
+                    ? `${a.actionDate || ''} ${a.sourceSymbol || a.symbol}→${a.targetSymbol || '7747.HK'} 櫃台轉換`
+                    : `${a.actionDate || ''} ${a.symbol} ${a.oldShares}→${a.newShares}`).join(' ｜ ')}` : '尚無股票分割或櫃台轉換紀錄';
             }
             renderCorporateActionPlanPanel();
             previewCorporateAction();
@@ -10064,6 +10371,7 @@
         function _caActionAlreadyApplied(symbol, ratio, actionDate) {
             const key = String(symbol || '').toUpperCase();
             return _normalizeCorporateActions(corporateActions).some(a => {
+                if (a.type !== 'split' && a.type !== 'reverseSplit') return false;
                 if (String(a.symbol || '').toUpperCase() !== key) return false;
                 if (Math.abs(Number(a.ratio || 0) - Number(ratio || 0)) > 0.001) return false;
                 if (!actionDate || !a.actionDate) return true;
@@ -10305,7 +10613,7 @@
         }
         function _recentCorporateSplitAction(symbol) {
             const cutoff = Date.now() - 48 * 60 * 60 * 1000;
-            return _normalizeCorporateActions(corporateActions).slice().reverse().find(a => a.symbol === symbol && a.createdAt && new Date(a.createdAt).getTime() >= cutoff && a.currentPriceBefore > 0 && a.currentPriceAfter > 0 && a.ratio > 0) || null;
+            return _normalizeCorporateActions(corporateActions).slice().reverse().find(a => (a.type === 'split' || a.type === 'reverseSplit') && a.symbol === symbol && a.createdAt && new Date(a.createdAt).getTime() >= cutoff && a.currentPriceBefore > 0 && a.currentPriceAfter > 0 && a.ratio > 0) || null;
         }
         function _shouldRejectSplitStaleQuote(h, incomingPrice) {
             const incoming = _caNum(incomingPrice);
@@ -10622,7 +10930,7 @@
                         id: parseInt(c[0], 10) || (Date.now() + Math.random()),
                         symbol: (c[1] || '').trim().toUpperCase(),
                         market: (c[2] || getSymbolMarket(c[1] || '') || 'US').toUpperCase(),
-                        type: (c[3] || 'split') === 'reverseSplit' ? 'reverseSplit' : 'split',
+                        type: (c[3] || 'split') === 'counterMigration' ? 'counterMigration' : ((c[3] || 'split') === 'reverseSplit' ? 'reverseSplit' : 'split'),
                         actionDate: c[4] || '',
                         oldShares: parseFloat(c[5]) || 1,
                         newShares: parseFloat(c[6]) || 1,
@@ -10638,7 +10946,13 @@
                         marketValueBefore: parseFloat(c[16]) || 0,
                         marketValueAfter: parseFloat(c[17]) || 0,
                         note: c[18] || '',
-                        createdAt: c[19] || new Date().toISOString()
+                        createdAt: c[19] || new Date().toISOString(),
+                        actionKind: c[20] || '',
+                        sourceSymbol: c[21] || '', targetSymbol: c[22] || '',
+                        sourceCurrency: c[23] || '', targetCurrency: c[24] || '',
+                        fxRate: parseFloat(c[25]) || 0, costMethod: c[26] || '',
+                        brokerAverageCost: parseFloat(c[27]) || 0, unitRatio: parseFloat(c[28]) || 0,
+                        sourceHoldingId: c[29] || '', appliedAt: c[30] || ''
                     });
                 });
                 importedCorporateActions = _normalizeCorporateActions(importedCorporateActions);
@@ -10898,7 +11212,7 @@
             // ── CorporateActions（v15.920：股票分割 / 反分割）──
             if (corporateActions.length > 0) {
                 csv += '\n\n[CorporateActions]\n';
-                const caRows = [['Id','Symbol','Market','Type','ActionDate','OldShares','NewShares','Ratio','QuantityBefore','QuantityAfter','CostPriceBefore','CostPriceAfter','CurrentPriceBefore','CurrentPriceAfter','TotalCostBefore','TotalCostAfter','MarketValueBefore','MarketValueAfter','Note','CreatedAt']];
+                const caRows = [['Id','Symbol','Market','Type','ActionDate','OldShares','NewShares','Ratio','QuantityBefore','QuantityAfter','CostPriceBefore','CostPriceAfter','CurrentPriceBefore','CurrentPriceAfter','TotalCostBefore','TotalCostAfter','MarketValueBefore','MarketValueAfter','Note','CreatedAt','ActionKind','SourceSymbol','TargetSymbol','SourceCurrency','TargetCurrency','FxRate','CostMethod','BrokerAverageCost','UnitRatio','SourceHoldingId','AppliedAt']];
                 _normalizeCorporateActions(corporateActions).forEach(a => {
                     caRows.push([
                         a.id, a.symbol, a.market, a.type, a.actionDate || '',
@@ -10908,7 +11222,9 @@
                         a.currentPriceBefore, a.currentPriceAfter,
                         a.totalCostBefore, a.totalCostAfter,
                         a.marketValueBefore, a.marketValueAfter,
-                        a.note || '', a.createdAt || ''
+                        a.note || '', a.createdAt || '', a.actionKind || '', a.sourceSymbol || '', a.targetSymbol || '',
+                        a.sourceCurrency || '', a.targetCurrency || '', a.fxRate || 0, a.costMethod || '',
+                        a.brokerAverageCost || 0, a.unitRatio || 0, a.sourceHoldingId || '', a.appliedAt || ''
                     ]);
                 });
                 csv += caRows.map(r => r.join('\t')).join('\n');
@@ -11016,8 +11332,19 @@
             btn.disabled = true; text.textContent = '更新中...'; icon.style.animation = 'spin 1s linear infinite';
             try {
                 const sheetUrl = document.getElementById('sheet-url').value.trim();
-                if (!sheetUrl) { showWarnToast('⚠️ 請先填入 Google Sheet CSV 連結'); return; }
-                if (!sheetUrl.includes('docs.google.com')) { showWarnToast('⚠️ URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結'); return; }
+                const hasCounterMigration = _counterMigrationCandidates().length > 0;
+                if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
+                    if (hasCounterMigration) {
+                        const fx = await _fetchFxRates(true);
+                        if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
+                        const bridge = await _refreshCounterMigrationQuotes('manual-counter-only');
+                        renderAll();
+                        showImportToast(bridge.fresh > 0 ? '已更新 7747 接續報價' : '7747 報價暫時無法取得，保留上一筆資料', 3000);
+                        return;
+                    }
+                    showWarnToast(!sheetUrl ? '⚠️ 請先填入 Google Sheet CSV 連結' : '⚠️ URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結');
+                    return;
+                }
 
                 // 同時發出：① 股價 CSV ② 即時匯率（手動更新 → 強制重新抓取，清快取）
                 const fxPromise = _fetchFxRates(true);
@@ -11027,6 +11354,12 @@
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(timeoutId);
                 if (!res) {
+                    if (hasCounterMigration) {
+                        const bridge = await _refreshCounterMigrationQuotes('manual-sheet-failed');
+                        renderAll();
+                        showWarnToast(bridge.fresh > 0 ? 'CSV 無法取得，已改用 7747 接續報價' : 'CSV 與 7747 報價都暫時無法取得，保留上一筆資料', 4000);
+                        return;
+                    }
                     showWarnToast('⏱ 無法取得報價 CSV，三個 proxy 均失敗\n請確認 Google Sheet 已發布為 CSV 格式');
                     return;
                 }
@@ -11057,13 +11390,13 @@
                     document.getElementById('rate-source').textContent = `✓ ${sheetRates.USD_TWD ? 'Sheet 覆蓋' : '即時匯率'}（${updated}）`;
                 }
 
-                if (Object.keys(prices).length === 0) {
+                if (Object.keys(prices).length === 0 && !hasCounterMigration) {
                     showWarnToast('⚠️ CSV 無有效股價，請確認格式\n第一欄=代碼，第二欄=價格');
                     manualPriceReview();
                     return;
                 }
 
-                const matchCount = holdings.filter(h => _lookupPrice(prices, h) != null).length;
+                const matchCount = holdings.filter(h => _counterMigrationForHolding(h) || _lookupPrice(prices, h) != null).length;
                 if (matchCount === 0) {
                     const sheetSymbols = Object.keys(prices).slice(0, 3).join(', ');
                     const holdingSymbols = holdings.slice(0, 3).map(h => h.symbol).join(', ');
@@ -11071,7 +11404,7 @@
                     return;
                 }
 
-                directApplyPrices(prices);
+                await directApplyPrices(prices);
 
             } catch(e) {
                 alert(`❌ 更新失敗：${e.message}`);
@@ -11150,11 +11483,12 @@
                 });
             } catch(_) {}
         }
-        function directApplyPrices(prices) {
+        async function directApplyPrices(prices) {
             saveHistory();
             let updated = 0;
             const updatedSymbols = new Set();
             holdings.forEach(h => {
+                if (_counterMigrationForHolding(h)) return; // 9747 不接受停牌櫃台的舊 CSV 價格
                 const newP = _lookupPrice(prices, h);
                 if (newP != null && !isNaN(newP) && newP > 0 && _acceptIncomingPriceForHolding(h, newP, 'csv-manual')) {
                     h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
@@ -11162,6 +11496,9 @@
                     updatedSymbols.add(h.symbol);
                 }
             });
+            const bridge = await _refreshCounterMigrationQuotes('csv-manual');
+            updated += bridge.updated;
+            bridge.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
             const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
             // v15.947：只有完整覆蓋該市場的 active holdings 才推進 quote meta 的 freshness。
             if (quoteCoverage.fullMarkets.length > 0) {
@@ -11187,7 +11524,7 @@
             const partialNote = quoteCoverage.partialMarkets.length
                 ? `；${quoteCoverage.partialMarkets.join('、')}市場尚有缺漏`
                 : '';
-            showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}`, 2500);
+            showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}${bridge.failed ? `；7747 接續失敗 ${bridge.failed} 檔` : ''}`, 3000);
         }
 
         function manualPriceReview() {
@@ -11397,10 +11734,12 @@
             'COHX':'COHR', 'FBL':'META',  'GGLL':'GOOGL', 'LITX':'LITE',
             'MUU':'MU',    'NBIG':'NBIS', 'ORCU':'ORCL',  'PLTU':'PLTR',
             'SNXX':'SNDK', 'TSLL':'TSLA', 'TSMX':'TSM',   'WDCX':'WDC',
-            'USD':'SOXX',  '7709.HK':'000660.KS', '9747.HK':'005930.KS'
+            'USD':'SOXX',  '7709.HK':'000660.KS', '9747.HK':'005930.KS', '7747.HK':'005930.KS'
         };
         function getQuerySymbol(symbol) {
-            return LEVERAGED_MAP[symbol] || symbol;
+            const raw = _cleanSymbolKey(symbol);
+            const canonical = (raw === '9747' || raw === '7747') ? raw + '.HK' : _canonicalYahooSymbol(raw, _inferSymbolMarketKey(raw));
+            return LEVERAGED_MAP[raw] || LEVERAGED_MAP[canonical] || symbol;
         }
 
         // 掛牌港交所但以美金（USD）計價的 ETF — 損益/市值換算用 USD_TWD，幣別顯示 $
@@ -11441,6 +11780,156 @@
             if (ccy === 'TWD') return 'NT$';
             if (ccy === 'HKD') return 'HK$';
             return '$';
+        }
+
+        // v15.951：9747 美元櫃台停牌後，仍以原持倉顯示，但報價與歷史基準接續 7747.HK。
+        // 這是系統報價映射，不會改動 holdings；使用者確認成本轉換後才會把 symbol 改成 7747.HK。
+        const COUNTER_MIGRATION_MAP = Object.freeze({
+            '9747.HK': Object.freeze({
+                sourceSymbol: '9747.HK', targetSymbol: '7747.HK',
+                sourceCurrency: 'USD', targetCurrency: 'HKD',
+                effectiveDate: '2026-08-18', unitRatio: 1
+            })
+        });
+        window._counterMigrationQuoteMeta = window._counterMigrationQuoteMeta || {};
+
+        function _counterMigrationForSymbol(symbol, market) {
+            const raw = _cleanSymbolKey(symbol);
+            if (!raw) return null;
+            const mk = _inferSymbolMarketKey(raw, market);
+            if (mk !== 'HK') return null;
+            const canonical = _canonicalYahooSymbol(raw, mk);
+            return COUNTER_MIGRATION_MAP[canonical] || COUNTER_MIGRATION_MAP[raw] || null;
+        }
+        function _counterMigrationForHolding(h) {
+            if (!h) return null;
+            const raw = _cleanSymbolKey(h.symbol).replace(/\.HK$/i, '');
+            const market = raw === '9747' ? 'HK' : _holdingMarketKey(h);
+            return _counterMigrationForSymbol(h.symbol, market);
+        }
+        function _isProxyAnalysisHolding(h) {
+            const raw = _cleanSymbolKey(h?.symbol);
+            const canonical = _canonicalYahooSymbol(raw, _holdingMarketKey(h));
+            return !!(LEVERAGED_MAP[raw] || LEVERAGED_MAP[canonical] || _counterMigrationForHolding(h));
+        }
+        function _counterQuoteSymbolForHolding(h) {
+            return _counterMigrationForHolding(h)?.targetSymbol || _canonicalYahooSymbol(h?.symbol, _holdingMarketKey(h));
+        }
+        function _counterFxToTwd(currency) {
+            const ccy = String(currency || '').toUpperCase();
+            if (ccy === 'TWD') return 1;
+            if (ccy === 'HKD') return Number(exchangeRates.HKD_TWD) > 0 ? Number(exchangeRates.HKD_TWD) : null;
+            if (ccy === 'USD') return Number(exchangeRates.USD_TWD) > 0 ? Number(exchangeRates.USD_TWD) : null;
+            return null;
+        }
+        function _counterQuoteScaleToHolding(h, quoteCurrency) {
+            const quoteFx = _counterFxToTwd(quoteCurrency);
+            const holdingFx = _counterFxToTwd(_holdingNativeCurrency(h));
+            if (!(quoteFx > 0) || !(holdingFx > 0)) return 1;
+            return quoteFx / holdingFx;
+        }
+        function _counterMigrationRate() {
+            return _counterQuoteScaleToHolding({ symbol: '9747.HK', market: 'HK' }, 'HKD');
+        }
+        function _counterRoundPrice(value) {
+            const n = Number(value);
+            return Number.isFinite(n) ? parseFloat(n.toFixed(8)) : 0;
+        }
+        function _counterRoundQuote(value) {
+            const n = Number(value);
+            return Number.isFinite(n) ? parseFloat(n.toFixed(4)) : 0;
+        }
+        function _counterMigrationQuoteEntry(h) {
+            const cache = window._counterMigrationQuoteMeta || {};
+            const raw = _cleanSymbolKey(h?.symbol);
+            const canonical = _canonicalYahooSymbol(raw, _holdingMarketKey(h));
+            return cache[raw] || cache[canonical] || null;
+        }
+        function _counterMigrationCandidates() {
+            return (Array.isArray(holdings) ? holdings : [])
+                .filter(h => _counterMigrationForHolding(h) && Number(h.quantity || 0) > 0);
+        }
+        function _counterMigrationQuoteAge(entry) {
+            const ts = Date.parse(entry?.fetchedAt || '');
+            return Number.isFinite(ts) ? Math.max(0, Date.now() - ts) : Infinity;
+        }
+        function _counterMigrationQuoteLabel(h) {
+            const entry = _counterMigrationQuoteEntry(h);
+            if (!entry || !(Number(entry.price) > 0)) return '尚未取得 7747 報價';
+            const age = _counterMigrationQuoteAge(entry);
+            const stale = entry.stale === true || age > 15 * 60 * 1000;
+            const at = entry.quoteAt ? new Date(entry.quoteAt).toLocaleString('zh-TW', { hour:'2-digit', minute:'2-digit', month:'2-digit', day:'2-digit' }) : '時間未知';
+            return `${stale ? '上一筆 7747 報價' : '7747 接續報價'} ${_counterRoundQuote(entry.price)}（${at}）`;
+        }
+        function _saveCounterMigrationQuoteMeta() {
+            try {
+                const meta = _loadMarketQuoteMeta();
+                meta.counterQuotes = { ...(window._counterMigrationQuoteMeta || {}) };
+                localStorage.setItem(STORAGE_KEYS.marketQuoteMeta, JSON.stringify(meta));
+            } catch(e) { try { _handleStorageWriteError('marketQuoteMeta.counterQuotes', e); } catch(_) {} }
+        }
+        function _hydrateCounterMigrationQuotes() {
+            const meta = _loadMarketQuoteMeta();
+            window._counterMigrationQuoteMeta = { ...(meta.counterQuotes || {}) };
+            _counterMigrationCandidates().forEach(h => {
+                const entry = _counterMigrationQuoteEntry(h);
+                const quotePrice = Number(entry?.quotePrice);
+                const sourcePrice = quotePrice > 0
+                    ? quotePrice * _counterQuoteScaleToHolding(h, entry.quoteCurrency || _counterMigrationForHolding(h)?.targetCurrency)
+                    : Number(entry?.price);
+                if (sourcePrice > 0) h.currentPrice = _counterRoundQuote(sourcePrice);
+            });
+        }
+        async function _fetchCounterMigrationQuote(h) {
+            const migration = _counterMigrationForHolding(h);
+            if (!migration) return null;
+            const querySymbol = migration.targetSymbol;
+            const data = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(querySymbol)}?interval=1d&range=5d`);
+            const result = data?.chart?.result?.[0];
+            if (!result) return null;
+            const pairs = _validYahooClosePairs(result);
+            const regular = Number(result.meta?.regularMarketPrice);
+            const quotePrice = regular > 0 ? regular : (pairs.length ? pairs[pairs.length - 1].close : 0);
+            if (!(quotePrice > 0)) return null;
+            const quoteCurrency = String(result.meta?.currency || migration.targetCurrency).toUpperCase();
+            const quoteTs = Number(result.meta?.regularMarketTime) > 0
+                ? Number(result.meta.regularMarketTime)
+                : (pairs.length ? pairs[pairs.length - 1].ts : 0);
+            const quoteAt = quoteTs > 0 ? new Date(quoteTs * 1000).toISOString() : null;
+            return {
+                sourceSymbol: migration.sourceSymbol,
+                targetSymbol: querySymbol,
+                price: _counterRoundQuote(quotePrice * _counterQuoteScaleToHolding(h, quoteCurrency)),
+                quotePrice: _counterRoundQuote(quotePrice),
+                quoteCurrency,
+                quoteAt,
+                fetchedAt: new Date().toISOString(),
+                stale: false,
+                source: 'yahoo-counter-7747'
+            };
+        }
+        async function _refreshCounterMigrationQuotes(reason) {
+            const candidates = _counterMigrationCandidates();
+            const updatedSymbols = new Set();
+            if (!candidates.length) return { updatedSymbols, updated: 0, fresh: 0, failed: 0 };
+            let updated = 0, fresh = 0, failed = 0;
+            await _runTaskPool(candidates.map(h => async () => {
+                try {
+                    const entry = await _fetchCounterMigrationQuote(h);
+                    if (!entry || !_acceptIncomingPriceForHolding(h, entry.price, 'counter-7747')) { failed++; return; }
+                    h.currentPrice = entry.price;
+                    window._counterMigrationQuoteMeta[h.symbol] = entry;
+                    updatedSymbols.add(h.symbol);
+                    updated++; fresh++;
+                } catch(e) {
+                    failed++;
+                    const cached = _counterMigrationQuoteEntry(h);
+                    if (cached) cached.stale = true;
+                    try { _recordAppError('counter_quote_fetch', e, { symbol: h.symbol, target: _counterQuoteSymbolForHolding(h), reason }); } catch(_) {}
+                }
+            }), 3);
+            if (fresh > 0) _saveCounterMigrationQuoteMeta();
+            return { updatedSymbols, updated, fresh, failed };
         }
 
         // ==================== KD (Stochastic) Calculation ====================
@@ -13071,7 +13560,8 @@
             const rows = _allAnalysisTargets().map(h => ({
                 holding:      h.symbol,
                 query:        getQuerySymbol(h.symbol),
-                isProxy:      !!LEVERAGED_MAP[h.symbol],
+                isProxy:      _isProxyAnalysisHolding(h),
+                market:       h.market || _holdingMarketKey(h),
                 isWatchlist:  !!h._isWatchlist
             }));
 
@@ -13123,23 +13613,28 @@
                 const proxyRowsT = rows.filter(r => r.isProxy);
                 await _runTaskPool(proxyRowsT.map(pr => async () => {
                     const _psym = pr.holding;
+                    const _quoteSym = _counterQuoteSymbolForHolding({ symbol: _psym, market: pr.market });
+                    const _holdingRef = { symbol: _psym, market: pr.market };
+                    const _scaleTechValue = (value, currency) => Number(value) * _counterQuoteScaleToHolding(_holdingRef, currency);
                     try {
-                        const tech = await fetchTechDataFromYahoo(_psym);
-                        allResults[_psym] = { ...(allResults[_psym] || {}), ...tech };
+                        const tech = await fetchTechDataFromYahoo(_quoteSym);
+                        const techCurrency = _counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef);
+                        allResults[_psym] = { ...(allResults[_psym] || {}), ...tech,
+                            prevClose: tech.prevClose == null ? tech.prevClose : _scaleTechValue(tech.prevClose, techCurrency),
+                            prevPrevClose: tech.prevPrevClose == null ? tech.prevPrevClose : _scaleTechValue(tech.prevPrevClose, techCurrency) };
                     } catch(_) {}
                     // range=5d 偵測今日是否開盤；開盤時再用 range=1d chartPreviousClose 取昨收
                     // （range=1d chartPreviousClose 可跨越空白交易日，比 close array 更可靠）
                     try {
                         const _BASE_pc = 'https://query1.finance.yahoo.com';
-                        const _pd5 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=5d`);
+                        const _pd5 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=5d`);
                         const _pr5 = _pd5?.chart?.result?.[0];
                         const _pccy = _pr5?.meta?.currency ?? '';
-                        const _pscale = (HK_USD_PRICED.has(_psym) && _pccy === 'HKD')
-                            ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
+                        const _pscale = _counterQuoteScaleToHolding(_holdingRef, _pccy || (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef)));
                         const _ppairs = _validYahooClosePairs(_pr5);
                         const _pcls = _ppairs.map(pair => pair.close * _pscale);
                         const _plast = _ppairs.length ? _ppairs[_ppairs.length - 1].ts : null;
-                        const _ptz = _exchangeTz(_psym);
+                        const _ptz = _exchangeTz(_quoteSym);
                         const _ptd = new Date().toLocaleDateString('en-US', {timeZone: _ptz});
                         const _pbd = _plast ? new Date(_plast * 1000).toLocaleDateString('en-US', {timeZone: _ptz}) : '';
                         const _popened = (_ptd === _pbd);
@@ -13149,10 +13644,9 @@
                             // 今日開盤：range=1d chartPreviousClose 取昨收（跨越空白交易日仍準確）
                             let _cpc = null;
                             try {
-                                const _pd1 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_psym)}?interval=1d&range=1d`);
+                                const _pd1 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=1d`);
                                 const _m1  = _pd1?.chart?.result?.[0]?.meta;
-                                const _sc1 = (HK_USD_PRICED.has(_psym) && (_m1?.currency ?? '') === 'HKD')
-                                    ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
+                                const _sc1 = _counterQuoteScaleToHolding(_holdingRef, _m1?.currency || (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef)));
                                 if (_m1?.chartPreviousClose != null) _cpc = _m1.chartPreviousClose * _sc1;
                             } catch(_) {}
                             allResults[_psym].prevClose     = _cpc ?? (_pcls.length >= 2 ? _pcls[_pcls.length - 2] : null);
@@ -13222,7 +13716,7 @@
             const fundRowsHtml = fundDisplayRows.length === 0
                 ? '<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#7e93a6;">請先勾選要比較的標的</td></tr>'
                 : fundDisplayRows.map(r => _buildFundRowHtml(r, allResults[r.query])).join('');
-            const techRowsHtml = rows.map(r => _buildTechRowHtml(r, allResults[r.query])).join('');
+            const techRowsHtml = rows.map(r => _buildTechRowHtml(r, r.isProxy ? (allResults[r.holding] || allResults[r.query]) : allResults[r.query])).join('');
             fundTbody.innerHTML = fundRowsHtml;
             techTbody.innerHTML = techRowsHtml;
             _renderFundCompareToolbar(rows, allResults);
@@ -13295,20 +13789,18 @@
                     const proxyRows = rows.filter(r => r.isProxy);
                     // v15.934：併發池取代逐檔 await + 300ms 間隔
                     await _runTaskPool(proxyRows.map(r => async () => {
+                        const _quoteSym = _counterQuoteSymbolForHolding({ symbol: r.holding, market: r.market });
+                        const _holdingRef = { symbol: r.holding, market: r.market };
                         try {
                             // range=5d：偵測今日開盤 & prevPrevClose
-                            const data  = await yfFetch(`${BASE1_lev}/v8/finance/chart/${r.holding}?interval=1d&range=5d`);
+                            const data  = await yfFetch(`${BASE1_lev}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=5d`);
                             const res0  = data?.chart?.result?.[0];
-                            const ts    = res0?.timestamp ?? [];
-                            const rawCloses = res0?.indicators?.quote?.[0]?.close ?? [];
-                            const _chartCcy = res0?.meta?.currency ?? '';
-                            const _ccyScale = (HK_USD_PRICED.has(r.holding) && _chartCcy === 'HKD')
-                                ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
-                            // v15.080 後續修補：zip + filter 對齊 timestamp 與 close（盤中 close=null 時 ts/closes 對不齊會誤判 todayOpened）
-                            const _pairs = rawCloses.map((cv, i) => ({ ts: ts[i], close: cv })).filter(p => p.close != null);
+                            const _chartCcy = res0?.meta?.currency ?? (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef));
+                            const _ccyScale = _counterQuoteScaleToHolding(_holdingRef, _chartCcy);
+                            const _pairs = _validYahooClosePairs(res0);
                             const closes = _pairs.map(p => p.close * _ccyScale);
                             const lastTs   = _pairs.length > 0 ? _pairs[_pairs.length - 1].ts : null;
-                            const _tz = _exchangeTz(r.holding);
+                            const _tz = _exchangeTz(_quoteSym);
                             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
                             const barET    = lastTs ? new Date(lastTs * 1000).toLocaleDateString('en-US', {timeZone: _tz}) : '';
                             const todayOpened = (todayET === barET);
@@ -13317,10 +13809,9 @@
                                 // 今日開盤：range=1d chartPreviousClose 取昨收（跨越空白交易日仍準確）
                                 let prevCloseFrom1d = null;
                                 try {
-                                    const d1   = await yfFetch(`${BASE1_lev}/v8/finance/chart/${r.holding}?interval=1d&range=1d`);
+                                    const d1   = await yfFetch(`${BASE1_lev}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=1d`);
                                     const m1   = d1?.chart?.result?.[0]?.meta;
-                                    const _sc1 = (HK_USD_PRICED.has(r.holding) && (m1?.currency ?? '') === 'HKD')
-                                        ? (exchangeRates.HKD_TWD / exchangeRates.USD_TWD) : 1;
+                                    const _sc1 = _counterQuoteScaleToHolding(_holdingRef, m1?.currency || _chartCcy);
                                     if (m1?.chartPreviousClose != null) prevCloseFrom1d = m1.chartPreviousClose * _sc1;
                                 } catch(_) {}
                                 _tmpPrevClose[r.holding]     = prevCloseFrom1d ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
@@ -13392,6 +13883,7 @@
             loadLoans();             // v15.918：還原貸款資料
             loadCorporateActions();   // v15.920：還原股票分割 / 反分割紀錄
             loadCorporateActionPlans();   // v15.922：還原股票分割 / 反分割預約
+            _hydrateCounterMigrationQuotes(); // v15.951：以既有 7747 系統快取恢復 9747 的接續報價，不標記使用者資料異動
             // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
             // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
             const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
@@ -13598,7 +14090,8 @@
             // 每 60 秒抓一次報價
             _autoRefreshTimer = setInterval(async () => {
                 const url = (document.getElementById('sheet-url')?.value || '').trim();
-                if (!url || !url.includes('docs.google.com')) return;
+                const hasCounterMigration = _counterMigrationCandidates().length > 0;
+                if ((!url || !url.includes('docs.google.com')) && !hasCounterMigration) return;
                 if (document.getElementById('refresh-btn')?.disabled) return; // 手動更新中，跳過
                 await silentRefreshPrices();
                 _secondsLeft = 60; // 重置倒數
@@ -14048,7 +14541,7 @@
             const html = _allAnalysisTargets().map(h => {
                 const sym = getQuerySymbol(h.symbol);
                 const qs  = allQs[sym];
-                const isProxy = !!LEVERAGED_MAP[h.symbol];
+                const isProxy = _isProxyAnalysisHolding(h);
                 const isWatchlist = !!h._isWatchlist;
                 const proxyLabel = isProxy ? `<span style="color:#3b82f6;font-size:0.74rem;font-weight:600;"> (查詢: ${sym})</span>` : '';
                 const watchlistLabel = isWatchlist ? `<span style="color:#7e93a6;font-size:0.72rem;margin-left:0.4rem;background:rgba(56,139,253,0.08);padding:0.05rem 0.35rem;border-radius:4px;border:1px solid rgba(56,139,253,0.15);">觀察中</span>` : '';
@@ -14502,7 +14995,16 @@
 
         async function silentRefreshPrices() {
             const sheetUrl = (document.getElementById('sheet-url')?.value || '').trim();
-            if (!sheetUrl || !sheetUrl.includes('docs.google.com')) return;
+            const hasCounterMigration = _counterMigrationCandidates().length > 0;
+            if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
+                if (hasCounterMigration) {
+                    const fx = await _fetchFxRates(false);
+                    if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
+                    const bridge = await _refreshCounterMigrationQuotes('silent-counter-only');
+                    if (bridge.fresh > 0) { renderAll(); recordSnapshot(); }
+                }
+                return;
+            }
             try {
                 // 匯率：快取 1hr 內不打 API（按需更新策略）
                 const fxPromise = _fetchFxRates(false);
@@ -14510,9 +15012,17 @@
                 const tid = setTimeout(() => controller.abort(), 35000);
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
-                if (!res) return;
+                if (!res) {
+                    const bridge = hasCounterMigration ? await _refreshCounterMigrationQuotes('silent-sheet-failed') : null;
+                    if (bridge?.fresh > 0) { renderAll(); recordSnapshot(); }
+                    return;
+                }
                 const csvText = await res.text();
-                if (csvText.trim().startsWith('<')) return;
+                if (csvText.trim().startsWith('<')) {
+                    const bridge = hasCounterMigration ? await _refreshCounterMigrationQuotes('silent-sheet-html') : null;
+                    if (bridge?.fresh > 0) { renderAll(); recordSnapshot(); }
+                    return;
+                }
 
                 // v15.901 hotfix：用共用 _parseQuoteCsv（與 manual 路徑一致）
                 const { prices, sheetRates, quoteMoves } = _parseQuoteCsv(csvText);
@@ -14532,6 +15042,7 @@
                 let updated = 0;
                 const updatedSymbols = new Set();
                 holdings.forEach(h => {
+                    if (_counterMigrationForHolding(h)) return; // 9747 不接受停牌櫃台的舊 CSV 價格
                     const np = _lookupPrice(prices, h);
                     if (np != null && !isNaN(np) && np > 0 && _acceptIncomingPriceForHolding(h, np, 'csv-silent')) {
                         h.currentPrice = parseFloat(np);
@@ -14539,6 +15050,9 @@
                         updatedSymbols.add(h.symbol);
                     }
                 });
+                const bridge = await _refreshCounterMigrationQuotes('csv-silent');
+                updated += bridge.updated;
+                bridge.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
                     const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
                     // v15.947：partial market 只更新現價，不推進該市場的 quote freshness。
