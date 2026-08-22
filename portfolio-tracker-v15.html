@@ -1,6 +1,6 @@
 <!--
   Portfolio Tracker v15
-  v15.951 - 9747→7747 櫃台轉換與成本預演：以 7747.HK 接續 9747 的報價與 close pair，保留 9747 持倉直到使用者確認；新增 1:1 股數、FIFO lots、系統匯率估算與券商平均成本覆蓋預覽，套用後寫入 corporateActions 並同步。
+  v15.951 - 9747→7747 櫃台轉換與成本預演：以 7747.HK 接續 9747 的報價與 close pair，保留 9747 持倉直到使用者確認；新增 1:1 股數、FIFO lots、系統匯率估算與券商平均成本覆蓋預覽，套用後寫入 corporateActions 並同步。同版 hotfix：9747 停牌期間暫不計入今日／前次收盤損益與每日快照完整度，避免港股整體誤顯示資料不足。
   v15.950 - 7747 港股圖表修正：TradingView 免費 Advanced Chart 不提供 HKEX:7747，觀察清單改走 Yahoo 原生 K 線備援
   v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 三欄與本月到期清單；持倉總資產列加可點月還標示；_lookupPrice 支援 .HK
   v15.948 - Yahoo 報價日期配對修正：新增有效 timestamp/close 成對過濾 helper，修正基本面 fallback、技術面刷新、槓桿代理標的與總經漲跌的日期錯位
@@ -86,7 +86,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-        v15.951 - 9747→7747 櫃台轉換與成本預演：9747 美元櫃台停牌後，持倉仍保留 9747 顯示，但報價與 close pair 改接 7747.HK；新增 1:1 股數、FIFO lots、匯率估算與券商平均成本覆蓋預覽，只有使用者確認後才轉成 7747.HK，並以 counterMigration corporate action 留下可同步紀錄。不自動修改觀察清單，不改 PT_SCHEMA_VERSION、Gist/FSA 結構、userDataHash、pending、snapshot、損益公式或 Storage Key。
+        v15.951 - 9747→7747 櫃台轉換與成本預演：9747 美元櫃台停牌後，持倉仍保留 9747 顯示，但報價與 close pair 改接 7747.HK；新增 1:1 股數、FIFO lots、匯率估算與券商平均成本覆蓋預覽，只有使用者確認後才轉成 7747.HK，並以 counterMigration corporate action 留下可同步紀錄。同版 hotfix：9747 尚未轉櫃期間，不計入今日／前次收盤損益與 daily snapshot 的 expected holdings，避免單一停牌標的讓港股整體顯示資料不足；若港股只剩 9747，狀態顯示「9747 暫不計入」。持倉、市值、成本、觀察清單與 7747 報價接續不受影響；不改 PT_SCHEMA_VERSION、Gist/FSA 結構、userDataHash、pending、損益公式或 Storage Key。
         v15.950 - 7747 港股圖表修正：確認 HKEX:7747 在 TradingView 完整網站有行情，但免費 Advanced Chart widget 會回覆 Invalid symbol／僅限 TradingView，與月相或技術指標無關；觀察清單 metadata 為 7747 與 7747.HK 啟用既有 Yahoo 原生圖 fallback，使用 7747.HK 日 K 繪製 K 線、MA20／MA60、LinReg 與 RSI，並歸類為個股槓桿。只調整 visual-only 圖表路由，不改持倉、報價快取、close pair、損益、snapshot、Gist、FSA、userDataHash、pending、Storage Key 或 PWA 流程。
         v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 頂部改三欄（貸款總額／每月應還／淨資產）並列出本月尚未到期明細；持倉總資產列在有未結清月還時加可點的「月還 NT$xx」標示（不從總資產扣除）。每月應還 = 未結清貸款本期實際應付（nextInterest + nextPrincipal；最後一期小於月付時用實際金額；月付過低／未設定不計入）。純顯示，不寫流水帳、不產生 pending。_lookupPrice 港股支援有無 .HK 後綴。不改 _projectLoanBalance、五張統計卡、圓餅、Gist schema、userDataHash、pending、close pair 或損益公式。
         v15.948 - Yahoo 報價日期配對修正：新增共用有效收盤配對 helper，將 Yahoo timestamp 與 close 依相同 index 成對後再排除無效日期、null、非數字與非正價格；套用至基本面缺資料 fallback、技術面快取更新、槓桿／代理標的 5 日昨收修正及總經單日／七日漲跌，避免尾端或中央 null 讓日期與收盤價錯位。保留觀察清單精確日期邏輯、range=1d chartPreviousClose 備援、close pair、報價來源順序與快取結構；不改 UI、Gist、FSA、Storage Key、userDataHash、pending、snapshot、損益公式或 PWA。
@@ -3703,7 +3703,8 @@
 
                 // v15.080：列出該市場所有 active holdings，計算 expected vs withData → complete 旗標
                 const _holdings = (stats && stats.holdingsWithStats) || [];
-                const marketHoldings = _holdings.filter(h => _holdingMarketKey(h) === marketKey);
+                const marketHoldings = _holdings.filter(h =>
+                    _holdingMarketKey(h) === marketKey && !_isSuspendedCounterDailyQuoteExcluded(h));
                 const expectedHoldingsCount = marketHoldings.length;
                 if (expectedHoldingsCount === 0) return;
 
@@ -4003,7 +4004,7 @@
                     previousTradingDate: clock.previousTradingDate || null,
                     lastCompletedTradingDate: clock.lastCompletedTradingDate || null,   // v15.073：UI 顯示「沿用 MM-DD 快照」
                     pnlUSD: 0, pnlTWD: 0,
-                    count: 0, withData: 0
+                    count: 0, withData: 0, ignoredCount: 0
                 };
             }
             // v15.070：cost / value byMarket（總投入 / 總市值 / 總損益 三張卡片用）
@@ -4040,12 +4041,13 @@
                 const prevClose     = window._prevCloseCache?.[h.symbol]     ?? null;
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
                 const _mkKey = _holdingMarketKey(h);
+                const _ignoreDailyQuote = _isSuspendedCounterDailyQuoteExcluded(h);
                 const _todayState = todayPnlByMarket[_mkKey] || {};
                 const _todayPair = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.targetDate, _mkKey), h);
                 const _prevPair  = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.previousTradingDate, _mkKey), h);
                 let prevDayChangePct = null;
                 let prevDayPnlUSD = null, prevDayPnlTWD = null;
-                if (_validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)) {
+                if (!_ignoreDailyQuote && _validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)) {
                     prevDayChangePct = (_prevPair.close - _prevPair.prevClose) / _prevPair.prevClose * 100;
                     const prevDayPnlNative = (_prevPair.close - _prevPair.prevClose) * h.quantity;
                     const conv = _nativePnlToCcy(prevDayPnlNative, h);
@@ -4064,13 +4066,13 @@
                 const _todayBasisClose = _validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)
                     ? _prevPair.close
                     : null;
-                if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
+                if (!_ignoreDailyQuote && _todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
                     const dayChange = h.currentPrice - _todayBasisClose;
                     dayChangePct = (dayChange / _todayBasisClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
                     dayPnlUSD = conv.usd;
                     dayPnlTWD = conv.twd;
-                } else if (_todayMarketStatus === 'closed_retained' && _validFinalClosePair(_todayPair, _mkKey, _todayState.targetDate)) {
+                } else if (!_ignoreDailyQuote && _todayMarketStatus === 'closed_retained' && _validFinalClosePair(_todayPair, _mkKey, _todayState.targetDate)) {
                     const dayChange = _todayPair.close - _todayPair.prevClose;
                     dayChangePct = (dayChange / _todayPair.prevClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
@@ -4080,14 +4082,18 @@
 
                 // v15.069：byMarket 累計（不管 marketNotOpened，卡片用，盤前盤後也算數字；UI 看 status 決定怎麼顯示）
                 if (todayPnlByMarket[_mkKey]) {
-                    todayPnlByMarket[_mkKey].count++;
-                    if (dayPnlUSD != null && dayPnlTWD != null) {
-                        todayPnlByMarket[_mkKey].withData++;
-                        todayPnlByMarket[_mkKey].pnlUSD += dayPnlUSD;
-                        todayPnlByMarket[_mkKey].pnlTWD += dayPnlTWD;
-                        totalDayPnLUSD += dayPnlUSD;
-                        totalDayPnLTWD += dayPnlTWD;
-                        hasDayPnL = true;
+                    if (_ignoreDailyQuote) {
+                        todayPnlByMarket[_mkKey].ignoredCount++;
+                    } else {
+                        todayPnlByMarket[_mkKey].count++;
+                        if (dayPnlUSD != null && dayPnlTWD != null) {
+                            todayPnlByMarket[_mkKey].withData++;
+                            todayPnlByMarket[_mkKey].pnlUSD += dayPnlUSD;
+                            todayPnlByMarket[_mkKey].pnlTWD += dayPnlTWD;
+                            totalDayPnLUSD += dayPnlUSD;
+                            totalDayPnLTWD += dayPnlTWD;
+                            hasDayPnL = true;
+                        }
                     }
                 }
 
@@ -4132,11 +4138,17 @@
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
                 const session = todayPnlByMarket[mk] || _marketPortfolioDayStatus(mk, _portfolioDayValue, _now);
-                const marketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
+                const allMarketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
+                const ignoredCount = allMarketHoldings.filter(_isSuspendedCounterDailyQuoteExcluded).length;
+                const marketHoldings = allMarketHoldings.filter(h => !_isSuspendedCounterDailyQuoteExcluded(h));
                 const expectedHoldingsCount = marketHoldings.length;
 
                 if (expectedHoldingsCount === 0) {
-                    yesterdayPnlByMarket[mk] = { status: 'no_holdings', pnlUSD: 0, pnlTWD: 0, marketDate: null, holdingsCount: 0, withData: 0 };
+                    yesterdayPnlByMarket[mk] = {
+                        status: ignoredCount > 0 ? 'ignored' : 'no_holdings',
+                        pnlUSD: 0, pnlTWD: 0, marketDate: null,
+                        holdingsCount: 0, withData: 0, ignoredCount
+                    };
                     continue;
                 }
 
@@ -4154,14 +4166,14 @@
                 }
 
                 if (withData === 0) {
-                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: _target, holdingsCount: expectedHoldingsCount, withData: 0 };
+                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: _target, holdingsCount: expectedHoldingsCount, withData: 0, ignoredCount };
                 } else if (withData < expectedHoldingsCount) {
-                    yesterdayPnlByMarket[mk] = { status: 'partial', marketDate: _target, pnlUSD: null, pnlTWD: null, holdingsCount: expectedHoldingsCount, withData };
+                    yesterdayPnlByMarket[mk] = { status: 'partial', marketDate: _target, pnlUSD: null, pnlTWD: null, holdingsCount: expectedHoldingsCount, withData, ignoredCount };
                 } else {
-                    yesterdayPnlByMarket[mk] = { status: 'snapshot', marketDate: _target, pnlUSD, pnlTWD, holdingsCount: expectedHoldingsCount, withData };
+                    yesterdayPnlByMarket[mk] = { status: 'snapshot', marketDate: _target, pnlUSD, pnlTWD, holdingsCount: expectedHoldingsCount, withData, ignoredCount };
                 }
             }
-            const _activeMarkets = _MARKETS.filter(mk => (holdingsByMarket[mk]?.count || 0) > 0);
+            const _activeMarkets = _MARKETS.filter(mk => (yesterdayPnlByMarket[mk]?.holdingsCount || 0) > 0);
             const yesterdayPnlTotal = {
                 pnlUSD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlUSD || 0), 0),
                 pnlTWD: _activeMarkets.reduce((s, mk) => s + (yesterdayPnlByMarket[mk].pnlTWD || 0), 0),
@@ -4497,6 +4509,12 @@
                             +   '<span class="mono" style="color:#fbbf24;">資料不足 (' + (m.withData||0) + '/' + (m.holdingsCount||0) + ')</span>'
                             + '</div>';
                     }
+                    if (m.status === 'ignored') {
+                        return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
+                            +   '<span style="color:#7e93a6;">' + label + '</span>'
+                            +   '<span class="mono" style="color:#607585;">9747 暫不計入</span>'
+                            + '</div>';
+                    }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
                         +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無資料</span></span>'
                         +   '<span class="mono" style="color:#607585;">-</span>'
@@ -4548,7 +4566,7 @@
                     const m = byMk[mk];
                     let valStr, col, isAmount = false, labelNote = '';
                     if (m.count === 0) {
-                        valStr = '無持倉'; col = '#607585';
+                        valStr = (m.ignoredCount || 0) > 0 ? '9747 暫不計入' : '無持倉'; col = '#607585';
                     } else if (m.status === 'not_open') {
                         valStr = '今日未開盤'; col = '#607585';
                     } else if (m.status === 'closed_or_holiday') {
@@ -7826,7 +7844,7 @@
                 const byMarket = { TW: [], HK: [], US: [] };
                 for (const h of holdings) {
                     const mk = _holdingMarketKey(h);
-                    if (mk && byMarket[mk]) byMarket[mk].push(h);
+                    if (mk && byMarket[mk] && !_isSuspendedCounterDailyQuoteExcluded(h)) byMarket[mk].push(h);
                 }
                 if (!_dailyPnlPriceCache) _dailyPnlPriceCache = { version: 1, updatedAt: new Date().toISOString(), symbols: {} };
                 if (!_dailyPnlBaselines)  _dailyPnlBaselines  = { version: 1, userDataHash: null, updatedAt: new Date().toISOString(), symbols: {} };
@@ -11806,6 +11824,12 @@
             const raw = _cleanSymbolKey(h.symbol).replace(/\.HK$/i, '');
             const market = raw === '9747' ? 'HK' : _holdingMarketKey(h);
             return _counterMigrationForSymbol(h.symbol, market);
+        }
+        // v15.951 hotfix：9747 停牌且尚未套用 7747 轉換時，不列入每日損益資料完整度。
+        // 持倉、市值、成本與接續報價照常保留；轉成 7747.HK 後會自然回到一般港股計算。
+        function _isSuspendedCounterDailyQuoteExcluded(h) {
+            const migration = _counterMigrationForHolding(h);
+            return migration?.sourceSymbol === '9747.HK' && migration?.targetSymbol === '7747.HK';
         }
         function _isProxyAnalysisHolding(h) {
             const raw = _cleanSymbolKey(h?.symbol);
