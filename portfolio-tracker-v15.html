@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.953 - MSTU 反分割報價尺度修正：修復 2026-08-24 1:10 反分割在報價已先調整時又被乘 10、現價約 30 誤成約 300 的問題；保留 30 股與換算後成本，正確接受拆分後報價。
   v15.952 - 報價來源與市場分流修正：Google Sheet 公開 CSV 改為直接讀取優先，失敗才走既有 proxy／Render；CSV 缺漏或全面失敗時，美股獨立以 Yahoo 備援補價，9747→7747 港股接續另行處理，任一市場失敗不再阻擋另一市場更新。
   v15.951 - 9747→7747 櫃台轉換與成本預演：以 7747.HK 接續 9747 的報價與 close pair，保留 9747 持倉直到使用者確認；新增 1:1 股數、FIFO lots、系統匯率估算與券商平均成本覆蓋預覽，套用後寫入 corporateActions 並同步。同版 hotfix：9747 停牌期間暫不計入今日／前次收盤損益與每日快照完整度，避免港股整體誤顯示資料不足。
   v15.950 - 7747 港股圖表修正：TradingView 免費 Advanced Chart 不提供 HKEX:7747，觀察清單改走 Yahoo 原生 K 線備援
@@ -87,6 +88,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.953 - MSTU 反分割報價尺度修正：MSTU 於 2026-08-24 執行 1:10 反分割時，若報價來源已先切換到拆分後尺度，公司行動工具不再把現價重複乘 10。既有 300→30 的持倉與 FIFO 成本換算保持不變；針對本次已產生的錯誤紀錄，畫面載入時把約 300 美元恢復為套用前已取得的拆分後報價尺度，並讓 Yahoo 後續約 28–30 美元報價可正常覆蓋。生效日當天或之後人工套用分割時預設保留目前報價，候選偵測路徑則直接採用已驗證的新尺度報價；不改 Storage Key、Gist/FSA payload、userDataHash、pending、損益公式或持倉 schema。
         v15.952 - 報價來源與市場分流修正：公開 Google Sheet CSV 現已允許 CORS，改為直接讀取優先，失敗才輪詢既有 allorigins／codetabs／corsproxy／Render；CSV 全面失敗或缺少部分美股時，美股持倉獨立使用 Yahoo chart 備援，9747→7747 另走港股接續，兩條路徑各自保留成功結果與錯誤狀態。只有完整覆蓋的市場才更新 quote freshness；不改損益、close pair、快照公式、Gist、FSA、userDataHash、pending、Storage Key 或 schema。
         v15.951 - 9747→7747 櫃台轉換與成本預演：9747 美元櫃台停牌後，持倉仍保留 9747 顯示，但報價與 close pair 改接 7747.HK；新增 1:1 股數、FIFO lots、匯率估算與券商平均成本覆蓋預覽，只有使用者確認後才轉成 7747.HK，並以 counterMigration corporate action 留下可同步紀錄。同版 hotfix：9747 尚未轉櫃期間，不計入今日／前次收盤損益與 daily snapshot 的 expected holdings，避免單一停牌標的讓港股整體顯示資料不足；若港股只剩 9747，狀態顯示「9747 暫不計入」。持倉、市值、成本、觀察清單與 7747 報價接續不受影響；不改 PT_SCHEMA_VERSION、Gist/FSA 結構、userDataHash、pending、損益公式或 Storage Key。
         v15.950 - 7747 港股圖表修正：確認 HKEX:7747 在 TradingView 完整網站有行情，但免費 Advanced Chart widget 會回覆 Invalid symbol／僅限 TradingView，與月相或技術指標無關；觀察清單 metadata 為 7747 與 7747.HK 啟用既有 Yahoo 原生圖 fallback，使用 7747.HK 日 K 繪製 K 線、MA20／MA60、LinReg 與 RSI，並歸類為個股槓桿。只調整 visual-only 圖表路由，不改持倉、報價快取、close pair、損益、snapshot、Gist、FSA、userDataHash、pending、Storage Key 或 PWA 流程。
@@ -803,7 +805,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.952</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.953</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1667,7 +1669,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.952';
+        const APP_VERSION = 'v15.953';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -2788,7 +2790,7 @@
             if (!Number.isFinite(px) || px <= 0 || !Number.isFinite(ratio) || ratio <= 0 || Math.abs(ratio - 1) < 1e-9) return false;
 
             const before = Number(action.currentPriceBefore);
-            const after = Number(action.currentPriceAfter);
+            const after = _caEffectiveActionPriceAfter(action, h);
             const adjusted = px / ratio;
             if (Number.isFinite(before) && before > 0 && Number.isFinite(after) && after > 0) {
                 const rawAfterRel = Math.abs(px - after) / after;
@@ -5199,6 +5201,7 @@
         }
 
         function renderAll() {
+            _repairKnownCorporateActionQuoteScales();
             const stats = calculateStats();
             renderStats(stats);
             renderTable(stats);
@@ -10323,7 +10326,47 @@
             const note = (document.getElementById('ca-note')?.value || '').trim();
             return { symbol, h, oldShares, newShares, ratio, actionDate, note };
         }
-        function _buildCorporateActionPreview() {
+        // v15.953：MSTU 在 2026-08-24 套用反分割時，Yahoo 報價已先切到新尺度；
+        // 舊工具又除以 0.1，讓約 30 美元被重複放大為約 300 美元。
+        function _isMstu20260824DuplicatePriceScale(action) {
+            if (!action || _cleanSymbolKey(action.symbol) !== 'MSTU') return false;
+            const ratio = Number(action.ratio);
+            const before = Number(action.currentPriceBefore);
+            const after = Number(action.currentPriceAfter);
+            return action.type === 'reverseSplit'
+                && action.actionDate === '2026-08-24'
+                && Math.abs(ratio - 0.1) <= 0.000001
+                && Math.abs(Number(action.quantityBefore) - 300) <= 0.000001
+                && Math.abs(Number(action.quantityAfter) - 30) <= 0.000001
+                && before > 0 && after > 0
+                && _caRelDiff(after, before / ratio) <= 0.02;
+        }
+        function _caEffectiveActionPriceAfter(action, h) {
+            const before = Number(action?.currentPriceBefore);
+            const after = Number(action?.currentPriceAfter);
+            if (_isMstu20260824DuplicatePriceScale(action)) return before;
+            if (before > 0 && after > 0 && _caRelDiff(before, after) <= 0.001) {
+                const live = Number(h?.currentPrice);
+                if (live > 0 && _caRelDiff(live, after) > 0.35) return live;
+            }
+            return after;
+        }
+        function _repairKnownCorporateActionQuoteScales() {
+            const action = (corporateActions || []).slice().reverse().find(_isMstu20260824DuplicatePriceScale);
+            if (!action) return false;
+            const h = holdings.find(x => _cleanSymbolKey(x?.symbol) === 'MSTU' && Math.abs(Number(x.quantity) - 30) <= 0.000001);
+            if (!h) return false;
+            const current = Number(h.currentPrice);
+            const wrongScale = Number(action.currentPriceAfter);
+            const repaired = _caEffectiveActionPriceAfter(action, h);
+            const shouldRepair = !(current > 0)
+                || _caRelDiff(current, wrongScale) <= 0.2
+                || current >= repaired * 5;
+            if (!shouldRepair || !(repaired > 0)) return false;
+            h.currentPrice = _caRoundPrice(repaired);
+            return true;
+        }
+        function _buildCorporateActionPreview(opts = null) {
             const d = _getCorporateActionDraft();
             if (!d.h) return { ok: false, message: '請先選擇有效持倉。' };
             if (!(d.oldShares > 0) || !(d.newShares > 0) || !(d.ratio > 0) || !isFinite(d.ratio)) return { ok: false, h: d.h, message: '分割比例必須為正數。' };
@@ -10332,17 +10375,27 @@
             const quantityBefore = _caNum(d.h.quantity);
             const costPriceBefore = _caNum(d.h.costPrice);
             const currentPriceBefore = _caNum(d.h.currentPrice);
+            const verifiedIncomingPrice = _caNum(opts?.incomingPrice);
             const totalCostBefore = _caTotalCost(d.h);
-            const marketValueBefore = _caMarketValue(d.h);
             const quantityAfter = _caRoundQty(quantityBefore * d.ratio);
             const costPriceAfter = quantityAfter > 0 ? _caRoundPrice(totalCostBefore / quantityAfter) : 0;
-            const currentPriceAfter = currentPriceBefore > 0 ? _caRoundPrice(currentPriceBefore / d.ratio) : 0;
+            const quoteAlreadyAdjusted = verifiedIncomingPrice > 0 || (!!d.actionDate && d.actionDate <= _caToday());
+            const currentPriceAfter = currentPriceBefore > 0
+                ? _caRoundPrice(verifiedIncomingPrice > 0 ? verifiedIncomingPrice : (quoteAlreadyAdjusted ? currentPriceBefore : currentPriceBefore / d.ratio))
+                : 0;
+            const marketValueBefore = verifiedIncomingPrice > 0
+                ? quantityBefore * currentPriceBefore
+                : quoteAlreadyAdjusted
+                ? quantityBefore * currentPriceBefore * d.ratio
+                : _caMarketValue(d.h);
             const totalCostAfter = quantityAfter * costPriceAfter;
             const marketValueAfter = quantityAfter * currentPriceAfter;
             const totalDiff = Math.abs(totalCostAfter - totalCostBefore);
             const mvDiff = Math.abs(marketValueAfter - marketValueBefore);
-            const ok = totalDiff <= Math.max(0.05, Math.abs(totalCostBefore) * 0.000001) && mvDiff <= Math.max(0.05, Math.abs(marketValueBefore) * 0.000001);
-            return { ok, ...d, quantityBefore, quantityAfter, costPriceBefore, costPriceAfter, currentPriceBefore, currentPriceAfter, totalCostBefore, totalCostAfter, marketValueBefore, marketValueAfter };
+            const costOk = totalDiff <= Math.max(0.05, Math.abs(totalCostBefore) * 0.000001);
+            const marketValueOk = mvDiff <= Math.max(0.05, Math.abs(marketValueBefore) * 0.000001);
+            const ok = costOk && (verifiedIncomingPrice > 0 || marketValueOk);
+            return { ok, ...d, quantityBefore, quantityAfter, costPriceBefore, costPriceAfter, currentPriceBefore, currentPriceAfter, quoteAlreadyAdjusted, totalCostBefore, totalCostAfter, marketValueBefore, marketValueAfter };
         }
         function previewCorporateAction() {
             const box = document.getElementById('ca-preview');
@@ -10352,6 +10405,7 @@
             if (!p.ok && (!(p.oldShares > 0) || !(p.newShares > 0))) { box.innerHTML = `<span style="color:#fbbf24;">${p.message}</span>`; return; }
             const warn = !p.ok ? `<div style="color:#ef4444;font-weight:700;margin-top:0.3rem;">⚠ 分割前後總成本或市值差異超過容許誤差，請檢查比例。</div>` : '';
             const historyWarn = p.actionDate && p.actionDate < _caToday() ? '<div style="color:#fbbf24;margin-top:0.3rem;">注意：生效日早於今天，本工具不回溯重算歷史快照或已實現損益。</div>' : '';
+            const quoteNote = p.quoteAlreadyAdjusted ? '<div style="color:#7e93a6;margin-top:0.3rem;">生效日已到，現價視為拆分後報價，不再重複換算；後續報價更新會正常覆蓋。</div>' : '';
             box.innerHTML = `
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.4rem 0.75rem;">
                     <div><span style="color:#607585;">股數</span><br><b style="color:#e2e8f0;">${_caFmt(p.quantityBefore, 8)} → ${_caFmt(p.quantityAfter, 8)}</b></div>
@@ -10359,7 +10413,7 @@
                     <div><span style="color:#607585;">暫估現價</span><br><b style="color:#60a5fa;">${_caMoney(p.currentPriceBefore, p.h)} → ${_caMoney(p.currentPriceAfter, p.h)}</b></div>
                     <div><span style="color:#607585;">總成本</span><br><b style="color:#a8bdd0;">${_caMoney(p.totalCostBefore, p.h)} → ${_caMoney(p.totalCostAfter, p.h)}</b></div>
                     <div><span style="color:#607585;">市值</span><br><b style="color:#a8bdd0;">${_caMoney(p.marketValueBefore, p.h)} → ${_caMoney(p.marketValueAfter, p.h)}</b></div>
-                </div>${warn}${historyWarn}`;
+                </div>${warn}${historyWarn}${quoteNote}`;
         }
         function _hasTradeAfterActionDate(symbol, actionDate) { return !!actionDate && tradeHistory.some(t => t.symbol === symbol && String(t.date || '').slice(0,10) > actionDate); }
         function _hasLotAfterActionDate(h, actionDate) { if (!actionDate) return false; try { _ensureLots(h); } catch(_) {} return (h.lots || []).some(l => String(l.date || '').slice(0,10) > actionDate); }
@@ -10559,7 +10613,8 @@
             const cand = _corporateActionCandidates.find(c => String(c.id) === String(id));
             if (!cand) return showWarnToast('找不到疑似分割候選', 2500);
             _setCorporateActionDraftFromData(cand);
-            if (applyCorporateAction(cand.planId || null, opts)) {
+            const applyOpts = { ...(opts || {}), incomingPrice: cand.incomingPrice };
+            if (applyCorporateAction(cand.planId || null, applyOpts)) {
                 _corporateActionCandidates = _corporateActionCandidates.filter(c => String(c.id) !== String(id));
                 renderCorporateActionTool();
             }
@@ -10582,7 +10637,8 @@
         }
         function applyCorporateAction(sourcePlanId = null, opts = null) {
             const auto = !!(opts && opts.auto);   // v15.940：官方佐證自動套用（僅繞過確認框，安全檢查全保留）
-            const p = _buildCorporateActionPreview();
+            const verifiedIncomingPrice = _caNum(opts?.incomingPrice);
+            const p = _buildCorporateActionPreview({ incomingPrice: verifiedIncomingPrice });
             if (!p.h) { showWarnToast('請先選擇持倉', 2500); return; }
             if (!p.ok) { showWarnToast(p.message || '分割預覽未通過安全檢查', 3500); return; }
             if (_hasTradeAfterActionDate(p.h.symbol, p.actionDate)) { showWarnToast('此標的在分割生效日後已有賣出紀錄；本版不支援回溯自動套用，請先手動確認資料。', 6000); return; }
@@ -10606,7 +10662,7 @@
             h.lots = (h.lots || []).map(l => ({ ...l, qty: _caRoundQty(_caNum(l.qty ?? l.quantity) * p.ratio), cost: _caRoundPrice(_caNum(l.cost ?? l.costPrice) / p.ratio) }));
             h.quantity = _caRoundQty(h.lots.reduce((sum, l) => sum + _caNum(l.qty), 0));
             h.costPrice = h.quantity > 0 ? _caRoundPrice(_caTotalCost(h) / h.quantity) : 0;
-            h.currentPrice = p.currentPriceAfter;
+            h.currentPrice = verifiedIncomingPrice > 0 ? _caRoundPrice(verifiedIncomingPrice) : p.currentPriceAfter;
             corporateActions.push({
                 id: Date.now(), symbol: h.symbol, market: h.market || getSymbolMarket(h.symbol), type: p.ratio >= 1 ? 'split' : 'reverseSplit',
                 actionDate: p.actionDate, oldShares: p.oldShares, newShares: p.newShares, ratio: p.ratio,
@@ -10640,8 +10696,14 @@
             if (!(incoming > 0) || !h) return false;
             const a = _recentCorporateSplitAction(h.symbol);
             if (!a) return false;
-            const before = _caNum(a.currentPriceBefore), after = _caNum(a.currentPriceAfter);
+            const before = _caNum(a.currentPriceBefore), after = _caNum(_caEffectiveActionPriceAfter(a, h));
             if (!(before > 0) || !(after > 0)) return false;
+            if (_isMstu20260824DuplicatePriceScale(a)) {
+                const stalePreSplit = after * _caNum(a.ratio);
+                return stalePreSplit > 0
+                    && _caRelDiff(incoming, stalePreSplit) <= 0.2
+                    && _caRelDiff(incoming, after) >= 0.45;
+            }
             return Math.abs(incoming - before) / before <= 0.2 && Math.abs(incoming - after) / after >= 0.45;
         }
         function _acceptIncomingPriceForHolding(h, incomingPrice, source) {
