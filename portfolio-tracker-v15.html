@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.952 - 報價來源與市場分流修正：Google Sheet 公開 CSV 改為直接讀取優先，失敗才走既有 proxy／Render；CSV 缺漏或全面失敗時，美股獨立以 Yahoo 備援補價，9747→7747 港股接續另行處理，任一市場失敗不再阻擋另一市場更新。
   v15.951 - 9747→7747 櫃台轉換與成本預演：以 7747.HK 接續 9747 的報價與 close pair，保留 9747 持倉直到使用者確認；新增 1:1 股數、FIFO lots、系統匯率估算與券商平均成本覆蓋預覽，套用後寫入 corporateActions 並同步。同版 hotfix：9747 停牌期間暫不計入今日／前次收盤損益與每日快照完整度，避免港股整體誤顯示資料不足。
   v15.950 - 7747 港股圖表修正：TradingView 免費 Advanced Chart 不提供 HKEX:7747，觀察清單改走 Yahoo 原生 K 線備援
   v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 三欄與本月到期清單；持倉總資產列加可點月還標示；_lookupPrice 支援 .HK
@@ -86,6 +87,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.952 - 報價來源與市場分流修正：公開 Google Sheet CSV 現已允許 CORS，改為直接讀取優先，失敗才輪詢既有 allorigins／codetabs／corsproxy／Render；CSV 全面失敗或缺少部分美股時，美股持倉獨立使用 Yahoo chart 備援，9747→7747 另走港股接續，兩條路徑各自保留成功結果與錯誤狀態。只有完整覆蓋的市場才更新 quote freshness；不改損益、close pair、快照公式、Gist、FSA、userDataHash、pending、Storage Key 或 schema。
         v15.951 - 9747→7747 櫃台轉換與成本預演：9747 美元櫃台停牌後，持倉仍保留 9747 顯示，但報價與 close pair 改接 7747.HK；新增 1:1 股數、FIFO lots、匯率估算與券商平均成本覆蓋預覽，只有使用者確認後才轉成 7747.HK，並以 counterMigration corporate action 留下可同步紀錄。同版 hotfix：9747 尚未轉櫃期間，不計入今日／前次收盤損益與 daily snapshot 的 expected holdings，避免單一停牌標的讓港股整體顯示資料不足；若港股只剩 9747，狀態顯示「9747 暫不計入」。持倉、市值、成本、觀察清單與 7747 報價接續不受影響；不改 PT_SCHEMA_VERSION、Gist/FSA 結構、userDataHash、pending、損益公式或 Storage Key。
         v15.950 - 7747 港股圖表修正：確認 HKEX:7747 在 TradingView 完整網站有行情，但免費 Advanced Chart widget 會回覆 Invalid symbol／僅限 TradingView，與月相或技術指標無關；觀察清單 metadata 為 7747 與 7747.HK 啟用既有 Yahoo 原生圖 fallback，使用 7747.HK 日 K 繪製 K 線、MA20／MA60、LinReg 與 RSI，並歸類為個股槓桿。只調整 visual-only 圖表路由，不改持倉、報價快取、close pair、損益、snapshot、Gist、FSA、userDataHash、pending、Storage Key 或 PWA 流程。
         v15.949 - 貸款每月應還總額 + 港股 CSV 代碼對應：貸款 Tab 頂部改三欄（貸款總額／每月應還／淨資產）並列出本月尚未到期明細；持倉總資產列在有未結清月還時加可點的「月還 NT$xx」標示（不從總資產扣除）。每月應還 = 未結清貸款本期實際應付（nextInterest + nextPrincipal；最後一期小於月付時用實際金額；月付過低／未設定不計入）。純顯示，不寫流水帳、不產生 pending。_lookupPrice 港股支援有無 .HK 後綴。不改 _projectLoanBalance、五張統計卡、圓餅、Gist schema、userDataHash、pending、close pair 或損益公式。
@@ -801,7 +803,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.951</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.952</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1665,7 +1667,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.951';
+        const APP_VERSION = 'v15.952';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -11309,36 +11311,48 @@
                 return (Number.isInteger(v) && v >= 0 && v < _SHEET_PROXIES.length) ? v : 0;
             } catch(_) { return 0; }
         })();
+        async function _fetchSheetCandidate(id, requestUrl, timeoutMs, signal, errors) {
+            if (signal?.aborted) return null;
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+            const abortHandler = () => ctrl.abort();
+            signal?.addEventListener('abort', abortHandler, { once: true });
+            try {
+                const res = await fetch(requestUrl, { signal: ctrl.signal, cache: 'no-store' });
+                if (res.ok) return res;
+                errors.push(`${id}: HTTP ${res.status}`);
+            } catch(e) {
+                errors.push(`${id}: ${e?.message || 'fetch error'}`);
+            } finally {
+                clearTimeout(tid);
+                signal?.removeEventListener('abort', abortHandler);
+            }
+            return null;
+        }
         async function _fetchSheetCSV(sheetUrl, signal) {
             const lastErrors = [];
+
+            // v15.952：Google 發布 CSV 現在回傳 Access-Control-Allow-Origin: *。
+            // 直接來源成功就不再依賴容易逾時／403 的第三方 proxy。
+            const direct = await _fetchSheetCandidate('google-direct', sheetUrl, 8000, signal, lastErrors);
+            if (direct) return direct;
+
             for (let i = 0; i < _SHEET_PROXIES.length; i++) {
                 if (signal?.aborted) break;
                 const idx = (_sheetProxyIdx + i) % _SHEET_PROXIES.length;
                 const proxy = _SHEET_PROXIES[idx];
-                const ctrl = new AbortController();
-                const tid  = setTimeout(() => ctrl.abort(), proxy.timeoutMs);
-                const abortHandler = () => ctrl.abort();
-                signal?.addEventListener('abort', abortHandler, { once: true });
-                try {
-                    const res = await fetch(proxy.build(sheetUrl), { signal: ctrl.signal, cache: 'no-store' });
-                    if (res.ok) {
-                        if (idx !== _sheetProxyIdx) {   // v15.934：變動才寫 localStorage
-                            _sheetProxyIdx = idx;
-                            try { localStorage.setItem(STORAGE_KEYS.sheetProxyIdx, String(idx)); } catch(_) {}
-                        }
-                        return res;
+                const res = await _fetchSheetCandidate(proxy.id, proxy.build(sheetUrl), proxy.timeoutMs, signal, lastErrors);
+                if (res) {
+                    if (idx !== _sheetProxyIdx) {   // v15.934：變動才寫 localStorage
+                        _sheetProxyIdx = idx;
+                        try { localStorage.setItem(STORAGE_KEYS.sheetProxyIdx, String(idx)); } catch(_) {}
                     }
-                    lastErrors.push(`${proxy.id}: HTTP ${res.status}`);
-                } catch(e) {
-                    lastErrors.push(`${proxy.id}: ${e?.message || 'fetch error'}`);
-                } finally {
-                    clearTimeout(tid);
-                    signal?.removeEventListener('abort', abortHandler);
+                    return res;
                 }
             }
-            // v15.064：三 proxy 全滅時記錄錯誤日誌（包含每個 proxy 的失敗原因）
+            // v15.064 / v15.952：全部來源失敗時記錄各路徑原因。
             try {
-                _recordAppError('csv_proxy_all_fail', new Error('All CSV proxies failed'), { errors: lastErrors });
+                _recordAppError('csv_proxy_all_fail', new Error('All CSV sources failed'), { errors: lastErrors });
             } catch(_) {}
             return null; // 全部失敗
         }
@@ -11355,9 +11369,10 @@
                     if (hasCounterMigration) {
                         const fx = await _fetchFxRates(true);
                         if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
-                        const bridge = await _refreshCounterMigrationQuotes('manual-counter-only');
-                        renderAll();
-                        showImportToast(bridge.fresh > 0 ? '已更新 7747 接續報價' : '7747 報價暫時無法取得，保留上一筆資料', 3000);
+                        const fallback = await _refreshIndependentQuoteFallbacks('manual-counter-only');
+                        const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-counter-only', true);
+                        if (fallbackUpdated > 0) showImportToast(`已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 4000);
+                        else showWarnToast(`報價備援暫時無法取得；${_quoteFallbackSummary(fallback)}`, 4000);
                         return;
                     }
                     showWarnToast(!sheetUrl ? '⚠️ 請先填入 Google Sheet CSV 連結' : '⚠️ URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結');
@@ -11372,19 +11387,19 @@
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(timeoutId);
                 if (!res) {
-                    if (hasCounterMigration) {
-                        const bridge = await _refreshCounterMigrationQuotes('manual-sheet-failed');
-                        renderAll();
-                        showWarnToast(bridge.fresh > 0 ? 'CSV 無法取得，已改用 7747 接續報價' : 'CSV 與 7747 報價都暫時無法取得，保留上一筆資料', 4000);
-                        return;
-                    }
-                    showWarnToast('⏱ 無法取得報價 CSV，三個 proxy 均失敗\n請確認 Google Sheet 已發布為 CSV 格式');
+                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-failed');
+                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-failed', true);
+                    if (fallbackUpdated > 0) showImportToast(`CSV 來源未回應，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                    else showWarnToast(`⏱ 無法取得報價 CSV 與獨立備援\n${_quoteFallbackSummary(fallback)}`, 5000);
                     return;
                 }
                 const csvText = await res.text();
 
                 if (csvText.trim().startsWith('<')) {
-                    showWarnToast('❌ Google Sheet 尚未以 CSV 格式發布\n請至 檔案→共用→發布到網路→選逗號分隔值(.csv)');
+                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-html');
+                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-html', true);
+                    if (fallbackUpdated > 0) showImportToast(`Sheet 回傳非 CSV，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                    else showWarnToast('❌ Google Sheet 尚未以 CSV 格式發布，且獨立備援失敗\n請至 檔案→共用→發布到網路→選逗號分隔值(.csv)');
                     return;
                 }
 
@@ -11408,14 +11423,25 @@
                     document.getElementById('rate-source').textContent = `✓ ${sheetRates.USD_TWD ? 'Sheet 覆蓋' : '即時匯率'}（${updated}）`;
                 }
 
-                if (Object.keys(prices).length === 0 && !hasCounterMigration) {
-                    showWarnToast('⚠️ CSV 無有效股價，請確認格式\n第一欄=代碼，第二欄=價格');
-                    manualPriceReview();
+                if (Object.keys(prices).length === 0) {
+                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-empty');
+                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-empty', true);
+                    if (fallbackUpdated > 0) showImportToast(`CSV 無有效股價，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                    else {
+                        showWarnToast('⚠️ CSV 無有效股價，請確認格式\n第一欄=代碼，第二欄=價格');
+                        manualPriceReview();
+                    }
                     return;
                 }
 
                 const matchCount = holdings.filter(h => _counterMigrationForHolding(h) || _lookupPrice(prices, h) != null).length;
                 if (matchCount === 0) {
+                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-mismatch');
+                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-mismatch', true);
+                    if (fallbackUpdated > 0) {
+                        showImportToast(`CSV 代碼未匹配，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                        return;
+                    }
                     const sheetSymbols = Object.keys(prices).slice(0, 3).join(', ');
                     const holdingSymbols = holdings.slice(0, 3).map(h => h.symbol).join(', ');
                     showWarnToast(`⚠️ 代碼不符\nSheet：${sheetSymbols}\n持倉：${holdingSymbols}`, 5000);
@@ -11470,6 +11496,85 @@
             return { coverage, fullMarkets, partialMarkets };
         }
 
+        // v15.952：CSV 缺漏或全面失敗時，美股自行補價；港股接續結果不參與美股成敗判斷。
+        async function _refreshUsQuotesFromYahoo(reason, alreadyUpdatedSymbols) {
+            const updatedSymbols = alreadyUpdatedSymbols instanceof Set
+                ? new Set(alreadyUpdatedSymbols)
+                : new Set(alreadyUpdatedSymbols || []);
+            const activeUs = holdings.filter(h =>
+                Number(h.quantity || 0) > 0
+                && _holdingMarketKey(h) === 'US'
+                && !_counterMigrationForHolding(h)
+            );
+            const pending = activeUs.filter(h => !updatedSymbols.has(h.symbol));
+            let updated = 0;
+            let failed = 0;
+            await _runTaskPool(pending.map(h => async () => {
+                const querySymbol = _canonicalYahooSymbol(h.symbol, 'US');
+                try {
+                    const quote = await _fetchOneWatchlistQuote(querySymbol);
+                    const price = Number(quote?.price);
+                    if (!(price > 0) || !_acceptIncomingPriceForHolding(h, price, 'yahoo-us-fallback')) {
+                        failed++;
+                        return;
+                    }
+                    h.currentPrice = parseFloat(price.toFixed(4));
+                    updatedSymbols.add(h.symbol);
+                    updated++;
+                } catch(e) {
+                    failed++;
+                    try { _recordAppError('us_quote_fallback', e, { symbol: h.symbol, querySymbol, reason }); } catch(_) {}
+                }
+            }), 3);
+
+            const coverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
+            const fullMarkets = coverage.fullMarkets.includes('US') ? ['US'] : [];
+            try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
+            return { expected: activeUs.length, updated, failed, updatedSymbols, coverage, fullMarkets };
+        }
+
+        async function _refreshIndependentQuoteFallbacks(reason, alreadyUpdatedSymbols) {
+            const existing = alreadyUpdatedSymbols instanceof Set
+                ? new Set(alreadyUpdatedSymbols)
+                : new Set(alreadyUpdatedSymbols || []);
+            const usExpected = holdings.filter(h => Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === 'US').length;
+            const counterExpected = _counterMigrationCandidates().length;
+            const usPromise = _refreshUsQuotesFromYahoo(reason, existing).catch(e => {
+                try { _recordAppError('us_quote_fallback', e, { reason }); } catch(_) {}
+                return { expected: usExpected, updated: 0, failed: Math.max(0, usExpected), updatedSymbols: existing, coverage: _quoteCoverageForUpdatedSymbols(existing), fullMarkets: [] };
+            });
+            const counterPromise = counterExpected > 0
+                ? _refreshCounterMigrationQuotes(reason).catch(e => {
+                    try { _recordAppError('counter_quote_fetch', e, { reason }); } catch(_) {}
+                    return { updatedSymbols: new Set(), updated: 0, fresh: 0, failed: counterExpected };
+                })
+                : Promise.resolve({ updatedSymbols: new Set(), updated: 0, fresh: 0, failed: 0 });
+            const [us, counter] = await Promise.all([usPromise, counterPromise]);
+            return { us, counter };
+        }
+
+        function _quoteFallbackSummary(result) {
+            const parts = [];
+            if (result?.us?.expected > 0) {
+                const covered = result.us.coverage?.coverage?.US?.updated || 0;
+                parts.push(`美股 Yahoo 備援 ${covered}/${result.us.expected} 檔`);
+            }
+            const counterTotal = _counterMigrationCandidates().length;
+            if (counterTotal > 0) parts.push(`7747 接續 ${result?.counter?.fresh || 0}/${counterTotal} 檔`);
+            return parts.join('；') || '保留上一筆報價';
+        }
+
+        function _renderIndependentQuoteFallback(result, reason, forceClosePair = false) {
+            const updated = Number(result?.us?.updated || 0) + Number(result?.counter?.updated || 0);
+            if (updated <= 0) return 0;
+            if (result?.us?.fullMarkets?.length) {
+                try { _markBatchQuoteRefresh(result.us.fullMarkets, 'yahoo-us-fallback'); } catch(_) {}
+            }
+            _scheduleRefreshClosePair(reason, forceClosePair ? { force: true } : undefined);
+            renderAll();
+            return updated;
+        }
+
         // 直接套用股價（不跳確認視窗）
         // v15.906: CSV quote refresh can arrive after analysis marked symbols as not opened.
         // When a market is open, stale per-symbol false flags should not block 今日漲跌.
@@ -11514,9 +11619,10 @@
                     updatedSymbols.add(h.symbol);
                 }
             });
-            const bridge = await _refreshCounterMigrationQuotes('csv-manual');
-            updated += bridge.updated;
-            bridge.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
+            const fallback = await _refreshIndependentQuoteFallbacks('csv-manual', updatedSymbols);
+            updated += fallback.us.updated + fallback.counter.updated;
+            fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
+            fallback.counter.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
             const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
             // v15.947：只有完整覆蓋該市場的 active holdings 才推進 quote meta 的 freshness。
             if (quoteCoverage.fullMarkets.length > 0) {
@@ -11542,7 +11648,11 @@
             const partialNote = quoteCoverage.partialMarkets.length
                 ? `；${quoteCoverage.partialMarkets.join('、')}市場尚有缺漏`
                 : '';
-            showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}${bridge.failed ? `；7747 接續失敗 ${bridge.failed} 檔` : ''}`, 3000);
+            const fallbackNote = [
+                fallback.us.failed ? `美股備援失敗 ${fallback.us.failed} 檔` : '',
+                fallback.counter.failed ? `7747 接續失敗 ${fallback.counter.failed} 檔` : ''
+            ].filter(Boolean).map(text => `；${text}`).join('');
+            showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}${fallbackNote}`, 3000);
         }
 
         function manualPriceReview() {
@@ -15024,8 +15134,8 @@
                 if (hasCounterMigration) {
                     const fx = await _fetchFxRates(false);
                     if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
-                    const bridge = await _refreshCounterMigrationQuotes('silent-counter-only');
-                    if (bridge.fresh > 0) { renderAll(); recordSnapshot(); }
+                    const fallback = await _refreshIndependentQuoteFallbacks('silent-counter-only');
+                    if (_renderIndependentQuoteFallback(fallback, 'silent-counter-only') > 0) recordSnapshot();
                 }
                 return;
             }
@@ -15037,14 +15147,14 @@
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
                 if (!res) {
-                    const bridge = hasCounterMigration ? await _refreshCounterMigrationQuotes('silent-sheet-failed') : null;
-                    if (bridge?.fresh > 0) { renderAll(); recordSnapshot(); }
+                    const fallback = await _refreshIndependentQuoteFallbacks('silent-sheet-failed');
+                    if (_renderIndependentQuoteFallback(fallback, 'silent-sheet-failed') > 0) recordSnapshot();
                     return;
                 }
                 const csvText = await res.text();
                 if (csvText.trim().startsWith('<')) {
-                    const bridge = hasCounterMigration ? await _refreshCounterMigrationQuotes('silent-sheet-html') : null;
-                    if (bridge?.fresh > 0) { renderAll(); recordSnapshot(); }
+                    const fallback = await _refreshIndependentQuoteFallbacks('silent-sheet-html');
+                    if (_renderIndependentQuoteFallback(fallback, 'silent-sheet-html') > 0) recordSnapshot();
                     return;
                 }
 
@@ -15074,9 +15184,10 @@
                         updatedSymbols.add(h.symbol);
                     }
                 });
-                const bridge = await _refreshCounterMigrationQuotes('csv-silent');
-                updated += bridge.updated;
-                bridge.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
+                const fallback = await _refreshIndependentQuoteFallbacks('csv-silent', updatedSymbols);
+                updated += fallback.us.updated + fallback.counter.updated;
+                fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
+                fallback.counter.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
                     const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
                     // v15.947：partial market 只更新現價，不推進該市場的 quote freshness。
