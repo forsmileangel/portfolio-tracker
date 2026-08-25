@@ -382,7 +382,7 @@
         .watchlist-pro-cat-btn.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); color:var(--pt-accent-strong); }
         .pionex-cal { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:0.28rem; }
         .pionex-cal-dow { text-align:center; color:var(--pt-text-muted); font-size:0.68rem; font-weight:700; padding:0.15rem 0 0.3rem; }
-        .pionex-cal-cell { min-height:3.1rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); padding:0.22rem 0.18rem 0.28rem; text-align:center; color:var(--pt-text-muted); }
+        .pionex-cal-cell { min-height:3.6rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); padding:0.22rem 0.18rem 0.28rem; text-align:center; color:var(--pt-text-muted); }
         .pionex-cal-cell.has-data { cursor:pointer; color:var(--pt-text); }
         .pionex-cal-cell.has-data:hover { border-color:var(--pt-accent); background:var(--pt-accent-soft); }
         .pionex-cal-cell.is-selected { border-color:var(--pt-accent); background:var(--pt-accent-soft); box-shadow:inset 0 0 0 1px var(--pt-accent); }
@@ -12126,7 +12126,8 @@
                 if (rec) {
                     cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}" onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
-                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtUsdtAmt(rec.daily_profit_usdt))}</span>`
+                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.daily_profit_usdt)}">單 ${pv(_fmtUsdtAmt(rec.daily_profit_usdt))}</span>`
+                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.cumulative_usdt)}">累 ${pv(_fmtUsdtAmt(rec.cumulative_usdt))}</span>`
                         + `</button>`;
                 } else {
                     cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
@@ -12153,28 +12154,39 @@
             const monthLabel = `${y} 年 ${m} 月`;
             pane.innerHTML = `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
                     <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▥</i> 派網網格</h2>
                     <div style="color:${fresh.color};font-size:0.72rem;">${_escapeHtml(when)} · ${fresh.label}</div>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;">
-                    <div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日網格利潤</div>
-                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtUsdtAmt(selected.daily_profit_usdt))}</div>
-                        <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${_escapeHtml(_pionexCalSelected || '')}${selected.daily_profit_twd != null ? ' · ' + pv('NT$ ' + _fmtTwdAmt(selected.daily_profit_twd)) : ''}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin:0.35rem 0 0.65rem;">
+                    <button type="button" onclick="shiftPionexCalMonth(-1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">‹</button>
+                    <div style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${monthLabel}</div>
+                    <button type="button" onclick="shiftPionexCalMonth(1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">›</button>
+                </div>
+                <div class="pionex-cal">${cells}</div>
+                <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
+                    <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                        <div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日網格利潤</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtUsdtAmt(selected.daily_profit_usdt))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtTwdAmt(selected.daily_profit_twd)) : ''}</div>
+                        </div>
+                        <div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">累計網格利潤</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtUsdtAmt(selected.cumulative_usdt))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.cumulative_twd != null ? pv('NT$ ' + _fmtTwdAmt(selected.cumulative_twd)) : '各倉網格利潤加總'}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">累計網格利潤</div>
-                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtUsdtAmt(selected.cumulative_usdt))}</div>
-                        <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">該日快照各倉網格利潤加總</div>
-                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;margin-top:0.85rem;">
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">投資加總</div>
-                        <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
+                        <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
                     </div>
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">錢包總額</div>
-                        <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:#e2e8f0;">${pv(ledger.wallet && ledger.wallet.twd != null ? ('NT$ ' + _fmtTwdAmt(ledger.wallet.twd)) : '—')}</div>
+                        <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(ledger.wallet && ledger.wallet.twd != null ? ('NT$ ' + _fmtTwdAmt(ledger.wallet.twd)) : '—')}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${ledger.wallet && ledger.wallet.usdt ? pv(_fmtUsdtAmt(ledger.wallet.usdt) + ' USDT') : ''}</div>
                         ${ledger.wallet && ledger.wallet.twd != null && Number(ledger.wallet.twd) > 0
                             ? `<button type="button" onclick="fillPionexWalletIntoCrypto()" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">填入持倉加密欄</button>`
@@ -12182,15 +12194,7 @@
                     </div>
                 </div>
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;">基準日 ${_escapeHtml(ledger.baseline_date || '')}：單日為 0，累計填當下各倉網格利潤加總</div>
-            </div>
-            <div class="glass-card" style="padding:1rem 1.15rem;margin-bottom:1rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.65rem;">
-                    <button type="button" onclick="shiftPionexCalMonth(-1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">‹</button>
-                    <div style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${monthLabel}</div>
-                    <button type="button" onclick="shiftPionexCalMonth(1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">›</button>
-                </div>
-                <div class="pionex-cal">${cells}</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;">基準日單日為 0；累計是該日各倉網格利潤加總</div>
             </div>
             <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
                 <div style="color:#c5d0d8;font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">${_escapeHtml(_pionexCalSelected || '')} 明細</div>
