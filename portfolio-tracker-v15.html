@@ -1,6 +1,6 @@
 <!--
   Portfolio Tracker v15
-  v15.955 - 派網錢包覆蓋加密欄：Gist 第二檔的錢包 TWD 在 pull 後寫入持倉分布圖「加密（TWD）」並同步回 holdings；上次數值留在雲端，新錢包覆蓋。
+  v15.955 - 派網網格：錢包覆蓋加密欄；網格頁月曆點選看單日／累計；累計＝當下各倉網格利潤加總，基準日單日為 0。
   v15.954 - 派網網格每日紀錄：讀 Gist 第二檔 pionex-grid-ledger.json（本機 v2 capture 發布），新增網格分頁；加密欄顯示錢包 TWD 與手動填入。不改 holdings schema、userDataHash、pending、損益。
   v15.953 - MSTU 反分割報價尺度修正：修復 2026-08-24 1:10 反分割在報價已先調整時又被乘 10、現價約 30 誤成約 300 的問題；保留 30 股與換算後成本，正確接受拆分後報價。
   v15.952 - 報價來源與市場分流修正：Google Sheet 公開 CSV 改為直接讀取優先，失敗才走既有 proxy／Render；CSV 缺漏或全面失敗時，美股獨立以 Yahoo 備援補價，9747→7747 港股接續另行處理，任一市場失敗不再阻擋另一市場更新。
@@ -90,7 +90,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-        v15.955 - 派網錢包覆蓋加密欄：帳本 pull 完成後（含 hash_match）用第二檔 wallet.twd 寫入持倉分布圖「加密（TWD）」輸入框與 pt_crypto_twd，若與上次不同則 _markAndAutoPush(['settings']) 讓 holdings 雲端留下上一次錢包。必須在套用 saved.crypto_twd 之後才寫，避免被舊值蓋掉。空帳本不把加密欄清成 0。不改 schema、userDataHash 規則、損益、close pair。
+        v15.955 - 派網網格：pull 後用第二檔 wallet.twd 覆蓋持倉「加密（TWD）」並回寫 holdings。網格頁改月曆點選，當日顯示單日網格利潤與累計網格利潤兩數；累計＝該日快照各倉 GridProfit 加總（不是從 0 起算），基準日單日為 0、累計填當下網格利潤總和。填入按鈕在網格頁錢包卡。不改 schema、userDataHash、損益、close pair。
         v15.954 - 派網網格每日紀錄：本機 Pionex Grid v2 capture 成功後把精簡日記帳 PATCH 到同一私有 Gist 的第二檔 pionex-grid-ledger.json；PT 啟動／pull 時只讀該檔（失敗保留舊 cache、不中斷持倉同步），新增「網格」分頁從基準日 2026-08-25 列出每日利潤，持倉加密欄顯示派網錢包 TWD（臺銀現金買入口徑）與手動「填入」。帳本不進 holdings JSON／userDataHash／pending／system sync；不按填入則 crypto_twd 不動。不改五張統計卡、損益公式、close pair、圓餅、PT_SCHEMA_VERSION 或 Pionex API 金鑰存放。
         v15.953 - MSTU 反分割報價尺度修正：MSTU 於 2026-08-24 執行 1:10 反分割時，若報價來源已先切換到拆分後尺度，公司行動工具不再把現價重複乘 10。既有 300→30 的持倉與 FIFO 成本換算保持不變；針對本次已產生的錯誤紀錄，畫面載入時把約 300 美元恢復為套用前已取得的拆分後報價尺度，並讓 Yahoo 後續約 28–30 美元報價可正常覆蓋。生效日當天或之後人工套用分割時預設保留目前報價，候選偵測路徑則直接採用已驗證的新尺度報價；不改 Storage Key、Gist/FSA payload、userDataHash、pending、損益公式或持倉 schema。
         v15.952 - 報價來源與市場分流修正：公開 Google Sheet CSV 現已允許 CORS，改為直接讀取優先，失敗才輪詢既有 allorigins／codetabs／corsproxy／Render；CSV 全面失敗或缺少部分美股時，美股持倉獨立使用 Yahoo chart 備援，9747→7747 另走港股接續，兩條路徑各自保留成功結果與錯誤狀態。只有完整覆蓋的市場才更新 quote freshness；不改損益、close pair、快照公式、Gist、FSA、userDataHash、pending、Storage Key 或 schema。
@@ -380,6 +380,19 @@
         .watchlist-pro-field-status { min-height:1.2em; color:var(--pt-text-muted); font-size:0.7rem; font-weight:600; }
         .watchlist-pro-cat-btn { flex:1; min-width:64px; padding:0.42rem 0.5rem; border-radius:7px; border:1px solid var(--pt-border); background:var(--pt-surface-1); color:var(--pt-text-muted); font-size:0.8rem; font-weight:800; cursor:pointer; text-transform:none; letter-spacing:0; line-height:1.2; transition:border-color 0.15s, background 0.15s, color 0.15s; }
         .watchlist-pro-cat-btn.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); color:var(--pt-accent-strong); }
+        .pionex-cal { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:0.28rem; }
+        .pionex-cal-dow { text-align:center; color:var(--pt-text-muted); font-size:0.68rem; font-weight:700; padding:0.15rem 0 0.3rem; }
+        .pionex-cal-cell { min-height:3.1rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); padding:0.22rem 0.18rem 0.28rem; text-align:center; color:var(--pt-text-muted); }
+        .pionex-cal-cell.has-data { cursor:pointer; color:var(--pt-text); }
+        .pionex-cal-cell.has-data:hover { border-color:var(--pt-accent); background:var(--pt-accent-soft); }
+        .pionex-cal-cell.is-selected { border-color:var(--pt-accent); background:var(--pt-accent-soft); box-shadow:inset 0 0 0 1px var(--pt-accent); }
+        .pionex-cal-cell.is-muted { opacity:0.35; }
+        .pionex-cal-num { display:block; font-size:0.78rem; font-weight:700; line-height:1.2; }
+        .pionex-cal-amt { display:block; font-size:0.62rem; font-weight:700; margin-top:0.12rem; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        @media (max-width:540px) {
+            .pionex-cal-cell { min-height:2.55rem; padding:0.12rem 0.08rem; }
+            .pionex-cal-amt { font-size:0.55rem; }
+        }
 
         /* ── 凍結欄（持倉代碼）── */
         #tab-pane-2 table thead th:nth-child(1),
@@ -12061,6 +12074,22 @@
             }
         }
 
+        let _pionexCalMonth = null;
+        let _pionexCalSelected = null;
+
+        function shiftPionexCalMonth(delta) {
+            if (!_pionexCalMonth) return;
+            let y = _pionexCalMonth.y, m = _pionexCalMonth.m + delta;
+            while (m > 12) { m -= 12; y += 1; }
+            while (m < 1) { m += 12; y -= 1; }
+            _pionexCalMonth = { y, m };
+            renderPionexGridTab();
+        }
+        function selectPionexCalDay(dateStr) {
+            _pionexCalSelected = dateStr;
+            renderPionexGridTab();
+        }
+
         function renderPionexGridTab() {
             const pane = document.getElementById('tab-pane-10');
             if (!pane) return;
@@ -12076,46 +12105,52 @@
                 pane.innerHTML = `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;">尚無派網網格紀錄。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>`;
                 return;
             }
+            const byDate = {};
+            (ledger.days || []).forEach(d => { if (d && d.date) byDate[d.date] = d; });
+            const latestDate = ledger.capture_date || ledger.days[0].date;
+            if (!_pionexCalSelected || !byDate[_pionexCalSelected]) _pionexCalSelected = latestDate;
+            const selected = byDate[_pionexCalSelected] || {};
+            const selParts = String(_pionexCalSelected).split('-').map(Number);
+            if (!_pionexCalMonth) _pionexCalMonth = { y: selParts[0], m: selParts[1] };
+            const y = _pionexCalMonth.y, m = _pionexCalMonth.m;
+            const first = new Date(y, m - 1, 1);
+            const startPad = first.getDay();
+            const daysInMonth = new Date(y, m, 0).getDate();
+            const dows = ['日', '一', '二', '三', '四', '五', '六'];
+            let cells = dows.map(d => `<div class="pionex-cal-dow">${d}</div>`).join('');
+            for (let i = 0; i < startPad; i++) cells += `<div class="pionex-cal-cell is-muted"></div>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const rec = byDate[dateStr];
+                const selectedCls = dateStr === _pionexCalSelected ? ' is-selected' : '';
+                if (rec) {
+                    cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}" onclick="selectPionexCalDay('${dateStr}')">`
+                        + `<span class="pionex-cal-num">${d}</span>`
+                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtUsdtAmt(rec.daily_profit_usdt))}</span>`
+                        + `</button>`;
+                } else {
+                    cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
+                }
+            }
             const latest = ledger.latest || {};
             const fresh = _pionexFreshness(ledger.capture_date);
             const when = _fmtPionexTs(ledger.captured_at) || ledger.capture_date || '';
             const gap = Number(latest.gap_days) || 0;
-            const dailyColor = _pnlColor(latest.daily_profit_usdt);
-            const daysHtml = ledger.days.map(day => {
-                const rows = Array.isArray(day.rows) ? day.rows : [];
-                const dayColor = _pnlColor(day.daily_profit_usdt);
-                const rowHtml = rows.length
-                    ? rows.map(r => {
-                        const st = statusLabel[r.status] || r.status || '';
-                        return `<tr>
-                            <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
-                            <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml(st)}</td>
-                            <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
-                            <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtUsdtAmt(r.daily_profit_usdt))}</td>
-                            <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.cumulative_usdt))}</td>
-                        </tr>`;
-                    }).join('')
-                    : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
-                const pct = day.pct == null ? '' : ` · ${Number(day.pct).toFixed(2)}%`;
-                return `<details class="glass-card" style="padding:0;margin:0 0 0.55rem;overflow:hidden;">
-                    <summary style="cursor:pointer;list-style:none;padding:0.7rem 1rem;display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;align-items:baseline;">
-                        <span style="color:#e2e8f0;font-weight:700;">${_escapeHtml(day.date || '')}</span>
-                        <span class="mono" style="color:${dayColor};font-weight:700;">${pv(_fmtUsdtAmt(day.daily_profit_usdt))} USDT${day.daily_profit_twd != null ? ' · NT$ ' + pv(_fmtTwdAmt(day.daily_profit_twd)) : ''}${pct}</span>
-                    </summary>
-                    <div style="overflow:auto;padding:0 0.6rem 0.7rem;">
-                        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                            <thead><tr style="color:#7e93a6;">
-                                <th style="text-align:left;padding:0.35rem 0.4rem;">標的</th>
-                                <th style="text-align:left;padding:0.35rem 0.4rem;">狀態</th>
-                                <th style="text-align:right;padding:0.35rem 0.4rem;">倉位</th>
-                                <th style="text-align:right;padding:0.35rem 0.4rem;">當日利潤</th>
-                                <th style="text-align:right;padding:0.35rem 0.4rem;">累計</th>
-                            </tr></thead>
-                            <tbody>${rowHtml}</tbody>
-                        </table>
-                    </div>
-                </details>`;
-            }).join('');
+            const dailyColor = _pnlColor(selected.daily_profit_usdt);
+            const rows = Array.isArray(selected.rows) ? selected.rows : [];
+            const rowHtml = rows.length
+                ? rows.map(r => {
+                    const st = statusLabel[r.status] || r.status || '';
+                    return `<tr>
+                        <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
+                        <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml(st)}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtUsdtAmt(r.daily_profit_usdt))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.cumulative_usdt))}</td>
+                    </tr>`;
+                }).join('')
+                : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
+            const monthLabel = `${y} 年 ${m} 月`;
             pane.innerHTML = `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.75rem;">
@@ -12124,17 +12159,18 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;">
                     <div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">當日網格利潤</div>
-                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtUsdtAmt(latest.daily_profit_usdt))}</div>
-                        <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${latest.daily_profit_twd != null ? pv('NT$ ' + _fmtTwdAmt(latest.daily_profit_twd)) : ''}</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日網格利潤</div>
+                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtUsdtAmt(selected.daily_profit_usdt))}</div>
+                        <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${_escapeHtml(_pionexCalSelected || '')}${selected.daily_profit_twd != null ? ' · ' + pv('NT$ ' + _fmtTwdAmt(selected.daily_profit_twd)) : ''}</div>
                     </div>
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">累計網格利潤</div>
-                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(latest.cumulative_usdt)};line-height:1.1;">${pv(_fmtUsdtAmt(latest.cumulative_usdt))}</div>
+                        <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtUsdtAmt(selected.cumulative_usdt))}</div>
+                        <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">該日快照各倉網格利潤加總</div>
                     </div>
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">投資加總</div>
-                        <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(latest.investment_usdt))}</div>
+                        <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
                     </div>
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">錢包總額</div>
@@ -12146,9 +12182,29 @@
                     </div>
                 </div>
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;">基準日 ${_escapeHtml(ledger.baseline_date || '2026-08-25')} · 數字來自本機 capture，不是盤中即時</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;">基準日 ${_escapeHtml(ledger.baseline_date || '')}：單日為 0，累計填當下各倉網格利潤加總</div>
             </div>
-            ${daysHtml}`;
+            <div class="glass-card" style="padding:1rem 1.15rem;margin-bottom:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.65rem;">
+                    <button type="button" onclick="shiftPionexCalMonth(-1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">‹</button>
+                    <div style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${monthLabel}</div>
+                    <button type="button" onclick="shiftPionexCalMonth(1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">›</button>
+                </div>
+                <div class="pionex-cal">${cells}</div>
+            </div>
+            <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
+                <div style="color:#c5d0d8;font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">${_escapeHtml(_pionexCalSelected || '')} 明細</div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                    <thead><tr style="color:#7e93a6;">
+                        <th style="text-align:left;padding:0.35rem 0.4rem;">標的</th>
+                        <th style="text-align:left;padding:0.35rem 0.4rem;">狀態</th>
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">倉位</th>
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">單日利潤</th>
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">累計</th>
+                    </tr></thead>
+                    <tbody>${rowHtml}</tbody>
+                </table>
+            </div>`;
         }
 
         // ==================== Leveraged ETF → Underlying Map ====================
