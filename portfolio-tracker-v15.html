@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.955 - 派網錢包覆蓋加密欄：Gist 第二檔的錢包 TWD 在 pull 後寫入持倉分布圖「加密（TWD）」並同步回 holdings；上次數值留在雲端，新錢包覆蓋。
   v15.954 - 派網網格每日紀錄：讀 Gist 第二檔 pionex-grid-ledger.json（本機 v2 capture 發布），新增網格分頁；加密欄顯示錢包 TWD 與手動填入。不改 holdings schema、userDataHash、pending、損益。
   v15.953 - MSTU 反分割報價尺度修正：修復 2026-08-24 1:10 反分割在報價已先調整時又被乘 10、現價約 30 誤成約 300 的問題；保留 30 股與換算後成本，正確接受拆分後報價。
   v15.952 - 報價來源與市場分流修正：Google Sheet 公開 CSV 改為直接讀取優先，失敗才走既有 proxy／Render；CSV 缺漏或全面失敗時，美股獨立以 Yahoo 備援補價，9747→7747 港股接續另行處理，任一市場失敗不再阻擋另一市場更新。
@@ -89,6 +90,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.955 - 派網錢包覆蓋加密欄：帳本 pull 完成後（含 hash_match）用第二檔 wallet.twd 寫入持倉分布圖「加密（TWD）」輸入框與 pt_crypto_twd，若與上次不同則 _markAndAutoPush(['settings']) 讓 holdings 雲端留下上一次錢包。必須在套用 saved.crypto_twd 之後才寫，避免被舊值蓋掉。空帳本不把加密欄清成 0。不改 schema、userDataHash 規則、損益、close pair。
         v15.954 - 派網網格每日紀錄：本機 Pionex Grid v2 capture 成功後把精簡日記帳 PATCH 到同一私有 Gist 的第二檔 pionex-grid-ledger.json；PT 啟動／pull 時只讀該檔（失敗保留舊 cache、不中斷持倉同步），新增「網格」分頁從基準日 2026-08-25 列出每日利潤，持倉加密欄顯示派網錢包 TWD（臺銀現金買入口徑）與手動「填入」。帳本不進 holdings JSON／userDataHash／pending／system sync；不按填入則 crypto_twd 不動。不改五張統計卡、損益公式、close pair、圓餅、PT_SCHEMA_VERSION 或 Pionex API 金鑰存放。
         v15.953 - MSTU 反分割報價尺度修正：MSTU 於 2026-08-24 執行 1:10 反分割時，若報價來源已先切換到拆分後尺度，公司行動工具不再把現價重複乘 10。既有 300→30 的持倉與 FIFO 成本換算保持不變；針對本次已產生的錯誤紀錄，畫面載入時把約 300 美元恢復為套用前已取得的拆分後報價尺度，並讓 Yahoo 後續約 28–30 美元報價可正常覆蓋。生效日當天或之後人工套用分割時預設保留目前報價，候選偵測路徑則直接採用已驗證的新尺度報價；不改 Storage Key、Gist/FSA payload、userDataHash、pending、損益公式或持倉 schema。
         v15.952 - 報價來源與市場分流修正：公開 Google Sheet CSV 現已允許 CORS，改為直接讀取優先，失敗才輪詢既有 allorigins／codetabs／corsproxy／Render；CSV 全面失敗或缺少部分美股時，美股持倉獨立使用 Yahoo chart 備援，9747→7747 另走港股接續，兩條路徑各自保留成功結果與錯誤狀態。只有完整覆蓋的市場才更新 quote freshness；不改損益、close pair、快照公式、Gist、FSA、userDataHash、pending、Storage Key 或 schema。
@@ -807,7 +809,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.954</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.955</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -966,7 +968,6 @@
                         <span id="moxa-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含未上市</span>
                     </label>
                 </div>
-                <div id="pionex-wallet-hint" style="display:none;flex-basis:100%;"></div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem; align-items:start;">
                 <div><canvas id="pieCanvas" width="400" height="400"></canvas></div>
@@ -1675,7 +1676,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.954';
+        const APP_VERSION = 'v15.955';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4334,7 +4335,6 @@
             renderDepositsTab();
             renderLoansTab();
             renderWatchlistPro();
-            try { _updatePionexWalletHint(); } catch (_) {}
             try { renderPionexGridTab(); } catch (_) {}
         }
         function _updatePrivacyBtn() {
@@ -5384,9 +5384,16 @@
             const cryptoTWD = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
             const hint = document.getElementById('crypto-usdt-hint');
             if (!hint) return;
-            if (cryptoTWD > 0 && _usdtTWD > 0) {
-                const usdt = (cryptoTWD / _usdtTWD).toLocaleString('en-US', { maximumFractionDigits: 0 });
-                hint.textContent = `≈ ${usdt} USDT`;
+            let usdt = null;
+            try {
+                const w = _loadPionexLedger() && _loadPionexLedger().wallet;
+                if (w && w.usdt != null && w.usdt !== '') usdt = Number(w.usdt);
+            } catch (_) {}
+            if (cryptoTWD > 0 && Number.isFinite(usdt) && usdt > 0) {
+                hint.textContent = `≈ ${usdt.toLocaleString('en-US', { maximumFractionDigits: 0 })} USDT`;
+            } else if (cryptoTWD > 0 && _usdtTWD > 0) {
+                usdt = cryptoTWD / _usdtTWD;
+                hint.textContent = `≈ ${usdt.toLocaleString('en-US', { maximumFractionDigits: 0 })} USDT`;
             } else {
                 hint.textContent = '';
             }
@@ -5401,7 +5408,6 @@
                 if (cb) localStorage.setItem(PT_CRYPTO_PIE_KEY, cb.checked ? '1' : '0');
             } catch(e) { _handleStorageWriteError('crypto', e); }
             _updateCryptoHint();
-            try { _updatePionexWalletHint(); } catch (_) {}
         }
         function loadCrypto() {
             const v = parseFloat(localStorage.getItem(PT_CRYPTO_KEY)) || 0;
@@ -5409,7 +5415,6 @@
             if (el && v > 0) el.value = v;
             const cb = document.getElementById('crypto-pie-cb');
             if (cb) cb.checked = (localStorage.getItem(PT_CRYPTO_PIE_KEY) === '1');
-            try { _updatePionexWalletHint(); } catch (_) {}
         }
 
         function saveMoxa() {
@@ -9181,11 +9186,30 @@
                 throw e;
             }
             _pionexLedger = obj;
-            try { _updatePionexWalletHint(); } catch (_) {}
             const pane = document.getElementById('tab-pane-10');
             if (pane && pane.classList.contains('active')) {
                 try { renderPionexGridTab(); } catch (_) {}
             }
+        }
+
+        function _pionexWalletTwd() {
+            const ledger = _loadPionexLedger();
+            const twd = Math.round(Number(ledger && ledger.wallet && ledger.wallet.twd));
+            return Number.isFinite(twd) && twd > 0 ? twd : null;
+        }
+
+        function _syncCryptoFromPionexWallet() {
+            const twd = _pionexWalletTwd();
+            if (twd == null) return false;
+            const input = document.getElementById('crypto-twd-input');
+            const cur = Math.round(parseFloat(input && input.value) || parseFloat(localStorage.getItem(PT_CRYPTO_KEY) || '0') || 0);
+            if (input) input.value = String(twd);
+            saveCrypto();
+            if (cur === twd) return true;
+            if (_isApplyingCloudPull) return true;
+            try { _markAndAutoPush(['settings']); } catch (_) {}
+            try { renderAll(); } catch (_) {}
+            return true;
         }
 
         function _taipeiCalendarDate(now) {
@@ -9227,39 +9251,13 @@
             return n > 0 ? '#8bc69c' : '#ef4444';
         }
 
-        function _updatePionexWalletHint() {
-            const el = document.getElementById('pionex-wallet-hint');
-            if (!el) return;
-            const ledger = _loadPionexLedger();
-            const twd = Number(ledger && ledger.wallet && ledger.wallet.twd);
-            if (!ledger || !Number.isFinite(twd) || twd <= 0) {
-                el.style.display = 'none';
-                el.textContent = '';
-                return;
-            }
-            const fresh = _pionexFreshness(ledger.capture_date);
-            const when = _fmtPionexTs(ledger.captured_at) || ledger.capture_date || '';
-            el.style.display = 'flex';
-            el.style.alignItems = 'center';
-            el.style.gap = '0.45rem';
-            el.style.flexWrap = 'wrap';
-            el.innerHTML = `<span style="color:${fresh.color};">派網錢包 ${pv('NT$ ' + _fmtTwdAmt(twd))} · ${_escapeHtml(when)}</span>`
-                + `<button type="button" onclick="fillPionexWalletIntoCrypto()" style="padding:0.15rem 0.5rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">填入</button>`
-                + `<span onclick="switchTab(10)" style="color:#60a5fa;font-size:0.72rem;cursor:pointer;white-space:nowrap;">→ 網格</span>`;
-        }
-
         function fillPionexWalletIntoCrypto() {
-            const ledger = _loadPionexLedger();
-            const twd = Number(ledger && ledger.wallet && ledger.wallet.twd);
-            if (!Number.isFinite(twd) || twd <= 0) {
+            const twd = _pionexWalletTwd();
+            if (!_syncCryptoFromPionexWallet()) {
                 try { showWarnToast('尚無派網錢包總額', 2500); } catch (_) {}
                 return;
             }
-            const input = document.getElementById('crypto-twd-input');
-            if (input) input.value = String(Math.round(twd));
-            saveCrypto();
-            try { _markAndAutoPush(['settings']); } catch (_) {}
-            renderAll();
+            try { showImportToast('已寫入持倉加密欄 NT$ ' + _fmtTwdAmt(twd), 2500); } catch (_) {}
         }
 
         function loadGistSettings() {
@@ -9648,6 +9646,7 @@
                 _recordAppError('gist_pull', e);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
+                try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
             }
         }
@@ -9874,6 +9873,7 @@
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
+                try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
             }
         }
@@ -12140,6 +12140,9 @@
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">錢包總額</div>
                         <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:#e2e8f0;">${pv(ledger.wallet && ledger.wallet.twd != null ? ('NT$ ' + _fmtTwdAmt(ledger.wallet.twd)) : '—')}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${ledger.wallet && ledger.wallet.usdt ? pv(_fmtUsdtAmt(ledger.wallet.usdt) + ' USDT') : ''}</div>
+                        ${ledger.wallet && ledger.wallet.twd != null && Number(ledger.wallet.twd) > 0
+                            ? `<button type="button" onclick="fillPionexWalletIntoCrypto()" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">填入持倉加密欄</button>`
+                            : ''}
                     </div>
                 </div>
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
