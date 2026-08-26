@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動／同步拉取完成後一次性轉換持倉與 FIFO 成本至 HKD，寫入公司行動並正常同步；移除舊轉換預覽、停牌排除與 7747 接續報價特例。網格「投資加總」改為「投資總倉位」。
   v15.955 - 派網網格：錢包覆蓋加密欄；網格頁月曆點選看單日／累計；累計＝當下各倉網格利潤加總，基準日單日為 0。
   v15.954 - 派網網格每日紀錄：讀 Gist 第二檔 pionex-grid-ledger.json（本機 v2 capture 發布），新增網格分頁；加密欄顯示錢包 TWD 與手動填入。不改 holdings schema、userDataHash、pending、損益。
   v15.953 - MSTU 反分割報價尺度修正：修復 2026-08-24 1:10 反分割在報價已先調整時又被乘 10、現價約 30 誤成約 300 的問題；保留 30 股與換算後成本，正確接受拆分後報價。
@@ -90,6 +91,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動、Gist pull 或 FSA pull 完成後，若仍有 9747 持倉，依既有 USD_TWD／HKD_TWD 交叉匯率把每批 FIFO 單位成本轉成 HKD，股數與批次日期維持不變；若已有 7747 則合併 lots，否則原持倉直接改為 7747.HK，並寫入可同步的 counterMigration 公司行動。遷移只在雲端拉取旗標解除後標記 holdings／corporateActions dirty，避免 pull→push 回彈；沒有 9747 時為 no-op。移除舊預覽面板、券商成本覆蓋、停牌損益排除、9747→7747 報價／close pair 映射、獨立 Yahoo 接續報價與舊 counterQuotes cache；7747 回到一般 HKD 港股報價與損益路徑。網格明細「投資加總」改名「投資總倉位」。不改 Storage Key、PT_SCHEMA_VERSION、Gist/FSA payload 結構、userDataHash、pending、損益公式或快照 schema。
         v15.955 - 派網網格：pull 後用第二檔 wallet.twd 覆蓋持倉「加密（TWD）」並回寫 holdings。網格頁改月曆點選，當日顯示單日網格利潤與累計網格利潤兩數；累計＝該日快照各倉 GridProfit 加總（不是從 0 起算），基準日單日為 0、累計填當下網格利潤總和。填入按鈕在網格頁錢包卡。不改 schema、userDataHash、損益、close pair。
         v15.954 - 派網網格每日紀錄：本機 Pionex Grid v2 capture 成功後把精簡日記帳 PATCH 到同一私有 Gist 的第二檔 pionex-grid-ledger.json；PT 啟動／pull 時只讀該檔（失敗保留舊 cache、不中斷持倉同步），新增「網格」分頁從基準日 2026-08-25 列出每日利潤，持倉加密欄顯示派網錢包 TWD（臺銀現金買入口徑）與手動「填入」。帳本不進 holdings JSON／userDataHash／pending／system sync；不按填入則 crypto_twd 不動。不改五張統計卡、損益公式、close pair、圓餅、PT_SCHEMA_VERSION 或 Pionex API 金鑰存放。
         v15.953 - MSTU 反分割報價尺度修正：MSTU 於 2026-08-24 執行 1:10 反分割時，若報價來源已先切換到拆分後尺度，公司行動工具不再把現價重複乘 10。既有 300→30 的持倉與 FIFO 成本換算保持不變；針對本次已產生的錯誤紀錄，畫面載入時把約 300 美元恢復為套用前已取得的拆分後報價尺度，並讓 Yahoo 後續約 28–30 美元報價可正常覆蓋。生效日當天或之後人工套用分割時預設保留目前報價，候選偵測路徑則直接採用已驗證的新尺度報價；不改 Storage Key、Gist/FSA payload、userDataHash、pending、損益公式或持倉 schema。
@@ -354,20 +356,6 @@
         .watchlist-pro-drag-handle:active { cursor:grabbing; color:var(--pt-accent-strong); }
         .watchlist-pro-chart-card { min-height:720px; display:flex; flex-direction:column; }
 
-        .counter-migration-panel { margin:0 0 0.9rem; padding:0.85rem; border:1px solid var(--pt-border); border-radius:8px; background:var(--pt-surface-2); }
-        .counter-migration-panel[hidden] { display:none; }
-        .counter-migration-title { color:var(--pt-accent-strong); font-size:0.86rem; font-weight:800; }
-        .counter-migration-copy { color:var(--pt-text-muted); font-size:0.74rem; line-height:1.5; margin-top:0.18rem; }
-        .counter-migration-grid { display:grid; grid-template-columns:minmax(145px, 1fr) minmax(145px, 1fr); gap:0.55rem; margin-top:0.7rem; }
-        .counter-migration-field label { display:block; color:var(--pt-text-muted); font-size:0.72rem; margin-bottom:0.2rem; }
-        .counter-migration-field input, .counter-migration-field select { padding:0.48rem 0.6rem; font-size:0.82rem; }
-        .counter-migration-preview { margin-top:0.65rem; padding:0.65rem 0.75rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); color:var(--pt-text-soft); font-size:0.77rem; line-height:1.55; }
-        .counter-migration-preview.is-warning { border-color:rgba(213,176,113,0.55); background:var(--pt-warning-soft); }
-        .counter-migration-preview.is-ready { border-color:rgba(139,198,156,0.55); background:var(--pt-positive-soft); }
-        .counter-migration-actions { display:flex; justify-content:flex-end; gap:0.5rem; flex-wrap:wrap; margin-top:0.65rem; }
-        .counter-migration-actions button { padding:0.5rem 0.8rem; font-size:0.78rem; }
-        .counter-migration-apply { background:var(--pt-positive-soft); color:var(--pt-positive); border-color:rgba(139,198,156,0.55); }
-        @media (max-width:540px) { .counter-migration-grid { grid-template-columns:1fr; } .counter-migration-actions button { flex:1 1 100%; } }
         .watchlist-pro-chart { flex:1; min-height:640px; border:1px solid var(--pt-border); border-radius:8px; overflow:hidden; background:var(--pt-bg); }
         .watchlist-pro-placeholder { height:100%; min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:var(--pt-text-muted); text-align:center; padding:2rem; }
         .watchlist-pro-chart-tools { display:flex; align-items:center; justify-content:flex-end; gap:0.6rem; margin-left:auto; flex-wrap:wrap; }
@@ -822,7 +810,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.955</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.956</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1031,25 +1019,6 @@
                 <div>
                     <div style="color:#60a5fa; font-size:0.92rem; font-weight:800;"><i class="ic">◇</i> 公司行動 / 股票分割</div>
                     <div style="color:#7e93a6; font-size:0.76rem; margin-top:0.18rem;">手動套用 split / reverse split，調整股數、成本與 FIFO lots；不回溯歷史快照。</div>
-                </div>
-            </div>
-            <div id="counter-migration-panel" class="counter-migration-panel" hidden>
-                <div class="counter-migration-title"><i class="ic">⇄</i> 9747 → 7747 櫃台轉換預覽</div>
-                <div class="counter-migration-copy">9747 美元櫃台已於 2026-08-18 停牌；目前仍保留 9747 顯示，報價接續自 7747.HK。數量依公告 1:1，只有按下確認後才會轉換持倉。</div>
-                <div class="counter-migration-grid">
-                    <div class="counter-migration-field">
-                        <label for="counter-migration-symbol">待轉換持倉</label>
-                        <select id="counter-migration-symbol" onchange="previewCounterMigration()"></select>
-                    </div>
-                    <div class="counter-migration-field">
-                        <label for="counter-broker-cost">券商完成後平均成本（HKD，可選）</label>
-                        <input id="counter-broker-cost" type="number" min="0" step="0.0001" placeholder="留空＝系統匯率估算" oninput="previewCounterMigration()">
-                    </div>
-                </div>
-                <div id="counter-migration-preview" class="counter-migration-preview">等待選擇 9747 持倉。</div>
-                <div class="counter-migration-actions">
-                    <button type="button" onclick="refreshCounterMigrationQuote()">↻ 更新 7747 報價</button>
-                    <button type="button" id="counter-migration-apply-btn" class="counter-migration-apply" onclick="applyCounterMigration()" disabled>確認券商完成後套用</button>
                 </div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:0.55rem; align-items:end;">
@@ -1689,7 +1658,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.955';
+        const APP_VERSION = 'v15.956';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3094,11 +3063,8 @@
                 const expectedPrevDate = _expectedPrevTradingDate(marketKey, target);   // v15.924：未涵蓋年份降級
                 if (!expectedPrevDate || !_isPossibleTradingDay(marketKey, target)) return null;
                 const final = !!(options && options.final);
-                const migration = _counterMigrationForSymbol(symbol, marketKey);
-                querySymbol = migration?.targetSymbol || _canonicalYahooSymbol(symbol, marketKey);
+                querySymbol = _canonicalYahooSymbol(symbol, marketKey);
                 if (!querySymbol) return null;
-                const holdingContext = migration ? { symbol, market: marketKey } : null;
-                const quoteScale = migration ? _counterQuoteScaleToHolding(holdingContext, migration.targetCurrency) : 1;
 
                 const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(querySymbol)}?interval=1d&range=10d`;
                 const data = await yfFetch(url);
@@ -3140,66 +3106,32 @@
                 let prevClose = (yahooPrevBar && typeof yahooPrevBar.close === 'number' && yahooPrevBar.close > 0)
                     ? yahooPrevBar.close : null;
                 let prevSource = 'yahoo';
-                let prevScale = quoteScale;
                 if (!(prevClose > 0)) {
-                    prevClose = migration
-                        ? _exactFundamentalCloseForDate(querySymbol, marketKey, expectedPrevDate)
-                        : _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
+                    prevClose = _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
                     prevSource = 'fundamentals';
-                    if (migration && !(prevClose > 0)) {
-                        prevClose = _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
-                        prevScale = 1;
-                        if (prevClose > 0) prevSource = 'fundamentals-source';
-                    } else if (migration && prevClose > 0) {
-                        prevScale = quoteScale;
-                    } else if (!migration && prevClose > 0) {
-                        prevScale = 1;
-                    }
                 }
                 if (!(prevClose > 0)) {
-                    prevClose = migration
-                        ? _exactCachedCloseForDate(querySymbol, marketKey, expectedPrevDate)
-                        : _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
+                    prevClose = _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
                     prevSource = 'cache';
-                    if (!(prevClose > 0) && migration) {
-                        prevClose = _exactCachedCloseForDate(symbol, marketKey, expectedPrevDate);
-                        prevScale = 1;
-                        if (prevClose > 0) prevSource = 'cache-source';
-                    }
                 }
                 if (!(prevClose > 0)) return null;
 
                 return {
                     market: marketKey,
                     targetDate: target,
-                    close:     targetBar.close * quoteScale,
+                    close:     targetBar.close,
                     prevDate:  expectedPrevDate,
-                    prevClose: prevClose * prevScale,
+                    prevClose,
                     fetchedAt: new Date().toISOString(),
                     source:    (final ? 'yahoo-chart-10d-final' : 'yahoo-chart-10d')
                              + (prevSource !== 'yahoo' ? `+prev-${prevSource}` : '')
-                             + (querySymbol !== _cleanSymbolKey(symbol) ? ':' + querySymbol : '')
-                             + (migration ? ':counter-7747' : ''),
+                             + (querySymbol !== _cleanSymbolKey(symbol) ? ':' + querySymbol : ''),
                     final
                 };
             } catch(e) {
                 _recordAppError('close_pair_fetch', e, { symbol, querySymbol: querySymbol || _canonicalYahooSymbol(symbol, marketKey), marketKey });
                 return null;
             }
-        }
-
-        function _counterScaleClosePairForHolding(pair, h) {
-            const migration = _counterMigrationForHolding(h);
-            if (!pair || !migration) return pair;
-            const scale = _counterQuoteScaleToHolding(h, migration.targetCurrency);
-            return {
-                ...pair,
-                close: Number(pair.close) * scale,
-                prevClose: Number(pair.prevClose) * scale,
-                source: `${pair.source || 'close-pair'}:counter-7747`,
-                quoteSymbol: migration.targetSymbol,
-                quoteCurrency: migration.targetCurrency
-            };
         }
 
         // v15.903：從 fundamentals.json 解析 close pair（優先來源，比打 Yahoo 快）
@@ -3477,9 +3409,8 @@
                         if (existing && !job.final && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
                         tasks.push(async () => {
                             try {
-                                const quoteSymbol = _counterQuoteSymbolForHolding(h);
+                                const quoteSymbol = _canonicalYahooSymbol(h.symbol, mk);
                                 let pair = job.forceYahoo ? null : _resolveClosePairFromFundamentals(quoteSymbol, mk, job.target, { final: job.final });
-                                if (pair && _counterMigrationForHolding(h)) pair = _counterScaleClosePairForHolding(pair, h);
                                 if (pair) {
                                     resolved++;
                                 } else {
@@ -3589,18 +3520,27 @@
         function _loadMarketQuoteMeta() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEYS.marketQuoteMeta);
-                if (!raw) return { TW: null, HK: null, US: null, counterQuotes: {} };
+                if (!raw) return { TW: null, HK: null, US: null };
                 const parsed = JSON.parse(raw);
-                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null, counterQuotes: {} };
+                if (!parsed || typeof parsed !== 'object') return { TW: null, HK: null, US: null };
                 return {
                     TW: parsed.TW || null,
                     HK: parsed.HK || null,
-                    US: parsed.US || null,
-                    counterQuotes: parsed.counterQuotes && typeof parsed.counterQuotes === 'object' ? parsed.counterQuotes : {}
+                    US: parsed.US || null
                 };
             } catch(_) {
-                return { TW: null, HK: null, US: null, counterQuotes: {} };
+                return { TW: null, HK: null, US: null };
             }
+        }
+        function _clearLegacyCounterQuoteMeta() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.marketQuoteMeta);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object' || !Object.prototype.hasOwnProperty.call(parsed, 'counterQuotes')) return;
+                delete parsed.counterQuotes;
+                localStorage.setItem(STORAGE_KEYS.marketQuoteMeta, JSON.stringify(parsed));
+            } catch(_) {}
         }
         function _markBatchQuoteRefresh(markets, source) {
             try {
@@ -3728,8 +3668,7 @@
 
                 // v15.080：列出該市場所有 active holdings，計算 expected vs withData → complete 旗標
                 const _holdings = (stats && stats.holdingsWithStats) || [];
-                const marketHoldings = _holdings.filter(h =>
-                    _holdingMarketKey(h) === marketKey && !_isSuspendedCounterDailyQuoteExcluded(h));
+                const marketHoldings = _holdings.filter(h => _holdingMarketKey(h) === marketKey);
                 const expectedHoldingsCount = marketHoldings.length;
                 if (expectedHoldingsCount === 0) return;
 
@@ -4029,7 +3968,7 @@
                     previousTradingDate: clock.previousTradingDate || null,
                     lastCompletedTradingDate: clock.lastCompletedTradingDate || null,   // v15.073：UI 顯示「沿用 MM-DD 快照」
                     pnlUSD: 0, pnlTWD: 0,
-                    count: 0, withData: 0, ignoredCount: 0
+                    count: 0, withData: 0
                 };
             }
             // v15.070：cost / value byMarket（總投入 / 總市值 / 總損益 三張卡片用）
@@ -4066,13 +4005,12 @@
                 const prevClose     = window._prevCloseCache?.[h.symbol]     ?? null;
                 const prevPrevClose = window._prevPrevCloseCache?.[h.symbol] ?? null;
                 const _mkKey = _holdingMarketKey(h);
-                const _ignoreDailyQuote = _isSuspendedCounterDailyQuoteExcluded(h);
                 const _todayState = todayPnlByMarket[_mkKey] || {};
                 const _todayPair = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.targetDate, _mkKey), h);
                 const _prevPair  = _splitAdjustedClosePairForHolding(_getClosePairForDate(_closePairData, h.symbol, _todayState.previousTradingDate, _mkKey), h);
                 let prevDayChangePct = null;
                 let prevDayPnlUSD = null, prevDayPnlTWD = null;
-                if (!_ignoreDailyQuote && _validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)) {
+                if (_validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)) {
                     prevDayChangePct = (_prevPair.close - _prevPair.prevClose) / _prevPair.prevClose * 100;
                     const prevDayPnlNative = (_prevPair.close - _prevPair.prevClose) * h.quantity;
                     const conv = _nativePnlToCcy(prevDayPnlNative, h);
@@ -4091,13 +4029,13 @@
                 const _todayBasisClose = _validFinalClosePair(_prevPair, _mkKey, _todayState.previousTradingDate)
                     ? _prevPair.close
                     : null;
-                if (!_ignoreDailyQuote && _todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
+                if (_todayMarketStatus === 'open' && h.currentPrice != null && h.currentPrice > 0 && _todayBasisClose != null && _todayBasisClose > 0) {
                     const dayChange = h.currentPrice - _todayBasisClose;
                     dayChangePct = (dayChange / _todayBasisClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
                     dayPnlUSD = conv.usd;
                     dayPnlTWD = conv.twd;
-                } else if (!_ignoreDailyQuote && _todayMarketStatus === 'closed_retained' && _validFinalClosePair(_todayPair, _mkKey, _todayState.targetDate)) {
+                } else if (_todayMarketStatus === 'closed_retained' && _validFinalClosePair(_todayPair, _mkKey, _todayState.targetDate)) {
                     const dayChange = _todayPair.close - _todayPair.prevClose;
                     dayChangePct = (dayChange / _todayPair.prevClose) * 100;
                     const conv = _nativePnlToCcy(dayChange * h.quantity, h);
@@ -4107,18 +4045,14 @@
 
                 // v15.069：byMarket 累計（不管 marketNotOpened，卡片用，盤前盤後也算數字；UI 看 status 決定怎麼顯示）
                 if (todayPnlByMarket[_mkKey]) {
-                    if (_ignoreDailyQuote) {
-                        todayPnlByMarket[_mkKey].ignoredCount++;
-                    } else {
-                        todayPnlByMarket[_mkKey].count++;
-                        if (dayPnlUSD != null && dayPnlTWD != null) {
-                            todayPnlByMarket[_mkKey].withData++;
-                            todayPnlByMarket[_mkKey].pnlUSD += dayPnlUSD;
-                            todayPnlByMarket[_mkKey].pnlTWD += dayPnlTWD;
-                            totalDayPnLUSD += dayPnlUSD;
-                            totalDayPnLTWD += dayPnlTWD;
-                            hasDayPnL = true;
-                        }
+                    todayPnlByMarket[_mkKey].count++;
+                    if (dayPnlUSD != null && dayPnlTWD != null) {
+                        todayPnlByMarket[_mkKey].withData++;
+                        todayPnlByMarket[_mkKey].pnlUSD += dayPnlUSD;
+                        todayPnlByMarket[_mkKey].pnlTWD += dayPnlTWD;
+                        totalDayPnLUSD += dayPnlUSD;
+                        totalDayPnLTWD += dayPnlTWD;
+                        hasDayPnL = true;
                     }
                 }
 
@@ -4163,16 +4097,14 @@
             const yesterdayPnlByMarket = {};
             for (const mk of _MARKETS) {
                 const session = todayPnlByMarket[mk] || _marketPortfolioDayStatus(mk, _portfolioDayValue, _now);
-                const allMarketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
-                const ignoredCount = allMarketHoldings.filter(_isSuspendedCounterDailyQuoteExcluded).length;
-                const marketHoldings = allMarketHoldings.filter(h => !_isSuspendedCounterDailyQuoteExcluded(h));
+                const marketHoldings = holdingsWithStats.filter(h => _holdingMarketKey(h) === mk);
                 const expectedHoldingsCount = marketHoldings.length;
 
                 if (expectedHoldingsCount === 0) {
                     yesterdayPnlByMarket[mk] = {
-                        status: ignoredCount > 0 ? 'ignored' : 'no_holdings',
+                        status: 'no_holdings',
                         pnlUSD: 0, pnlTWD: 0, marketDate: null,
-                        holdingsCount: 0, withData: 0, ignoredCount
+                        holdingsCount: 0, withData: 0
                     };
                     continue;
                 }
@@ -4191,11 +4123,11 @@
                 }
 
                 if (withData === 0) {
-                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: _target, holdingsCount: expectedHoldingsCount, withData: 0, ignoredCount };
+                    yesterdayPnlByMarket[mk] = { status: 'no_data', pnlUSD: null, pnlTWD: null, marketDate: _target, holdingsCount: expectedHoldingsCount, withData: 0 };
                 } else if (withData < expectedHoldingsCount) {
-                    yesterdayPnlByMarket[mk] = { status: 'partial', marketDate: _target, pnlUSD: null, pnlTWD: null, holdingsCount: expectedHoldingsCount, withData, ignoredCount };
+                    yesterdayPnlByMarket[mk] = { status: 'partial', marketDate: _target, pnlUSD: null, pnlTWD: null, holdingsCount: expectedHoldingsCount, withData };
                 } else {
-                    yesterdayPnlByMarket[mk] = { status: 'snapshot', marketDate: _target, pnlUSD, pnlTWD, holdingsCount: expectedHoldingsCount, withData, ignoredCount };
+                    yesterdayPnlByMarket[mk] = { status: 'snapshot', marketDate: _target, pnlUSD, pnlTWD, holdingsCount: expectedHoldingsCount, withData };
                 }
             }
             const _activeMarkets = _MARKETS.filter(mk => (yesterdayPnlByMarket[mk]?.holdingsCount || 0) > 0);
@@ -4535,12 +4467,6 @@
                             +   '<span class="mono" style="color:#fbbf24;">資料不足 (' + (m.withData||0) + '/' + (m.holdingsCount||0) + ')</span>'
                             + '</div>';
                     }
-                    if (m.status === 'ignored') {
-                        return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
-                            +   '<span style="color:#7e93a6;">' + label + '</span>'
-                            +   '<span class="mono" style="color:#607585;">9747 暫不計入</span>'
-                            + '</div>';
-                    }
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
                         +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無資料</span></span>'
                         +   '<span class="mono" style="color:#607585;">-</span>'
@@ -4592,7 +4518,7 @@
                     const m = byMk[mk];
                     let valStr, col, isAmount = false, labelNote = '';
                     if (m.count === 0) {
-                        valStr = (m.ignoredCount || 0) > 0 ? '9747 暫不計入' : '無持倉'; col = '#607585';
+                        valStr = '無持倉'; col = '#607585';
                     } else if (m.status === 'not_open') {
                         valStr = '今日未開盤'; col = '#607585';
                     } else if (m.status === 'closed_or_holiday') {
@@ -7885,7 +7811,7 @@
                 const byMarket = { TW: [], HK: [], US: [] };
                 for (const h of holdings) {
                     const mk = _holdingMarketKey(h);
-                    if (mk && byMarket[mk] && !_isSuspendedCounterDailyQuoteExcluded(h)) byMarket[mk].push(h);
+                    if (mk && byMarket[mk]) byMarket[mk].push(h);
                 }
                 if (!_dailyPnlPriceCache) _dailyPnlPriceCache = { version: 1, updatedAt: new Date().toISOString(), symbols: {} };
                 if (!_dailyPnlBaselines)  _dailyPnlBaselines  = { version: 1, userDataHash: null, updatedAt: new Date().toISOString(), symbols: {} };
@@ -9661,6 +9587,7 @@
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
                 try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
+                try { _migrate9747HoldingsTo7747Once('gist-pull-manual'); } catch(_) {}
             }
         }
 
@@ -9888,6 +9815,7 @@
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
                 try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
+                try { _migrate9747HoldingsTo7747Once('gist-pull-silent'); } catch(_) {}
             }
         }
 
@@ -10195,228 +10123,112 @@
         function _caMoney(v, h) { const sym = typeof _nativeCurrencySymbol === 'function' ? _nativeCurrencySymbol(h) : '$'; return pv(`${sym}${_caFmt(v, 4)}`); }
         function _caToday() { try { return _taipeiToday(); } catch(_) { return new Date().toISOString().slice(0,10); } }
 
-        let _counterMigrationPreviewState = null;
-        let _counterMigrationUiFingerprint = null;
-        function _counterMigrationMoney(value, currency) {
-            const prefix = currency === 'HKD' ? 'HK$' : currency === 'TWD' ? 'NT$' : '$';
-            const text = `${prefix}${_caFmt(value, 4)}`;
-            return typeof pv === 'function' ? pv(text) : text;
+        // v15.956：9747 已正式 1:1 轉為 7747。這是一次性資料遷移，不再提供預演或暫時報價映射。
+function _isLegacy9747Holding(h) {
+  if (!h) return false;
+  const raw = _cleanSymbolKey(h.symbol);
+  return raw === '9747' || raw === '9747.HK';
+}
+        function _is7747Holding(h) {
+            const raw = _cleanSymbolKey(h?.symbol);
+            return raw === '7747' || raw === '7747.HK';
         }
-        function _counterMigrationTargetHolding(source) {
-            const target = _counterMigrationForHolding(source)?.targetSymbol;
-            if (!target) return null;
-            return holdings.find(h => _cleanSymbolKey(h.symbol) === target || _cleanSymbolKey(h.symbol) === target.replace(/\.HK$/i, '')) || null;
-        }
-        function _counterMigrationLotsForPreview(h) {
-            try { _ensureLots(h); } catch(_) {}
-            return (h.lots || []).map(l => ({
-                qty: _caNum(l.qty ?? l.quantity),
-                cost: _caNum(l.cost ?? l.costPrice),
-                date: l.date || h.addedDate || _caToday()
-            })).filter(l => l.qty > 0 && l.cost > 0);
-        }
-        function _counterMigrationPreviewDraft() {
-            const symbol = _cleanSymbolKey(document.getElementById('counter-migration-symbol')?.value);
-            const h = _counterMigrationCandidates().find(x => _cleanSymbolKey(x.symbol) === symbol) || _counterMigrationCandidates()[0] || null;
-            const brokerRaw = parseFloat(document.getElementById('counter-broker-cost')?.value);
-            const brokerAverageCost = Number.isFinite(brokerRaw) && brokerRaw > 0 ? brokerRaw : null;
-            return { h, brokerAverageCost };
-        }
-        function _buildCounterMigrationPreview() {
-            const d = _counterMigrationPreviewDraft();
-            if (!d.h) return { ok: false, h: null, message: '目前沒有可轉換的 9747 持倉。' };
-            const migration = _counterMigrationForHolding(d.h);
-            const rate = _counterMigrationRate();
-            const sourceLots = _counterMigrationLotsForPreview(d.h);
-            const sourceQuantity = _caNum(d.h.quantity) || sourceLots.reduce((sum, l) => sum + l.qty, 0);
-            const sourceTotal = sourceLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
-            const sourceAverage = sourceQuantity > 0 ? sourceTotal / sourceQuantity : 0;
-            if (!migration || !(sourceQuantity > 0) || !(sourceAverage > 0) || !(rate > 0)) {
-                return { ok: false, h: d.h, message: '持倉批次或 USD/HKD 匯率資料不足，暫時無法預覽。' };
+        function _migrate9747HoldingsTo7747Once(reason = 'startup') {
+            if (_isApplyingCloudPull || !Array.isArray(holdings)) return false;
+            const sources = holdings.filter(h => _isLegacy9747Holding(h) && _caNum(h.quantity) > 0);
+            if (!sources.length) return false;
+            const usdTwd = Number(exchangeRates?.USD_TWD);
+            const hkdTwd = Number(exchangeRates?.HKD_TWD);
+            const fxRate = (usdTwd > 0 && hkdTwd > 0) ? usdTwd / hkdTwd : 0;
+            if (!(fxRate > 0)) {
+                try { _recordAppError('counter_migration_fx_missing', new Error('USD/HKD rate unavailable'), { reason }); } catch(_) {}
+                return false;
             }
-            const existingTarget = _counterMigrationTargetHolding(d.h);
-            let existingTargetLots = [];
-            let existingQuantity = 0, existingTotal = 0;
-            if (existingTarget) {
-                existingTargetLots = _counterMigrationLotsForPreview(existingTarget);
-                existingQuantity = _caNum(existingTarget.quantity) || existingTargetLots.reduce((sum, l) => sum + l.qty, 0);
-                existingTotal = existingTargetLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
-            }
-            const estimatedLots = sourceLots.map(l => ({ ...l, cost: _counterRoundPrice(l.cost * rate) }));
-            const estimatedTotal = estimatedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
-            const estimatedAverage = sourceQuantity > 0 ? estimatedTotal / sourceQuantity : 0;
-            let scaleFactor = 1;
-            let message = '';
-            let costMethod = 'systemCrossRate';
-            if (d.brokerAverageCost != null) {
-                costMethod = 'brokerAverageProportional';
-                const desiredFinalTotal = d.brokerAverageCost * (existingQuantity + sourceQuantity);
-                const requiredSourceTotal = desiredFinalTotal - existingTotal;
-                const requiredSourceAverage = sourceQuantity > 0 ? requiredSourceTotal / sourceQuantity : 0;
-                if (!(requiredSourceAverage > 0)) {
-                    return { ok: false, h: d.h, message: '券商平均成本低於既有 7747 成本，無法產生正數的轉入批次成本。' };
+
+            let migratedQuantity = 0;
+            let migratedHoldings = 0;
+            sources.forEach((source, index) => {
+                _ensureLots(source);
+                const sourceSymbol = source.symbol;
+                const sourceId = source.id;
+                const sourceQuantity = _caNum(source.quantity);
+                const sourceTotal = _caTotalCost(source);
+                const sourcePrice = _caNum(source.currentPrice);
+                const convertedLots = (source.lots || []).map(l => ({
+                    qty: _caRoundQty(_caNum(l.qty ?? l.quantity)),
+                    cost: _caRoundPrice(_caNum(l.cost ?? l.costPrice) * fxRate),
+                    date: l.date || source.addedDate || _caToday()
+                })).filter(l => l.qty > 0 && l.cost > 0);
+                if (!(sourceTotal > 0) || !convertedLots.length) {
+                    try { _recordAppError('counter_migration_cost_missing', new Error('9747 FIFO cost unavailable'), { sourceId, reason }); } catch(_) {}
+                    return;
                 }
-                scaleFactor = requiredSourceAverage / estimatedAverage;
-                message = '已依券商平均成本按比例重縮放每一個 FIFO lot，保留原批次相對差異。';
-            }
-            const convertedLots = estimatedLots.map(l => ({
-                qty: _caRoundQty(l.qty),
-                cost: _caRoundPrice(l.cost * scaleFactor),
-                date: l.date
-            }));
-            if (d.brokerAverageCost != null && convertedLots.length) {
-                const desiredSourceTotal = d.brokerAverageCost * (existingQuantity + sourceQuantity) - existingTotal;
-                const roundedSourceTotal = convertedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
-                const last = convertedLots[convertedLots.length - 1];
-                if (last.qty > 0) last.cost = _caRoundPrice(last.cost + (desiredSourceTotal - roundedSourceTotal) / last.qty);
-            }
-            const convertedTotal = convertedLots.reduce((sum, l) => sum + l.qty * l.cost, 0);
-            const finalQuantity = existingQuantity + sourceQuantity;
-            const finalTotal = existingTotal + convertedTotal;
-            const finalAverage = finalQuantity > 0 ? finalTotal / finalQuantity : 0;
-            const entry = _counterMigrationQuoteEntry(d.h);
-            const targetCurrentPrice = Number(entry?.quotePrice) > 0 ? Number(entry.quotePrice) : 0;
-            const beforeTwd = sourceTotal * Number(exchangeRates.USD_TWD || 0) + existingTotal * Number(exchangeRates.HKD_TWD || 0);
-            const afterTwd = finalTotal * Number(exchangeRates.HKD_TWD || 0);
-            return {
-                ok: true, h: d.h, migration, rate, sourceLots, convertedLots, existingTarget,
-                existingTargetLots, sourceQuantity, sourceTotal, sourceAverage, estimatedAverage,
-                convertedTotal, existingQuantity, existingTotal, finalQuantity, finalTotal, finalAverage,
-                targetCurrentPrice, beforeTwd, afterTwd, brokerAverageCost: d.brokerAverageCost,
-                costMethod, message, quoteEntry: entry || null
-            };
-        }
-        function previewCounterMigration() {
-            const panel = document.getElementById('counter-migration-panel');
-            const box = document.getElementById('counter-migration-preview');
-            const btn = document.getElementById('counter-migration-apply-btn');
-            if (!panel || !box || !btn) return;
-            const candidates = _counterMigrationCandidates();
-            if (!candidates.length) {
-                panel.hidden = true;
-                _counterMigrationPreviewState = null;
-                btn.disabled = true;
-                return;
-            }
-            panel.hidden = false;
-            const p = _buildCounterMigrationPreview();
-            _counterMigrationPreviewState = p;
-            box.classList.toggle('is-ready', !!p.ok);
-            box.classList.toggle('is-warning', !p.ok);
-            btn.disabled = !p.ok;
-            if (!p.ok) { box.innerHTML = `<span>${_escapeHtml(p.message || '暫時無法預覽。')}</span>`; return; }
-            const lotText = p.convertedLots.map((l, i) => `第 ${i + 1} 批 ${_caFmt(l.qty, 8)} 股 @ ${_counterMigrationMoney(l.cost, 'HKD')}`).join('；');
-            const brokerText = p.brokerAverageCost != null
-                ? `<div><span>券商覆蓋</span> <b>${_counterMigrationMoney(p.brokerAverageCost, 'HKD')}</b>（${_escapeHtml(p.message)}）</div>`
-                : '<div><span>成本方法</span> <b>系統 USD/HKD 匯率估算</b></div>';
-            const targetText = p.existingTarget ? `會併入既有 ${_escapeHtml(p.existingTarget.symbol)}，共 ${_caFmt(p.finalQuantity, 8)} 股` : `會把目前持倉改為 ${_escapeHtml(p.migration.targetSymbol)}，共 ${_caFmt(p.finalQuantity, 8)} 股`;
-            box.innerHTML = `
-                <div>${_escapeHtml(_counterMigrationQuoteLabel(p.h))}</div>
-                <div>轉換比例 <b>1:1</b>｜匯率 1 USD ≈ <b>${_caFmt(p.rate, 6)} HKD</b>｜${targetText}</div>
-                <div>目前成本 <b>${_counterMigrationMoney(p.sourceAverage, 'USD')}</b>／股 → 系統估算 <b>${_counterMigrationMoney(p.estimatedAverage, 'HKD')}</b>／股</div>
-                <div>轉換後平均成本 <b>${_counterMigrationMoney(p.finalAverage, 'HKD')}</b>／股｜成本換算 ${_counterMigrationMoney(p.sourceTotal, 'USD')} → ${_counterMigrationMoney(p.convertedTotal, 'HKD')}</div>
-                ${brokerText}
-                <div style="color:var(--pt-text-muted);font-size:0.72rem;margin-top:0.25rem;">FIFO 批次：${lotText || '無有效批次'}；預估總資產 TWD ${_caFmt(p.beforeTwd, 2)} → ${_caFmt(p.afterTwd, 2)}</div>
-                <div style="color:var(--pt-warning);font-size:0.72rem;margin-top:0.25rem;">產品預計約 2026-09-18 終止，實際日期以券商與公告為準。</div>`;
-        }
-        function renderCounterMigrationPanel() {
-            const panel = document.getElementById('counter-migration-panel');
-            const sel = document.getElementById('counter-migration-symbol');
-            if (!panel || !sel) return;
-            const candidates = _counterMigrationCandidates();
-            const fp = candidates.map(h => `${h.id}|${h.symbol}|${h.quantity}`).join(',');
-            if (fp !== _counterMigrationUiFingerprint) {
-                const prev = sel.value;
-                sel.innerHTML = candidates.map(h => `<option value="${_escapeHtml(h.symbol)}">${_escapeHtml(h.symbol)} · ${_caFmt(h.quantity, 8)} 股</option>`).join('') || '<option value="">無持倉</option>';
-                if (candidates.some(h => h.symbol === prev)) sel.value = prev;
-                else if (candidates.length) sel.value = candidates[0].symbol;
-                _counterMigrationUiFingerprint = fp;
-            }
-            previewCounterMigration();
-        }
-        async function refreshCounterMigrationQuote() {
-            const btn = document.getElementById('counter-migration-apply-btn');
-            try {
-                const result = await _refreshCounterMigrationQuotes('manual-counter');
-                renderAll();
-                showImportToast(result.fresh > 0 ? `已更新 ${result.fresh} 筆 7747 接續報價` : '7747 報價暫時無法取得，保留上一筆資料', 3000);
-            } catch(_) {
-                showWarnToast('7747 報價更新失敗，已保留上一筆資料', 3500);
-            } finally {
-                if (btn) btn.disabled = !_counterMigrationPreviewState?.ok;
-            }
-        }
-        function applyCounterMigration() {
-            const p = _buildCounterMigrationPreview();
-            if (!p.ok || !p.h) { showWarnToast(p.message || '轉換預覽未通過', 3500); return false; }
-            const quoteText = _counterMigrationQuoteLabel(p.h);
-            const methodText = p.brokerAverageCost != null ? `券商平均成本 ${_counterMigrationMoney(p.brokerAverageCost, 'HKD')}` : '系統 USD/HKD 匯率估算';
-            const targetText = p.existingTarget ? `併入既有 ${p.existingTarget.symbol}` : `改為 ${p.migration.targetSymbol}`;
-            if (!confirm(`確定套用 9747 → 7747 櫃台轉換？\n\n${targetText}\n數量 ${_caFmt(p.sourceQuantity, 8)} → ${_caFmt(p.finalQuantity, 8)}（1:1）\n成本 ${_counterMigrationMoney(p.sourceAverage, 'USD')} → ${_counterMigrationMoney(p.finalAverage, 'HKD')}\n${methodText}\n${quoteText}\n\n套用後會保留 FIFO 批次日期與相對成本差異，並寫入公司行動紀錄。`)) return false;
-            const source = p.h;
-            const sourceSymbol = source.symbol;
-            const sourceId = source.id;
-            const sourceQuantityBefore = _caNum(source.quantity);
-            const sourceTotalBefore = _caTotalCost(source);
-            const sourcePriceBefore = _caNum(source.currentPrice);
-            const target = p.existingTarget;
-            saveHistory();
-            if (target) {
-                _ensureLots(target);
-                target.lots = target.lots.concat(p.convertedLots.map(l => ({ ...l })));
-                target.lots.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
-                target.quantity = _caRoundQty(target.lots.reduce((sum, l) => sum + _caNum(l.qty), 0));
-                target.costPrice = target.quantity > 0 ? _caRoundPrice(_caTotalCost(target) / target.quantity) : 0;
-                target.currentPrice = p.targetCurrentPrice > 0 ? _counterRoundQuote(p.targetCurrentPrice) : target.currentPrice;
-                target.name = target.name || source.name || '';
-                target.addedDate = [target.addedDate, source.addedDate].filter(Boolean).sort()[0] || target.addedDate;
-                target.persist = !!(target.persist || source.persist);
-                holdings = holdings.filter(h => h !== source);
-            } else {
-                source.symbol = p.migration.targetSymbol;
-                source.market = 'HK';
-                source.lots = p.convertedLots.map(l => ({ ...l }));
-                source.quantity = _caRoundQty(p.finalQuantity);
-                source.costPrice = source.quantity > 0 ? _caRoundPrice(_caTotalCost(source) / source.quantity) : 0;
-                source.currentPrice = p.targetCurrentPrice > 0 ? _counterRoundQuote(p.targetCurrentPrice) : 0;
-            }
-            const finalHolding = target || source;
-            corporateActions.push({
-                id: Date.now(), symbol: sourceSymbol, market: 'HK', type: 'counterMigration', actionKind: 'counterMigration',
-                actionDate: p.migration.effectiveDate, oldShares: 1, newShares: 1, ratio: 1,
-                quantityBefore: sourceQuantityBefore, quantityAfter: finalHolding.quantity,
-                costPriceBefore: sourceQuantityBefore > 0 ? sourceTotalBefore / sourceQuantityBefore : 0,
-                costPriceAfter: finalHolding.costPrice,
-                currentPriceBefore: sourcePriceBefore, currentPriceAfter: finalHolding.currentPrice,
-                totalCostBefore: sourceTotalBefore, totalCostAfter: _caTotalCost(finalHolding),
-                marketValueBefore: sourceQuantityBefore * sourcePriceBefore,
-                marketValueAfter: _caMarketValue(finalHolding),
-                sourceSymbol, targetSymbol: p.migration.targetSymbol,
-                sourceCurrency: p.migration.sourceCurrency, targetCurrency: p.migration.targetCurrency,
-                fxRate: p.rate, costMethod: p.costMethod, brokerAverageCost: p.brokerAverageCost || 0,
-                unitRatio: p.migration.unitRatio, sourceHoldingId: sourceId,
-                appliedAt: new Date().toISOString(),
-                note: '9747 USD counter → 7747 HKD counter；數量 1:1', createdAt: new Date().toISOString()
+                const convertedPrice = sourcePrice > 0 ? _caRoundPrice(sourcePrice * fxRate) : 0;
+                let target = holdings.find(h => h !== source && _is7747Holding(h)) || null;
+
+                if (target) {
+                    _ensureLots(target);
+                    target.symbol = '7747.HK';
+                    target.market = 'HK';
+                    target.lots = target.lots.concat(convertedLots).sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+                    target.quantity = _caRoundQty(target.lots.reduce((sum, l) => sum + _caNum(l.qty), 0));
+                    target.costPrice = target.quantity > 0 ? _caRoundPrice(_caTotalCost(target) / target.quantity) : 0;
+                    if (!(_caNum(target.currentPrice) > 0) && convertedPrice > 0) target.currentPrice = convertedPrice;
+                    target.name = target.name || source.name || '';
+                    target.addedDate = [target.addedDate, source.addedDate].filter(Boolean).sort()[0] || target.addedDate;
+                    target.persist = !!(target.persist || source.persist);
+                    holdings = holdings.filter(h => h !== source);
+                } else {
+                    source.symbol = '7747.HK';
+                    source.market = 'HK';
+                    source.lots = convertedLots;
+                    source.quantity = _caRoundQty(sourceQuantity);
+                    source.costPrice = source.quantity > 0 ? _caRoundPrice(_caTotalCost(source) / source.quantity) : 0;
+                    source.currentPrice = convertedPrice;
+                    target = source;
+                }
+
+                const alreadyRecorded = (corporateActions || []).some(a =>
+                    (a.type === 'counterMigration' || a.actionKind === 'counterMigration')
+                    && String(a.sourceHoldingId ?? '') === String(sourceId ?? '')
+                    && _cleanSymbolKey(a.targetSymbol) === '7747.HK');
+                if (!alreadyRecorded) {
+                    const nowIso = new Date().toISOString();
+                    corporateActions.push({
+                        id: Date.now() + index, symbol: sourceSymbol, market: 'HK', type: 'counterMigration', actionKind: 'counterMigration',
+                        actionDate: '2026-08-18', oldShares: 1, newShares: 1, ratio: 1,
+                        quantityBefore: sourceQuantity, quantityAfter: target.quantity,
+                        costPriceBefore: sourceQuantity > 0 ? sourceTotal / sourceQuantity : 0,
+                        costPriceAfter: target.costPrice,
+                        currentPriceBefore: sourcePrice, currentPriceAfter: target.currentPrice,
+                        totalCostBefore: sourceTotal, totalCostAfter: _caTotalCost(target),
+                        marketValueBefore: sourceQuantity * sourcePrice, marketValueAfter: _caMarketValue(target),
+                        sourceSymbol, targetSymbol: '7747.HK', sourceCurrency: 'USD', targetCurrency: 'HKD',
+                        fxRate, costMethod: 'systemCrossRate', brokerAverageCost: 0,
+                        unitRatio: 1, sourceHoldingId: sourceId, appliedAt: nowIso,
+                        note: '9747 USD counter → 7747 HKD counter；數量 1:1', createdAt: nowIso
+                    });
+                }
+                migratedQuantity += sourceQuantity;
+                migratedHoldings++;
             });
-            delete window._counterMigrationQuoteMeta[sourceSymbol];
+
+            if (migratedHoldings === 0) return false;
             saveCorporateActions();
             saveToStorage();
             _markAndAutoPush(['holdings', 'corporateActions']);
-            _counterMigrationUiFingerprint = null;
             _closePairRefreshLastRun = 0;
-            _scheduleRefreshClosePair('counter-migration', { force: true });
+            _scheduleRefreshClosePair('9747-to-7747-final', { force: true });
             renderAll();
-            showImportToast(`已套用 9747 → 7747 櫃台轉換（${p.costMethod === 'brokerAverageProportional' ? '券商成本' : '系統估算'}），可按復原鍵還原`, 6000);
+            showImportToast(`已完成 9747 → 7747 正式轉換：${_caFmt(migratedQuantity, 8)} 股（1:1）`, 6000);
             return true;
         }
-        // v15.939：fingerprint 閘門 —— renderAll 每 60s tick 都呼叫本函式，原本資料未變也做 4 次 innerHTML 重建
-        // （symbol select / 最近紀錄 / plan panel / preview）。簽名涵蓋所有渲染來源；使用者輸入的 preview
-        // 走自己的 oninput 路徑（previewCorporateAction 直呼），不受閘門影響。
+        // v15.939：fingerprint 閘門 —— renderAll 每 60s tick 都呼叫本函式，資料未變時避免重建
+        // symbol select、最近紀錄與 plan panel。簽名涵蓋所有渲染來源。
         let _caToolFingerprint = null;
         function renderCorporateActionTool() {
             const sel = document.getElementById('ca-symbol');
             if (!sel) return;
-            renderCounterMigrationPanel();
             let _fp = '';
             try {
                 _fp = holdings.map(h => h.symbol + '|' + (h.market || '')).join(',')
@@ -11579,17 +11391,7 @@
             btn.disabled = true; text.textContent = '更新中...'; icon.style.animation = 'spin 1s linear infinite';
             try {
                 const sheetUrl = document.getElementById('sheet-url').value.trim();
-                const hasCounterMigration = _counterMigrationCandidates().length > 0;
                 if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
-                    if (hasCounterMigration) {
-                        const fx = await _fetchFxRates(true);
-                        if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
-                        const fallback = await _refreshIndependentQuoteFallbacks('manual-counter-only');
-                        const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-counter-only', true);
-                        if (fallbackUpdated > 0) showImportToast(`已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 4000);
-                        else showWarnToast(`報價備援暫時無法取得；${_quoteFallbackSummary(fallback)}`, 4000);
-                        return;
-                    }
                     showWarnToast(!sheetUrl ? '⚠️ 請先填入 Google Sheet CSV 連結' : '⚠️ URL 格式不符，請使用 Google Sheets 已發布的 CSV 連結');
                     return;
                 }
@@ -11649,7 +11451,7 @@
                     return;
                 }
 
-                const matchCount = holdings.filter(h => _counterMigrationForHolding(h) || _lookupPrice(prices, h) != null).length;
+                const matchCount = holdings.filter(h => _lookupPrice(prices, h) != null).length;
                 if (matchCount === 0) {
                     const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-mismatch');
                     const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-mismatch', true);
@@ -11682,7 +11484,7 @@
                 if (prices[withTW]    != null) return prices[withTW];
                 if (prices[withoutTW] != null) return prices[withoutTW];
             }
-            // v15.949：港股同樣允許有無 .HK 後綴（9747 ↔ 9747.HK）
+            // v15.949：港股同樣允許有無 .HK 後綴。
             if (h.market === 'HK') {
                 const withHK    = h.symbol + '.HK';
                 const withoutHK = h.symbol.replace(/\.HK$/i, '');
@@ -11711,16 +11513,12 @@
             return { coverage, fullMarkets, partialMarkets };
         }
 
-        // v15.952：CSV 缺漏或全面失敗時，美股自行補價；港股接續結果不參與美股成敗判斷。
+        // v15.952：CSV 缺漏或全面失敗時，美股自行補價，不受其他市場成敗影響。
         async function _refreshUsQuotesFromYahoo(reason, alreadyUpdatedSymbols) {
             const updatedSymbols = alreadyUpdatedSymbols instanceof Set
                 ? new Set(alreadyUpdatedSymbols)
                 : new Set(alreadyUpdatedSymbols || []);
-            const activeUs = holdings.filter(h =>
-                Number(h.quantity || 0) > 0
-                && _holdingMarketKey(h) === 'US'
-                && !_counterMigrationForHolding(h)
-            );
+            const activeUs = holdings.filter(h => Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === 'US');
             const pending = activeUs.filter(h => !updatedSymbols.has(h.symbol));
             let updated = 0;
             let failed = 0;
@@ -11753,19 +11551,11 @@
                 ? new Set(alreadyUpdatedSymbols)
                 : new Set(alreadyUpdatedSymbols || []);
             const usExpected = holdings.filter(h => Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === 'US').length;
-            const counterExpected = _counterMigrationCandidates().length;
             const usPromise = _refreshUsQuotesFromYahoo(reason, existing).catch(e => {
                 try { _recordAppError('us_quote_fallback', e, { reason }); } catch(_) {}
                 return { expected: usExpected, updated: 0, failed: Math.max(0, usExpected), updatedSymbols: existing, coverage: _quoteCoverageForUpdatedSymbols(existing), fullMarkets: [] };
             });
-            const counterPromise = counterExpected > 0
-                ? _refreshCounterMigrationQuotes(reason).catch(e => {
-                    try { _recordAppError('counter_quote_fetch', e, { reason }); } catch(_) {}
-                    return { updatedSymbols: new Set(), updated: 0, fresh: 0, failed: counterExpected };
-                })
-                : Promise.resolve({ updatedSymbols: new Set(), updated: 0, fresh: 0, failed: 0 });
-            const [us, counter] = await Promise.all([usPromise, counterPromise]);
-            return { us, counter };
+            return { us: await usPromise };
         }
 
         function _quoteFallbackSummary(result) {
@@ -11774,13 +11564,11 @@
                 const covered = result.us.coverage?.coverage?.US?.updated || 0;
                 parts.push(`美股 Yahoo 備援 ${covered}/${result.us.expected} 檔`);
             }
-            const counterTotal = _counterMigrationCandidates().length;
-            if (counterTotal > 0) parts.push(`7747 接續 ${result?.counter?.fresh || 0}/${counterTotal} 檔`);
             return parts.join('；') || '保留上一筆報價';
         }
 
         function _renderIndependentQuoteFallback(result, reason, forceClosePair = false) {
-            const updated = Number(result?.us?.updated || 0) + Number(result?.counter?.updated || 0);
+            const updated = Number(result?.us?.updated || 0);
             if (updated <= 0) return 0;
             if (result?.us?.fullMarkets?.length) {
                 try { _markBatchQuoteRefresh(result.us.fullMarkets, 'yahoo-us-fallback'); } catch(_) {}
@@ -11826,7 +11614,6 @@
             let updated = 0;
             const updatedSymbols = new Set();
             holdings.forEach(h => {
-                if (_counterMigrationForHolding(h)) return; // 9747 不接受停牌櫃台的舊 CSV 價格
                 const newP = _lookupPrice(prices, h);
                 if (newP != null && !isNaN(newP) && newP > 0 && _acceptIncomingPriceForHolding(h, newP, 'csv-manual')) {
                     h.currentPrice = parseFloat(parseFloat(newP).toFixed(4));
@@ -11835,9 +11622,8 @@
                 }
             });
             const fallback = await _refreshIndependentQuoteFallbacks('csv-manual', updatedSymbols);
-            updated += fallback.us.updated + fallback.counter.updated;
+            updated += fallback.us.updated;
             fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
-            fallback.counter.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
             const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
             // v15.947：只有完整覆蓋該市場的 active holdings 才推進 quote meta 的 freshness。
             if (quoteCoverage.fullMarkets.length > 0) {
@@ -11863,10 +11649,7 @@
             const partialNote = quoteCoverage.partialMarkets.length
                 ? `；${quoteCoverage.partialMarkets.join('、')}市場尚有缺漏`
                 : '';
-            const fallbackNote = [
-                fallback.us.failed ? `美股備援失敗 ${fallback.us.failed} 檔` : '',
-                fallback.counter.failed ? `7747 接續失敗 ${fallback.counter.failed} 檔` : ''
-            ].filter(Boolean).map(text => `；${text}`).join('');
+            const fallbackNote = fallback.us.failed ? `；美股備援失敗 ${fallback.us.failed} 檔` : '';
             showImportToast(`✅ 已更新 ${updated} 檔股價${partialNote}${fallbackNote}`, 3000);
         }
 
@@ -12181,7 +11964,7 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;margin-top:0.85rem;">
                     <div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">投資加總</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">投資總倉位</div>
                         <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
                     </div>
                     <div>
@@ -12217,16 +12000,16 @@
             'COHX':'COHR', 'FBL':'META',  'GGLL':'GOOGL', 'LITX':'LITE',
             'MUU':'MU',    'NBIG':'NBIS', 'ORCU':'ORCL',  'PLTU':'PLTR',
             'SNXX':'SNDK', 'TSLL':'TSLA', 'TSMX':'TSM',   'WDCX':'WDC',
-            'USD':'SOXX',  '7709.HK':'000660.KS', '9747.HK':'005930.KS', '7747.HK':'005930.KS'
+            'USD':'SOXX',  '7709.HK':'000660.KS', '7747.HK':'005930.KS'
         };
         function getQuerySymbol(symbol) {
             const raw = _cleanSymbolKey(symbol);
-            const canonical = (raw === '9747' || raw === '7747') ? raw + '.HK' : _canonicalYahooSymbol(raw, _inferSymbolMarketKey(raw));
+            const canonical = raw === '7747' ? '7747.HK' : _canonicalYahooSymbol(raw, _inferSymbolMarketKey(raw));
             return LEVERAGED_MAP[raw] || LEVERAGED_MAP[canonical] || symbol;
         }
 
-        // 掛牌港交所但以美金（USD）計價的 ETF — 損益/市值換算用 USD_TWD，幣別顯示 $
-        const HK_USD_PRICED = new Set(['9747.HK']);
+        // 港交所非 HKD 計價標的保留清單；9747 正式轉為 7747 後目前為空。
+        const HK_USD_PRICED = new Set();
         function _isHKUsdPricedSymbol(symbol) {
             const s = String(symbol || '').trim().toUpperCase();
             return HK_USD_PRICED.has(s) || (s && HK_USD_PRICED.has(s + '.HK'));
@@ -12265,160 +12048,10 @@
             return '$';
         }
 
-        // v15.951：9747 美元櫃台停牌後，仍以原持倉顯示，但報價與歷史基準接續 7747.HK。
-        // 這是系統報價映射，不會改動 holdings；使用者確認成本轉換後才會把 symbol 改成 7747.HK。
-        const COUNTER_MIGRATION_MAP = Object.freeze({
-            '9747.HK': Object.freeze({
-                sourceSymbol: '9747.HK', targetSymbol: '7747.HK',
-                sourceCurrency: 'USD', targetCurrency: 'HKD',
-                effectiveDate: '2026-08-18', unitRatio: 1
-            })
-        });
-        window._counterMigrationQuoteMeta = window._counterMigrationQuoteMeta || {};
-
-        function _counterMigrationForSymbol(symbol, market) {
-            const raw = _cleanSymbolKey(symbol);
-            if (!raw) return null;
-            const mk = _inferSymbolMarketKey(raw, market);
-            if (mk !== 'HK') return null;
-            const canonical = _canonicalYahooSymbol(raw, mk);
-            return COUNTER_MIGRATION_MAP[canonical] || COUNTER_MIGRATION_MAP[raw] || null;
-        }
-        function _counterMigrationForHolding(h) {
-            if (!h) return null;
-            const raw = _cleanSymbolKey(h.symbol).replace(/\.HK$/i, '');
-            const market = raw === '9747' ? 'HK' : _holdingMarketKey(h);
-            return _counterMigrationForSymbol(h.symbol, market);
-        }
-        // v15.951 hotfix：9747 停牌且尚未套用 7747 轉換時，不列入每日損益資料完整度。
-        // 持倉、市值、成本與接續報價照常保留；轉成 7747.HK 後會自然回到一般港股計算。
-        function _isSuspendedCounterDailyQuoteExcluded(h) {
-            const migration = _counterMigrationForHolding(h);
-            return migration?.sourceSymbol === '9747.HK' && migration?.targetSymbol === '7747.HK';
-        }
         function _isProxyAnalysisHolding(h) {
             const raw = _cleanSymbolKey(h?.symbol);
             const canonical = _canonicalYahooSymbol(raw, _holdingMarketKey(h));
-            return !!(LEVERAGED_MAP[raw] || LEVERAGED_MAP[canonical] || _counterMigrationForHolding(h));
-        }
-        function _counterQuoteSymbolForHolding(h) {
-            return _counterMigrationForHolding(h)?.targetSymbol || _canonicalYahooSymbol(h?.symbol, _holdingMarketKey(h));
-        }
-        function _counterFxToTwd(currency) {
-            const ccy = String(currency || '').toUpperCase();
-            if (ccy === 'TWD') return 1;
-            if (ccy === 'HKD') return Number(exchangeRates.HKD_TWD) > 0 ? Number(exchangeRates.HKD_TWD) : null;
-            if (ccy === 'USD') return Number(exchangeRates.USD_TWD) > 0 ? Number(exchangeRates.USD_TWD) : null;
-            return null;
-        }
-        function _counterQuoteScaleToHolding(h, quoteCurrency) {
-            const quoteFx = _counterFxToTwd(quoteCurrency);
-            const holdingFx = _counterFxToTwd(_holdingNativeCurrency(h));
-            if (!(quoteFx > 0) || !(holdingFx > 0)) return 1;
-            return quoteFx / holdingFx;
-        }
-        function _counterMigrationRate() {
-            return _counterQuoteScaleToHolding({ symbol: '9747.HK', market: 'HK' }, 'HKD');
-        }
-        function _counterRoundPrice(value) {
-            const n = Number(value);
-            return Number.isFinite(n) ? parseFloat(n.toFixed(8)) : 0;
-        }
-        function _counterRoundQuote(value) {
-            const n = Number(value);
-            return Number.isFinite(n) ? parseFloat(n.toFixed(4)) : 0;
-        }
-        function _counterMigrationQuoteEntry(h) {
-            const cache = window._counterMigrationQuoteMeta || {};
-            const raw = _cleanSymbolKey(h?.symbol);
-            const canonical = _canonicalYahooSymbol(raw, _holdingMarketKey(h));
-            return cache[raw] || cache[canonical] || null;
-        }
-        function _counterMigrationCandidates() {
-            return (Array.isArray(holdings) ? holdings : [])
-                .filter(h => _counterMigrationForHolding(h) && Number(h.quantity || 0) > 0);
-        }
-        function _counterMigrationQuoteAge(entry) {
-            const ts = Date.parse(entry?.fetchedAt || '');
-            return Number.isFinite(ts) ? Math.max(0, Date.now() - ts) : Infinity;
-        }
-        function _counterMigrationQuoteLabel(h) {
-            const entry = _counterMigrationQuoteEntry(h);
-            if (!entry || !(Number(entry.price) > 0)) return '尚未取得 7747 報價';
-            const age = _counterMigrationQuoteAge(entry);
-            const stale = entry.stale === true || age > 15 * 60 * 1000;
-            const at = entry.quoteAt ? new Date(entry.quoteAt).toLocaleString('zh-TW', { hour:'2-digit', minute:'2-digit', month:'2-digit', day:'2-digit' }) : '時間未知';
-            return `${stale ? '上一筆 7747 報價' : '7747 接續報價'} ${_counterRoundQuote(entry.price)}（${at}）`;
-        }
-        function _saveCounterMigrationQuoteMeta() {
-            try {
-                const meta = _loadMarketQuoteMeta();
-                meta.counterQuotes = { ...(window._counterMigrationQuoteMeta || {}) };
-                localStorage.setItem(STORAGE_KEYS.marketQuoteMeta, JSON.stringify(meta));
-            } catch(e) { try { _handleStorageWriteError('marketQuoteMeta.counterQuotes', e); } catch(_) {} }
-        }
-        function _hydrateCounterMigrationQuotes() {
-            const meta = _loadMarketQuoteMeta();
-            window._counterMigrationQuoteMeta = { ...(meta.counterQuotes || {}) };
-            _counterMigrationCandidates().forEach(h => {
-                const entry = _counterMigrationQuoteEntry(h);
-                const quotePrice = Number(entry?.quotePrice);
-                const sourcePrice = quotePrice > 0
-                    ? quotePrice * _counterQuoteScaleToHolding(h, entry.quoteCurrency || _counterMigrationForHolding(h)?.targetCurrency)
-                    : Number(entry?.price);
-                if (sourcePrice > 0) h.currentPrice = _counterRoundQuote(sourcePrice);
-            });
-        }
-        async function _fetchCounterMigrationQuote(h) {
-            const migration = _counterMigrationForHolding(h);
-            if (!migration) return null;
-            const querySymbol = migration.targetSymbol;
-            const data = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(querySymbol)}?interval=1d&range=5d`);
-            const result = data?.chart?.result?.[0];
-            if (!result) return null;
-            const pairs = _validYahooClosePairs(result);
-            const regular = Number(result.meta?.regularMarketPrice);
-            const quotePrice = regular > 0 ? regular : (pairs.length ? pairs[pairs.length - 1].close : 0);
-            if (!(quotePrice > 0)) return null;
-            const quoteCurrency = String(result.meta?.currency || migration.targetCurrency).toUpperCase();
-            const quoteTs = Number(result.meta?.regularMarketTime) > 0
-                ? Number(result.meta.regularMarketTime)
-                : (pairs.length ? pairs[pairs.length - 1].ts : 0);
-            const quoteAt = quoteTs > 0 ? new Date(quoteTs * 1000).toISOString() : null;
-            return {
-                sourceSymbol: migration.sourceSymbol,
-                targetSymbol: querySymbol,
-                price: _counterRoundQuote(quotePrice * _counterQuoteScaleToHolding(h, quoteCurrency)),
-                quotePrice: _counterRoundQuote(quotePrice),
-                quoteCurrency,
-                quoteAt,
-                fetchedAt: new Date().toISOString(),
-                stale: false,
-                source: 'yahoo-counter-7747'
-            };
-        }
-        async function _refreshCounterMigrationQuotes(reason) {
-            const candidates = _counterMigrationCandidates();
-            const updatedSymbols = new Set();
-            if (!candidates.length) return { updatedSymbols, updated: 0, fresh: 0, failed: 0 };
-            let updated = 0, fresh = 0, failed = 0;
-            await _runTaskPool(candidates.map(h => async () => {
-                try {
-                    const entry = await _fetchCounterMigrationQuote(h);
-                    if (!entry || !_acceptIncomingPriceForHolding(h, entry.price, 'counter-7747')) { failed++; return; }
-                    h.currentPrice = entry.price;
-                    window._counterMigrationQuoteMeta[h.symbol] = entry;
-                    updatedSymbols.add(h.symbol);
-                    updated++; fresh++;
-                } catch(e) {
-                    failed++;
-                    const cached = _counterMigrationQuoteEntry(h);
-                    if (cached) cached.stale = true;
-                    try { _recordAppError('counter_quote_fetch', e, { symbol: h.symbol, target: _counterQuoteSymbolForHolding(h), reason }); } catch(_) {}
-                }
-            }), 3);
-            if (fresh > 0) _saveCounterMigrationQuoteMeta();
-            return { updatedSymbols, updated, fresh, failed };
+            return !!(LEVERAGED_MAP[raw] || LEVERAGED_MAP[canonical]);
         }
 
         // ==================== KD (Stochastic) Calculation ====================
@@ -13156,6 +12789,7 @@
                 localStorage.setItem(STORAGE_KEYS.localSyncLastPullAt, new Date().toISOString());
                 localStorage.removeItem(STORAGE_KEYS.localSyncLastError);
                 _clearLocalSyncDirty();
+                try { _migrate9747HoldingsTo7747Once(manual ? 'local-pull-manual' : 'local-pull-silent'); } catch(_) {}
                 _setLocalSyncStatus(`✅ 已從本地同步檔載入`, '#10b981');
                 _renderLocalSyncStatus();
                 if (manual) showImportToast(`✅ 已從 ${fileName} 載入 ${holdings.length} 筆持倉`, 2500);
@@ -14102,15 +13736,10 @@
                 const proxyRowsT = rows.filter(r => r.isProxy);
                 await _runTaskPool(proxyRowsT.map(pr => async () => {
                     const _psym = pr.holding;
-                    const _quoteSym = _counterQuoteSymbolForHolding({ symbol: _psym, market: pr.market });
-                    const _holdingRef = { symbol: _psym, market: pr.market };
-                    const _scaleTechValue = (value, currency) => Number(value) * _counterQuoteScaleToHolding(_holdingRef, currency);
+                    const _quoteSym = _canonicalYahooSymbol(_psym, pr.market);
                     try {
                         const tech = await fetchTechDataFromYahoo(_quoteSym);
-                        const techCurrency = _counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef);
-                        allResults[_psym] = { ...(allResults[_psym] || {}), ...tech,
-                            prevClose: tech.prevClose == null ? tech.prevClose : _scaleTechValue(tech.prevClose, techCurrency),
-                            prevPrevClose: tech.prevPrevClose == null ? tech.prevPrevClose : _scaleTechValue(tech.prevPrevClose, techCurrency) };
+                        allResults[_psym] = { ...(allResults[_psym] || {}), ...tech };
                     } catch(_) {}
                     // range=5d 偵測今日是否開盤；開盤時再用 range=1d chartPreviousClose 取昨收
                     // （range=1d chartPreviousClose 可跨越空白交易日，比 close array 更可靠）
@@ -14118,10 +13747,8 @@
                         const _BASE_pc = 'https://query1.finance.yahoo.com';
                         const _pd5 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=5d`);
                         const _pr5 = _pd5?.chart?.result?.[0];
-                        const _pccy = _pr5?.meta?.currency ?? '';
-                        const _pscale = _counterQuoteScaleToHolding(_holdingRef, _pccy || (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef)));
                         const _ppairs = _validYahooClosePairs(_pr5);
-                        const _pcls = _ppairs.map(pair => pair.close * _pscale);
+                        const _pcls = _ppairs.map(pair => pair.close);
                         const _plast = _ppairs.length ? _ppairs[_ppairs.length - 1].ts : null;
                         const _ptz = _exchangeTz(_quoteSym);
                         const _ptd = new Date().toLocaleDateString('en-US', {timeZone: _ptz});
@@ -14135,8 +13762,7 @@
                             try {
                                 const _pd1 = await yfFetch(`${_BASE_pc}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=1d`);
                                 const _m1  = _pd1?.chart?.result?.[0]?.meta;
-                                const _sc1 = _counterQuoteScaleToHolding(_holdingRef, _m1?.currency || (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef)));
-                                if (_m1?.chartPreviousClose != null) _cpc = _m1.chartPreviousClose * _sc1;
+                                if (_m1?.chartPreviousClose != null) _cpc = _m1.chartPreviousClose;
                             } catch(_) {}
                             allResults[_psym].prevClose     = _cpc ?? (_pcls.length >= 2 ? _pcls[_pcls.length - 2] : null);
                             if (_pcls.length >= 3) allResults[_psym].prevPrevClose = _pcls[_pcls.length - 3];
@@ -14278,16 +13904,13 @@
                     const proxyRows = rows.filter(r => r.isProxy);
                     // v15.934：併發池取代逐檔 await + 300ms 間隔
                     await _runTaskPool(proxyRows.map(r => async () => {
-                        const _quoteSym = _counterQuoteSymbolForHolding({ symbol: r.holding, market: r.market });
-                        const _holdingRef = { symbol: r.holding, market: r.market };
+                        const _quoteSym = _canonicalYahooSymbol(r.holding, r.market);
                         try {
                             // range=5d：偵測今日開盤 & prevPrevClose
                             const data  = await yfFetch(`${BASE1_lev}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=5d`);
                             const res0  = data?.chart?.result?.[0];
-                            const _chartCcy = res0?.meta?.currency ?? (_counterMigrationForHolding(_holdingRef)?.targetCurrency || _holdingNativeCurrency(_holdingRef));
-                            const _ccyScale = _counterQuoteScaleToHolding(_holdingRef, _chartCcy);
                             const _pairs = _validYahooClosePairs(res0);
-                            const closes = _pairs.map(p => p.close * _ccyScale);
+                            const closes = _pairs.map(p => p.close);
                             const lastTs   = _pairs.length > 0 ? _pairs[_pairs.length - 1].ts : null;
                             const _tz = _exchangeTz(_quoteSym);
                             const todayET  = new Date().toLocaleDateString('en-US', {timeZone: _tz});
@@ -14300,8 +13923,7 @@
                                 try {
                                     const d1   = await yfFetch(`${BASE1_lev}/v8/finance/chart/${encodeURIComponent(_quoteSym)}?interval=1d&range=1d`);
                                     const m1   = d1?.chart?.result?.[0]?.meta;
-                                    const _sc1 = _counterQuoteScaleToHolding(_holdingRef, m1?.currency || _chartCcy);
-                                    if (m1?.chartPreviousClose != null) prevCloseFrom1d = m1.chartPreviousClose * _sc1;
+                                    if (m1?.chartPreviousClose != null) prevCloseFrom1d = m1.chartPreviousClose;
                                 } catch(_) {}
                                 _tmpPrevClose[r.holding]     = prevCloseFrom1d ?? (closes.length >= 2 ? closes[closes.length - 2] : null);
                                 _tmpPrevPrevClose[r.holding] = closes.length >= 3 ? closes[closes.length - 3] : null;
@@ -14372,7 +13994,7 @@
             loadLoans();             // v15.918：還原貸款資料
             loadCorporateActions();   // v15.920：還原股票分割 / 反分割紀錄
             loadCorporateActionPlans();   // v15.922：還原股票分割 / 反分割預約
-            _hydrateCounterMigrationQuotes(); // v15.951：以既有 7747 系統快取恢復 9747 的接續報價，不標記使用者資料異動
+            _clearLegacyCounterQuoteMeta(); // v15.956：移除已退役的 9747 接續報價快取
             // v15.076 / v15.077：沒填 GIST 且 FSA 未啟用時 → 預設清空已實現損益（避免跨裝置切換時顯示陳舊資料）
             // 有 GIST → silent pull 會拉雲端 tradeHistory；有 FSA → silent pull 從本地檔載入
             const _hasGistInit = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
@@ -14397,6 +14019,9 @@
 
             // v15.918：保留舊呼叫點；貸款餘額改由 render 即時推導
             try { _processAllLoansAutoDebit(); } catch(e) { console.warn('[Loan projection compat] init failed', e); }
+            if (!_hasGistInit && !_hasFsaInit) {
+                try { _migrate9747HoldingsTo7747Once('local-startup'); } catch(_) {}
+            }
 
             renderAll();
             // 有 Gist 憑證時跳過本地 toast（auto-pull 成功後會顯示雲端 toast）
@@ -14439,6 +14064,11 @@
                     _setLocalSyncStatus('⚠ 本地資料夾權限已過期，請到設定 Tab → 本地同步 → 點「從本地拉取」重新授權', '#fbbf24');
                     _renderLocalSyncStatus();
                 } catch(_) {}
+                finally {
+                    if (!_hasGistCreds()) {
+                        try { _migrate9747HoldingsTo7747Once('local-sync-startup'); } catch(_) {}
+                    }
+                }
             })();
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
@@ -14458,6 +14088,7 @@
                             ? _freshnessColor(Date.now() - fx.ts, 30*60*1000, 90*60*1000)
                             : '#7e93a6';
                     }
+                    try { _migrate9747HoldingsTo7747Once('fx-ready'); } catch(_) {}
                     renderAll();
                     recordSnapshot(); // 每月首次開啟，自動記錄市值快照
                 }
@@ -14579,8 +14210,7 @@
             // 每 60 秒抓一次報價
             _autoRefreshTimer = setInterval(async () => {
                 const url = (document.getElementById('sheet-url')?.value || '').trim();
-                const hasCounterMigration = _counterMigrationCandidates().length > 0;
-                if ((!url || !url.includes('docs.google.com')) && !hasCounterMigration) return;
+                if (!url || !url.includes('docs.google.com')) return;
                 if (document.getElementById('refresh-btn')?.disabled) return; // 手動更新中，跳過
                 await silentRefreshPrices();
                 _secondsLeft = 60; // 重置倒數
@@ -15484,14 +15114,7 @@
 
         async function silentRefreshPrices() {
             const sheetUrl = (document.getElementById('sheet-url')?.value || '').trim();
-            const hasCounterMigration = _counterMigrationCandidates().length > 0;
             if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
-                if (hasCounterMigration) {
-                    const fx = await _fetchFxRates(false);
-                    if (fx) { exchangeRates.USD_TWD = fx.USD_TWD; exchangeRates.HKD_TWD = fx.HKD_TWD; syncRateInputs(); }
-                    const fallback = await _refreshIndependentQuoteFallbacks('silent-counter-only');
-                    if (_renderIndependentQuoteFallback(fallback, 'silent-counter-only') > 0) recordSnapshot();
-                }
                 return;
             }
             try {
@@ -15531,7 +15154,6 @@
                 let updated = 0;
                 const updatedSymbols = new Set();
                 holdings.forEach(h => {
-                    if (_counterMigrationForHolding(h)) return; // 9747 不接受停牌櫃台的舊 CSV 價格
                     const np = _lookupPrice(prices, h);
                     if (np != null && !isNaN(np) && np > 0 && _acceptIncomingPriceForHolding(h, np, 'csv-silent')) {
                         h.currentPrice = parseFloat(np);
@@ -15540,9 +15162,8 @@
                     }
                 });
                 const fallback = await _refreshIndependentQuoteFallbacks('csv-silent', updatedSymbols);
-                updated += fallback.us.updated + fallback.counter.updated;
+                updated += fallback.us.updated;
                 fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
-                fallback.counter.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
                     const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
                     // v15.947：partial market 只更新現價，不推進該市場的 quote freshness。
