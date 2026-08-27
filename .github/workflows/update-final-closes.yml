@@ -1,0 +1,75 @@
+name: Update Final Close Data
+
+on:
+  schedule:
+    - cron: '17 22 * * 1-5'  # Taipei 06:17: US is complete
+    - cron: '17 6 * * 1-5'   # Taipei 14:17: TW is complete
+    - cron: '17 9 * * 1-5'   # Taipei 17:17: HK is complete
+    - cron: '37 12 * * 1-5'  # Taipei 20:37: HK retry after publication delay
+  workflow_dispatch:
+    inputs:
+      market:
+        description: 'Market to refresh'
+        required: true
+        default: ALL
+        type: choice
+        options:
+          - ALL
+          - TW
+          - HK
+          - US
+
+concurrency:
+  group: update-final-closes
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install 'yfinance>=0.2.40' pandas lxml pytz requests
+
+      - name: Select market
+        id: target
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_MARKET: ${{ inputs.market }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "market=${MANUAL_MARKET:-ALL}" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_SCHEDULE" = "17 22 * * 1-5" ]; then
+            echo "market=US" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_SCHEDULE" = "17 6 * * 1-5" ]; then
+            echo "market=TW" >> "$GITHUB_OUTPUT"
+          else
+            echo "market=HK" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch final close data
+        run: python data/update_final_closes.py --market "${{ steps.target.outputs.market }}"
+
+      - name: Commit & push updated data
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/final-closes.json
+          if git diff --cached --quiet; then
+            echo "No final-close data changes."
+            exit 0
+          fi
+          git commit -m "chore: update final closes $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push

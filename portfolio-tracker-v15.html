@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.957 - 三市場最終收盤資料韌性修正：新增獨立 final-closes.json 與 GitHub Actions 錯峰更新；港股優先使用 HKEX、台股優先使用 TWSE、美股由伺服器端 Yahoo 產生精確日期收盤資料。前端先讀最終收盤資料，失敗後才走既有 Yahoo 備援；請求結束後不再永久顯示「資料讀取中」，缺資料改顯示明確暫缺狀態。不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending 或 PWA。
   v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動／同步拉取完成後一次性轉換持倉與 FIFO 成本至 HKD，寫入公司行動並正常同步；移除舊轉換預覽、停牌排除與 7747 接續報價特例。網格「投資加總」改為「投資總倉位」。
   v15.955 - 派網網格：錢包覆蓋加密欄；網格頁月曆點選看單日／累計；累計＝當下各倉網格利潤加總，基準日單日為 0。
   v15.954 - 派網網格每日紀錄：讀 Gist 第二檔 pionex-grid-ledger.json（本機 v2 capture 發布），新增網格分頁；加密欄顯示錢包 TWD 與手動填入。不改 holdings schema、userDataHash、pending、損益。
@@ -91,6 +92,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.957 - 三市場最終收盤資料韌性修正：新增獨立 data/final-closes.json，與 data/update_final_closes.py 及 GitHub Actions 錯峰更新流程。港股優先讀 HKEX 每日結算報告，台股優先讀 TWSE STOCK_DAY，美股由伺服器端 yfinance 產生；每檔保存最近 30 個交易日的日期、收盤價、來源與抓取時間，缺日不以更早日期代替，單次失敗保留舊資料。前端 close pair 先讀 final-closes.json，找不到精確 target/previous 才沿用既有 fundamentals/Yahoo fallback；refresh 結束後固定重畫，市場狀態由「資料讀取中」改為「收盤資料暫缺」或「等待收盤資料」，不再永久卡住。新增 workflow_dispatch 可手動補讀；不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending、快照或 PWA。
         v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動、Gist pull 或 FSA pull 完成後，若仍有 9747 持倉，依既有 USD_TWD／HKD_TWD 交叉匯率把每批 FIFO 單位成本轉成 HKD，股數與批次日期維持不變；若已有 7747 則合併 lots，否則原持倉直接改為 7747.HK，並寫入可同步的 counterMigration 公司行動。遷移只在雲端拉取旗標解除後標記 holdings／corporateActions dirty，避免 pull→push 回彈；沒有 9747 時為 no-op。移除舊預覽面板、券商成本覆蓋、停牌損益排除、9747→7747 報價／close pair 映射、獨立 Yahoo 接續報價與舊 counterQuotes cache；7747 回到一般 HKD 港股報價與損益路徑。網格明細「投資加總」改名「投資總倉位」。不改 Storage Key、PT_SCHEMA_VERSION、Gist/FSA payload 結構、userDataHash、pending、損益公式或快照 schema。
         v15.955 - 派網網格：pull 後用第二檔 wallet.twd 覆蓋持倉「加密（TWD）」並回寫 holdings。網格頁改月曆點選，當日顯示單日網格利潤與累計網格利潤兩數；累計＝該日快照各倉 GridProfit 加總（不是從 0 起算），基準日單日為 0、累計填當下網格利潤總和。填入按鈕在網格頁錢包卡。不改 schema、userDataHash、損益、close pair。
         v15.954 - 派網網格每日紀錄：本機 Pionex Grid v2 capture 成功後把精簡日記帳 PATCH 到同一私有 Gist 的第二檔 pionex-grid-ledger.json；PT 啟動／pull 時只讀該檔（失敗保留舊 cache、不中斷持倉同步），新增「網格」分頁從基準日 2026-08-25 列出每日利潤，持倉加密欄顯示派網錢包 TWD（臺銀現金買入口徑）與手動「填入」。帳本不進 holdings JSON／userDataHash／pending／system sync；不按填入則 crypto_twd 不動。不改五張統計卡、損益公式、close pair、圓餅、PT_SCHEMA_VERSION 或 Pionex API 金鑰存放。
@@ -810,7 +812,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.956</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.957</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1658,7 +1660,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.956';
+        const APP_VERSION = 'v15.957';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3039,6 +3041,99 @@
             return Object.keys(out.symbols || {}).length ? _pruneClosePairDates(out) : null;
         }
 
+        // v15.957：伺服器端產生的最終收盤資料。它是公開系統資料，
+        // 不進 local user hash、Gist user payload、pending 或任何持倉同步欄位。
+        let _finalCloseData = null;
+        let _finalCloseDataPromise = null;
+        let _finalCloseDataState = 'idle';
+        let _closePairRefreshStarted = false;
+        let _closePairRefreshInFlight = false;
+        const _closePairMarketStatus = {};
+
+        async function _loadFinalCloseData(force = false) {
+            if (force) {
+                _finalCloseData = null;
+                _finalCloseDataState = 'idle';
+            }
+            if (_finalCloseData) return _finalCloseData;
+            if (_finalCloseDataPromise) return _finalCloseDataPromise;
+            _finalCloseDataPromise = (async () => {
+                const ctrl = new AbortController();
+                const timeoutId = setTimeout(() => ctrl.abort(), 8000);
+                try {
+                    const res = await fetch('./data/final-closes.json', { cache: 'no-store', signal: ctrl.signal });
+                    if (!res.ok) {
+                        _finalCloseDataState = 'missing';
+                        return null;
+                    }
+                    const parsed = await res.json();
+                    if (!parsed || typeof parsed !== 'object' || !parsed.symbols || typeof parsed.symbols !== 'object') {
+                        throw new Error('final-closes.json 格式無效');
+                    }
+                    _finalCloseData = parsed;
+                    _finalCloseDataState = 'ready';
+                    return parsed;
+                } catch(e) {
+                    _finalCloseDataState = 'error';
+                    try { _recordAppError('final_close_data_load', e); } catch(_) {}
+                    return null;
+                } finally {
+                    clearTimeout(timeoutId);
+                    _finalCloseDataPromise = null;
+                }
+            })();
+            return _finalCloseDataPromise;
+        }
+
+        function _finalCloseBarForDate(symbol, marketKey, dateKey) {
+            if (!_finalCloseData?.symbols || !dateKey) return null;
+            for (const alias of _symbolLookupAliases(symbol, marketKey)) {
+                const slot = _finalCloseData.symbols[alias];
+                const bar = slot?.byDate?.[dateKey];
+                if (!bar || bar.final !== true) continue;
+                const close = Number(bar.close);
+                if (!(Number.isFinite(close) && close > 0)) continue;
+                return {
+                    close,
+                    source: typeof bar.source === 'string' ? bar.source : 'final-close-data',
+                    fetchedAt: typeof bar.fetchedAt === 'string' ? bar.fetchedAt : null
+                };
+            }
+            return null;
+        }
+
+        // final-closes.json 只接受 target 與 expected previous 的同日期成對資料。
+        // 即使資料檔含有更早收盤，也不可跨日期拼出錯誤損益。
+        function _resolveClosePairFromFinalData(symbol, marketKey, targetDate, options) {
+            try {
+                const session = _marketSession(marketKey, new Date());
+                const target = targetDate || session.lastCompletedTradingDate;
+                if (!target || !_isPossibleTradingDay(marketKey, target)) return null;
+                const expectedPrevDate = _expectedPrevTradingDate(marketKey, target);
+                if (!expectedPrevDate || !_isPossibleTradingDay(marketKey, expectedPrevDate)) return null;
+                const targetBar = _finalCloseBarForDate(symbol, marketKey, target);
+                const prevBar = _finalCloseBarForDate(symbol, marketKey, expectedPrevDate);
+                if (!targetBar || !prevBar) return null;
+                return {
+                    market: marketKey,
+                    targetDate: target,
+                    close: targetBar.close,
+                    prevDate: expectedPrevDate,
+                    prevClose: prevBar.close,
+                    fetchedAt: targetBar.fetchedAt || prevBar.fetchedAt || new Date().toISOString(),
+                    source: 'final-closes:' + targetBar.source,
+                    final: true
+                };
+            } catch(e) {
+                try { _recordAppError('final_close_pair_resolve', e, { symbol, marketKey }); } catch(_) {}
+                return null;
+            }
+        }
+
+        function _exactFinalCloseForDate(symbol, marketKey, dateKey) {
+            return _finalCloseBarForDate(symbol, marketKey, dateKey)?.close ?? null;
+        }
+
         function _exactFundamentalCloseForDate(symbol, marketKey, dateKey) {
             const fund = _fundEntryForSymbol(symbol, marketKey);
             const closes = fund?.data?.recent_closes;
@@ -3106,6 +3201,10 @@
                 let prevClose = (yahooPrevBar && typeof yahooPrevBar.close === 'number' && yahooPrevBar.close > 0)
                     ? yahooPrevBar.close : null;
                 let prevSource = 'yahoo';
+                if (!(prevClose > 0)) {
+                    prevClose = _exactFinalCloseForDate(symbol, marketKey, expectedPrevDate);
+                    prevSource = 'final-closes';
+                }
                 if (!(prevClose > 0)) {
                     prevClose = _exactFundamentalCloseForDate(symbol, marketKey, expectedPrevDate);
                     prevSource = 'fundamentals';
@@ -3182,6 +3281,11 @@
         function _scheduleRefreshClosePair(reason, opts) {
             const force = !!(opts && opts.force);
             if (!force && Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS) return;
+            if (force) {
+                // 手動重試要重新讀取 Actions 剛推送的 final-closes.json；不碰使用者資料。
+                _finalCloseData = null;
+                _finalCloseDataState = 'idle';
+            }
             clearTimeout(_closePairRefreshTimer);
             _closePairRefreshTimer = setTimeout(() => _refreshClosePairForActiveHoldings(reason), force ? 300 : 1500);
         }
@@ -3366,84 +3470,123 @@
             await Promise.all(workers);
         }
         // v15.932：改併發池（原逐檔串行 await，25 檔 ≈ 25-35 個串行 proxy 請求要 10 幾秒）
-        // job 構建、skip 檢查、forceYahoo、_isExactFinalClosePair 驗證、儲存與 system push 行為與序列版完全一致
+        // v15.957：先讀伺服器端 final-closes.json；只有精確日期資料不存在才走既有 fallback。
+        // job 構建、skip 檢查、_isExactFinalClosePair 驗證、儲存與 system push 行為維持不變。
         async function _refreshClosePairForActiveHoldings(reason) {
             if (!Array.isArray(holdings) || holdings.length === 0) return;
+            if (_closePairRefreshInFlight) return;
+            _closePairRefreshStarted = true;
+            _closePairRefreshInFlight = true;
             let auditChanged = false;
-            try { auditChanged = await _auditRecentAdhocClosures(reason); } catch(_) {}
-            _closePairRefreshLastRun = Date.now();
-            const data = _loadClosePair();
-            if (!data.symbols) data.symbols = {};
-            let resolved = 0, fetched = 0, missing = 0, finalSaved = 0;
-            const now = new Date();
-            const pd = _portfolioDay(now);
-            const seenJobs = new Set();
-            // v15.944：provisional 臨時休市可能在本輪被確認/解除而改變 previousTradingDate，
-            // 因此採多趟（最多 2 趟）—— 日曆一變就以修正後的 target 重新產生 jobs，不等下一個 60s timer。
-            for (let pass = 0; pass < 2; pass++) {
-            _adhocCalendarChanged = false;
-            // 收集階段：沿用原 per-holding job 構建與 skip 檢查，建扁平 task 清單（market+symbol+target 去重）
-            const tasks = [];
-            for (const h of holdings) {
-                try {
-                    const mk = _holdingMarketKey(h);
-                    const pdState = _marketPortfolioDayStatus(mk, pd, now);
-                    const jobs = [];
-                    if (pdState.status === 'open') {
-                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
-                    } else if (pdState.status === 'closed_retained') {
-                        if (pdState.targetDate) jobs.push({ target: pdState.targetDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
-                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
-                    } else {
-                        if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
-                    }
-                    if (jobs.length === 0) continue;
+            let shouldRender = false;
+            let hadTasks = false;
+            const marketTaskCounts = { TW: 0, HK: 0, US: 0 };
+            const marketResolvedCounts = { TW: 0, HK: 0, US: 0 };
+            const marketTargets = { TW: null, HK: null, US: null };
+            try {
+                try { await _loadFinalCloseData(); } catch(_) {}
+                try { auditChanged = await _auditRecentAdhocClosures(reason); } catch(_) {}
+                _closePairRefreshLastRun = Date.now();
+                const data = _loadClosePair();
+                if (!data.symbols) data.symbols = {};
+                let resolved = 0, fetched = 0, missing = 0, finalSaved = 0;
+                const now = new Date();
+                const pd = _portfolioDay(now);
+                const seenJobs = new Set();
+                // v15.944：provisional 臨時休市可能在本輪被確認/解除而改變 previousTradingDate，
+                // 因此採多趟（最多 2 趟）—— 日曆一變就以修正後的 target 重新產生 jobs，不等下一個 60s timer。
+                for (let pass = 0; pass < 2; pass++) {
+                    _adhocCalendarChanged = false;
+                    const tasks = [];
+                    for (const h of holdings) {
+                        try {
+                            const mk = _holdingMarketKey(h);
+                            const pdState = _marketPortfolioDayStatus(mk, pd, now);
+                            const jobs = [];
+                            if (pdState.status === 'open') {
+                                if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
+                            } else if (pdState.status === 'closed_retained') {
+                                if (pdState.targetDate) jobs.push({ target: pdState.targetDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
+                                if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
+                            } else {
+                                if (pdState.previousTradingDate) jobs.push({ target: pdState.previousTradingDate, final: true, forceYahoo: true, refreshIfNotFinal: true });
+                            }
+                            if (jobs.length === 0) continue;
 
-                    // v15.903：優先 fundamentals.json，缺值才 fallback Yahoo（forceYahoo 防護見 v15.909，不動）
-                    for (const job of jobs) {
-                        const jobKey = mk + '|' + _cleanSymbolKey(h.symbol) + '|' + job.target;
-                        if (seenJobs.has(jobKey)) continue;
-                        seenJobs.add(jobKey);
-                        const existing = _getClosePairForDate(data, h.symbol, job.target, mk);
-                        if (existing && job.final && _isExactFinalClosePair(existing, mk, job.target)) continue;
-                        if (existing && !job.final && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
-                        tasks.push(async () => {
-                            try {
-                                const quoteSymbol = _canonicalYahooSymbol(h.symbol, mk);
-                                let pair = job.forceYahoo ? null : _resolveClosePairFromFundamentals(quoteSymbol, mk, job.target, { final: job.final });
-                                if (pair) {
-                                    resolved++;
-                                } else {
-                                    pair = await _fetchClosePairFromYahoo(h.symbol, mk, job.target, { final: job.final });
-                                    if (pair) fetched++;
-                                    else missing++;
-                                }
-                                if (pair && job.final && !_isExactFinalClosePair(pair, mk, job.target)) pair = null;
-                                if (pair) {
-                                    _setClosePairForDate(data, h.symbol, pair);
-                                    if (_isExactFinalClosePair(pair, mk, job.target)) finalSaved++;
-                                }
-                            } catch(_) {}
-                        });
+                            for (const job of jobs) {
+                                const jobKey = mk + '|' + _cleanSymbolKey(h.symbol) + '|' + job.target;
+                                if (seenJobs.has(jobKey)) continue;
+                                seenJobs.add(jobKey);
+                                const existing = _getClosePairForDate(data, h.symbol, job.target, mk);
+                                if (existing && job.final && _isExactFinalClosePair(existing, mk, job.target)) continue;
+                                if (existing && !job.final && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
+                                marketTaskCounts[mk]++;
+                                marketTargets[mk] = job.target;
+                                tasks.push(async () => {
+                                    try {
+                                        const quoteSymbol = _canonicalYahooSymbol(h.symbol, mk);
+                                        // Official/server-generated final data is always preferred, including
+                                        // the old forceYahoo jobs that protect the final close path.
+                                        let pair = _resolveClosePairFromFinalData(quoteSymbol, mk, job.target, { final: job.final });
+                                        if (pair) {
+                                            resolved++;
+                                        } else if (!job.forceYahoo) {
+                                            pair = _resolveClosePairFromFundamentals(quoteSymbol, mk, job.target, { final: job.final });
+                                            if (pair) resolved++;
+                                        }
+                                        if (!pair) {
+                                            pair = await _fetchClosePairFromYahoo(h.symbol, mk, job.target, { final: job.final });
+                                            if (pair) fetched++;
+                                            else missing++;
+                                        }
+                                        if (pair && job.final && !_isExactFinalClosePair(pair, mk, job.target)) pair = null;
+                                        if (pair) {
+                                            _setClosePairForDate(data, h.symbol, pair);
+                                            marketResolvedCounts[mk]++;
+                                            if (_isExactFinalClosePair(pair, mk, job.target)) finalSaved++;
+                                        }
+                                    } catch(_) {}
+                                });
+                            }
+                        } catch(_) {}
                     }
-                } catch(_) {}
-            }
-            // 執行階段：併發池取代串行；JS 單執行緒，counter 與 data merge 無 race
-            if (tasks.length > 0) await _runTaskPool(tasks, _CLOSE_PAIR_FETCH_CONCURRENCY);
-            // v15.944：本趟未改動日曆（或已無 job）→ 收工；改動了才用新 target 再跑一趟
-            if (!_adhocCalendarChanged || tasks.length === 0) break;
-            console.log(`[ClosePair v15.944] ${reason}: 臨時休市判定改變，以修正後日期重新計算 target（pass ${pass + 2}）`);
-            }
-            if (resolved + fetched > 0) {
-                data.updatedAt = new Date().toISOString();
-                _saveClosePair(data);
-                console.log(`[ClosePair v15.932] ${reason}: resolved ${resolved} / fetched ${fetched} / missing ${missing} (pool=${_CLOSE_PAIR_FETCH_CONCURRENCY})`);
-                if (finalSaved > 0) _scheduleClosePairSystemPush('close_pair_final');
-                renderAll();
-                _scheduleSymbolDataScan('close-pair-refreshed');
-            } else if (auditChanged) {
-                // 日曆已修正但 close pair 已由本機／雲端具備時，也要立刻重畫正確的 target date。
-                renderAll();
+                    if (tasks.length > 0) {
+                        hadTasks = true;
+                        await _runTaskPool(tasks, _CLOSE_PAIR_FETCH_CONCURRENCY);
+                    }
+                    if (!_adhocCalendarChanged || tasks.length === 0) break;
+                    console.log(`[ClosePair v15.944] ${reason}: 臨時休市判定改變，以修正後日期重新計算 target（pass ${pass + 2}）`);
+                }
+                if (resolved + fetched > 0) {
+                    data.updatedAt = new Date().toISOString();
+                    _saveClosePair(data);
+                    shouldRender = true;
+                    console.log(`[ClosePair v15.957] ${reason}: final/resolved ${resolved} / fetched ${fetched} / missing ${missing} (pool=${_CLOSE_PAIR_FETCH_CONCURRENCY})`);
+                    if (finalSaved > 0) _scheduleClosePairSystemPush('close_pair_final');
+                    _scheduleSymbolDataScan('close-pair-refreshed');
+                } else if (auditChanged) {
+                    // 日曆已修正但 close pair 已由本機／雲端具備時，也要立刻重畫正確的 target date。
+                    shouldRender = true;
+                }
+            } catch(e) {
+                try { _recordAppError('close_pair_refresh', e, { reason }); } catch(_) {}
+                shouldRender = true;
+            } finally {
+                for (const mk of ['TW', 'HK', 'US']) {
+                    if (marketTaskCounts[mk] > 0) {
+                        const resolvedCount = marketResolvedCounts[mk];
+                        _closePairMarketStatus[mk] = {
+                            state: resolvedCount === 0 ? 'missing'
+                                 : resolvedCount < marketTaskCounts[mk] ? 'partial' : 'ok',
+                            targetDate: marketTargets[mk],
+                            checkedAt: new Date().toISOString()
+                        };
+                    }
+                }
+                _closePairRefreshInFlight = false;
+                // Most importantly, redraw after both success and failure so a failed request
+                // cannot leave the market row in a permanent loading state.
+                if (hadTasks || shouldRender) renderAll();
             }
         }
 
@@ -4438,9 +4581,17 @@
                 // 部分市場 hasAny → 顯示「快照未完整」避免把 US-only 合計誤讀為「昨日損益」
                 const totCol = tot.complete ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
                 // v15.076：只在 complete（真有金額）時套 pv()，狀態文字不遮
+                const _prevCloseStateText = (mk) => {
+                    const state = _closePairMarketStatus[mk]?.state;
+                    if (_closePairRefreshInFlight) return '資料讀取中';
+                    if (_closePairRefreshStarted && state === 'missing') return '收盤資料暫缺';
+                    return '等待收盤資料';
+                };
                 const totStr = tot.complete
                     ? pv(fmtPnl(totVal, currency))
-                    : (tot.hasAny ? '快照未完整' : '等待收盤快照');
+                    : (tot.hasAny ? '快照未完整'
+                       : (_closePairRefreshInFlight ? '資料讀取中'
+                          : (_closePairRefreshStarted ? '收盤資料暫缺' : '等待收盤資料')));
                 const totSubStr = tot.complete
                     ? pv(currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
@@ -4467,9 +4618,11 @@
                             +   '<span class="mono" style="color:#fbbf24;">資料不足 (' + (m.withData||0) + '/' + (m.holdingsCount||0) + ')</span>'
                             + '</div>';
                     }
+                    const dateShort = m.marketDate ? m.marketDate.slice(5) : '';
+                    const dateNote = dateShort ? `<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">(${dateShort})</span>` : '';
                     return '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:0.72rem;line-height:1.5;">'
-                        +   '<span style="color:#7e93a6;">' + label + '<span style="margin-left:0.3rem;color:#607585;font-size:0.65rem;">尚無資料</span></span>'
-                        +   '<span class="mono" style="color:#607585;">-</span>'
+                        +   '<span style="color:#7e93a6;">' + label + dateNote + '</span>'
+                        +   '<span class="mono" style="color:#607585;">' + _prevCloseStateText(mk) + '</span>'
                         + '</div>';
                 };
                 return '<div class="stat-card" style="border:1px solid rgba(148,163,184,0.2);">'
@@ -4507,8 +4660,17 @@
                                : _activeStatuses.every(s => s === 'closed_or_holiday') ? '休市'
                                : '今日未開盤';
                 const totCol = tot.complete ? (totPos ? '#10b981' : '#ef4444') : '#7e93a6';
+                const _todayCloseStateText = (mk) => {
+                    const state = _closePairMarketStatus[mk]?.state;
+                    if (_closePairRefreshInFlight) return '資料讀取中';
+                    if (_closePairRefreshStarted && state === 'missing') return '收盤資料暫缺';
+                    return '等待收盤資料';
+                };
                 const totStr = tot.complete ? fmtPnl(totVal, currency)
-                             : (_anyEligibleMk ? (tot.hasAnyData ? '資料不足' : '資料讀取中') : _idleStr);
+                             : (_anyEligibleMk ? (tot.hasAnyData ? '資料不足'
+                                : (_closePairRefreshInFlight ? '資料讀取中'
+                                   : (_closePairRefreshStarted ? '收盤資料暫缺' : '等待收盤資料')))
+                                : _idleStr);
                 const totSubStr = tot.complete
                     ? (currency==='USD' ? fmtPnl(tot.pnlTWD, 'TWD') : fmtPnl(tot.pnlUSD, 'USD'))
                     : '';
@@ -4525,8 +4687,8 @@
                         const lc = m.lastCompletedTradingDate ? m.lastCompletedTradingDate.slice(5) : '';
                         valStr = lc ? `休市，沿用 ${lc} 快照` : '休市'; col = '#607585';
                     } else if (m.withData === 0) {
-                        // v15.944：盤中無基準 = 前一交易日 final pair 尚未就緒／臨時休市判定驗證中（非單純載入慢）
-                        valStr = m.status === 'open' ? '基準資料校驗中' : '資料讀取中'; col = '#607585';
+                        // v15.957：只在 close pair 請求進行中顯示讀取中；請求結束後明確顯示暫缺。
+                        valStr = _todayCloseStateText(mk); col = '#607585';
                     } else if (m.withData < m.count) {
                         valStr = `資料不足 (${m.withData}/${m.count})`; col = '#fbbf24';
                     } else {
@@ -12208,7 +12370,6 @@ function _isLegacy9747Holding(h) {
             ...(_isLocal || BACKEND_URL ? [u => (BACKEND_URL || '') + '/proxy?url=' + encodeURIComponent(u)] : []),
             u => 'https://api.allorigins.win/raw?url='             + encodeURIComponent(u),
             u => 'https://api.codetabs.com/v1/proxy?quest='        + encodeURIComponent(u),
-            u => 'https://corsproxy.io/?'                          + encodeURIComponent(u),
         ];
 
         // 記住上次成功的 proxy 索引，避免每次都從第一個重試
@@ -14025,8 +14186,8 @@ function _isLegacy9747Holding(h) {
 
             renderAll();
             // 有 Gist 憑證時跳過本地 toast（auto-pull 成功後會顯示雲端 toast）
-            const _hasGistCreds = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
-            if (hadSaved && !_hasGistCreds) {
+            const _hasGistCredentials = !!localStorage.getItem(GIST_TOKEN_KEY) && !!localStorage.getItem(GIST_ID_KEY);
+            if (hadSaved && !_hasGistCredentials) {
                 showImportToast(`✅ 已還原上次持倉（${holdings.length} 筆）`, 3500);
             }
             console.log('%c✅ Portfolio Tracker v15 已啟動', 'color:#10b981; font-size:14px;');
