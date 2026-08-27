@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
   v15.957 - 三市場最終收盤資料韌性修正：新增獨立 final-closes.json 與 GitHub Actions 錯峰更新；港股優先使用 HKEX、台股優先使用 TWSE、美股由伺服器端 Yahoo 產生精確日期收盤資料。前端先讀最終收盤資料，失敗後才走既有 Yahoo 備援；請求結束後不再永久顯示「資料讀取中」，缺資料改顯示明確暫缺狀態。不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending 或 PWA。
   v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動／同步拉取完成後一次性轉換持倉與 FIFO 成本至 HKD，寫入公司行動並正常同步；移除舊轉換預覽、停牌排除與 7747 接續報價特例。網格「投資加總」改為「投資總倉位」。
   v15.955 - 派網網格：錢包覆蓋加密欄；網格頁月曆點選看單日／累計；累計＝當下各倉網格利潤加總，基準日單日為 0。
@@ -92,6 +93,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
         v15.957 - 三市場最終收盤資料韌性修正：新增獨立 data/final-closes.json，與 data/update_final_closes.py 及 GitHub Actions 錯峰更新流程。港股優先讀 HKEX 每日結算報告，台股優先讀 TWSE STOCK_DAY，美股由伺服器端 yfinance 產生；每檔保存最近 30 個交易日的日期、收盤價、來源與抓取時間，缺日不以更早日期代替，單次失敗保留舊資料。前端 close pair 先讀 final-closes.json，找不到精確 target/previous 才沿用既有 fundamentals/Yahoo fallback；refresh 結束後固定重畫，市場狀態由「資料讀取中」改為「收盤資料暫缺」或「等待收盤資料」，不再永久卡住。新增 workflow_dispatch 可手動補讀；不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending、快照或 PWA。
         v15.956 - 9747 已正式以 1:1 轉換為 7747：啟動、Gist pull 或 FSA pull 完成後，若仍有 9747 持倉，依既有 USD_TWD／HKD_TWD 交叉匯率把每批 FIFO 單位成本轉成 HKD，股數與批次日期維持不變；若已有 7747 則合併 lots，否則原持倉直接改為 7747.HK，並寫入可同步的 counterMigration 公司行動。遷移只在雲端拉取旗標解除後標記 holdings／corporateActions dirty，避免 pull→push 回彈；沒有 9747 時為 no-op。移除舊預覽面板、券商成本覆蓋、停牌損益排除、9747→7747 報價／close pair 映射、獨立 Yahoo 接續報價與舊 counterQuotes cache；7747 回到一般 HKD 港股報價與損益路徑。網格明細「投資加總」改名「投資總倉位」。不改 Storage Key、PT_SCHEMA_VERSION、Gist/FSA payload 結構、userDataHash、pending、損益公式或快照 schema。
         v15.955 - 派網網格：pull 後用第二檔 wallet.twd 覆蓋持倉「加密（TWD）」並回寫 holdings。網格頁改月曆點選，當日顯示單日網格利潤與累計網格利潤兩數；累計＝該日快照各倉 GridProfit 加總（不是從 0 起算），基準日單日為 0、累計填當下網格利潤總和。填入按鈕在網格頁錢包卡。不改 schema、userDataHash、損益、close pair。
@@ -812,7 +814,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.957</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.958</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1660,7 +1662,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.957';
+        const APP_VERSION = 'v15.958';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
