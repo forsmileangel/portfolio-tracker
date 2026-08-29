@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
   v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
   v15.957 - 三市場最終收盤資料韌性修正：新增獨立 final-closes.json 與 GitHub Actions 錯峰更新；港股優先使用 HKEX、台股優先使用 TWSE、美股由伺服器端 Yahoo 產生精確日期收盤資料。前端先讀最終收盤資料，失敗後才走既有 Yahoo 備援；請求結束後不再永久顯示「資料讀取中」，缺資料改顯示明確暫缺狀態。不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending 或 PWA。
@@ -94,6 +95,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
         v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
         v15.957 - 三市場最終收盤資料韌性修正：新增獨立 data/final-closes.json，與 data/update_final_closes.py 及 GitHub Actions 錯峰更新流程。港股優先讀 HKEX 每日結算報告，台股優先讀 TWSE STOCK_DAY，美股由伺服器端 yfinance 產生；每檔保存最近 30 個交易日的日期、收盤價、來源與抓取時間，缺日不以更早日期代替，單次失敗保留舊資料。前端 close pair 先讀 final-closes.json，找不到精確 target/previous 才沿用既有 fundamentals/Yahoo fallback；refresh 結束後固定重畫，市場狀態由「資料讀取中」改為「收盤資料暫缺」或「等待收盤資料」，不再永久卡住。新增 workflow_dispatch 可手動補讀；不改持倉、成本、損益公式、Gist/FSA、Storage Key、userDataHash、pending、快照或 PWA。
@@ -816,7 +818,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.959</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.960</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1565,8 +1567,8 @@
         let _realizedCurrency = 'native'; // 'native' = 原幣, 'TWD' = 全部轉台幣
         let _realizedDateFrom = ''; // 篩選起始日
         let _realizedDateTo   = ''; // 篩選截止日
-        let marketSnapshots = []; // [{ date: 'YYYY-MM-DD', stockTWD: number }] 月度市值快照
-        let _returnMode = 'year'; // 'month' | 'quarter' | 'year'
+        let marketSnapshots = []; // [{ date, stockTWD, capturedAt?, sourceDeviceId? }] 每日市值快照
+        let _returnMode = 'year'; // 'day' | 'month' | 'quarter' | 'year'
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
@@ -1664,7 +1666,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.959';
+        const APP_VERSION = 'v15.960';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -7328,12 +7330,67 @@
         // ==================== 市值快照 & 期間報酬率 ====================
         const PT_SNAPSHOTS_KEY = 'pt_snapshots';
 
+        function _taipeiSnapshotDate(now) {
+            const d = new Date(now == null ? Date.now() : now);
+            return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
+        }
+        function _isValidSnapshotDate(dateStr) {
+            if (typeof dateStr !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+            const d = new Date(dateStr + 'T00:00:00Z');
+            return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === dateStr;
+        }
+        function _marketSnapshotCapturedTs(snapshot) {
+            if (!snapshot || typeof snapshot.capturedAt !== 'string') return null;
+            const ts = Date.parse(snapshot.capturedAt);
+            return Number.isFinite(ts) ? ts : null;
+        }
+        function _cleanMarketSnapshot(snapshot) {
+            if (!snapshot || typeof snapshot !== 'object' || !_isValidSnapshotDate(snapshot.date)) return null;
+            const stockTWD = Number(snapshot.stockTWD);
+            if (!(Number.isFinite(stockTWD) && stockTWD > 0)) return null;
+            const clean = { ...snapshot, date: snapshot.date, stockTWD };
+            if (_marketSnapshotCapturedTs(clean) === null) delete clean.capturedAt;
+            if (typeof clean.sourceDeviceId !== 'string' || !clean.sourceDeviceId.trim()) delete clean.sourceDeviceId;
+            return clean;
+        }
+        function _chooseMarketSnapshot(current, candidate, preferCandidateWithoutTimestamp) {
+            if (!current) return candidate;
+            if (!candidate) return current;
+            const currentTs = _marketSnapshotCapturedTs(current);
+            const candidateTs = _marketSnapshotCapturedTs(candidate);
+            if (currentTs !== null || candidateTs !== null) {
+                if (currentTs === null) return candidate;
+                if (candidateTs === null) return current;
+                return candidateTs >= currentTs ? candidate : current;
+            }
+            return preferCandidateWithoutTimestamp ? candidate : current;
+        }
+        function _normalizeMarketSnapshots(list) {
+            const byDate = new Map();
+            (Array.isArray(list) ? list : []).forEach(raw => {
+                const clean = _cleanMarketSnapshot(raw);
+                if (!clean) return;
+                byDate.set(clean.date, _chooseMarketSnapshot(byDate.get(clean.date), clean, true));
+            });
+            return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+        }
+        function _mergeMarketSnapshots(local, remote) {
+            const byDate = new Map();
+            _normalizeMarketSnapshots(local).forEach(s => byDate.set(s.date, s));
+            _normalizeMarketSnapshots(remote).forEach(s => {
+                // Legacy snapshots have no capturedAt. In that tie, remote wins so every device converges.
+                byDate.set(s.date, _chooseMarketSnapshot(byDate.get(s.date), s, true));
+            });
+            return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+        }
         function saveSnapshots() {
+            marketSnapshots = _normalizeMarketSnapshots(marketSnapshots);
             try { localStorage.setItem(PT_SNAPSHOTS_KEY, JSON.stringify(marketSnapshots)); }
             catch(e) { _handleStorageWriteError('marketSnapshots', e); }
         }
         function loadSnapshots() {
-            try { marketSnapshots = JSON.parse(localStorage.getItem(PT_SNAPSHOTS_KEY)) || []; } catch(_) { marketSnapshots = []; }
+            try { marketSnapshots = _normalizeMarketSnapshots(JSON.parse(localStorage.getItem(PT_SNAPSHOTS_KEY)) || []); }
+            catch(_) { marketSnapshots = []; }
         }
 
         // 計算目前所有股票持倉的台幣市值（不含加密/MOXA/現金）
@@ -7704,8 +7761,8 @@
         }
 
         // ────────────────────────────────────────────────────────
-        // v15.080：System Sync Channel — daily_pnl_snapshots / baselines / price_cache
-        //   • Gist 是 system data 唯一持久層；本機只用 memory cache
+        // v15.080：System Sync Channel — marketSnapshots / daily_pnl_snapshots / baselines / price_cache
+        //   • marketSnapshots 另存 localStorage；其餘 system cache 以 Gist / memory 為主
         //   • 不進 user dirty / pending / master flag
         //   • push 前 hash_match guard；hash 不同 abort + _recordAppError
         // ────────────────────────────────────────────────────────
@@ -7717,8 +7774,14 @@
 
         // 嚴格驗證雲端 system payload — 失敗只忽略 system 區塊，不影響 user data pull
         function _validateSystemPayload(payload) {
-            if (!payload || typeof payload !== 'object') return { baselines: null, priceCache: null, closePairs: null };
-            const out = { baselines: null, priceCache: null, closePairs: null };
+            if (!payload || typeof payload !== 'object') return { marketSnapshots: null, baselines: null, priceCache: null, closePairs: null };
+            const out = { marketSnapshots: null, baselines: null, priceCache: null, closePairs: null };
+            try {
+                if (payload.marketSnapshots != null) {
+                    if (!Array.isArray(payload.marketSnapshots)) throw new Error('marketSnapshots 不是 array');
+                    out.marketSnapshots = _normalizeMarketSnapshots(payload.marketSnapshots);
+                }
+            } catch(e) { _recordAppError('system_payload_validate', e, { section: 'marketSnapshots' }); }
             // baselines
             try {
                 const b = payload.daily_pnl_baselines;
@@ -7785,6 +7848,10 @@
         function _applySystemDataFromPayload(saved) {
             if (!saved) return;
             const v = _validateSystemPayload(saved);
+            if (v.marketSnapshots) {
+                marketSnapshots = _mergeMarketSnapshots(marketSnapshots, v.marketSnapshots);
+                saveSnapshots();
+            }
             if (v.baselines)  _dailyPnlBaselines  = _mergeBaselines(_dailyPnlBaselines, v.baselines);
             if (v.priceCache) _dailyPnlPriceCache = _mergePriceCache(_dailyPnlPriceCache, v.priceCache);
             if (v.closePairs) _saveClosePair(_mergeClosePairCache(_loadClosePair(), v.closePairs));
@@ -7873,13 +7940,15 @@
                 }
                 // 4. v15.080 hotfix P1-2：merge remote + local system fields，避免本機 partial 洗掉雲端較完整資料
                 const payload = { ...state.saved };
-                // 4a. snapshots：用既有 _mergeDailyPnlSnapshots 完整性優先排序
+                // 4a. 市值快照：按日期聯集，不讓任一裝置的獨有日期被整包覆蓋。
+                payload.marketSnapshots = _mergeMarketSnapshots(marketSnapshots, state.saved.marketSnapshots);
+                // 4b. snapshots：用既有 _mergeDailyPnlSnapshots 完整性優先排序
                 const localSnap  = _loadDailyPnlSnapshots();
                 const remoteSnap = state.saved.daily_pnl_snapshots;
                 payload.daily_pnl_snapshots = _mergeDailyPnlSnapshots(localSnap, remoteSnap, localHash);
-                // 4b. baselines：per-symbol merge — 本機沒有 / 較舊就沿用 remote
+                // 4c. baselines：per-symbol merge — 本機沒有 / 較舊就沿用 remote
                 payload.daily_pnl_baselines = _mergeBaselines(_dailyPnlBaselines, state.saved.daily_pnl_baselines);
-                // 4c. price_cache：per-symbol merge close arrays（dedupe by marketDate, keep latest fetchedAt, slice last 10）
+                // 4d. price_cache：per-symbol merge close arrays（dedupe by marketDate, keep latest fetchedAt, slice last 10）
                 payload.daily_pnl_price_cache = _mergePriceCache(_dailyPnlPriceCache, state.saved.daily_pnl_price_cache);
                 // v15.911 final close pairs: system mirror, not user dirty/pending.
                 const localClosePairs = _buildClosePairSystemPayload(localHash);
@@ -7898,6 +7967,8 @@
                 };
                 // 同步 merged 結果回本機 memory，下次 capture 看得到 remote
                 try {
+                    marketSnapshots = payload.marketSnapshots;
+                    saveSnapshots();
                     if (payload.daily_pnl_snapshots && payload.daily_pnl_snapshots.markets) _saveDailyPnlSnapshots(payload.daily_pnl_snapshots);
                     if (payload.daily_pnl_baselines)  _dailyPnlBaselines  = payload.daily_pnl_baselines;
                     if (payload.daily_pnl_price_cache) _dailyPnlPriceCache = payload.daily_pnl_price_cache;
@@ -8729,34 +8800,119 @@
         }
 
         // 每日首次開啟時自動記錄市值快照
-        // v15.079：snapshot 不再直接 _gistSilentPush()；marketSnapshots 不入 userDataHash，
-        // 靠其他 domain push 順帶帶上雲端，pending count 不再因 snapshot-only 變動而 +1
+        // v15.960：marketSnapshots 不入 userDataHash / pending；新增後走 hash-match system sync。
         function recordSnapshot() {
-            const today = new Date().toISOString().slice(0, 10);
+            const today = _taipeiSnapshotDate();
             if (marketSnapshots.some(s => s.date === today)) return;
             const stockTWD = _closingStockValueTWD();   // v15.905 hotfix #5：改用前一交易日收盤價算市值
             if (stockTWD <= 0) return;
-            marketSnapshots.push({ date: today, stockTWD });
-            marketSnapshots.sort((a, b) => a.date.localeCompare(b.date));
+            marketSnapshots.push({
+                date: today,
+                stockTWD,
+                capturedAt: new Date().toISOString(),
+                sourceDeviceId: _getDeviceId()
+            });
             saveSnapshots();
+            try { _scheduleSystemSyncPush('market_snapshot'); } catch(_) {}
         }
 
-        // 依 mode 將快照分組，回傳 [{ key, first, last }] 降冪（快照為主）
+        function _snapshotDaysInclusive(startDate, endDate) {
+            if (!_isValidSnapshotDate(startDate) || !_isValidSnapshotDate(endDate) || endDate < startDate) return 0;
+            const start = Date.parse(startDate + 'T00:00:00Z');
+            const end = Date.parse(endDate + 'T00:00:00Z');
+            return Math.round((end - start) / 86400000) + 1;
+        }
+        function _snapshotDateSequence(startDate, endDate) {
+            const out = [];
+            if (!_snapshotDaysInclusive(startDate, endDate)) return out;
+            for (let cursor = startDate; cursor <= endDate; cursor = _shiftDate(cursor, 1)) out.push(cursor);
+            return out;
+        }
+        function _snapshotPeriodKey(dateStr, mode) {
+            if (mode === 'month') return dateStr.slice(0, 7);
+            if (mode === 'quarter') {
+                const q = Math.ceil(parseInt(dateStr.slice(5, 7), 10) / 3);
+                return dateStr.slice(0, 4) + '-Q' + q;
+            }
+            return dateStr.slice(0, 4);
+        }
+        function _snapshotPeriodDateBounds(key, mode) {
+            if (mode === 'year') return { start: key + '-01-01', end: key + '-12-31' };
+            if (mode === 'quarter') {
+                const [yearRaw, quarterRaw] = key.split('-Q');
+                const year = parseInt(yearRaw, 10);
+                const quarter = parseInt(quarterRaw, 10);
+                const startMonth = (quarter - 1) * 3;
+                return {
+                    start: new Date(Date.UTC(year, startMonth, 1)).toISOString().slice(0, 10),
+                    end: new Date(Date.UTC(year, startMonth + 3, 0)).toISOString().slice(0, 10)
+                };
+            }
+            const [yearRaw, monthRaw] = key.split('-');
+            const year = parseInt(yearRaw, 10);
+            const month = parseInt(monthRaw, 10);
+            return {
+                start: key + '-01',
+                end: new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10)
+            };
+        }
+        function _snapshotCoverage() {
+            const snapshots = _normalizeMarketSnapshots(marketSnapshots);
+            if (!snapshots.length) return { snapshots, start: null, end: null, expectedDays: 0, missingDays: 0 };
+            const start = snapshots[0].date;
+            const latest = snapshots[snapshots.length - 1].date;
+            const today = _taipeiSnapshotDate();
+            const end = latest > today ? latest : today;
+            const expectedDays = _snapshotDaysInclusive(start, end);
+            return {
+                snapshots,
+                start,
+                end,
+                expectedDays,
+                missingDays: Math.max(0, expectedDays - snapshots.length)
+            };
+        }
+        function _snapshotDailyRows() {
+            const coverage = _snapshotCoverage();
+            if (!coverage.start) return [];
+            const byDate = new Map(coverage.snapshots.map(s => [s.date, s]));
+            return _snapshotDateSequence(coverage.start, coverage.end)
+                .reverse()
+                .map(date => ({ date, snapshot: byDate.get(date) || null }));
+        }
+
+        // 依 mode 將完整追蹤區間分組；沒有任何快照的整段期間也保留，避免月份／季度消失。
         function _snapshotPeriods(mode) {
-            if (!marketSnapshots.length) return [];
+            const coverage = _snapshotCoverage();
+            if (!coverage.start) return [];
             const map = {};
-            marketSnapshots.forEach(s => {
-                let key;
-                if (mode === 'month') key = s.date.slice(0, 7);
-                else if (mode === 'quarter') {
-                    const q = Math.ceil(parseInt(s.date.slice(5, 7)) / 3);
-                    key = s.date.slice(0, 4) + '-Q' + q;
-                } else key = s.date.slice(0, 4);
+            coverage.snapshots.forEach(s => {
+                const key = _snapshotPeriodKey(s.date, mode);
                 if (!map[key]) map[key] = [];
                 map[key].push(s);
             });
-            return Object.entries(map)
-                .map(([key, snaps]) => ({ key, first: snaps[0], last: snaps[snaps.length - 1] }))
+            const keys = new Set(_snapshotDateSequence(coverage.start, coverage.end)
+                .map(date => _snapshotPeriodKey(date, mode)));
+            return [...keys]
+                .map(key => {
+                    const snaps = (map[key] || []).sort((a, b) => a.date.localeCompare(b.date));
+                    const bounds = _snapshotPeriodDateBounds(key, mode);
+                    const rangeStart = bounds.start > coverage.start ? bounds.start : coverage.start;
+                    const rangeEnd = bounds.end < coverage.end ? bounds.end : coverage.end;
+                    const expectedDays = _snapshotDaysInclusive(rangeStart, rangeEnd);
+                    return {
+                        key,
+                        first: snaps[0] || null,
+                        last: snaps[snaps.length - 1] || null,
+                        snapshotCount: snaps.length,
+                        expectedDays,
+                        missingDays: Math.max(0, expectedDays - snaps.length),
+                        rangeStart,
+                        rangeEnd,
+                        startMissing: !snaps.length || snaps[0].date > rangeStart,
+                        endMissing: !snaps.length || snaps[snaps.length - 1].date < rangeEnd
+                    };
+                })
                 .sort((a, b) => b.key.localeCompare(a.key));
         }
 
@@ -8835,32 +8991,81 @@
                 return `padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid ${active ? 'rgba(96,165,250,0.5)' : 'rgba(56,139,253,0.2)'};background:${active ? 'rgba(56,139,253,0.15)' : 'transparent'};color:${active ? '#60a5fa' : '#7e93a6'};`;
             };
 
-            const periods = _snapshotPeriods(_returnMode);
+            const coverage = _snapshotCoverage();
             let rowsHtml = '';
-            if (!periods.length) {
-                rowsHtml = `<tr><td colspan="5" style="text-align:center;color:#607585;padding:1.5rem 0;font-size:0.85rem;">尚無快照資料，每日開啟後將自動累積</td></tr>`;
+            let tableHeadHtml = '';
+            if (_returnMode === 'day') {
+                const dailyRows = _snapshotDailyRows();
+                tableHeadHtml = `
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#1c2822;">
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:left;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">日期</th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">股票持倉市值</th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">快照狀態</th>
+                    </tr>`;
+                if (!dailyRows.length) {
+                    rowsHtml = `<tr><td colspan="3" style="text-align:center;color:#607585;padding:1.5rem 0;font-size:0.85rem;">尚無快照資料，每日開啟後將自動累積</td></tr>`;
+                } else {
+                    rowsHtml = dailyRows.map(row => {
+                        const hasSnapshot = !!row.snapshot;
+                        return `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                            <td style="padding:0.5rem 0.75rem;color:${hasSnapshot ? '#e2e8f0' : '#7e93a6'};font-weight:600;font-size:0.82rem;white-space:nowrap;">${row.date}</td>
+                            <td style="padding:0.5rem 0.75rem;text-align:right;" class="mono">
+                                ${hasSnapshot
+                                    ? `<span style="color:#a8bdd0;font-size:0.82rem;">${pv(fmtAbs(row.snapshot.stockTWD))}</span>`
+                                    : '<span style="color:#607585;font-size:0.78rem;">—</span>'}
+                            </td>
+                            <td style="padding:0.5rem 0.75rem;text-align:right;white-space:nowrap;">
+                                <span style="color:${hasSnapshot ? '#86c8a0' : '#d8a35d'};font-size:0.76rem;font-weight:600;">${hasSnapshot ? '已記錄' : '未記錄'}</span>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                }
             } else {
-                periods.forEach(p => {
-                    const startVal  = p.first.stockTWD;
-                    const endVal    = p.last.stockTWD;
-                    const diff      = endVal - startVal;
-                    const pct       = startVal > 0 ? diff / startVal : null;
-                    const isSameDay = p.first.date === p.last.date;
+                tableHeadHtml = `
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#1c2822;">
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:left;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">期間</th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">期初市值</th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">期末市值</th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">漲跌幅<span style="color:#475569;font-size:0.67rem;margin-left:0.2rem;">含未實現</span></th>
+                        <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;position:sticky;top:0;background:inherit;z-index:1;">已實現損益</th>
+                    </tr>`;
+                const periods = _snapshotPeriods(_returnMode);
+                if (!periods.length) {
+                    rowsHtml = `<tr><td colspan="5" style="text-align:center;color:#607585;padding:1.5rem 0;font-size:0.85rem;">尚無快照資料，每日開啟後將自動累積</td></tr>`;
+                } else periods.forEach(p => {
+                    const startVal  = p.first?.stockTWD ?? null;
+                    const endVal    = p.last?.stockTWD ?? null;
+                    const diff      = startVal != null && endVal != null ? endVal - startVal : null;
+                    const pct       = startVal > 0 && diff != null ? diff / startVal : null;
+                    const isSameDay = !!p.first && !!p.last && p.first.date === p.last.date;
                     const realized  = _realizedInPeriod(p.key, _returnMode);
+                    const warnings = [
+                        p.startMissing ? '期初缺資料' : '',
+                        p.endMissing ? '期末缺資料' : ''
+                    ].filter(Boolean);
 
                     rowsHtml += `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
-                        <td style="padding:0.55rem 0.75rem;color:#e2e8f0;font-weight:600;font-size:0.85rem;">${p.key}</td>
-                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
-                            <span style="color:#a8bdd0;font-size:0.82rem;">${pv(fmtAbs(startVal))}</span>
-                            <div style="color:#607585;font-size:0.68rem;">${p.first.date}</div>
+                        <td style="padding:0.55rem 0.75rem;color:#e2e8f0;font-weight:600;font-size:0.85rem;">
+                            <div>${p.key}</div>
+                            <div style="color:${p.missingDays > 0 ? '#d8a35d' : '#607585'};font-size:0.67rem;font-weight:500;white-space:nowrap;">快照 ${p.snapshotCount}/${p.expectedDays} 天${p.missingDays > 0 ? ` · 缺 ${p.missingDays} 天` : ' · 完整'}</div>
+                            ${warnings.length ? `<div style="color:#d8a35d;font-size:0.65rem;font-weight:500;white-space:nowrap;">${warnings.join(' · ')}</div>` : ''}
                         </td>
                         <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
-                            <span style="color:#a8bdd0;font-size:0.82rem;">${pv(fmtAbs(endVal))}</span>
-                            <div style="color:#607585;font-size:0.68rem;">${p.last.date}</div>
+                            ${p.first
+                                ? `<span style="color:#a8bdd0;font-size:0.82rem;">${pv(fmtAbs(startVal))}</span><div style="color:#607585;font-size:0.68rem;">${p.first.date}</div>`
+                                : '<span style="color:#d8a35d;font-size:0.73rem;">無快照</span>'}
                         </td>
                         <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
-                            ${isSameDay
+                            ${p.last
+                                ? `<span style="color:#a8bdd0;font-size:0.82rem;">${pv(fmtAbs(endVal))}</span><div style="color:#607585;font-size:0.68rem;">${p.last.date}</div>`
+                                : '<span style="color:#d8a35d;font-size:0.73rem;">無快照</span>'}
+                        </td>
+                        <td style="padding:0.55rem 0.75rem;text-align:right;" class="mono">
+                            ${!p.first || !p.last
+                                ? '<span style="color:#d8a35d;font-size:0.73rem;">資料不足</span>'
+                                : isSameDay
                                 ? '<span style="color:#607585;font-size:0.73rem;">單日資料</span>'
                                 : pct != null
                                     ? `<span style="color:${clr(pct)};font-weight:700;font-size:0.92rem;">${pv(fmtPct(pct))}</span>
@@ -8878,10 +9083,10 @@
                 });
             }
 
-            const snCount = marketSnapshots.length;
+            const snCount = coverage.snapshots.length;
             const snNote  = snCount === 0
                 ? '每日開啟時將自動記錄市值，累積後可計算各期間報酬'
-                : `已累積 ${snCount} 筆每日快照`;
+                : `已累積 ${snCount} 筆 · ${coverage.start} ～ ${coverage.end} · ${coverage.missingDays > 0 ? `缺 ${coverage.missingDays} 天` : '日期完整'}`;
 
             container.innerHTML = `
             <div class="glass-card" style="margin-top:0.75rem;">
@@ -8891,22 +9096,15 @@
                         <span style="color:#607585;font-size:0.73rem;">${snNote}</span>
                     </div>
                     <div style="display:flex;gap:0.35rem;">
+                        <button onclick="_returnMode='day';renderReturnAnalysis();" style="${modeBtnStyle('day')}">日</button>
                         <button onclick="_returnMode='month';renderReturnAnalysis();" style="${modeBtnStyle('month')}">月</button>
                         <button onclick="_returnMode='quarter';renderReturnAnalysis();" style="${modeBtnStyle('quarter')}">季</button>
                         <button onclick="_returnMode='year';renderReturnAnalysis();" style="${modeBtnStyle('year')}">年</button>
                     </div>
                 </div>
-                <div style="overflow-x:auto;">
+                <div style="overflow:auto;max-height:70vh;">
                     <table style="width:100%;border-collapse:collapse;">
-                        <thead>
-                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:left;white-space:nowrap;">期間</th>
-                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">期初市值</th>
-                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">期末市值</th>
-                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">漲跌幅<span style="color:#475569;font-size:0.67rem;margin-left:0.2rem;">含未實現</span></th>
-                                <th style="padding:0.45rem 0.75rem;color:#607585;font-size:0.71rem;font-weight:600;text-align:right;white-space:nowrap;">已實現損益</th>
-                            </tr>
-                        </thead>
+                        <thead>${tableHeadHtml}</thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
                 </div>
@@ -9729,8 +9927,8 @@
                 saveCorporateActions();
                 corporateActionPlans = Array.isArray(saved.corporate_action_plans) ? saved.corporate_action_plans : [];
                 saveCorporateActionPlans();
-                // 還原市值快照
-                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
+                // 市值快照是 system data：手動 pull 也按日期聯集，避免其他裝置獨有日期消失。
+                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
                 // v15.075/079：統一寫 baseline + 清 dirty；同時計算 hash 寫 lastUserDataHash + 標 master 處理（如有）
@@ -9989,8 +10187,8 @@
                         console.log('[Auto-pull] 本地公司行動預約較新，跳過 Gist 覆蓋');
                     }
                 }
-                // 還原市值快照
-                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
+                // 市值快照按日期聯集；master 只主導 user data，不刪除本機 system history。
+                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
                 // v15.071/080：merge 雲端 daily_pnl_snapshots 進本機（傳本機 hash 給 priority 用）
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
@@ -12849,7 +13047,7 @@ function _isLegacy9747Holding(h) {
                 saveCorporateActions();
                 corporateActionPlans = Array.isArray(saved.corporate_action_plans) ? saved.corporate_action_plans : [];
                 saveCorporateActionPlans();
-                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = saved.marketSnapshots; saveSnapshots(); }
+                if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
                         const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots);
