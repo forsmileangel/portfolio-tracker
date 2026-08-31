@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
   v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
   v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
@@ -95,6 +96,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
         v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
         v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.958 - 空進版：僅改版號以重觸發 GitHub Pages 部署。程式行為與 v15.957 相同。
@@ -818,7 +820,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.960</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.961</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1666,7 +1668,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.960';
+        const APP_VERSION = 'v15.961';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -3537,6 +3539,7 @@
             const marketTargets = { TW: null, HK: null, US: null };
             try {
                 try { await _loadFinalCloseData(); } catch(_) {}
+                try { if (_repairKnownCorporateActionQuoteScales()) shouldRender = true; } catch(_) {}
                 try { auditChanged = !!_healAdhocClosuresFromFinalData(); } catch(_) {}
                 try { auditChanged = !!(await _auditRecentAdhocClosures(reason)) || auditChanged; } catch(_) {}
                 _closePairRefreshLastRun = Date.now();
@@ -10702,19 +10705,79 @@ function _isLegacy9747Holding(h) {
             const note = (document.getElementById('ca-note')?.value || '').trim();
             return { symbol, h, oldShares, newShares, ratio, actionDate, note };
         }
+        // v15.961：MSTU 這筆已套用的反分割是固定已知事件；報價修復只針對
+        // 2026-08-24、1:10、300→30，避免把其他標的或未確認事件誤當成自癒目標。
+        const _MSTU_REVERSE_SPLIT_DATE = '2026-08-24';
+        const _MSTU_REVERSE_SPLIT_RATIO = 0.1;
+        const _MSTU_QUOTE_SCALE_MIN = 1 / 3;
+        const _MSTU_QUOTE_SCALE_MAX = 3;
+
+        function _isMstu20260824ReverseSplit(action) {
+            if (!action || _cleanSymbolKey(action.symbol) !== 'MSTU') return false;
+            return action.type === 'reverseSplit'
+                && String(action.actionDate || '').slice(0, 10) === _MSTU_REVERSE_SPLIT_DATE
+                && Math.abs(Number(action.ratio) - _MSTU_REVERSE_SPLIT_RATIO) <= 0.000001
+                && Math.abs(Number(action.quantityBefore) - 300) <= 0.000001
+                && Math.abs(Number(action.quantityAfter) - 30) <= 0.000001;
+        }
+
+        // final-closes.json 必須已更新到美股最近完成交易日，才可作為尺度錨點。
+        // 若正式資料落後或缺失，保留既有報價與候選偵測，不猜價格。
+        function _latestMstuFinalCloseAfterSplit() {
+            if (!_finalCloseData?.symbols) return null;
+            let targetDate = '';
+            try { targetDate = _marketSession('US', new Date()).lastCompletedTradingDate || ''; } catch(_) {}
+            if (!targetDate) return null;
+
+            let latest = null;
+            for (const alias of _symbolLookupAliases('MSTU', 'US')) {
+                const slot = _finalCloseData.symbols[alias];
+                if (!slot || String(slot.market || '').toUpperCase() !== 'US') continue;
+                for (const [dateKey, bar] of Object.entries(slot.byDate || {})) {
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || dateKey < _MSTU_REVERSE_SPLIT_DATE) continue;
+                    if (!bar || bar.final !== true) continue;
+                    const close = Number(bar.close);
+                    if (!Number.isFinite(close) || close <= 0) continue;
+                    if (!latest || dateKey > latest.date) {
+                        latest = {
+                            date: dateKey,
+                            close,
+                            source: typeof bar.source === 'string' ? bar.source : 'final-close-data',
+                            fetchedAt: typeof bar.fetchedAt === 'string' ? bar.fetchedAt : null
+                        };
+                    }
+                }
+            }
+            return latest && latest.date === targetDate ? latest : null;
+        }
+
+        function _isMstuQuoteScaleOutsideBand(price, anchor) {
+            const p = Number(price), a = Number(anchor);
+            const scale = a > 0 ? p / a : NaN;
+            return !Number.isFinite(scale)
+                || scale < _MSTU_QUOTE_SCALE_MIN
+                || scale > _MSTU_QUOTE_SCALE_MAX;
+        }
+
+        function _clearMstuKnownCorporateActionCandidates() {
+            if (!Array.isArray(_corporateActionCandidates) || _corporateActionCandidates.length === 0) return false;
+            const before = _corporateActionCandidates.length;
+            _corporateActionCandidates = _corporateActionCandidates.filter(c => _cleanSymbolKey(c?.symbol) !== 'MSTU');
+            const changed = before !== _corporateActionCandidates.length;
+            if (changed) {
+                try { renderCorporateActionTool(); } catch(_) {}
+            }
+            return changed;
+        }
+
         // v15.953：MSTU 在 2026-08-24 套用反分割時，Yahoo 報價已先切到新尺度；
         // 舊工具又除以 0.1，讓約 30 美元被重複放大為約 300 美元。
         function _isMstu20260824DuplicatePriceScale(action) {
-            if (!action || _cleanSymbolKey(action.symbol) !== 'MSTU') return false;
+            if (!_isMstu20260824ReverseSplit(action)) return false;
             const ratio = Number(action.ratio);
             const before = Number(action.currentPriceBefore);
             const after = Number(action.currentPriceAfter);
-            return action.type === 'reverseSplit'
-                && action.actionDate === '2026-08-24'
-                && Math.abs(ratio - 0.1) <= 0.000001
-                && Math.abs(Number(action.quantityBefore) - 300) <= 0.000001
-                && Math.abs(Number(action.quantityAfter) - 30) <= 0.000001
-                && before > 0 && after > 0
+            return before > 0 && after > 0
                 && _caRelDiff(after, before / ratio) <= 0.02;
         }
         function _caEffectiveActionPriceAfter(action, h) {
@@ -10728,19 +10791,30 @@ function _isLegacy9747Holding(h) {
             return after;
         }
         function _repairKnownCorporateActionQuoteScales() {
-            const action = (corporateActions || []).slice().reverse().find(_isMstu20260824DuplicatePriceScale);
+            const action = (corporateActions || []).slice().reverse().find(_isMstu20260824ReverseSplit);
             if (!action) return false;
             const h = holdings.find(x => _cleanSymbolKey(x?.symbol) === 'MSTU' && Math.abs(Number(x.quantity) - 30) <= 0.000001);
             if (!h) return false;
+            const anchor = _latestMstuFinalCloseAfterSplit();
+            if (!anchor) return false;
             const current = Number(h.currentPrice);
-            const wrongScale = Number(action.currentPriceAfter);
-            const repaired = _caEffectiveActionPriceAfter(action, h);
-            const shouldRepair = !(current > 0)
-                || _caRelDiff(current, wrongScale) <= 0.2
-                || current >= repaired * 5;
-            if (!shouldRepair || !(repaired > 0)) return false;
-            h.currentPrice = _caRoundPrice(repaired);
+            const candidatesCleared = _clearMstuKnownCorporateActionCandidates();
+            if (!_isMstuQuoteScaleOutsideBand(current, anchor.close)) return candidatesCleared;
+            h.currentPrice = _caRoundPrice(anchor.close);
+            if (_storageReady) saveToStorage();
+            console.log(`[MSTU v15.961] 已以 ${anchor.date} final close ${anchor.close} 修復現價尺度（${current || '無'} → ${h.currentPrice}）`);
             return true;
+        }
+
+        function _mstuKnownQuoteScaleDecision(h, incomingPrice) {
+            if (!h || _cleanSymbolKey(h.symbol) !== 'MSTU' || !(Number(incomingPrice) > 0)) return null;
+            const action = (corporateActions || []).slice().reverse().find(_isMstu20260824ReverseSplit);
+            if (!action) return null;
+            const anchor = _latestMstuFinalCloseAfterSplit();
+            if (!anchor) return null;
+            const rejected = _isMstuQuoteScaleOutsideBand(incomingPrice, anchor.close);
+            _clearMstuKnownCorporateActionCandidates();
+            return { rejected, anchor };
         }
         function _buildCorporateActionPreview(opts = null) {
             const d = _getCorporateActionDraft();
@@ -11083,6 +11157,16 @@ function _isLegacy9747Holding(h) {
             return Math.abs(incoming - before) / before <= 0.2 && Math.abs(incoming - after) / after >= 0.45;
         }
         function _acceptIncomingPriceForHolding(h, incomingPrice, source) {
+            const mstuDecision = _mstuKnownQuoteScaleDecision(h, incomingPrice);
+            if (mstuDecision) {
+                if (mstuDecision.rejected) {
+                    console.warn(`[MSTU v15.961] 拒收非 ${mstuDecision.anchor.date} final close 尺度報價`, { incomingPrice, source });
+                    return false;
+                }
+                // 已知事件且報價落在正式收盤的合理尺度內，直接接受，
+                // 不再把 5.98 → 29.90 誤判成另一個 1:5 事件。
+                return true;
+            }
             if (!_shouldRejectSplitStaleQuote(h, incomingPrice)) {
                 if (_caDetectCorporateActionCandidate(h, incomingPrice, source)) {
                     try { _recordAppError('split_candidate_detected', new Error(`${h.symbol} suspected split candidate`), { symbol: h.symbol, incomingPrice, source }); } catch(_) {}
@@ -11933,6 +12017,9 @@ function _isLegacy9747Holding(h) {
             const pending = activeUs.filter(h => !updatedSymbols.has(h.symbol));
             let updated = 0;
             let failed = 0;
+            let repaired = false;
+            try { await _loadFinalCloseData(); } catch(_) {}
+            try { repaired = !!_repairKnownCorporateActionQuoteScales(); } catch(_) {}
             await _runTaskPool(pending.map(h => async () => {
                 const querySymbol = _canonicalYahooSymbol(h.symbol, 'US');
                 try {
@@ -11954,7 +12041,7 @@ function _isLegacy9747Holding(h) {
             const coverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
             const fullMarkets = coverage.fullMarkets.includes('US') ? ['US'] : [];
             try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
-            return { expected: activeUs.length, updated, failed, updatedSymbols, coverage, fullMarkets };
+            return { expected: activeUs.length, updated, failed, repaired, updatedSymbols, coverage, fullMarkets };
         }
 
         async function _refreshIndependentQuoteFallbacks(reason, alreadyUpdatedSymbols) {
@@ -11964,7 +12051,7 @@ function _isLegacy9747Holding(h) {
             const usExpected = holdings.filter(h => Number(h.quantity || 0) > 0 && _holdingMarketKey(h) === 'US').length;
             const usPromise = _refreshUsQuotesFromYahoo(reason, existing).catch(e => {
                 try { _recordAppError('us_quote_fallback', e, { reason }); } catch(_) {}
-                return { expected: usExpected, updated: 0, failed: Math.max(0, usExpected), updatedSymbols: existing, coverage: _quoteCoverageForUpdatedSymbols(existing), fullMarkets: [] };
+                return { expected: usExpected, updated: 0, failed: Math.max(0, usExpected), repaired: false, updatedSymbols: existing, coverage: _quoteCoverageForUpdatedSymbols(existing), fullMarkets: [] };
             });
             return { us: await usPromise };
         }
@@ -11980,7 +12067,8 @@ function _isLegacy9747Holding(h) {
 
         function _renderIndependentQuoteFallback(result, reason, forceClosePair = false) {
             const updated = Number(result?.us?.updated || 0);
-            if (updated <= 0) return 0;
+            const repaired = !!result?.us?.repaired;
+            if (updated <= 0 && !repaired) return 0;
             if (result?.us?.fullMarkets?.length) {
                 try { _markBatchQuoteRefresh(result.us.fullMarkets, 'yahoo-us-fallback'); } catch(_) {}
             }
@@ -12021,6 +12109,8 @@ function _isLegacy9747Holding(h) {
             } catch(_) {}
         }
         async function directApplyPrices(prices) {
+            try { await _loadFinalCloseData(); } catch(_) {}
+            try { _repairKnownCorporateActionQuoteScales(); } catch(_) {}
             saveHistory();
             let updated = 0;
             const updatedSymbols = new Set();
@@ -15527,6 +15617,8 @@ function _isLegacy9747Holding(h) {
             if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
                 return;
             }
+            try { await _loadFinalCloseData(); } catch(_) {}
+            try { _repairKnownCorporateActionQuoteScales(); } catch(_) {}
             try {
                 // 匯率：快取 1hr 內不打 API（按需更新策略）
                 const fxPromise = _fetchFxRates(false);
