@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-29T03:44:22Z",
+  "generatedAt": "2026-08-31T13:58:50Z",
   "symbols": {
     "AAOI": {
       "market": "US",
@@ -5555,12 +5555,6 @@
     "00675L.TW": {
       "market": "TW",
       "byDate": {
-        "2026-07-20": {
-          "close": 275.05,
-          "final": true,
-          "source": "twse-stock-day",
-          "fetchedAt": "2026-08-27T17:02:53Z"
-        },
         "2026-07-21": {
           "close": 296.55,
           "final": true,
@@ -5734,6 +5728,12 @@
           "final": true,
           "source": "twse-stock-day",
           "fetchedAt": "2026-08-28T18:46:26Z"
+        },
+        "2026-08-31": {
+          "close": 313.1,
+          "final": true,
+          "source": "twse-stock-day",
+          "fetchedAt": "2026-08-31T13:58:46Z"
         }
       }
     },
@@ -9015,6 +9015,12 @@
           "final": true,
           "source": "hkex-daily-quotation",
           "fetchedAt": "2026-08-28T20:56:00Z"
+        },
+        "2026-08-31": {
+          "close": 34.48,
+          "final": true,
+          "source": "fundamentals-bootstrap",
+          "fetchedAt": "2026-08-31T03:02:25.137285+00:00"
         }
       }
     },
@@ -9391,12 +9397,6 @@
     "00631L.TW": {
       "market": "TW",
       "byDate": {
-        "2026-07-20": {
-          "close": 32.06,
-          "final": true,
-          "source": "twse-stock-day",
-          "fetchedAt": "2026-08-27T17:02:53Z"
-        },
         "2026-07-21": {
           "close": 34.34,
           "final": true,
@@ -9570,6 +9570,12 @@
           "final": true,
           "source": "twse-stock-day",
           "fetchedAt": "2026-08-28T18:46:26Z"
+        },
+        "2026-08-31": {
+          "close": 35.82,
+          "final": true,
+          "source": "twse-stock-day",
+          "fetchedAt": "2026-08-31T13:58:46Z"
         }
       }
     },
@@ -10560,16 +10566,22 @@
           "final": true,
           "source": "hkex-daily-quotation",
           "fetchedAt": "2026-08-28T20:56:00Z"
+        },
+        "2026-08-31": {
+          "close": 69.16,
+          "final": true,
+          "source": "fundamentals-bootstrap",
+          "fetchedAt": "2026-08-31T03:02:25.137285+00:00"
         }
       }
     }
   },
   "markets": {
-    "US": {
+    "TW": {
       "status": "ok",
-      "source": "yahoo-yfinance-final",
-      "symbols": 54,
-      "total": 54,
+      "source": "twse-stock-day",
+      "symbols": 2,
+      "total": 2,
       "errors": 0
     }
   }
