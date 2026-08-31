@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
   v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
   v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
   v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -96,6 +97,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
         v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
         v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
         v15.959 - 港股誤判休市修正：載入 final-closes.json 後掃描 pt_adhoc_closures_v1，同一市場同一官方交易日若有 final 且大於零的正式收盤，即清除 provisional／confirmed／needs_reverify 誤判；正式收盤權威高於 Yahoo 缺 bar。refresh 順序固定為正式收盤載入 → 正式資料治癒 → Yahoo audit，auditChanged 以 OR 累積避免後續 false 覆蓋已完成修正。不硬編碼日期；真正週末／官方假日與沒有正式 bar 的臨時休市維持原判定。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -820,7 +822,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.961</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.962</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1668,7 +1670,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.961';
+        const APP_VERSION = 'v15.962';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1742,6 +1744,7 @@
             sheetProxyIdx:    'pt_sheet_proxy_idx_v1', // v15.934：Sheet CSV proxy 上次成功節點（同上）
             // 後端
             pionexGridLedger: 'pt_pionex_grid_ledger_v1', // v15.954：派網網格日記帳（Gist 第二檔，不入 hash/pending）
+            pionexGridLive:   'pt_pionex_grid_live_v1',   // v15.962：目前倉位暫存（Gist 第三檔，不入 hash/pending）
             symbolSyncAck:    'pt_symbol_sync_ack_v1', // v15.913：補 symbols 後 12hr 本機 ack，避免部署/CDN 空窗重複提醒
             corporateActionCandidateIgnores: 'pt_corporate_action_candidate_ignores_v1', // v15.922：疑似分割忽略 24hr
             backendUrl:       'backend_url',
@@ -7591,6 +7594,12 @@
             } catch (e) {
                 try { _recordAppError('pionex_ledger', e); } catch (_) {}
             }
+            try {
+                const live = await _parseGistJsonFile(data.files?.[GIST_LIVE_FILENAME]);
+                if (live) _applyPionexLive(live);
+            } catch (e) {
+                try { _recordAppError('pionex_live', e); } catch (_) {}
+            }
             return { data, saved, ledger, cloudRevision: _gistRevision(data), cloudUpdatedAt: data.updated_at || saved?.pushedAt || '' };
         }
 
@@ -9498,7 +9507,9 @@
         const GIST_ID_KEY    = 'pt_gist_id_v15';
         const GIST_FILENAME  = 'portfolio-tracker-holdings.json';
         const GIST_LEDGER_FILENAME = 'pionex-grid-ledger.json'; // v15.954：第二檔，PT 只讀
+        const GIST_LIVE_FILENAME = 'pionex-grid-live.json'; // v15.962：第三檔目前倉位，PT 只讀
         let _pionexLedger = null;
+        let _pionexLive = null;
 
         async function _parseGistJsonFile(gistFile) {
             if (!gistFile) return null;
@@ -9527,6 +9538,112 @@
                 return obj;
             } catch (_) {
                 return null;
+            }
+        }
+
+        function _validatePionexLive(obj) {
+            if (!obj || typeof obj !== 'object') return false;
+            if (obj.schema !== 1) return false;
+            if (!Array.isArray(obj.rows)) return false;
+            return true;
+        }
+
+        function _loadPionexLive() {
+            if (_pionexLive && _validatePionexLive(_pionexLive)) return _pionexLive;
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.pionexGridLive);
+                if (!raw) return null;
+                const obj = JSON.parse(raw);
+                if (!_validatePionexLive(obj)) return null;
+                _pionexLive = obj;
+                return obj;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function _applyPionexLive(obj) {
+            if (!_validatePionexLive(obj)) throw new Error('pionex live schema invalid');
+            try {
+                localStorage.setItem(STORAGE_KEYS.pionexGridLive, JSON.stringify(obj));
+            } catch (e) {
+                _handleStorageWriteError('pionex_live', e);
+                throw e;
+            }
+            _pionexLive = obj;
+            const pane = document.getElementById('tab-pane-10');
+            if (pane && pane.classList.contains('active')) {
+                try { renderPionexGridTab(); } catch (_) {}
+            }
+        }
+
+        function _pionexLiveFreshness(iso) {
+            if (!iso) return { color: '#ef4444', label: '無時間' };
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return { color: '#ef4444', label: '時間無效' };
+            const min = (Date.now() - d.getTime()) / 60000;
+            if (min < 45) return { color: '#7e93a6', label: '約半小時內' };
+            if (min < 24 * 60) return { color: '#fbbf24', label: '較舊' };
+            return { color: '#ef4444', label: '超過一天' };
+        }
+
+        function _renderPionexLiveCard(live) {
+            if (!live) {
+                return `<div class="glass-card" style="padding:1rem 1.15rem;margin-bottom:1rem;">
+                    <h2 style="color:#f1f5f9;font-size:1.05rem;font-weight:600;margin:0 0 0.4rem;">目前倉位</h2>
+                    <div style="color:#607585;font-size:0.78rem;">尚無暫存。家裡電腦每 30 分鐘或本機按「更新目前倉位」後才會出現。這不是每日 8 點日記帳。</div>
+                </div>`;
+            }
+            const fresh = _pionexLiveFreshness(live.captured_at);
+            const when = _fmtPionexTs(live.captured_at) || '—';
+            const rows = Array.isArray(live.rows) ? live.rows : [];
+            const rowHtml = rows.length
+                ? rows.map(r => `<tr>
+                    <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
+                    <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml((r.leverage || r.trend || ''))}</td>
+                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
+                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.grid_profit_usdt)};">${pv(_fmtUsdtAmt(r.grid_profit_usdt))}</td>
+                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.profit_24h_usdt)};">${pv(_fmtUsdtAmt(r.profit_24h_usdt))}</td>
+                </tr>`).join('')
+                : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">無倉位列</td></tr>`;
+            const walletTwd = live.wallet && live.wallet.twd != null ? pv('NT$ ' + _fmtTwdAmt(live.wallet.twd)) : '—';
+            const walletUsdt = live.wallet && live.wallet.usdt ? pv(_fmtUsdtAmt(live.wallet.usdt) + ' USDT') : '';
+            return `<div class="glass-card" style="padding:1.15rem 1.35rem;margin-bottom:1rem;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
+                    <h2 style="color:#f1f5f9;font-size:1.05rem;font-weight:600;margin:0;">目前倉位</h2>
+                    <div style="color:${fresh.color};font-size:0.72rem;">資料更新 ${_escapeHtml(when)} · ${fresh.label}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem 1rem;">
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">錢包</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${walletTwd}</div><div style="color:#607585;font-size:0.7rem;">${walletUsdt}</div></div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div></div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">網格利潤加總</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
+                </div>
+                <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">家裡電腦暫存；不是按這頁去打派網。08:00 Excel 與 08:05 日記帳不受影響。</div>
+                <div style="margin-top:0.7rem;overflow:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
+                        <thead><tr style="color:#7e93a6;">
+                            <th style="text-align:left;padding:0.3rem 0.35rem;">標的</th>
+                            <th style="text-align:left;padding:0.3rem 0.35rem;">槓桿</th>
+                            <th style="text-align:right;padding:0.3rem 0.35rem;">倉位</th>
+                            <th style="text-align:right;padding:0.3rem 0.35rem;">網格</th>
+                            <th style="text-align:right;padding:0.3rem 0.35rem;">24h</th>
+                        </tr></thead>
+                        <tbody>${rowHtml}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        async function _refreshPionexGridFiles() {
+            const token = (localStorage.getItem(GIST_TOKEN_KEY) || '').trim();
+            const gistId = (localStorage.getItem(GIST_ID_KEY) || '').trim();
+            if (!token || !gistId) return;
+            try {
+                await _fetchGistState(token, gistId);
+                renderPionexGridTab();
+            } catch (e) {
+                try { _recordAppError('pionex_live', e); } catch (_) {}
             }
         }
 
@@ -12355,6 +12472,7 @@ function _isLegacy9747Holding(h) {
             }
             if (n === 10) {
                 renderPionexGridTab();
+                _refreshPionexGridFiles();
             }
         }
 
@@ -12377,6 +12495,7 @@ function _isLegacy9747Holding(h) {
         function renderPionexGridTab() {
             const pane = document.getElementById('tab-pane-10');
             if (!pane) return;
+            const liveCard = _renderPionexLiveCard(_loadPionexLive());
             const ledger = _loadPionexLedger();
             const statusLabel = {
                 baseline: '基準',
@@ -12386,7 +12505,7 @@ function _isLegacy9747Holding(h) {
                 closed_unresolved: '關倉未對上'
             };
             if (!ledger || !ledger.days || ledger.days.length === 0) {
-                pane.innerHTML = `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;">尚無派網網格紀錄。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>`;
+                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>`;
                 return;
             }
             const byDate = {};
@@ -12436,10 +12555,10 @@ function _isLegacy9747Holding(h) {
                 }).join('')
                 : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
             const monthLabel = `${y} 年 ${m} 月`;
-            pane.innerHTML = `
+            pane.innerHTML = liveCard + `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
-                    <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▥</i> 派網網格</h2>
+                    <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▥</i> 日記帳</h2>
                     <div style="color:${fresh.color};font-size:0.72rem;">${_escapeHtml(when)} · ${fresh.label}</div>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin:0.35rem 0 0.65rem;">
