@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
   v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
   v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
   v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
@@ -97,6 +98,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
         v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
         v15.961 - MSTU 反分割報價自癒：鎖定 2026-08-24 1:10、300→30 的已套用事件，以最新有效且對齊美股最近完成交易日的 final close 作為報價尺度錨點；5.98 或約 300 等錯誤尺度會自動恢復至約 30，正常 29–30 報價可直接覆蓋，並清除同一事件的誤判候選。只修 currentPrice，不改股數、FIFO 成本、損益公式、Gist、userDataHash、pending 或持倉 schema。
         v15.960 - 期間資產報酬日期完整性修正：每日市值快照改用台北曆日，新增合法化、同日期去重與 local/remote 日期聯集合併；新快照附 capturedAt/sourceDeviceId 並走既有 hash-match system sync，Gist/FSA pull 不再整包覆蓋其他裝置日期。期間報酬新增日檢視，月／季／年顯示快照涵蓋天數、缺漏數與期初／期末缺資料警示；既有缺口只標示不推算，報酬公式不變。不改 Storage Key、PT_SCHEMA_VERSION、userDataHash、pending、master、holdings、close pair 或 daily PnL snapshot。
@@ -388,10 +390,12 @@
         .pionex-cal-cell.is-selected { border-color:var(--pt-accent); background:var(--pt-accent-soft); box-shadow:inset 0 0 0 1px var(--pt-accent); }
         .pionex-cal-cell.is-muted { opacity:0.35; }
         .pionex-cal-num { display:block; font-size:0.78rem; font-weight:700; line-height:1.2; }
-        .pionex-cal-amt { display:block; font-size:0.62rem; font-weight:700; margin-top:0.12rem; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pionex-cal-amt { display:grid; grid-template-columns:2.15em minmax(0,1fr); column-gap:0.12rem; align-items:baseline; min-width:0; font-size:0.62rem; font-weight:700; margin-top:0.12rem; font-variant-numeric:tabular-nums; text-align:left; overflow:hidden; }
+        .pionex-cal-amt-label { min-width:0; text-align:left; white-space:nowrap; }
+        .pionex-cal-amt-value { min-width:0; display:block; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         @media (max-width:540px) {
             .pionex-cal-cell { min-height:2.55rem; padding:0.12rem 0.08rem; }
-            .pionex-cal-amt { font-size:0.55rem; }
+            .pionex-cal-amt { grid-template-columns:1.85em minmax(0,1fr); column-gap:0; font-size:0.5rem; }
         }
 
         /* ── 凍結欄（持倉代碼）── */
@@ -822,7 +826,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.962</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.963</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1670,7 +1674,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.962';
+        const APP_VERSION = 'v15.963';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -9709,6 +9713,12 @@
             return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
         }
 
+        function _fmtPionexJournalPnl(v) {
+            const n = parseFloat(v);
+            if (!Number.isFinite(n)) return '—';
+            return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function _fmtTwdAmt(v) {
             const n = Math.round(Number(v));
             if (!Number.isFinite(n)) return '—';
@@ -12471,6 +12481,7 @@ function _isLegacy9747Holding(h) {
                 refreshWatchlistQuotes();
             }
             if (n === 10) {
+                _resetPionexCalToTaipeiToday(_loadPionexLedger());
                 renderPionexGridTab();
                 _refreshPionexGridFiles();
             }
@@ -12478,6 +12489,24 @@ function _isLegacy9747Holding(h) {
 
         let _pionexCalMonth = null;
         let _pionexCalSelected = null;
+        let _pionexCalAutoSelected = false;
+
+        function _resetPionexCalToTaipeiToday(ledger) {
+            const today = _taipeiCalendarDate();
+            const parts = today.split('-').map(Number);
+            if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return;
+            const byDate = {};
+            let latestInMonth = null;
+            (ledger && Array.isArray(ledger.days) ? ledger.days : []).forEach(d => {
+                const date = String(d?.date || '');
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+                byDate[date] = d;
+                if (date.slice(0, 7) === today.slice(0, 7) && (!latestInMonth || date > latestInMonth)) latestInMonth = date;
+            });
+            _pionexCalMonth = { y: parts[0], m: parts[1] };
+            _pionexCalSelected = byDate[today] ? today : (latestInMonth || today);
+            _pionexCalAutoSelected = true;
+        }
 
         function shiftPionexCalMonth(delta) {
             if (!_pionexCalMonth) return;
@@ -12485,10 +12514,12 @@ function _isLegacy9747Holding(h) {
             while (m > 12) { m -= 12; y += 1; }
             while (m < 1) { m += 12; y -= 1; }
             _pionexCalMonth = { y, m };
+            _pionexCalAutoSelected = false;
             renderPionexGridTab();
         }
         function selectPionexCalDay(dateStr) {
             _pionexCalSelected = dateStr;
+            _pionexCalAutoSelected = false;
             renderPionexGridTab();
         }
 
@@ -12510,8 +12541,11 @@ function _isLegacy9747Holding(h) {
             }
             const byDate = {};
             (ledger.days || []).forEach(d => { if (d && d.date) byDate[d.date] = d; });
-            const latestDate = ledger.capture_date || ledger.days[0].date;
-            if (!_pionexCalSelected || !byDate[_pionexCalSelected]) _pionexCalSelected = latestDate;
+            if (!_pionexCalMonth || !_pionexCalSelected) _resetPionexCalToTaipeiToday(ledger);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(_pionexCalSelected || ''))) _resetPionexCalToTaipeiToday(ledger);
+            if (_pionexCalAutoSelected && _pionexCalSelected === _taipeiCalendarDate() && !byDate[_pionexCalSelected]) {
+                _resetPionexCalToTaipeiToday(ledger);
+            }
             const selected = byDate[_pionexCalSelected] || {};
             const selParts = String(_pionexCalSelected).split('-').map(Number);
             if (!_pionexCalMonth) _pionexCalMonth = { y: selParts[0], m: selParts[1] };
@@ -12529,8 +12563,8 @@ function _isLegacy9747Holding(h) {
                 if (rec) {
                     cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}" onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
-                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.daily_profit_usdt)}">單 ${pv(_fmtUsdtAmt(rec.daily_profit_usdt))}</span>`
-                        + `<span class="pionex-cal-amt" style="color:${_pnlColor(rec.cumulative_usdt)}">累 ${pv(_fmtUsdtAmt(rec.cumulative_usdt))}</span>`
+                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">單日</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.daily_profit_usdt))}</span></span>`
+                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">累積</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.cumulative_usdt)}">${pv(_fmtPionexJournalPnl(rec.cumulative_usdt))}</span></span>`
                         + `</button>`;
                 } else {
                     cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
@@ -12549,8 +12583,8 @@ function _isLegacy9747Holding(h) {
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml(st)}</td>
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
-                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtUsdtAmt(r.daily_profit_usdt))}</td>
-                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.cumulative_usdt))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtPionexJournalPnl(r.daily_profit_usdt))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtPionexJournalPnl(r.cumulative_usdt))}</td>
                     </tr>`;
                 }).join('')
                 : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
@@ -12572,13 +12606,13 @@ function _isLegacy9747Holding(h) {
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
                         <div>
                             <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日網格利潤</div>
-                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtUsdtAmt(selected.daily_profit_usdt))}</div>
-                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtTwdAmt(selected.daily_profit_twd)) : ''}</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.daily_profit_usdt))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.daily_profit_twd)) : ''}</div>
                         </div>
                         <div>
                             <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">累計網格利潤</div>
-                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtUsdtAmt(selected.cumulative_usdt))}</div>
-                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.cumulative_twd != null ? pv('NT$ ' + _fmtTwdAmt(selected.cumulative_twd)) : '各倉網格利潤加總'}</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.cumulative_usdt))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.cumulative_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.cumulative_twd)) : '各倉網格利潤加總'}</div>
                         </div>
                     </div>
                 </div>
@@ -12597,7 +12631,7 @@ function _isLegacy9747Holding(h) {
                     </div>
                 </div>
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;">基準日單日為 0；累計是該日各倉網格利潤加總</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日取 v2 每日快照差額並依事件分類；累積為當日仍開倉位 GridProfit 加總。畫面損益四捨五入至小數點後 2 位，原始資料與計算精度不變。</div>
             </div>
             <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
                 <div style="color:#c5d0d8;font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">${_escapeHtml(_pionexCalSelected || '')} 明細</div>
