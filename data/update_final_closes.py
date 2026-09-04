@@ -41,7 +41,15 @@ MARKET_TZ = {
     "US": ZoneInfo("America/New_York"),
 }
 MARKET_CLOSE_MIN = {"TW": 13 * 60 + 30, "HK": 16 * 60 + 10, "US": 16 * 60}
-PSEUDO_SYMBOLS = {"USD", "TWD", "HKD", "CASH", "BTC", "ETH", "ADA", "BNB", "SUI", "SOL"}
+# v15.965：收盤後需等定盤/收盤競價結算完成才可採計當日收盤（原本只等 5 分鐘，
+# 導致 09-04T00:10Z（美股收盤後 10 分）就把未定盤價寫成權威 final）。
+MARKET_SETTLE_BUFFER_MIN = {"TW": 30, "HK": 30, "US": 30}
+# v15.965：移除 "USD" —— 它是真實美股 ETF（ProShares Ultra Semiconductors）且在 symbols.json 追蹤清單內，
+# 原本被當幣別代碼整檔排除在權威收盤之外；加密貨幣對仍由下方 endswith("-USD") 規則擋掉。
+PSEUDO_SYMBOLS = {"TWD", "HKD", "CASH", "BTC", "ETH", "ADA", "BNB", "SUI", "SOL"}
+# v15.965：只有真正定盤的來源才可標 final=True。fundamentals-bootstrap 取自 fundamentals.json 快照，
+# 可能在收盤瞬間採樣、尚未反映正式定盤價（槓桿 ETF 誤差可達數 %），只能當暫用值。
+FINAL_SOURCES = {"yahoo-yfinance-final", "twse-stock-day", "hkex-daily-quotation"}
 SOURCE_RANK = {
     "fundamentals-bootstrap": 10,
     "yahoo-yfinance-final": 20,
@@ -174,13 +182,14 @@ def merge_bar(payload: dict, symbol: str, market: str, day: str, close, source: 
     slot["market"] = market
     by_date = slot.setdefault("byDate", {})
     old = by_date.get(day)
-    new = {"close": value, "final": True, "source": source, "fetchedAt": fetched_at}
+    is_final = any(source == name or source.startswith(name + ":") for name in FINAL_SOURCES)
+    new = {"close": value, "final": is_final, "source": source, "fetchedAt": fetched_at}
     if isinstance(old, dict):
         old_rank = source_rank(str(old.get("source") or ""))
         new_rank = source_rank(source)
         if new_rank < old_rank:
             return False
-        if old.get("close") == value and old.get("source") == source and old.get("final") is True:
+        if old.get("close") == value and old.get("source") == source and old.get("final") is is_final:
             return False
     by_date[day] = new
     return True
@@ -190,7 +199,7 @@ def completed_latest_day(market: str, now: datetime | None = None) -> date:
     local_now = (now or datetime.now(timezone.utc)).astimezone(MARKET_TZ[market])
     minutes = local_now.hour * 60 + local_now.minute
     current = local_now.date()
-    if minutes < MARKET_CLOSE_MIN[market] + 5:
+    if minutes < MARKET_CLOSE_MIN[market] + MARKET_SETTLE_BUFFER_MIN[market]:
         current -= timedelta(days=1)
     return current
 

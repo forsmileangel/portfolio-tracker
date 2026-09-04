@@ -99,6 +99,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.965 - 前次收盤損益採用未定盤 bootstrap 收盤價修正：使用者回報前交易日漲跌與實際美股對不上（實測 09-03 美股應為 +NT$182,300，系統顯示 +NT$24,265，少算約 NT$158,000 且方向感失真）。四方對帳（app close pair / final-closes.json / fundamentals.json / Yahoo）確認根因：data/update_final_closes.py 的 merge_bar() 對所有來源硬寫 final:true，含信任度最低的 fundamentals-bootstrap；且 completed_latest_day() 僅要求收盤後 5 分鐘，final-closes.json generatedAt=09-04T00:10Z（美股收盤後 10 分）即把未定盤價寫成權威收盤（09-03 全標的偏差 -6.45%~+1.54%，MSTU 35.22 vs 實際 37.65、MSTR 139.38 vs 144.82）。前端 v15.957 起視 final-closes 為權威並存成 exact-final pair，而既有 pair 一旦是 exact-final 就永不重抓 → 錯值凍結在使用者快取並同步到所有裝置（實測 AMDL 09-02 存 45.85 vs 正確 45.69、MUU 29.60 vs 30.47），隔日後端雖已修正為 yahoo-yfinance-final 也拿不回來。修法：(1) 後端新增 FINAL_SOURCES，final 依來源信任度決定，bootstrap 寫入 final:false 不再冒充定盤價；同 rank 早退條件改比對 final 狀態避免卡住升級。(2) 後端新增 MARKET_SETTLE_BUFFER_MIN（三市場各 30 分）取代原 +5 分，避免收盤瞬間採樣。(3) 後端 PSEUDO_SYMBOLS 移除 USD —— 它是真實美股 ETF（ProShares Ultra Semiconductors）且在 symbols.json 追蹤清單內，原本被當幣別代碼整檔排除；加密貨幣對仍由 endswith('-USD') 規則擋掉。(4) 前端 _finalCloseBarForDate 新增 _isUntrustedFinalCloseSource 防護，線上壞檔在 Actions 重跑前即失效，不必等後端。(5) 前端 _normalizeClosePairCache 自癒：丟棄 bootstrap 來源的既有 pair 使其重抓，於 normalize 這個唯一漏斗處理，載入／儲存／雲端合併三路徑一次覆蓋，修復已凍結的歷史錯值。close pair 屬 system data，不入 userDataHash／dirty／pending；不改損益公式、Gist/FSA schema、Storage Key、快照或 PWA。
         v15.964 - 派網目前倉位列加「每U效率」：24h 利潤 ÷ 倉位大小，放在最後一欄。不改 schema、Gist 檔名、userDataHash、pending 或損益公式。
         v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
         v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
@@ -828,7 +829,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.964</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.965</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1676,7 +1677,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.964';
+        const APP_VERSION = 'v15.965';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -2744,6 +2745,16 @@
                     out.symbols[sym] = { market: val.market || null, byDate: { [val.targetDate]: val } };
                 }
             }
+            // v15.965 自癒：丟棄以 bootstrap（未定盤）為來源的 pair，讓它重新向權威來源抓取。
+            // 舊版把這些值標成 exact-final 後就永不重抓，錯值會凍結在歷史並同步到所有裝置
+            //（實測 AMDL 09-02 存 45.85、正確 45.69；MUU 存 29.60、正確 30.47）。
+            // 在 normalize 這個唯一漏斗處理，載入 / 儲存 / 雲端合併三條路徑一次覆蓋。
+            for (const slot of Object.values(out.symbols)) {
+                if (!slot || !slot.byDate) continue;
+                for (const [d, pair] of Object.entries(slot.byDate)) {
+                    if (pair && _isUntrustedFinalCloseSource(pair.source)) delete slot.byDate[d];
+                }
+            }
             return out;
         }
         // v15.932：memoize — calculateStats 每次 renderAll 都呼叫本函式，原本每次 2 次 JSON.parse + normalize + legacy merge。
@@ -3116,12 +3127,22 @@
             return _finalCloseDataPromise;
         }
 
+        // v15.965：非定盤來源判定 —— 這些值只是暫用估計，不得充當權威收盤價。
+        // 清單內聯在函式中（不用模組 const），避免被更早執行的 normalize 路徑撞到 TDZ。
+        function _isUntrustedFinalCloseSource(source) {
+            const s = String(source || '');
+            return ['fundamentals-bootstrap'].some(bad => s === bad || s.includes(bad));
+        }
         function _finalCloseBarForDate(symbol, marketKey, dateKey) {
             if (!_finalCloseData?.symbols || !dateKey) return null;
             for (const alias of _symbolLookupAliases(symbol, marketKey)) {
                 const slot = _finalCloseData.symbols[alias];
                 const bar = slot?.byDate?.[dateKey];
                 if (!bar || bar.final !== true) continue;
+                // v15.965：bootstrap 取自 fundamentals.json 快照，可能在收盤瞬間採樣、尚未定盤
+                // （實測 2026-09-03 全標的偏差 -6.45%~+1.54%，MSTU 35.22 vs 實際 37.65）。
+                // 後端已改為不標 final，此處再擋一次，讓既有線上壞檔立即失效不必等 Actions 重跑。
+                if (_isUntrustedFinalCloseSource(bar.source)) continue;
                 const close = Number(bar.close);
                 if (!(Number.isFinite(close) && close > 0)) continue;
                 return {
