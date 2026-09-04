@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>月相圖實現轉移方法</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="topbar">
+            <div class="brand">Portfolio Tracker<small>03 · 月相圖實現轉移方法</small></div>
+            <nav class="nav">
+                <a href="index.html">封面</a>
+                <a href="01-專案現況報告.html">現況報告</a>
+                <a href="02-未來優化報告.html">優化報告</a>
+                <a class="now" href="03-月相圖實現轉移方法.html">月相轉移</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div>
+                <p class="kicker">Transfer spec · v15.947</p>
+                <h1>月相圖實現轉移方法</h1>
+                <p class="lede">
+                    這份給要在<strong>別的專案</strong>重做同一功能的人／模型。
+                    對過 Portfolio Tracker <code>portfolio-tracker-v15.html</code>（v15.947 起，現行 v15.949 仍是這套）。
+                    月相不是自己畫的天文圖，是 TradingView 公開 Advanced Chart widget 的內建 study。
+                </p>
+            </div>
+            <dl class="meta-card">
+                <dt>來源函式</dt>
+                <dd>_renderWatchlistTradingView</dd>
+                <dt>Study id</dt>
+                <dd>MoonPhases@tv-basicstudies</dd>
+                <dt>公開 widget 上限</dt>
+                <dd>只穩載前 5 個 studies</dd>
+                <dt>偏好儲存</dt>
+                <dd>本機 localStorage，不同步</dd>
+            </dl>
+        </section>
+
+        <div class="layout">
+            <aside class="toc">
+                <strong>章節</strong>
+                <a href="#t1">1. 它實際是什麼</a>
+                <a href="#t2">2. 必守限制</a>
+                <a href="#t3">3. 最小實作步驟</a>
+                <a href="#t4">4. 可直接貼的核心碼</a>
+                <a href="#t5">5. UI 與記憶</a>
+                <a href="#t6">6. 何時不要顯示月相</a>
+                <a href="#t7">7. 不要從 PT 一起帶走的東西</a>
+                <a href="#t8">8. 驗收清單</a>
+            </aside>
+
+            <article>
+                <section id="t1">
+                    <h2>1. 它實際是什麼</h2>
+                    <p>
+                        觀察清單 Pro 右側技術圖走 TradingView 的
+                        <code>embed-widget-advanced-chart.js</code>。
+                        月相是 widget <code>studies</code> 陣列裡的一項：
+                    </p>
+                    <pre>MoonPhases@tv-basicstudies</pre>
+                    <p>開啟後，圖上會出現月相圓點與背景區段。計算、繪圖、時間軸都由 TradingView 做，主專案<strong>不實作月相公式</strong>。</p>
+                    <div class="note">
+                        同一頁若標的改走 lightweight-charts 原生圖（加密、部分槓桿 fallback），<strong>沒有月相</strong>。
+                        開關只在 TradingView 路徑顯示。別的專案若沒有兩套圖表引擎，可忽略這段，整頁只用 TV widget 即可。
+                    </div>
+                    <p>不要做成：Canvas 自繪月亮、NASA API、或自己算朔望。PT 沒有那些程式。</p>
+                </section>
+
+                <section id="t2">
+                    <h2>2. 必守限制</h2>
+                    <ol>
+                        <li>
+                            <strong>公開 Advanced Chart widget 只會載入前 5 個預設 study。</strong>
+                            第 6 個會被靜默丟掉，畫面上沒有、也不報錯。
+                            這是 v15.947 實測後的契約，不是文件猜測。
+                        </li>
+                        <li>
+                            月相開啟時，必須把 <code>MoonPhases@tv-basicstudies</code> 放進前五名，
+                            並拿掉一個較不重要的 study。PT 拿掉的是 Stochastic。
+                        </li>
+                        <li>
+                            建議把月相<strong>放在陣列最前面</strong>，避免再被其他 study 擠出前五。
+                        </li>
+                        <li>
+                            切換開關必須<strong>拆掉舊 widget 再新建</strong>。
+                            改 JSON 但不重掛 script，圖通常不會變。
+                        </li>
+                        <li>
+                            這是 TradingView 託管元件，需能連 <code>s3.tradingview.com</code> 與
+                            <code>www.tradingview.com</code>。離線或擋第三方腳本就沒有圖。
+                        </li>
+                    </ol>
+                    <table>
+                        <tr><th>開關</th><th>studies（剛好 5 個）</th></tr>
+                        <tr>
+                            <td>關（預設）</td>
+                            <td><code>MASimple@tv-basicstudies</code>、<code>STD;Linear_Regression</code>、<code>STD;Stochastic</code>、<code>STD;MACD</code>、<code>STD;RSI</code></td>
+                        </tr>
+                        <tr>
+                            <td>開</td>
+                            <td><code>MoonPhases@tv-basicstudies</code>、<code>MASimple@tv-basicstudies</code>、<code>STD;Linear_Regression</code>、<code>STD;MACD</code>、<code>STD;RSI</code>（無 Stoch）</td>
+                        </tr>
+                    </table>
+                    <p>
+                        Study 字串有兩種寫法，PT 混用且已上線可用：
+                        <code>Name@tv-basicstudies</code>（MA、月相）與
+                        <code>STD;Name</code>（LinReg、Stoch、MACD、RSI）。
+                        轉移時請原樣複製，不要自行統一改名。
+                    </p>
+                </section>
+
+                <section id="t3">
+                    <h2>3. 最小實作步驟</h2>
+                    <ol>
+                        <li>頁面上準備一個固定高度的容器（PT 約 640px 高）。</li>
+                        <li>用 JS 建立 <code>div.tradingview-widget-container</code>，裡面再放
+                            <code>div.tradingview-widget-container__widget</code>。</li>
+                        <li>再建 <code>script</code>，<code>src</code> 設為
+                            <code>https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js</code>，
+                            <code>async</code>，<strong>script 的 textContent 是一份 JSON 字串</strong>（不是外部 json 檔）。</li>
+                        <li>JSON 裡帶 <code>symbol</code>、<code>interval</code>、<code>theme</code>、<code>studies</code>。</li>
+                        <li>加一個 checkbox。開啟 → studies 換成含月相的 5 個；關閉 → 恢復不含月相的 5 個；然後清空容器重跑 2–4。</li>
+                        <li>偏好可寫 localStorage。PT 的 key 是 <code>pt_watchlist_moon_phases_v1</code>，值 <code>'1'</code>／沒有或其它都當關。這是 UI 偏好，不要同步到雲端。</li>
+                    </ol>
+                </section>
+
+                <section id="t4">
+                    <h2>4. 可直接貼的核心碼</h2>
+                    <p>下面是從 <code>_renderWatchlistTradingView</code> 抽出的最小形狀。把 <code>container</code> 換成你的 DOM 節點，<code>tvSymbol</code> 換成 <code>NASDAQ:AAPL</code> 這種交易所前綴代碼。</p>
+<pre>function moonStudies(enabled) {
+  return enabled
+    ? [
+        'MoonPhases@tv-basicstudies',
+        'MASimple@tv-basicstudies',
+        'STD;Linear_Regression',
+        'STD;MACD',
+        'STD;RSI'
+      ]
+    : [
+        'MASimple@tv-basicstudies',
+        'STD;Linear_Regression',
+        'STD;Stochastic',
+        'STD;MACD',
+        'STD;RSI'
+      ];
+}
+
+function mountAdvancedChart(container, tvSymbol, moonOn) {
+  container.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.cssText = 'height:100%;width:100%';
+  const widget = document.createElement('div');
+  widget.className = 'tradingview-widget-container__widget';
+  widget.style.cssText = 'height:100%;width:100%';
+  const script = document.createElement('script');
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.async = true;
+  script.text = JSON.stringify({
+    autosize: true,
+    symbol: tvSymbol,
+    interval: 'D',
+    timezone: 'Asia/Taipei',
+    theme: 'dark',
+    style: '1',
+    locale: 'zh_TW',
+    allow_symbol_change: true,
+    calendar: false,
+    hide_side_toolbar: false,
+    support_host: 'https://www.tradingview.com',
+    studies: moonStudies(moonOn)
+  });
+  wrap.appendChild(widget);
+  wrap.appendChild(script);
+  container.appendChild(wrap);
+}</pre>
+                    <p>
+                        切換月相或換標的時：先把「已渲染 key」清掉（PT 用
+                        <code>`${tvSymbol}|moon:${on ? '1' : '0'}`</code>），
+                        再呼叫 <code>mountAdvancedChart</code>。
+                        key 沒變且容器裡還有 <code>.tradingview-widget-container__widget</code> 就不要重掛，避免閃爍。
+                    </p>
+                    <p>其它 widget 欄位（<code>timezone</code>、<code>locale</code>、<code>theme</code>）可依新專案改，與月相能否出現無關。月相只取決於 <code>studies</code> 前五名有沒有 <code>MoonPhases@tv-basicstudies</code>。</p>
+                </section>
+
+                <section id="t5">
+                    <h2>5. UI 與記憶</h2>
+                    <p>PT 的開關是圖表標題列右側的 label + checkbox：</p>
+<pre>&lt;label class="watchlist-moon-toggle" title="顯示或隱藏月相"&gt;
+  &lt;input type="checkbox" onchange="setWatchlistMoonPhasesEnabled(this.checked)"&gt;
+  &lt;span&gt;月相&lt;/span&gt;
+&lt;/label&gt;</pre>
+                    <ul>
+                        <li>開啟時副標改成「MA / LinReg / MACD / RSI / 月相」。</li>
+                        <li>關閉時副標是「MA / LinReg / Stoch / MACD / RSI」。</li>
+                        <li><code>setWatchlistMoonPhasesEnabled</code>：寫記憶體旗標 → 寫 localStorage → 清 render key → 整張圖重畫。</li>
+                        <li>啟動時讀 <code>localStorage.getItem('pt_watchlist_moon_phases_v1') === '1'</code>。新專案請換成自己的 key，不要沿用這個字串，以免跟 PT 同網域時搶值。</li>
+                    </ul>
+                </section>
+
+                <section id="t6">
+                    <h2>6. 何時不要顯示月相</h2>
+                    <p>PT 的 <code>_updateWatchlistMoonControl(mode)</code>：</p>
+                    <ul>
+                        <li><code>mode === 'tv'</code>：顯示開關，checkbox 可用。</li>
+                        <li>未選標的、沒有 tvSymbol、或走原生圖：<code>display:none</code>，並 disabled。</li>
+                    </ul>
+                    <p>原因：原生圖沒有 MoonPhases study。開關開著卻沒有月相，使用者會以為壞了。</p>
+                </section>
+
+                <section id="t7">
+                    <h2>7. 不要從 PT 一起帶走的東西</h2>
+                    <p>月相只碰觀察清單的視覺圖。下面這些與月相無關，別專案不該為了月相去抄：</p>
+                    <ul>
+                        <li>持倉、close pair、今日損益、Gist、<code>userDataHash</code>、pending。</li>
+                        <li>觀察清單報價、<code>_watchlistQuotes</code>。</li>
+                        <li>lightweight-charts 的 MA／LinReg／RSI 自繪（那是原生圖 fallback，沒有月相）。</li>
+                    </ul>
+                    <p>PT 註解寫死：TradingView 僅 visual-only，不寫報價與損益。新專案也應把月相當成裝飾層。</p>
+                </section>
+
+                <section id="t8">
+                    <h2>8. 驗收清單</h2>
+                    <ol>
+                        <li>開關關閉：圖上有 MA、LinReg、Stoch、MACD、RSI，沒有月相圓點／背景區段。</li>
+                        <li>開關開啟：出現月相；Stoch 消失；仍有 MA、LinReg、MACD、RSI。</li>
+                        <li>陣列不要超過 5 個。第 6 個加月相會看起來「點了沒反應」。</li>
+                        <li>切換開關後圖會重建（短暫空白再出現是正常的）。</li>
+                        <li>重新整理後開關狀態與上次一致（若有做 localStorage）。</li>
+                        <li>未選標的時不要露出不能用的月相開關。</li>
+                        <li>Network 裡看得到 <code>embed-widget-advanced-chart.js</code>；擋廣告／擋 TV 時應有降級說明，不要當自己的 bug。</li>
+                    </ol>
+                    <div class="ok">
+                        一句話交給實作模型：用 TradingView Advanced Chart widget，studies 最多 5 個；
+                        要月相就把 <code>MoonPhases@tv-basicstudies</code> 放第一位，並拿掉 Stoch；改開關就拆掉舊 widget 重建。
+                    </div>
+                </section>
+
+                <p class="footer">
+                    月相圖實現轉移方法 · 對照程式 v15.947／v15.949 ·
+                    函式 <code>_renderWatchlistTradingView</code>、<code>setWatchlistMoonPhasesEnabled</code>、<code>_updateWatchlistMoonControl</code>
+                </p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

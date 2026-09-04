@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>02 未來優化報告 · Portfolio Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="topbar">
+            <div class="brand">Portfolio Tracker<small>02 · 未來優化報告</small></div>
+            <nav class="nav">
+                <a href="index.html">封面</a>
+                <a href="01-專案現況報告.html">現況報告</a>
+                <a class="now" href="02-未來優化報告.html">優化報告</a>
+                <a href="03-月相圖實現轉移方法.html">月相轉移</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div>
+                <p class="kicker">What is still worth doing</p>
+                <h1>優化建議，先對完舊清單</h1>
+                <p class="lede">
+                    Notion「目前程式架構能做的優化」記錄的是 2026-04-30 當時還沒做完的項目。
+                    這一章先對帳：哪些後來已在哪一版完成並維持至今，哪些現在仍值得做，哪些不要走回頭路。
+                </p>
+            </div>
+            <dl class="meta-card">
+                <dt>舊清單日期</dt>
+                <dd>2026-04-30 / 05-01</dd>
+                <dt>對帳基準</dt>
+                <dd>v15.949 主程式</dd>
+                <dt>原則</dt>
+                <dd>不大改架構；不讓使用者重學</dd>
+            </dl>
+        </section>
+
+        <div class="layout">
+            <aside class="toc">
+                <strong>章節</strong>
+                <a href="#o1">1. 邊界</a>
+                <a href="#o2">2. 舊清單對帳</a>
+                <a href="#o3">3. 現在值得做</a>
+                <a href="#o4">4. 文件與協作債</a>
+                <a href="#o5">5. 排程、先別綁這次</a>
+                <a href="#o6">6. 架構級（v16）</a>
+                <a href="#o7">7. 明確不要做</a>
+                <a href="#o8">8. 建議順序</a>
+            </aside>
+
+            <article>
+                <section id="o1">
+                    <h2>1. 邊界</h2>
+                    <p>沿用 Notion 優化頁與 <code>sync-invariants.md</code> 的精神，對到現行程式：</p>
+                    <div class="grid-2">
+                        <div class="stat">
+                            <b>可以動</b>
+                            <span>顯示層、行事曆表、文件、Actions、輔助 script、防禦性檢查。不改使用者操作習慣。</span>
+                        </div>
+                        <div class="stat">
+                            <b>預設不動</b>
+                            <span>框架、TypeScript build、儲存後端替換、FIFO 語意、五張統計卡定義、Gist schema 升主版號。</span>
+                        </div>
+                    </div>
+                    <p>
+                        若某項需求會打破 hash／pending／snapshot 規則，必須先寫衝突點，等人同意，並記入例外日誌。
+                        同一條破三次就要改規則本身，不能一直破例。
+                    </p>
+                </section>
+
+                <section id="o2">
+                    <h2>2. 舊清單對帳（2026-05 → 2026-08）</h2>
+                    <p>Notion 頁「目前程式架構能做的優化」在 2026-04-30 標未辦的項目，對到 2026-08 程式後的結果。當時標未辦就是當時還沒做；下面「已完成」指後來哪一版補上並維持至今。</p>
+                    <table>
+                        <tr><th>舊編號</th><th>項目</th><th>2026-08 狀態</th><th>證據</th></tr>
+                        <tr>
+                            <td>1.1 / 4.2</td>
+                            <td>自動 push 佇列 + 指數退避</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td>v15.054；401 停重試在 v15.061／062</td>
+                        </tr>
+                        <tr>
+                            <td>1.2</td>
+                            <td>schema_version</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td><code>PT_SCHEMA_VERSION = 1</code>，高版本拒寫</td>
+                        </tr>
+                        <tr>
+                            <td>1.3</td>
+                            <td>三 proxy 全滅接 Render</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td>v15.947：<code>_SHEET_PROXIES</code> 含 <code>/fetch-sheet</code></td>
+                        </tr>
+                        <tr>
+                            <td>1.4 / 1.5</td>
+                            <td>Token 檢查、SQLite 還原</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td><code>check-tokens.yml</code>、<code>restore_from_sqlite.py</code></td>
+                        </tr>
+                        <tr>
+                            <td>2.1 / 2.3</td>
+                            <td>stale 顯色、匯率時間戳</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td><code>_freshnessColor</code></td>
+                        </tr>
+                        <tr>
+                            <td>2.2</td>
+                            <td>PWA 版本提示</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td>v15.066 起有版本提示；v15.945 首次檢查改 15 秒後，之後每 30 分</td>
+                        </tr>
+                        <tr>
+                            <td>2.4</td>
+                            <td>錯誤日誌 UI</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td>v15.064／065</td>
+                        </tr>
+                        <tr>
+                            <td>3.1</td>
+                            <td>CSS 抽檔</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>樣式仍內嵌；見第 6 章</td>
+                        </tr>
+                        <tr>
+                            <td>3.2</td>
+                            <td>JS 模組化</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>仍單檔 14,607 行；見第 6 章</td>
+                        </tr>
+                        <tr>
+                            <td>3.3</td>
+                            <td>差異更新擴到其他表</td>
+                            <td><span class="badge wait">部分</span></td>
+                            <td>持倉表已 DOM diff；<code>renderRealizedTab</code> 仍 <code>innerHTML</code></td>
+                        </tr>
+                        <tr>
+                            <td>3.4</td>
+                            <td>SW 適度恢復快取</td>
+                            <td><span class="badge wait">刻意不做</span></td>
+                            <td><code>sw.js</code> v4 仍 no-op。v15.024 踩過快取 API 的雷</td>
+                        </tr>
+                        <tr>
+                            <td>3.5</td>
+                            <td>localStorage 容量監控</td>
+                            <td><span class="badge wait">部分</span></td>
+                            <td>v15.944 有用量估算與 quota toast；沒有自動搬遷 90 天快照</td>
+                        </tr>
+                        <tr>
+                            <td>4.4</td>
+                            <td>JSDoc + @ts-check</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>關鍵函式幾乎沒有型別註解</td>
+                        </tr>
+                        <tr>
+                            <td>4.5</td>
+                            <td>Render /health</td>
+                            <td><span class="badge code">已完成</span></td>
+                            <td>啟動背景 warm-up，缺 API 時有降級</td>
+                        </tr>
+                        <tr>
+                            <td>5.1</td>
+                            <td>補 rules</td>
+                            <td><span class="badge wait">部分</span></td>
+                            <td>已有 sync-invariants / gist-sync / cache / storage；缺 timezone、string-matching、token-inventory</td>
+                        </tr>
+                        <tr>
+                            <td>5.2</td>
+                            <td>診斷 skills</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>cache-inspect / sync-diagnose / api-health-check 都不存在</td>
+                        </tr>
+                        <tr>
+                            <td>5.3</td>
+                            <td>開發／正式 Gist 隔離</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>localhost 與 Pages 共用同一組 Token／Gist ID</td>
+                        </tr>
+                        <tr>
+                            <td>5.5</td>
+                            <td>CI 檢查三處版本號</td>
+                            <td><span class="badge wait">未做</span></td>
+                            <td>進版仍靠人工對 changelog / APP_VERSION / 左上角</td>
+                        </tr>
+                    </table>
+                    <div class="ok">
+                        結論：2026-05 那份「可靠度最優先」清單，主軸後來都做完了。
+                        現在不必從 1.1 或 2.2 再做一次。
+                    </div>
+                </section>
+
+                <section id="o3">
+                    <h2>3. 現在值得做（對使用者或對回歸有感）</h2>
+
+                    <h3>3.1 補 TW／HK 2027 行事曆</h3>
+                    <p>
+                        <span class="badge wait">等官方公告</span>
+                        美股 2027 已在 v15.925 補上。台股、港股 2027 仍走週末降級。
+                        遇到真實假日會短暫「資料不足」，不會跳日亂算，所以不急著猜假日。
+                    </p>
+                    <p>TWSE 約 9–10 月、HKEX 約 7 月公告。公告後只加 <code>MARKET_CALENDARS</code> 年份與 holidays，不要改公式。</p>
+
+                    <h3>3.2 文件補寫現行行為（不改程式）</h3>
+                    <p>舊段落請留著作歷程。若要讓之後讀文件的人一次對到現況，可以<strong>在既有紀錄上面加一則現行補記</strong>，不要整段刪掉當時的文字：</p>
+                    <ul>
+                        <li>README：在「不會跨裝置同步」旁邊或上方補「v15.4 起已有 Gist，並維持至今」；版本表可加石墨／九個 Tab。</li>
+                        <li>Notion 損益頁：保留 v15.082／v15.902 舊節，頂部補記現行是投資日 + <code>pt_close_pair_v3</code>（v15.907 起）。</li>
+                        <li>資料流程頁：保留 2026-07-13「當時正式線 v15.941」補記；另加一則現行已到 v15.949、基本面每天兩次。</li>
+                        <li><code>update_fund.py</code> 檔頭註解可改成與 workflow 相同的每天兩次，不影響執行。</li>
+                        <li>frontend-design 技能：註明 v15.1 藍黑、v15.943 起石墨。之後做 UI 才不會沿用舊色票。</li>
+                    </ul>
+
+                    <h3>3.3 持倉頁拆出設定／診斷</h3>
+                    <p>
+                        匯率、Sheet URL、Gist、FSA、錯誤日誌、公司行動入口全擠在 Tab 1。
+                        每天看損益的視線會被設定區打斷。這是 UX 債，不是功能債。
+                    </p>
+                    <p>做法：新增「設定」Tab 或把現有區塊折疊成預設收合。不改任何儲存 key 與同步。</p>
+
+                    <h3>3.4 港股盤中現價（可選）</h3>
+                    <p>
+                        v15.942 已記錄備選案：港股改 Yahoo 直抓現價，帶真實時間戳。
+                        仍會延遲約 15 分，但比 Sheet 開盤後卡前日收盤誠實。
+                        <strong>只動 <code>currentPrice</code> 來源，不動 close pair。</strong>
+                        要另開一版仔細做，不要跟文件整理綁在一起。
+                    </p>
+
+                    <h3>3.5 開發用 Gist 隔離</h3>
+                    <p>
+                        localhost 若共用正式 Gist，本機實驗持倉有機會推進去。
+                        小改：hostname 是 localhost 時改讀另一組 dev Gist ID，或直接禁止靜默 push。
+                    </p>
+
+                    <h3>3.6 進版三處版本號的 CI</h3>
+                    <p>
+                        一個 workflow：抓 HTML 裡 changelog 首行、<code>APP_VERSION</code>、左上角字串，三者必須相同。
+                        這是 PWA 更新能動的硬條件，適合自動化。
+                    </p>
+                </section>
+
+                <section id="o4">
+                    <h2>4. 文件與協作債</h2>
+                    <p>Notion「未來設計思考」建議過一批 rules／skills。對現況重新取捨：</p>
+                    <table>
+                        <tr><th>項目</th><th>建議</th></tr>
+                        <tr>
+                            <td>補 <code>timezone.md</code></td>
+                            <td>值得。時區入口已有 <code>_exchangeTz</code>／<code>_marketSession</code>，規則只要禁止再寫死 <code>America/New_York</code>。</td>
+                        </tr>
+                        <tr>
+                            <td>補 <code>string-matching.md</code></td>
+                            <td>值得。台股／港股後綴都應只走 <code>_lookupPrice</code>。</td>
+                        </tr>
+                        <tr>
+                            <td>補 <code>token-inventory.md</code></td>
+                            <td>值得。Gist Token 在裝置 localStorage 與 Actions secrets 兩處，過期症狀不同。</td>
+                        </tr>
+                        <tr>
+                            <td>再寫一份 sync-protocol.md</td>
+                            <td>不必另開。已有 <code>sync-invariants.md</code>；兩份同主題之後容易各自停在不同版本。</td>
+                        </tr>
+                        <tr>
+                            <td>cache-inspect / sync-diagnose skill</td>
+                            <td>有空再做。現在設定頁已有錯誤日誌與同步時間，急迫性低。</td>
+                        </tr>
+                        <tr>
+                            <td>JSDoc + <code>@ts-check</code></td>
+                            <td>對 <code>_isExactFinalClosePair</code>、<code>_buildLocalUserPayload</code>、<code>_projectLoanBalance</code> 這類核心函式有用。不要一次幫 560 個函式加註解。</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="o5">
+                    <h2>5. 排程、先別跟功能綁在一起</h2>
+                    <ul>
+                        <li>
+                            <strong>已實現損益表改 DOM diff</strong>：
+                            <code>renderRealizedTab</code> 仍整塊 <code>innerHTML</code>。觸發頻率低、預設不在前景，優先度低。
+                        </li>
+                        <li>
+                            <strong>容量自動搬遷</strong>：
+                            v15.944 已能警告 &gt; 4 MiB，close pair 也已修剪 30 日。
+                            「自動把 90 天快照搬上 Gist 再刪本機」會碰到 system push 規則，不要當小修。
+                        </li>
+                        <li>
+                            <strong>更多 #region</strong>：對人翻 1 萬行有幫助，對行為零影響。可順手做，不必專開一版。
+                        </li>
+                    </ul>
+                    <h3>已改走別條路、但仍要留著的相容層</h3>
+                    <p>
+                        有些做法後來被取代，但程式裡還留著呼叫點或讀舊資料的路徑。
+                        <strong>沒有找到可以確定完全用不到、刪了也不影響功能的程式。</strong>
+                        因此這份報告不建議移除下列項目：
+                    </p>
+                    <ul>
+                        <li><code>_processAllLoansAutoDebit</code>：v15.918 起改為空函式，但 pull／啟動路徑仍會呼叫，是刻意留下的相容入口。</li>
+                        <li><code>pt_close_pair_v2</code> 讀取合併：v3 上線後仍用來接舊裝置 cache，不是死碼。</li>
+                        <li><code>STORAGE_KEYS.cashLegacy</code>：老使用者 localStorage 可能還有這個 key。</li>
+                        <li><code>sw.js</code> no-op：v15.024 起不再快取 API，但安裝／activate 仍要清舊 cache、接管 PWA，不能刪檔。</li>
+                        <li>v13／v14 HTML、Notion 裡 2026-07-13「當時正式線 v15.941」補記：都是歷程，留著。</li>
+                    </ul>
+                </section>
+
+                <section id="o6">
+                    <h2>6. 架構級：拆檔與 v16</h2>
+                    <p>
+                        Notion 未來設計頁推薦下一次重寫用 Vite + TypeScript。
+                        以目前 1 MB／14,607 行來看，這個判斷「長期正確」。
+                        以 v15.900 之後的實際路徑來看，<strong>現在做會比問題本身危險</strong>。
+                    </p>
+                    <ul>
+                        <li>PWA 版本比對、GitHub Pages、單檔離線開啟，都假設入口是這一個 HTML。</li>
+                        <li>拆 CSS／JS 之後，快取策略、SRI、SW、相對路徑都要重測三平台。</li>
+                        <li>v15.900 曾宣告凍結，後來證明小步 hotfix 比大重寫安全。</li>
+                    </ul>
+                    <div class="warn">
+                        建議：沒有「明確要重構、並接受一段時間只修架構不修功能」的指令前，不要拆檔、不要開 v16。
+                        若真的要做，先把文件與 CI 版本檢查做好，當安全網，再抽 CSS（最小），最後才動 JS 模組。
+                    </div>
+                </section>
+
+                <section id="o7">
+                    <h2>7. 明確不要做</h2>
+                    <table>
+                        <tr><th>念頭</th><th>為什麼不要</th></tr>
+                        <tr>
+                            <td>把貸款扣進總資產或圓餅</td>
+                            <td>破壞「總市值＝持股市值」的閱讀習慣，違反 v15.917 INV-2。</td>
+                        </tr>
+                        <tr>
+                            <td>恢復每月自動寫還款流水帳</td>
+                            <td>v15.918 拿掉就是為了避免日期一變就製造 Gist pending。</td>
+                        </tr>
+                        <tr>
+                            <td>再堆觀察清單指標</td>
+                            <td>TradingView 公開 widget 大約只能穩載 5 個 study（v15.947 已為此砍過）。</td>
+                        </tr>
+                        <tr>
+                            <td>買 HKEX 即時 feed</td>
+                            <td>授權費與個人工具不成比例。誠實標示延遲即可。</td>
+                        </tr>
+                        <tr>
+                            <td>讓 Service Worker 快取 fundamentals / Gist / CSV</td>
+                            <td>v15.024 的回歸：使用者會看到舊報價、舊雲端。</td>
+                        </tr>
+                        <tr>
+                            <td>用 calendar date 當 marketDate、或 close=null 就跳日</td>
+                            <td>兩倍漲幅／颱風假系列的根。規則已寫死。</td>
+                        </tr>
+                        <tr>
+                            <td>猜 2027 台港假日</td>
+                            <td>猜錯比「資料不足」更糟。</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="o8">
+                    <h2>8. 建議順序</h2>
+                    <p>假設每次只做一小段、而且要能單獨進版：</p>
+                    <ol>
+                        <li><strong>文件對齊</strong>：README + Notion 損益／資料流程標題 + 腳本註解。零行為風險。</li>
+                        <li><strong>進版 CI</strong>：三處版本號一致性檢查。</li>
+                        <li><strong>持倉頁設定區收合或外移</strong>：只動 DOM 分組。</li>
+                        <li><strong>dev Gist 隔離</strong>：保護正式雲端。</li>
+                        <li><strong>TW／HK 2027 行事曆</strong>：等公告。</li>
+                        <li><strong>港股 Yahoo 現價</strong>：有明確體感需求再做。</li>
+                        <li><strong>核心函式 JSDoc</strong>：當拆檔的前置，不是獨立產品功能。</li>
+                        <li><strong>拆檔／v16</strong>：單獨專案期，不要夾帶功能。</li>
+                    </ol>
+                    <div class="note">
+                        使用者規則仍是「不主動加功能，等指定再做」。
+                        這份報告只排序可能性，不代表下一版要開工。
+                    </div>
+                    <p>現況細節見 <a href="01-專案現況報告.html">專案現況報告</a>。</p>
+                </section>
+
+                <p class="footer">未來優化報告 · 2026-08-13 · 對照程式 v15.949 與 Notion 2026-04/05 優化清單</p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

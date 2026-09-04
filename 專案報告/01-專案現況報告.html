@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>01 專案現況報告 · Portfolio Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="topbar">
+            <div class="brand">Portfolio Tracker<small>01 · 專案現況報告</small></div>
+            <nav class="nav">
+                <a href="index.html">封面</a>
+                <a class="now" href="01-專案現況報告.html">現況報告</a>
+                <a href="02-未來優化報告.html">優化報告</a>
+                <a href="03-月相圖實現轉移方法.html">月相轉移</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div>
+                <p class="kicker">Status as of v15.949</p>
+                <h1>這個專案現在實際長什麼樣</h1>
+                <p class="lede">
+                    下面以 2026-08-13 的主程式為準，說明系統現在怎麼跑。
+                    舊文件與舊章節保留為改版歷程；若後來已改過，會註明從哪一版修正並維持至今。
+                </p>
+            </div>
+            <dl class="meta-card">
+                <dt>核對日</dt>
+                <dd>2026-08-13</dd>
+                <dt>函式宣告約</dt>
+                <dd>560+</dd>
+                <dt>localStorage 已登記</dt>
+                <dd>STORAGE_KEYS 物件內約 50 個</dd>
+                <dt>Gist schema</dt>
+                <dd>PT_SCHEMA_VERSION = 1（只加欄位、不升版）</dd>
+            </dl>
+        </section>
+
+        <div class="layout">
+            <aside class="toc">
+                <strong>章節</strong>
+                <a href="#s1">1. 資料來源與讀法</a>
+                <a href="#s2">2. 專案定位</a>
+                <a href="#s3">3. 系統地圖</a>
+                <a href="#s4">4. 產品面：九個 Tab</a>
+                <a href="#s5">5. 資料分層</a>
+                <a href="#s6">6. 損益模型</a>
+                <a href="#s7">7. 同步與備份</a>
+                <a href="#s8">8. 報價與外部資料</a>
+                <a href="#s9">9. 貸款／公司行動／觀察清單</a>
+                <a href="#s10">10. 版本與回歸史</a>
+                <a href="#s11">11. 文件與程式的時間對照</a>
+                <a href="#s12">12. 現況結論</a>
+            </aside>
+
+            <article>
+                <section id="s1">
+                    <h2>1. 資料來源與讀法</h2>
+                    <p>這份報告同時讀了兩套材料，但權重不同：</p>
+                    <ul>
+                        <li><span class="badge code">程式核對</span> <code>portfolio-tracker-v15.html</code>、<code>server.py</code>、<code>sw.js</code>、<code>data/update_fund.py</code>、四個 GitHub Actions、<code>STORAGE_KEYS</code>、<code>_buildLocalUserPayload</code>、<code>calculateStats</code>。</li>
+                        <li><span class="badge notion">Notion</span> 專案主頁、版本更新紀錄、損益計算邏輯、資料更新流程、優化清單、未來設計思考、Claude Code 架構說明、Lesson Learn。</li>
+                    </ul>
+                    <div class="note">
+                        <strong>讀法。</strong>
+                        Notion 各頁是當下那一輪的紀錄。損益頁、資料流程頁在 2026-07-13 當時確認正式線是 v15.941；優化清單停在 2026-04-30 也是當時進度。
+                        程式之後續編到 <code>v15.949</code>。以下現況以程式為準；第 11 章對照「當時寫什麼、後來哪一版改到現在」。
+                    </div>
+                </section>
+
+                <section id="s2">
+                    <h2>2. 專案定位</h2>
+                    <p>
+                        個人用的台／美／港股持倉追蹤器。沒有帳號系統、沒有伺服器端使用者資料庫。
+                        瀏覽器打開就能用，也能以 PWA 裝到 Android 主畫面。
+                    </p>
+                    <div class="grid-2">
+                        <div class="stat"><b>單一 HTML</b><span>所有 UI 與業務邏輯都在 v15 這一個檔。v13 / v14 只留著備用。</span></div>
+                        <div class="stat"><b>個人工具</b><span>目標使用者就是作者本人。跨裝置靠 Gist，不是多租戶 SaaS。</span></div>
+                    </div>
+                    <p>
+                        Notion 主頁 2026-04 寫的目標仍成立：「跨裝置的股票投資組合追蹤」。
+                        之後陸續加上貸款、存款、公司行動、觀察清單 Pro、投資日損益、system sync，主頁摘要還沒補到這些後來的版本。
+                    </p>
+                </section>
+
+                <section id="s3">
+                    <h2>3. 系統地圖</h2>
+                    <h3>執行時誰在跑</h3>
+                    <table>
+                        <tr><th>層</th><th>實際角色</th></tr>
+                        <tr>
+                            <td>瀏覽器 / PWA</td>
+                            <td>讀 <code>portfolio-tracker-v15.html</code>。持倉、貸款、設定全在 localStorage。Service Worker（<code>sw.js</code> v4）是 no-op：安裝後清舊快取、不攔截 fetch。</td>
+                        </tr>
+                        <tr>
+                            <td>GitHub Pages</td>
+                            <td><code>index.html</code> 只做轉址。真正上線的是單檔 HTML + <code>data/fundamentals.json</code>。<code>deploy-pages.yml</code> 忽略 <code>cache.json</code> 與 <code>portfolio_backup.db</code>，避免 Actions 洗版。</td>
+                        </tr>
+                        <tr>
+                            <td>GitHub Actions</td>
+                            <td>基本面每天 UTC 00/12 兩次（台灣 08:00 / 20:00）；Gist→SQLite 備份每天 UTC 20:30；Token 檢查每天 UTC 20:00。</td>
+                        </tr>
+                        <tr>
+                            <td>Render <code>server.py</code></td>
+                            <td>本機與選配遠端後端：<code>/proxy</code>、<code>/fetch-sheet</code>、<code>/yfundamentals</code>、<code>/health</code>、<code>/update-symbols</code>、<code>/update-cache</code>。冷啟動慢，只當備援。</td>
+                        </tr>
+                        <tr>
+                            <td>Cloudflare Worker</td>
+                            <td>寫死 URL <code>https://syncsymbols.forsmileangel.workers.dev</code>，只負責把新標的寫進 <code>data/symbols.json</code>。現清單 71 檔。</td>
+                        </tr>
+                        <tr>
+                            <td>GitHub Gist</td>
+                            <td>跨裝置使用者資料 + system data。讀取優先用 API 內嵌 <code>content</code>，不用 <code>raw_url</code>（v15.051 修過 CDN 舊值覆蓋）。</td>
+                        </tr>
+                    </table>
+
+                    <h3>主檔體積</h3>
+                    <p>
+                        本機量測：<code>1,032,799</code> bytes、14,607 行。內嵌全部 CSS 與 JS。
+                        Chart.js 4.4.1 走 CDN 且帶 SRI；lightweight-charts 4.2.3 僅觀察清單 Pro 才 lazy-load，啟動不載。
+                    </p>
+
+                    <h3>外觀</h3>
+                    <p>
+                        v15.1 起配色是藍黑色系，當時 frontend-design 技能與 README 都這樣寫。
+                        <strong>v15.943 改成石墨深灰＋低彩度灰綠，並維持至今。</strong>
+                        技能與 README 的藍黑敘述是改版前的紀錄，不是當下畫面。
+                    </p>
+                </section>
+
+                <section id="s4">
+                    <h2>4. 產品面：九個 Tab</h2>
+                    <p>主程式 <code>#main-tabs</code> 現在有 9 個按鈕。2026-04 主頁摘要還只寫到持倉與分析，後來的 Tab 是後續版本加上的。</p>
+                    <table>
+                        <tr><th>Tab</th><th>做什麼</th><th>資料歸屬</th></tr>
+                        <tr><td>1 持倉管理</td><td>五張統計卡、總資產列、圓餅、買賣、一鍵更新、匯率、設定／Gist／錯誤日誌都擠在這頁</td><td>user + quote</td></tr>
+                        <tr><td>2 基本面</td><td>PE / FPE / PEG / 財報日等；可勾選比較、表頭排序</td><td>fundamentals.json + cache</td></tr>
+                        <tr><td>3 技術面</td><td>KD / MACD / RSI（時日週）</td><td>同上，TTL 較短</td></tr>
+                        <tr><td>4 財報分析</td><td>季報與目標價，快取 <code>pf_qs_v5</code>，12 小時</td><td>cache</td></tr>
+                        <tr><td>5 總經</td><td>S&amp;P500、VIX、美債、美元指數等，<code>pf_macro_v1</code> 1 小時</td><td>cache</td></tr>
+                        <tr><td>6 已實現</td><td>FIFO 賣出紀錄 + 期間補錄（v15.905）</td><td>user</td></tr>
+                        <tr><td>7 存款</td><td>現金部位，可進圓餅</td><td>user</td></tr>
+                        <tr><td>8 貸款</td><td>推導餘額、淨資產、每月應還（v15.949）</td><td>user 結構；顯示只讀</td></tr>
+                        <tr><td>9 觀察清單</td><td>TradingView / 原生圖，與持倉損益完全切開</td><td>user 清單 + 記憶體報價</td></tr>
+                    </table>
+                    <div class="note">
+                        持倉頁同時扛「每天開 App 看的儀表板」和「設定／診斷後台」。這是現在最大的產品結構債，不是缺功能。
+                    </div>
+                </section>
+
+                <section id="s5">
+                    <h2>5. 資料分層</h2>
+                    <p>
+                        這是 v15.069–v15.080 用一串回歸換來的骨架。改同步前必守
+                        <code>.claude/rules/sync-invariants.md</code>。
+                    </p>
+                    <h3>使用者資料（進 <code>userDataHash</code>）</h3>
+                    <p><span class="badge code">_buildLocalUserPayload</span> 實際白名單：</p>
+                    <ul>
+                        <li><code>holdings</code>（只經 <code>_normalizeHoldingForHash</code>：id / symbol / market / quantity / costPrice / lots / addedDate / persist / name）</li>
+                        <li><code>watchlist</code>、<code>tradeHistory</code>、<code>deposits</code></li>
+                        <li><code>manualRealizedEntries</code>、<code>loans</code>、<code>corporateActions</code>、<code>corporateActionPlans</code></li>
+                        <li><code>currency</code>、<code>sheet_url</code>、現金／加密／MOXA 的圓餅勾選與金額</li>
+                    </ul>
+                    <p>報價欄位 <code>currentPrice</code> / <code>prevClose</code> / <code>dayPnL</code> 不進 hash。否則每分鐘靜默刷新會被當成使用者改資料。</p>
+
+                    <h3>系統資料（可進 Gist，不進 pending）</h3>
+                    <ul>
+                        <li><code>daily_pnl_snapshots</code> / <code>daily_pnl_baselines</code> / <code>daily_pnl_price_cache</code></li>
+                        <li><code>daily_pnl_close_pairs</code>（v15.911，桌機優先寫、iPhone 補洞、Android 只讀）</li>
+                        <li><code>marketSnapshots</code>（月／季／年報酬用的市值快照）</li>
+                    </ul>
+                    <p>System push 只有 <code>userDataHash</code> 與雲端一致才 PATCH。失敗只寫錯誤日誌，不彈 toast。</p>
+
+                    <h3>本機快取（不進 hash）</h3>
+                    <table>
+                        <tr><th>Key</th><th>用途</th></tr>
+                        <tr><td><code>pt_close_pair_v3</code></td><td>多日期 close pair，保留 30 日</td></tr>
+                        <tr><td><code>pf_analysis_v8</code></td><td>基本面／技術面</td></tr>
+                        <tr><td><code>pt_fx_v1</code></td><td>匯率，帶時間戳顯色</td></tr>
+                        <tr><td><code>pt_adhoc_closures_v1</code></td><td>臨時休市推論，不進 Gist</td></tr>
+                        <tr><td><code>pt_quote_moves_v1</code></td><td>CSV 漲跌，不再當損益來源</td></tr>
+                    </table>
+                </section>
+
+                <section id="s6">
+                    <h2>6. 損益模型</h2>
+                    <p>
+                        v15.082 當時今日損益只採計 <code>open</code>；v15.902 當時 close pair 是每檔一筆 <code>pt_close_pair_v1</code>。
+                        這兩段寫在 Notion 損益頁舊章節裡，是當時的契約。
+                        <strong>v15.907 起改投資日模型（<code>open</code> + <code>closed_retained</code>），cache 升 <code>pt_close_pair_v3</code>，並維持至今。</strong>
+                        現行計算在 <code>calculateStats</code>。
+                    </p>
+
+                    <h3>投資日</h3>
+                    <p>
+                        <span class="badge code">_portfolioDay</span>
+                        以台北時間 08:00 換日。08:00 前仍算前一個投資日。
+                        三市場的交易時段都不跨這個點，所以換日是乾淨的一整批切換。
+                    </p>
+
+                    <h3>今日損益</h3>
+                    <pre>盤中 open：
+  (currentPrice − 前一交易日 exact final pair.close) × 股數
+
+已收盤 closed_retained：
+  final pair(投資日).close − pair.prevClose
+  凍結到隔日 08:00
+
+不計入：not_open、closed_or_holiday</pre>
+                    <p>
+                        採計函式是 <code>_eligibleTodayStatus = open || closed_retained</code>。
+                        盤中<strong>不接受</strong>「用今日 pair 的 prevClose 湊合」。基準還沒驗證就顯示「基準資料校驗中」（v15.944），避免颱風假誤標後把兩日漲幅加在一起。
+                        任一採計市場資料不齊，總額顯示「資料不足」，不做部分合計。
+                    </p>
+
+                    <h3>前次收盤損益</h3>
+                    <p>
+                        只讀投資日前一交易日的 exact final pair：<code>pair.close − pair.prevClose</code>。
+                        不再讀 CSV <code>dayChange</code>、<code>h.prevClose</code>、snapshot、baseline。
+                    </p>
+
+                    <h3>合法 close pair</h3>
+                    <p><span class="badge code">_isExactFinalClosePair</span> 必須同時成立：</p>
+                    <ul>
+                        <li><code>final === true</code></li>
+                        <li><code>targetDate</code> 就是要算的那天</li>
+                        <li><code>prevDate</code> 等於該市場的前一交易日（禁止跳更早的交易日）</li>
+                        <li>兩邊 close 都 &gt; 0</li>
+                    </ul>
+                    <p>
+                        來源優先：<code>fundamentals.json.recent_closes</code> → 本機／Gist cache → Yahoo chart 10d。
+                        分割後會把歷史 close 轉成目前持倉尺度再算（v15.921）。
+                    </p>
+                    <p>
+                        行事曆：TW／HK 只精確到 2026；US 已補 2027（v15.925）。
+                        未涵蓋年份降級為週末判斷，缺資料就顯示不足，不會跳日硬算。
+                    </p>
+                </section>
+
+                <section id="s7">
+                    <h2>7. 同步與備份</h2>
+                    <h3>Gist：user push</h3>
+                    <ul>
+                        <li>改使用者資料 → <code>_markAndAutoPush</code> → 2 秒 debounce 靜默推。</li>
+                        <li>先比 <code>userDataHash</code>。相同就 noop，不 PATCH。</li>
+                        <li>手動推送三選一：標記最新版（master）／暫存上傳／取消。只有 master 寫 <code>userConfirmedCloudMaster</code>。</li>
+                        <li>401／403 立刻停 retry，toast 提示 Token 失效。</li>
+                        <li>「⚠ N 筆未同步」只數 user domains，快照不算。</li>
+                    </ul>
+
+                    <h3>Gist：system push</h3>
+                    <p>
+                        收盤快照與 close pair 走 <code>_scheduleSystemSyncPush</code>。
+                        開頭有 <code>_isApplyingCloudPull</code> guard，避免 pull 期間又排 push。
+                    </p>
+
+                    <h3>FSA 本機資料夾</h3>
+                    <p>
+                        <span class="badge code">_isFsaSupported</span>
+                        三層擋：必須有 <code>showDirectoryPicker</code>、安全上下文、IndexedDB；
+                        Android／iPhone／iPad／Mobile UA 一律 false。與 Gist 互斥。
+                    </p>
+
+                    <h3>備份層級</h3>
+                    <ol>
+                        <li>localStorage（裝置）</li>
+                        <li>Gist（跨裝置，有 revision）</li>
+                        <li>Actions 每日把 Gist 寫進 <code>data/portfolio_backup.db</code></li>
+                        <li>CSV 匯出（離線保底，含 Lots / TradeHistory / Loans）</li>
+                    </ol>
+                    <p>還原工具：<code>data/restore_from_sqlite.py</code>。</p>
+                </section>
+
+                <section id="s8">
+                    <h2>8. 報價與外部資料</h2>
+                    <h3>盤中現價</h3>
+                    <p>
+                        一鍵更新／每分鐘靜默 → Google Sheet CSV → CORS proxy 鏈 →
+                        <code>_lookupPrice</code> → <code>_acceptIncomingPriceForHolding</code>（拒收分割前舊價）→ <code>holdings.currentPrice</code>。
+                    </p>
+                    <p>
+                        Proxy 順序：allorigins → codetabs → corsproxy；本機或已設後端時再加
+                        <code>/fetch-sheet</code>。上次成功的節點會記在 <code>pt_sheet_proxy_idx_v1</code>。
+                    </p>
+                    <p>
+                        <span class="badge code">_lookupPrice</span>
+                        台股允許 <code>00675L</code> ↔ <code>00675L.TW</code>；
+                        v15.949 起港股同樣允許 <code>9747</code> ↔ <code>9747.HK</code>。
+                    </p>
+                    <div class="note">
+                        港股免費源延遲約 15–20 分。v15.942 只在今日損益卡底部加註腳，沒改來源。
+                        Google Sheet「發布到網路」本身還有 5–10 分鐘伺服器快取，程式控制不了。
+                    </div>
+
+                    <h3>基本面</h3>
+                    <p>
+                        Actions 跑 <code>update_fund.py</code>，寫 <code>data/fundamentals.json</code>。
+                        早期排程與腳本檔頭寫「每 6 小時」；後來 <code>update-fundamentals.yml</code> 改成每天 UTC 00/12 兩次（台灣 08:00／20:00），並維持至今。
+                        財報日可用 <code>EARNINGS_PROXY</code> 對槓桿／港股反推原型，但 mapping 只影響財報日期，不改 PE／技術面。
+                    </p>
+                    <p>前端快取失敗時應設 <code>null</code> 而不是 <code>{}</code>（v15.042）。新鮮度用灰／橘／紅顯示。</p>
+                </section>
+
+                <section id="s9">
+                    <h2>9. 貸款、公司行動、觀察清單</h2>
+                    <h3>貸款</h3>
+                    <p>
+                        v15.918 起餘額只由「原始本金 + 固定月付 + 首次還款日」即時推導。
+                        <code>_processAllLoansAutoDebit</code> 是空函式。日期變化不寫資料、不產生 pending。
+                    </p>
+                    <p>INV-2 仍有效：貸款不進五張統計卡、不進圓餅、不改總投入／總市值／今日損益。</p>
+                    <p>
+                        v15.949 補上跨貸款的「每月應還」：
+                        本期應付 = <code>nextInterest + nextPrincipal</code>（最後一期自動小於月付）；
+                        月付過低或還沒高過利息的不計入。持倉總資產列可顯示「月還」，點了進 Tab 8，不從總資產扣除。
+                    </p>
+
+                    <h3>公司行動</h3>
+                    <p>
+                        正向分割：價格尺度偵測 + Yahoo official split 核對後可自動套用。
+                        反向分割／減資：即使官方核對成功也不自動套用（畸零股折現、現金減資退款，總成本不該守恆）。
+                        套用前硬檢查總成本守恆；FIFO 逐批 <code>qty×ratio / cost÷ratio</code>。
+                    </p>
+
+                    <h3>觀察清單</h3>
+                    <p>
+                        與持倉報價、close pair、損益完全獨立。漲跌算錯不代表持倉損益錯。
+                        Pro 圖有 TradingView widget（公開版最多約 5 個 study）與原生圖 fallback。
+                        v15.926–v15.947 已經很厚，不該再當預設擴充區。
+                    </p>
+                </section>
+
+                <section id="s10">
+                    <h2>10. 版本與回歸史</h2>
+                    <p>
+                        <code>v15.900</code> 是 git tag 凍結點。之後沒有另開 v16，而是在 v15.9xx 上小步修。
+                        規則寫明：fallback 後下一版直接 +1，不跳號避開曾經用過的號碼。
+                    </p>
+                    <p>跟現況最相關的幾段：</p>
+                    <table>
+                        <tr><th>版本</th><th>留下的契約</th></tr>
+                        <tr><td>v15.079–080</td><td>hash-first；snapshot 改走 system channel</td></tr>
+                        <tr><td>v15.902–910</td><td>close pair 單一來源；投資日模型；<code>final</code> 標記</td></tr>
+                        <tr><td>v15.918</td><td>貸款改推導、拔流水帳</td></tr>
+                        <tr><td>v15.923–925</td><td>禁止跳日；未涵蓋年份降級；美股 2027 行事曆</td></tr>
+                        <tr><td>v15.938–945</td><td>颱風假／臨時休市必須能自癒，不能永久寫死</td></tr>
+                        <tr><td>v15.943</td><td>石墨 UI</td></tr>
+                        <tr><td>v15.947–948</td><td>觀察清單韌性；Yahoo 日期與 close 必須成對過濾</td></tr>
+                        <tr><td>v15.949</td><td>每月應還顯示 + 港股代碼後綴</td></tr>
+                    </table>
+                    <p>
+                        PWA 認版本靠左上角字串：<code>font-family:monospace; pointer-events:none;">v15.xxx</code>。
+                        changelog、<code>APP_VERSION</code>、左上角三處少改一處，手機就不會提示新版。
+                        第一次檢查在啟動 15 秒後，之後每 30 分鐘。
+                    </p>
+                </section>
+
+                <section id="s11">
+                    <h2>11. 文件與程式的時間對照</h2>
+                    <p>
+                        下表不是在說舊文件寫錯。左邊是<strong>當時如實記下的狀態</strong>；右邊是<strong>後來哪一版改成現在這樣，並維持至今</strong>。
+                        讀舊頁時把日期一起看即可。
+                    </p>
+                    <table>
+                        <tr><th>文件／當時紀錄</th><th>當時在說什麼</th><th>後來怎麼走、維持至今</th></tr>
+                        <tr>
+                            <td>README「不會跨裝置同步」</td>
+                            <td>Gist 上線前，資料只在該瀏覽器 localStorage</td>
+                            <td>v15.4 起加 Gist 推送／拉取；v15.041 起開頁靜默拉取；v15.079 起改 hash-first。跨裝置同步已是正式路徑。</td>
+                        </tr>
+                        <tr>
+                            <td>README／技能「藍黑色系」</td>
+                            <td>v15.1 起的配色契約</td>
+                            <td>v15.943 改石墨深灰＋低彩度灰綠，畫面維持這套。</td>
+                        </tr>
+                        <tr>
+                            <td>Notion 主頁 2026-04 功能表</td>
+                            <td>當時已上線的持倉、報價、基本面、Gist</td>
+                            <td>之後才加貸款（v15.917）、公司行動（v15.920）、觀察清單 Pro（v15.926）、投資日損益（v15.907）。主頁摘要還沒補後續版本。</td>
+                        </tr>
+                        <tr>
+                            <td>損益頁舊節：只算 <code>open</code>、<code>pt_close_pair_v1</code></td>
+                            <td>v15.082／v15.902 當下的公式與 cache</td>
+                            <td>v15.907 起投資日模型採計 <code>open</code> + <code>closed_retained</code>；cache 升 v3。損益頁標題停在「現行 v15.941」是 7 月那輪確認。</td>
+                        </tr>
+                        <tr>
+                            <td>資料流程 2026-07-13：正式線 v15.941、942 尚未採用</td>
+                            <td>當天本機核對結果</td>
+                            <td>之後 942–949 陸續進 <code>origin/main</code>。該則補記保留為當日紀錄即可，不必刪。</td>
+                        </tr>
+                        <tr>
+                            <td>優化清單 2026-04-30 標未辦的 1.3／2.2／3.5</td>
+                            <td>當時確實還沒做</td>
+                            <td>Sheet 後端備援在 v15.947；PWA 版本提示在 v15.066，首次檢查提前至 15 秒在 v15.945；容量警示在 v15.944。</td>
+                        </tr>
+                        <tr>
+                            <td><code>update_fund.py</code> 檔頭「每 6 小時」</td>
+                            <td>早期排程說法</td>
+                            <td>現行 workflow 是每天兩次（UTC 00/12）。檔頭註解還沒跟著改，不影響執行。</td>
+                        </tr>
+                        <tr>
+                            <td>版本更新紀錄曾寫到 v15.946</td>
+                            <td>該頁當時最新一則</td>
+                            <td>2026-08-13 已依 HTML 補上 925–931、943–945、947–949。</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="s12">
+                    <h2>12. 現況結論</h2>
+                    <p>
+                        這是一個把「個人財務儀表板」和「跨裝置同步協議」塞進同一個 HTML 的成熟工具。
+                        難的地方不在畫表格，而在：報價延遲、行事曆缺口、分割尺度、以及「系統算出來的數字不能被當成使用者改了資料」。
+                    </p>
+                    <ul>
+                        <li>損益公式從 v15.907／v15.923／v15.944 這幾輪之後已經收斂。現在比較容易出狀況的是資料還沒到，或行事曆／分割把基準日弄歪。</li>
+                        <li>同步協議以 v15.079 hash-first 為準。較早的時間戳比較、revision-only 規則已寫在「已失效規則總覽」，讀舊節時要看它被哪一版取代。</li>
+                        <li>產品上最擠的是持倉頁；觀察清單從 v15.926 起已經很厚，不適合當預設擴充區。</li>
+                        <li>單檔約 1 MB 是維護成本，但 Pages／PWA／版本比對都綁在這一個檔。沒有明確重構需求前，維持單檔比較安全。</li>
+                    </ul>
+                    <p>下一步怎麼排，見 <a href="02-未來優化報告.html">未來優化報告</a>。</p>
+                </section>
+
+                <p class="footer">專案現況報告 · 2026-08-13 · 對照程式 v15.949</p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

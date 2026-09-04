@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio Tracker 專案卷宗</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="topbar">
+            <div class="brand">Portfolio Tracker<small>內部卷宗 · 歷程保留，現況以程式為準</small></div>
+            <nav class="nav">
+                <a class="now" href="index.html">封面</a>
+                <a href="01-專案現況報告.html">現況報告</a>
+                <a href="02-未來優化報告.html">優化報告</a>
+                <a href="03-月相圖實現轉移方法.html">月相轉移</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div>
+                <p class="kicker">Dossier / 2026-08-13</p>
+                <h1>持倉追蹤系統<br>現況與下一步</h1>
+                <p class="lede">
+                    這不是產品介紹稿。Notion 與舊 README 記錄的是當時的改版歷程，當時那樣寫是如實的。
+                    這份報告拿它們去跟 <code>portfolio-tracker-v15.html</code> 現行寫法對過：現況以程式為準，
+                    舊做法若已在後續版本改過，會註明從哪一版修正並維持至今。
+                </p>
+            </div>
+            <dl class="meta-card">
+                <dt>現行程式</dt>
+                <dd>v15.949</dd>
+                <dt>主檔</dt>
+                <dd>portfolio-tracker-v15.html</dd>
+                <dt>體積</dt>
+                <dd>1,032,799 bytes · 14,607 行</dd>
+                <dt>凍結點</dt>
+                <dd>git tag v15.900</dd>
+                <dt>線上入口</dt>
+                <dd>GitHub Pages → 單檔 PWA</dd>
+            </dl>
+        </section>
+
+        <div class="doors">
+            <a class="door" href="01-專案現況報告.html">
+                <div class="no">01</div>
+                <h2>專案現況報告</h2>
+                <p>系統地圖、九個 Tab、損益模型、同步通道、報價鏈，以及文件與程式的時間對照。現況只寫程式裡實際存在的東西。</p>
+            </a>
+            <a class="door" href="02-未來優化報告.html">
+                <div class="no">02</div>
+                <h2>未來優化報告</h2>
+                <p>把 2026-05 的 Notion 優化清單跟現行程式對帳：當時未辦的，後來哪一版完成；現在還值得做、與明確不要走回頭路的項目。</p>
+            </a>
+        </div>
+        <div class="doors">
+            <a class="door" href="03-月相圖實現轉移方法.html">
+                <div class="no">03</div>
+                <h2>月相圖實現轉移方法</h2>
+                <p>給其他專案／模型重做觀察清單月相開關：TradingView study id、五個上限、開關與重建方式。</p>
+            </a>
+        </div>
+
+        <div class="grid-2">
+            <div class="stat">
+                <b>先讀程式</b>
+                <span>報告內凡標「程式核對」皆已對到函式或檔案。Notion 是歷程與意圖；現況以程式為準。</span>
+            </div>
+            <div class="stat">
+                <b>不重寫神話</b>
+                <span>v15.900 之後的路證明：小步 hotfix 比拆成 v16 安全。優化報告沿用這條邊界。</span>
+            </div>
+        </div>
+
+        <p class="footer">
+            產生日期 2026-08-13。核對基準：本機 <code>D:\My-project\Portfolio Tracker</code>、
+            commit <code>75b8d64</code>、<code>APP_VERSION = 'v15.949'</code>。
+            對照 Notion 頁：專案主頁、版本更新紀錄、損益計算邏輯、資料更新流程、目前程式架構能做的優化、未來設計思考、Claude Code 架構說明。
+        </p>
+    </div>
+</body>
+</html>
