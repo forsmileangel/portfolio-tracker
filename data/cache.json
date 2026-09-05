@@ -30,7 +30,7 @@
       "eps_next_q2": null,
       "eps_cur_y": null,
       "eps_next_y": null,
-      "fetched_at": 1788577996957
+      "fetched_at": 1788577996958
     },
     "BTC": {
       "pe": null,
@@ -151,9 +151,9 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7718.60009765625,
-        "chg1d": -0.375722160845159,
-        "chg7d": 0.08870001451213029
+        "price": null,
+        "chg1d": null,
+        "chg7d": null
       },
       {
         "symbol": "^IXIC",
@@ -167,9 +167,9 @@
         "symbol": "^SOX",
         "name": "費城半導體",
         "cat": "股市",
-        "price": 11735.2626953125,
-        "chg1d": 3.3749861607915164,
-        "chg7d": 2.315696676660197
+        "price": 11735.259765625,
+        "chg1d": 3.374960353409727,
+        "chg7d": 2.3156711337281477
       },
       {
         "symbol": "^VIX",
@@ -191,53 +191,145 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 99.15699768066406,
-        "chg1d": 0.15858351582228536,
-        "chg7d": -0.5446331837502616
+        "price": 99.16000366210938,
+        "chg1d": 0.1616198607165404,
+        "chg7d": -0.5416181571330861
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4477.2001953125,
-        "chg1d": -0.3228176273904495,
-        "chg7d": -0.020095628148664904
+        "price": 4429.7998046875,
+        "chg1d": -1.3781060162830707,
+        "chg7d": -1.0785889532489332
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 91.22000122070312,
-        "chg1d": -0.08762522276076443,
-        "chg7d": 9.376498263489461
+        "price": 91.4800033569336,
+        "chg1d": 0.19715257301113057,
+        "chg7d": 9.688251418733456
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 79689.34375,
-        "chg1d": -1.9470462855949222,
-        "chg7d": 2.3886005177330443
+        "price": 79543.5234375,
+        "chg1d": -2.1264694264986588,
+        "chg7d": 1.6585052874235284
       }
     ],
     "news": [
       {
-        "uuid": "30ce1ae5-dc4a-337d-9b8b-6715c19cb506",
-        "title": "Why Franklin Resources (BEN) Stock Is Up Today",
-        "publisher": "StockStory",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/why-franklin-resources-ben-stock-233410678.html",
-        "providerPublishTime": 1788564850,
+        "uuid": "3cdc4a58-db90-3840-a0c0-e6ff653c0506",
+        "title": "Japan, U.S. advance $550 billion investment pact with AI, chips in focus",
+        "publisher": "Investing.com",
+        "link": "https://finance.yahoo.com/technology/ai/articles/japan-u-advance-550-billion-040214374.html",
+        "providerPublishTime": 1788580934,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA",
+          "TSM"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "日本、美國提前與AI簽署5500億$的投資協議，芯片成為焦點"
+      },
+      {
+        "uuid": "1c83f452-edf4-3d32-865c-ccb415908979",
+        "title": "Honeywell Is Now Three Companies. Here's Which Piece I'd Actually Own.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/1c83f452-edf4-3d32-865c-ccb415908979/honeywell-is-now-three.html",
+        "providerPublishTime": 1788575700,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/duomCAKMajlZ4Ll3LY81Jw--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/d6ea3b3bd6392120fdcd69b2385e162a.jpg",
+              "url": "https://s.yimg.com/uu/api/res/1.2/phVRHOjY.JiONaLgi5Pjpw--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5e3950f3c8591c8e58eefdbe21c152fe.jpg",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/sIq_qcf3kfhsjX9QPFkOJA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/5e3950f3c8591c8e58eefdbe21c152fe.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "HON",
+          "HONA",
+          "NVDA",
+          "SOLS"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "霍尼韋爾現在是三家公司。這是我真正擁有的作品。"
+      },
+      {
+        "uuid": "2a736d06-4c87-32ce-9eb4-7744f36b6701",
+        "title": "Why UiPath Stock Plunged Today",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/2a736d06-4c87-32ce-9eb4-7744f36b6701/why-uipath-stock-plunged-today.html",
+        "providerPublishTime": 1788575251,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/HDR5uC2FIiviv4xT4sUyqA--~B/aD02ODM7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a3e4fe2a75579a20e6a8e8f68407bc3f.jpg",
+              "width": 1024,
+              "height": 683,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/knMqy1TukzNKH7lkWocEQA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/a3e4fe2a75579a20e6a8e8f68407bc3f.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "PATH",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "為什麼今天UiPath股票暴跌"
+      },
+      {
+        "uuid": "4ad8989b-557c-38f3-9903-dd41d8938edf",
+        "title": "Thinking Machines Lab Seeks $40B Valuation as Nvidia Extends Its Capital Allocator Role Into Model-Space",
+        "publisher": "Forkast News",
+        "link": "https://finance.yahoo.com/technology/ai/articles/thinking-machines-lab-seeks-40b-022414055.html",
+        "providerPublishTime": 1788575054,
+        "type": "STORY",
+        "relatedTickers": [
+          "NVDA",
+          "AMD",
+          "CSCO",
+          "NOW"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Thinking Machines Lab尋求400億$的估值，因為NVIDIA將其資本配置者的角色擴展到模型空間"
+      },
+      {
+        "uuid": "51bfe692-422b-3260-a4a7-67363608ed1a",
+        "title": "Micron and Western Digital Shares Skyrocket, What You Need To Know",
+        "publisher": "StockStory",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/micron-western-digital-shares-skyrocket-022210546.html",
+        "providerPublishTime": 1788574930,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/mGLoGk8lwI8AUMQEhVoe6w--~B/aD03MDA7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/dcf057c27655d03a050775ca9f19c022.jpg",
               "width": 1400,
               "height": 700,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/.5JYXcPOiZfnJUTWmPYlIg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/d6ea3b3bd6392120fdcd69b2385e162a.jpg",
+              "url": "https://s.yimg.com/uu/api/res/1.2/n6mbcmeAbNoWXgp29Y7Ydw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stockstory_922/dcf057c27655d03a050775ca9f19c022.jpg",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -245,109 +337,30 @@
           ]
         },
         "relatedTickers": [
-          "BEN"
+          "MU",
+          "WDC",
+          "KLAC"
         ],
-        "_sym": "SOXX",
-        "titleZh": "為什麼富蘭克林資源（ BEN ）的股票今天上漲"
+        "_sym": "MU",
+        "titleZh": "美光和西部數據股票飆升，您需要知道什麼"
       },
       {
-        "uuid": "e4842a66-37df-332c-8dd9-d5199c7a7136",
-        "title": "North Carolina Central University alumnus and retired University of North Carolina at Chapel Hill professor joins the Thurgood Marshall College Fund as distinguished faculty-in-residence",
-        "publisher": "GlobeNewswire",
-        "link": "https://finance.yahoo.com/small-business/articles/north-carolina-central-university-alumnus-233400958.html",
-        "providerPublishTime": 1788564840,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/WtcyMXJPqHTYZjBQjunVRg--~B/aD0xMjc2O3c9MTA2MTthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/7eac7c16f306d0879baa841b5cd545a0.jpg",
-              "width": 1061,
-              "height": 1276,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/HEV8pdTZzS3SbYbYTiBcdg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/globenewswire.com/7eac7c16f306d0879baa841b5cd545a0.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "_sym": "SOXX",
-        "titleZh": "北卡羅萊納中央大學校友和退休的北卡羅萊納大學教堂山分校教授加入瑟古德馬歇爾學院基金，擔任傑出駐校教授"
-      },
-      {
-        "uuid": "00df2ff0-5d37-39cd-b157-8ec0738695fc",
-        "title": "Nike CEO Sells Over 9,000 Company Shares Amid a Declining Stock Price",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/m/00df2ff0-5d37-39cd-b157-8ec0738695fc/nike-ceo-sells-over-9%2C000.html",
-        "providerPublishTime": 1788564541,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/TaANzarBWnHb_TIP6F3eIA--~B/aD03MTQ7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/e1ee430ed22ebe173d4eb7447a20e7be.png",
-              "width": 800,
-              "height": 714,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/PQ_bLcJKzy7FrJ2mOcPEuA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/e1ee430ed22ebe173d4eb7447a20e7be.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NKE"
-        ],
-        "_sym": "SOXX",
-        "titleZh": "耐克首席執行官在股價下跌中出售超過9,000股公司股票"
-      },
-      {
-        "uuid": "49803070-879f-3395-9497-bc4be9888d0c",
-        "title": "Media Advisory: Housing Announcement in Winnipeg",
-        "publisher": "CNW Group",
-        "link": "https://finance.yahoo.com/real-estate/articles/media-advisory-housing-announcement-winnipeg-232900564.html",
-        "providerPublishTime": 1788564540,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/Cwr0eLY3UAFV.JjJjlx01g--~B/aD0xNjt3PTE2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/cnwgroup.com/c559278e12c0431b11ecaaa837143056.png",
-              "width": 16,
-              "height": 16,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/CLfbY4WU8SMmbK5LPyAgvg--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/cnwgroup.com/c559278e12c0431b11ecaaa837143056.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "_sym": "SOXX",
-        "titleZh": "媒體公告：溫尼伯住房公告"
-      },
-      {
-        "uuid": "be2f2901-da92-39ed-88fa-bea56200b675",
-        "title": "Victoria’s Secret (VSXY) Delivered 9% Comparable-Sales Growth. Can Regular-Price Momentum Survive Higher Marketing Spend?",
+        "uuid": "d88bb5d3-8857-3b67-b6e6-0240fb8305ad",
+        "title": "SanDisk (SNDK) Soars on S&P 100 Inclusion; Hedge Fund Ownership More-Than-Doubles",
         "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/victoria-secret-vsxy-delivered-9-232855965.html",
-        "providerPublishTime": 1788564535,
+        "link": "https://finance.yahoo.com/markets/stocks/articles/sandisk-sndk-soars-p-100-021124605.html",
+        "providerPublishTime": 1788574284,
         "type": "STORY",
         "thumbnail": {
           "resolutions": [
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/PfJnICh5YZDmJwPoTcXeJg--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/7f05aef134916c914cb2f65f8f98741e.jpg",
-              "width": 1456,
-              "height": 816,
+              "url": "https://s.yimg.com/uu/api/res/1.2/8YJi4jjr_tDk.gZ1rwUGlA--~B/aD00MDAwO3c9NjAwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/92277e300edeb2777fe21a4e5ac2924c.jpg",
+              "width": 6000,
+              "height": 4000,
               "tag": "original"
             },
             {
-              "url": "https://s.yimg.com/uu/api/res/1.2/bcNdY4.7Z53jBYx3ZT7jVw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/7f05aef134916c914cb2f65f8f98741e.jpg",
+              "url": "https://s.yimg.com/uu/api/res/1.2/mOsJ.rQdx_eMYF1gxYyl3A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/92277e300edeb2777fe21a4e5ac2924c.jpg",
               "width": 140,
               "height": 140,
               "tag": "140x140"
@@ -355,10 +368,119 @@
           ]
         },
         "relatedTickers": [
-          "VSXY"
+          "SNDK",
+          "HONA",
+          "NKE",
+          "SPG",
+          "CL",
+          "DELL",
+          "PANW",
+          "ANET"
         ],
-        "_sym": "SOXX",
-        "titleZh": "維多利亞的祕密(VSXY)實現了9%的可比銷售增長。常規價格動能能否撐過較高的市場推廣支出？"
+        "_sym": "SNDK",
+        "titleZh": "SanDisk （ SNDK ）在標準普爾100指數的包容性上飆升；對沖基金所有權超過兩倍"
+      },
+      {
+        "uuid": "c0a0df97-9ea5-3627-96f4-1b27ac9d70a4",
+        "title": "Spot Memory Prices Are Running 4 Times Contract Prices. That Is Not What a Cycle Peak Looks Like.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/m/c0a0df97-9ea5-3627-96f4-1b27ac9d70a4/spot-memory-prices-are.html",
+        "providerPublishTime": 1788573481,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/9K3zsypvW3CoIHizK1SUdA--~B/aD04MDA7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d3bb8e898bfe3d3f3af5db19d9fda354.png",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/mlIlG30NRSZU6YXp2.wKkw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/d3bb8e898bfe3d3f3af5db19d9fda354.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "現貨記憶體價格是合約價格的4倍。這不是週期高峯的樣子。"
+      },
+      {
+        "uuid": "c27f3f08-634b-389a-90e7-6fdad7daaa94",
+        "title": "Review & Preview: A Strong Jobs Report Has Investors Bracing for a Rate Hike",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/c27f3f08-634b-389a-90e7-6fdad7daaa94/review-%26-preview%3A-a-strong.html",
+        "providerPublishTime": 1788566100,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/3seIyMYRD0699UBVb3FN8A--~B/aD02NTt3PTMyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e.png",
+              "width": 320,
+              "height": 65,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/2FFPHEeeUG.nOBEoFm4MIA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/12ea0f43d8f8307249a68d1cb2e0587e.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^IXIC",
+          "^GSPC",
+          "^DJI",
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "審查和預覽：一份強勁的工作報告讓投資者為加息做好準備"
+      },
+      {
+        "uuid": "e743306d-84fd-3ea1-8d9a-16338a4f5fc4",
+        "title": "BE, P, ILMN Join S&P 500; LNG Misses Out — Bloom Energy Stock Gains While Cheniere Energy Slips",
+        "publisher": "Stocktwits",
+        "link": "https://finance.yahoo.com/m/e743306d-84fd-3ea1-8d9a-16338a4f5fc4/be%2C-p%2C-ilmn-join-s%26p-500%3B-lng.html",
+        "providerPublishTime": 1788565379,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/hNYcQ1EoXdrLgUpmMWnOLg--~B/aD04NTM7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/ec8d1ccd58991dbed998321331bed7c9",
+              "width": 1280,
+              "height": 853,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/bpQb5BaznGEVk78MHtsnqA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/stocktwits_383/ec8d1ccd58991dbed998321331bed7c9",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "LNG",
+          "BE",
+          "^GSPC",
+          "ILMN",
+          "DELL",
+          "PANW",
+          "ANET",
+          "SNDK",
+          "HUBS",
+          "AGNC",
+          "CORT",
+          "EAT",
+          "P"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "BE ， P ， ILMN加入標準普爾500指數； LNG錯失良機— Cheniere Energy Slips時Bloom Energy Stock Gains"
       },
       {
         "uuid": "a0984480-6fd0-3018-8ad2-f769d35a76c0",
@@ -432,127 +554,6 @@
         "titleZh": "Bloom Energy、Illumina和Everpure將加入標準普爾500指數；其他公司將加入標準普爾100指數、標準普爾中型股400指數和標準普爾小型股600指數"
       },
       {
-        "uuid": "31b1a928-6679-3ecc-9a88-e164adad3125",
-        "title": "ChronoScale Says It Plans a 50 MW Microsoft AI Deployment. Can CHRN Fund the Build Without Diluting Shareholders?",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/technology/ai/articles/chronoscale-says-plans-50-mw-231034421.html",
-        "providerPublishTime": 1788563434,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/GBaY8P5c7kxjkZ66fAbvDg--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/589922bc8f40052d398071e487aaf73c.jpg",
-              "width": 1456,
-              "height": 816,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/FUn0dOK58912rqEpgZ3O9A--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/589922bc8f40052d398071e487aaf73c.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "CHRN",
-          "MSFT",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "ChronoScale表示，它計劃進行50兆瓦的Microsoft AI部署。CHRN可以在不稀釋股東的情況下為建設提供資金嗎？"
-      },
-      {
-        "uuid": "ada19db6-beec-314f-bb68-dbbf2e66cc04",
-        "title": "AWS Plans 2 Million More NVIDIA GPUs. Is This Better News for AMZN’s Cloud Growth or NVDA’s Backlog?",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/technology/ai/articles/aws-plans-2-million-more-230419284.html",
-        "providerPublishTime": 1788563059,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/bl44vt8C8.EcTXGf5cd2zA--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/3cdfc6984f75eb9c4dba5deb13ce85cf.jpg",
-              "width": 1920,
-              "height": 1080,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/hXM8wSeJND__zys3VkzQgw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/3cdfc6984f75eb9c4dba5deb13ce85cf.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMZN",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "AWS計劃增加200萬個NVIDIA GPU。這對AMZN的雲端增長還是NVDA的待辦項目來說是個好消息？"
-      },
-      {
-        "uuid": "c022b64c-df79-3520-acda-f62c580456de",
-        "title": "U.S. Used Promise of Nvidia Chips to Broker Armenia-Azerbaijan Peace Deal",
-        "publisher": "The Wall Street Journal",
-        "link": "https://finance.yahoo.com/m/c022b64c-df79-3520-acda-f62c580456de/u.s.-used-promise-of-nvidia.html",
-        "providerPublishTime": 1788562800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/E5hG4udnujrB12eRScxTMw--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/a59dfddc8fe1ccf2333d9f699866eaa5.jpg",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ERZ0tDOoHkNORCi3oFC5QA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/wsj.com/a59dfddc8fe1ccf2333d9f699866eaa5.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "美國用Nvidia芯片承諾促成亞美尼亞-阿塞拜疆和平協議"
-      },
-      {
-        "uuid": "a91c1760-cb30-35a5-aafa-aa8fe449488e",
-        "title": "Coatue Opened Positions in Intel and Cerebras. Is the AI Chip Trade Broadening Beyond NVIDIA?",
-        "publisher": "Insider Monkey",
-        "link": "https://finance.yahoo.com/technology/ai/articles/coatue-opened-positions-intel-cerebras-225513318.html",
-        "providerPublishTime": 1788562513,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_lhnLugG8mA6sIgVnowx6A--~B/aD0xMjk5O3c9MjMwOTthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/insidermonkey.com/ecebfb0ba7c7a8aee3884e1b234ef4b9.jpg",
-              "width": 2309,
-              "height": 1299,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ONKSl3QrLCsmiGJgoiF9FA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/ecebfb0ba7c7a8aee3884e1b234ef4b9.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "INTC",
-          "CBRS",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "Intel和Cerebras中的Coatue Opened Positions。AI晶片貿易是否擴大到NVIDIA之外？"
-      },
-      {
         "uuid": "58db7218-aed8-334d-9383-927f746e1456",
         "title": "Why ASML Holding Stock Bumped 4% Higher Today",
         "publisher": "Motley Fool",
@@ -623,6 +624,39 @@
         ],
         "_sym": "MU",
         "titleZh": "道瓊期貨： Nvidia、Micron、Sandisk Flash買入信號； Apple ，未來通貨膨脹報告"
+      },
+      {
+        "uuid": "c14cc0ec-a7ad-37b2-a6b9-54ccdeb2ec18",
+        "title": "Micron Stock Closes Above $1,000. Why It’s Not What It Seems.",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/c14cc0ec-a7ad-37b2-a6b9-54ccdeb2ec18/micron-stock-closes-above.html",
+        "providerPublishTime": 1788561360,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/3HDN2WlQuJlg5VP7sNz.8g--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/9d0e818f4d88ebb5d2ea6d5e5b58e660.jpg",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/2I_11EEQ1iJVHYW9MDU2lA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/9d0e818f4d88ebb5d2ea6d5e5b58e660.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "SNDK",
+          "000660",
+          "^GSPC",
+          "^DJI"
+        ],
+        "_sym": "MU",
+        "titleZh": "美光股票收於$ 1,000以上。為什麼不是它看起來的那樣。"
       },
       {
         "uuid": "3cc32d0a-a216-3bac-87f3-56a93813628b",
@@ -719,121 +753,6 @@
         "titleZh": "David Tepper出售了他41%的美光股份，這仍然是他持有的第二大股份"
       },
       {
-        "uuid": "64f13108-e2e0-3872-9691-3d148d5fa88d",
-        "title": "Stock Market Today: Dow Sinks Amid Rate Fears; Sandisk, KLA Lead Nasdaq-100 As Utilities Gain",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/64f13108-e2e0-3872-9691-3d148d5fa88d/stock-market-today%3A-dow-sinks.html",
-        "providerPublishTime": 1788555337,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/_TyryYmenkJPSL3.gQx6fw--~B/aD02MDA7dz0xMDY1O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/f84dddde254e978a0083114ec56c1e2b.jpg",
-              "width": 1065,
-              "height": 600,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/gHai5Nh4bCVlnkWAYeOcPQ--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/f84dddde254e978a0083114ec56c1e2b.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "^DJI",
-          "^GSPC",
-          "^IXIC",
-          "ADBE",
-          "ORCL",
-          "AAPL",
-          "MSFT",
-          "CRM",
-          "^RUT"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "今日股市：道指在利率恐慌中下跌；隨著公用事業上漲， Sandisk、KLA領先納斯達克100指數"
-      },
-      {
-        "uuid": "00d3c387-eaf5-3f32-ade7-967c36e25d08",
-        "title": "Update: Wall Street Wraps Mixed Week in Red Following Strong Jobs Report",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/wall-street-wraps-mixed-week-204238792.html",
-        "providerPublishTime": 1788554558,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/dBmQEFh6qePlxE_kkprbOw--~B/aD03NTA7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/mt_newswires_premium_news_706/2475a8618428bf41d7b045240805a142.jpg",
-              "width": 1000,
-              "height": 750,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/vM1HS2YOZp7TkmG2bGAsEw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/mt_newswires_premium_news_706/2475a8618428bf41d7b045240805a142.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^DJI",
-          "WDC",
-          "PATH",
-          "MU",
-          "ZS",
-          "SNDK",
-          "^SPX",
-          "LULU",
-          "ADBE",
-          "MRVL",
-          "^IXIC",
-          "^GSPC"
-        ],
-        "_sym": "MU",
-        "titleZh": "更新：在強勁的就業報告之後，華爾街以紅色包裝混合週"
-      },
-      {
-        "uuid": "5d6748bc-705d-389a-b4ee-c90494db82bb",
-        "title": "Tesla, Fair Isaac, Micron, Sandisk, AMC, Trade Desk, UiPath, and More Stocks That Explain Today’s Market",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/5d6748bc-705d-389a-b4ee-c90494db82bb/tesla%2C-fair-isaac%2C-micron%2C.html",
-        "providerPublishTime": 1788553800,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/RHKnAdmCMhVthsFXoFZW_Q--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/ab0257948a5df2d9e4766354395962b0.jpg",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/uu/api/res/1.2/ObcilAoPGYar8u.gnFf3vw--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/ab0257948a5df2d9e4766354395962b0.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "TSLA",
-          "FICO",
-          "EFX",
-          "LULU",
-          "AAPL",
-          "MU",
-          "SNDK",
-          "TTD",
-          "PATH"
-        ],
-        "_sym": "MU",
-        "titleZh": "Tesla、Fair Isaac、Micron、Sandisk、AMC、Trade Desk、UiPath以及更多解釋當今市場的股票"
-      },
-      {
         "uuid": "da4c729a-6724-3e92-a6da-ddc8f876bd78",
         "title": "Marvell Stock Had A Huge Year And Still Sits Well Below Its High",
         "publisher": "Trefis",
@@ -897,9 +816,58 @@
         ],
         "_sym": "TSM",
         "titleZh": "預測： 2026年底前臺灣半導體股將飆升22%"
+      },
+      {
+        "uuid": "ab850936-fd77-32fa-b761-7fb3a7c874b3",
+        "title": "ASML Plans 40% Japan Workforce Expansion to Support Chip Boom",
+        "publisher": "GuruFocus.com",
+        "link": "https://finance.yahoo.com/technology/articles/asml-plans-40-japan-workforce-183514067.html",
+        "providerPublishTime": 1788546914,
+        "type": "STORY",
+        "relatedTickers": [
+          "ASML",
+          "TSM",
+          "MU"
+        ],
+        "_sym": "TSM",
+        "titleZh": "ASML計劃擴大40 ％的日本勞動力，以支持Chip Boom"
+      },
+      {
+        "uuid": "9abf142d-083d-3eab-a76b-e38488f7646c",
+        "title": "Super Micro Surges 7% as Semiconductors Lead a Flat Tape; Hewlett Packard Enterprise Falls 3%, Dell Edges Higher",
+        "publisher": "24/7 Wall St.",
+        "link": "https://finance.yahoo.com/m/9abf142d-083d-3eab-a76b-e38488f7646c/super-micro-surges-7%25-as.html",
+        "providerPublishTime": 1788545114,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/7p4TQZ1OgvBHnk9ivfjAPA--~B/aD0xMDEwO3c9MTUwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/24_7_wall_st__718/8cc6dbd4e0324e24d49235ce08a47c7d.jpg",
+              "width": 1500,
+              "height": 1010,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/uu/api/res/1.2/uYp6SFIRVO86iHK0w5cUwA--~B/Zmk9ZmlsbDtoPTE0MDtweW9mZj0wO3c9MTQwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/24_7_wall_st__718/8cc6dbd4e0324e24d49235ce08a47c7d.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "DELL",
+          "SMCI",
+          "IYW",
+          "SMCIP",
+          "SOXX",
+          "HPE"
+        ],
+        "_sym": "SOXX",
+        "titleZh": "超微浪涌7% ，半導體領先扁平磁帶；惠普企業股下跌3% ，戴爾優勢更高"
       }
     ],
-    "fetched_at": 1788565328910
+    "fetched_at": 1788581613024
   },
   "earnings": {
     "AMD": {
