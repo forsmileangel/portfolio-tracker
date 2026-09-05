@@ -9537,6 +9537,7 @@
         const GIST_LIVE_FILENAME = 'pionex-grid-live.json'; // v15.962：第三檔目前倉位，PT 只讀
         let _pionexLedger = null;
         let _pionexLive = null;
+        let _pionexLiveSort = { key: '', dir: 'desc' };
 
         async function _parseGistJsonFile(gistFile) {
             if (!gistFile) return null;
@@ -9614,6 +9615,59 @@
             return { color: '#ef4444', label: '超過一天' };
         }
 
+        function _pionexLiveEff(r) {
+            const inv = parseFloat(r && r.investment_usdt);
+            const day = parseFloat(r && r.profit_24h_usdt);
+            if (!Number.isFinite(inv) || inv <= 0 || !Number.isFinite(day)) return null;
+            return day / inv * 100;
+        }
+
+        function _pionexLiveSortValue(r, key) {
+            if (key === 'symbol') return String(r.symbol || '').toLowerCase();
+            if (key === 'leverage') return String(r.leverage || r.trend || '').toLowerCase();
+            if (key === 'investment') return parseFloat(r.investment_usdt);
+            if (key === 'grid') return parseFloat(r.grid_profit_usdt);
+            if (key === 'profit24h') return parseFloat(r.profit_24h_usdt);
+            if (key === 'eff') return _pionexLiveEff(r);
+            return null;
+        }
+
+        function _pionexLiveSortedRows(rows) {
+            const list = (rows || []).slice();
+            const key = _pionexLiveSort.key;
+            if (!key) return list;
+            const dir = _pionexLiveSort.dir === 'asc' ? 1 : -1;
+            const missing = (v) => v == null || v === '' || (typeof v === 'number' && !Number.isFinite(v));
+            list.sort((a, b) => {
+                const av = _pionexLiveSortValue(a, key);
+                const bv = _pionexLiveSortValue(b, key);
+                if (missing(av) && missing(bv)) return 0;
+                if (missing(av)) return 1;
+                if (missing(bv)) return -1;
+                if (typeof av === 'string' && typeof bv === 'string') return av.localeCompare(bv, 'zh-Hant') * dir;
+                if (av < bv) return -dir;
+                if (av > bv) return dir;
+                return 0;
+            });
+            return list;
+        }
+
+        function sortPionexLive(key) {
+            if (_pionexLiveSort.key === key) _pionexLiveSort.dir = _pionexLiveSort.dir === 'asc' ? 'desc' : 'asc';
+            else {
+                _pionexLiveSort.key = key;
+                _pionexLiveSort.dir = (key === 'symbol' || key === 'leverage') ? 'asc' : 'desc';
+            }
+            renderPionexGridTab();
+        }
+
+        function _pionexLiveSortTh(key, label, align) {
+            const active = _pionexLiveSort.key === key;
+            const arrow = !active ? '' : (_pionexLiveSort.dir === 'asc' ? ' ▲' : ' ▼');
+            const color = active ? '#93c5fd' : '#7e93a6';
+            return `<th onclick="sortPionexLive('${key}')" style="text-align:${align};padding:0.3rem 0.35rem;cursor:pointer;user-select:none;color:${color};">${_escapeHtml(label)}${arrow}</th>`;
+        }
+
         function _renderPionexLiveCard(live) {
             if (!live) {
                 return `<div class="glass-card" style="padding:1rem 1.15rem;margin-bottom:1rem;">
@@ -9623,12 +9677,10 @@
             }
             const fresh = _pionexLiveFreshness(live.captured_at);
             const when = _fmtPionexTs(live.captured_at) || '—';
-            const rows = Array.isArray(live.rows) ? live.rows : [];
+            const rows = _pionexLiveSortedRows(Array.isArray(live.rows) ? live.rows : []);
             const rowHtml = rows.length
                 ? rows.map(r => {
-                    const inv = parseFloat(r.investment_usdt);
-                    const day = parseFloat(r.profit_24h_usdt);
-                    const eff = Number.isFinite(inv) && inv > 0 && Number.isFinite(day) ? (day / inv * 100) : null;
+                    const eff = _pionexLiveEff(r);
                     const effText = eff == null ? '—' : ((eff > 0 ? '+' : '') + eff.toFixed(3) + '%');
                     return `<tr>
                     <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
@@ -9653,16 +9705,16 @@
                     <div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">網格利潤加總</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
                 </div>
-                <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">家裡電腦暫存；不是按這頁去打派網。08:00 Excel 與 08:05 日記帳不受影響。</div>
+                <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">家裡電腦暫存；不是按這頁去打派網。08:00 Excel 與 08:05 日記帳不受影響。點欄位標題可排序。</div>
                 <div style="margin-top:0.7rem;overflow:auto;">
                     <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
-                        <thead><tr style="color:#7e93a6;">
-                            <th style="text-align:left;padding:0.3rem 0.35rem;">標的</th>
-                            <th style="text-align:left;padding:0.3rem 0.35rem;">槓桿</th>
-                            <th style="text-align:right;padding:0.3rem 0.35rem;">倉位</th>
-                            <th style="text-align:right;padding:0.3rem 0.35rem;">網格</th>
-                            <th style="text-align:right;padding:0.3rem 0.35rem;">24h</th>
-                            <th style="text-align:right;padding:0.3rem 0.35rem;">每U效率</th>
+                        <thead><tr>
+                            ${_pionexLiveSortTh('symbol', '標的', 'left')}
+                            ${_pionexLiveSortTh('leverage', '槓桿', 'left')}
+                            ${_pionexLiveSortTh('investment', '倉位', 'right')}
+                            ${_pionexLiveSortTh('grid', '網格', 'right')}
+                            ${_pionexLiveSortTh('profit24h', '24h', 'right')}
+                            ${_pionexLiveSortTh('eff', '每U效率', 'right')}
                         </tr></thead>
                         <tbody>${rowHtml}</tbody>
                     </table>
