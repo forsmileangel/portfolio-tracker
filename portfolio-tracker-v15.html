@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.966 同版修補 - 派網目前倉位新增「以目前倉位填入加密欄」，直接採用該次快照的錢包 TWD；每日快照按鈕與時間獨立標示。移除 Gist 拉取後強制以每日錢包覆蓋加密欄，保留使用者選值並沿用持倉同步；USDT 提示只配對相同 TWD 的快照。維持版號、Storage Key、schema 與既有 hash／pending 規則。
   v15.966 同版修補 - 開頁自動更新報價：等待啟動 Gist／本地同步完成後，立即刷新目前持倉報價與收盤基準，避免先更新的現價被稍後載入的雲端舊值覆蓋；同步超過 8 秒先更新本機資料，完成後再補抓。維持 60 秒輪詢，不改部署排程、Storage Key、schema、userDataHash 或 pending。
   v15.966 - 2026-09-16 收盤損益一致性與報價更新提速：正式收盤以 3 分鐘 TTL 校正既有 final pair，失敗保留快取；同步優先正式來源與 fetchedAt，同順位固定排序，避免重新上傳舊值造成倒退。CSV 股價先顯示、匯率與備援分段補齊，統一逐幣別 Sheet > API > 現值；更新請求去重且保留一次手動追加，切回畫面補抓過期報價，換日與收盤刷新不依賴 CSV 成敗。保留 08:00 投資日、收盤凍結、拆併股保護與裝置發布限制；不改 Storage Key、Gist schema、userDataHash、pending 或損益公式。
   v15.964 - 派網目前倉位列加「每U效率」：24h 利潤 ÷ 倉位大小，放在最後一欄。不改 schema、Gist 檔名、userDataHash、pending 或損益公式。
@@ -5617,8 +5618,13 @@
             if (!hint) return;
             let usdt = null;
             try {
-                const w = _loadPionexLedger() && _loadPionexLedger().wallet;
-                if (w && w.usdt != null && w.usdt !== '') usdt = Number(w.usdt);
+                // 只引用與已填入台幣一致的快照，避免目前倉位金額搭到每日快照的 USDT。
+                const sources = [_loadPionexLive(), _loadPionexLedger()];
+                const matched = sources.find(s => s && s.wallet && s.wallet.twd != null
+                    && Math.round(Number(s.wallet.twd)) === Math.round(cryptoTWD)
+                    && s.wallet.usdt != null && s.wallet.usdt !== ''
+                    && Number.isFinite(Number(s.wallet.usdt)) && Number(s.wallet.usdt) > 0);
+                if (matched) usdt = Number(matched.wallet.usdt);
             } catch (_) {}
             if (cryptoTWD > 0 && Number.isFinite(usdt) && usdt > 0) {
                 hint.textContent = `≈ ${usdt.toLocaleString('en-US', { maximumFractionDigits: 0 })} USDT`;
@@ -9746,12 +9752,19 @@
                     <div style="color:${fresh.color};font-size:0.72rem;">資料更新 ${_escapeHtml(when)} · ${fresh.label}</div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem 1rem;">
-                    <div><div style="color:#7e93a6;font-size:0.72rem;">錢包</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${walletTwd}</div><div style="color:#607585;font-size:0.7rem;">${walletUsdt}</div></div>
+                    <div>
+                        <div style="color:#7e93a6;font-size:0.72rem;">錢包</div>
+                        <div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${walletTwd}</div>
+                        <div style="color:#607585;font-size:0.7rem;">${walletUsdt}</div>
+                        ${live.wallet && Number.isFinite(Number(live.wallet.twd)) && Number(live.wallet.twd) > 0
+                            ? `<button type="button" onclick="fillPionexWalletIntoCrypto('live')" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">以目前倉位填入加密欄</button>`
+                            : ''}
+                    </div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div></div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">網格利潤加總</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
                 </div>
-                <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">家裡電腦暫存；不是按這頁去打派網。08:00 Excel 與 08:05 日記帳不受影響。點欄位標題可排序。</div>
+                <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">金額為上方更新時間的錢包估值；填入會取用這筆台幣金額。需更新資料時，先在本機更新目前倉位，再重新進入本頁。點欄位標題可排序。</div>
                 <div style="margin-top:0.7rem;overflow:auto;">
                     <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
                         <thead><tr>
@@ -9795,14 +9808,14 @@
             }
         }
 
-        function _pionexWalletTwd() {
-            const ledger = _loadPionexLedger();
-            const twd = Math.round(Number(ledger && ledger.wallet && ledger.wallet.twd));
+        function _pionexWalletTwd(source = 'daily') {
+            const snapshot = source === 'live' ? _loadPionexLive() : _loadPionexLedger();
+            const twd = Math.round(Number(snapshot && snapshot.wallet && snapshot.wallet.twd));
             return Number.isFinite(twd) && twd > 0 ? twd : null;
         }
 
-        function _syncCryptoFromPionexWallet() {
-            const twd = _pionexWalletTwd();
+        function _syncCryptoFromPionexWallet(source = 'daily') {
+            const twd = _pionexWalletTwd(source);
             if (twd == null) return false;
             const input = document.getElementById('crypto-twd-input');
             const cur = Math.round(parseFloat(input && input.value) || parseFloat(localStorage.getItem(PT_CRYPTO_KEY) || '0') || 0);
@@ -9860,13 +9873,14 @@
             return n > 0 ? '#8bc69c' : '#ef4444';
         }
 
-        function fillPionexWalletIntoCrypto() {
-            const twd = _pionexWalletTwd();
-            if (!_syncCryptoFromPionexWallet()) {
-                try { showWarnToast('尚無派網錢包總額', 2500); } catch (_) {}
+        function fillPionexWalletIntoCrypto(source = 'daily') {
+            const label = source === 'live' ? '目前倉位' : '每日快照';
+            const twd = _pionexWalletTwd(source);
+            if (!_syncCryptoFromPionexWallet(source)) {
+                try { showWarnToast('尚無' + label + '的派網錢包總額', 2500); } catch (_) {}
                 return;
             }
-            try { showImportToast('已寫入持倉加密欄 NT$ ' + _fmtTwdAmt(twd), 2500); } catch (_) {}
+            try { showImportToast('已用' + label + '寫入持倉加密欄 ' + pv('NT$ ' + _fmtTwdAmt(twd)), 2500); } catch (_) {}
         }
 
         function loadGistSettings() {
@@ -10255,7 +10269,6 @@
                 _recordAppError('gist_pull', e);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
-                try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
                 try { _migrate9747HoldingsTo7747Once('gist-pull-manual'); } catch(_) {}
             }
@@ -10483,7 +10496,6 @@
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
-                try { _syncCryptoFromPionexWallet(); } catch(_) {}
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
                 try { _migrate9747HoldingsTo7747Once('gist-pull-silent'); } catch(_) {}
             }
@@ -12811,11 +12823,12 @@ function _isLegacy9747Holding(h) {
                         <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
                     </div>
                     <div>
-                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">錢包總額</div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">最新每日快照錢包</div>
                         <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(ledger.wallet && ledger.wallet.twd != null ? ('NT$ ' + _fmtTwdAmt(ledger.wallet.twd)) : '—')}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${ledger.wallet && ledger.wallet.usdt ? pv(_fmtUsdtAmt(ledger.wallet.usdt) + ' USDT') : ''}</div>
-                        ${ledger.wallet && ledger.wallet.twd != null && Number(ledger.wallet.twd) > 0
-                            ? `<button type="button" onclick="fillPionexWalletIntoCrypto()" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">填入持倉加密欄</button>`
+                        <div style="color:#607585;font-size:0.7rem;margin-top:0.3rem;">快照 ${_escapeHtml(_fmtPionexTs(ledger.captured_at) || ledger.capture_date || '—')}</div>
+                        ${ledger.wallet && Number.isFinite(Number(ledger.wallet.twd)) && Number(ledger.wallet.twd) > 0
+                            ? `<button type="button" onclick="fillPionexWalletIntoCrypto()" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">以每日快照填入加密欄</button>`
                             : ''}
                     </div>
                 </div>
