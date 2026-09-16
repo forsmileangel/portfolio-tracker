@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.966 - 2026-09-16 收盤損益一致性與報價更新提速：正式收盤以 3 分鐘 TTL 校正既有 final pair，失敗保留快取；同步優先正式來源與 fetchedAt，同順位固定排序，避免重新上傳舊值造成倒退。CSV 股價先顯示、匯率與備援分段補齊，統一逐幣別 Sheet > API > 現值；更新請求去重且保留一次手動追加，切回畫面補抓過期報價，換日與收盤刷新不依賴 CSV 成敗。保留 08:00 投資日、收盤凍結、拆併股保護與裝置發布限制；不改 Storage Key、Gist schema、userDataHash、pending 或損益公式。
   v15.964 - 派網目前倉位列加「每U效率」：24h 利潤 ÷ 倉位大小，放在最後一欄。不改 schema、Gist 檔名、userDataHash、pending 或損益公式。
   v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
   v15.962 - 派網網格「目前倉位」：讀 Gist 第三檔 pionex-grid-live.json（本機每 30 分鐘或手動更新目前倉位發布）。網格頁頂部顯示更新時間、錢包、24h／投入／網格加總與各列；進分頁時 GET Gist，失敗保留舊 cache、不擋月曆與持倉同步。不改 holdings schema、userDataHash、pending、損益或 Pages 輪詢。
@@ -829,7 +830,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.965</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.966</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1677,7 +1678,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.965';
+        const APP_VERSION = 'v15.966';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -2900,7 +2901,8 @@
             return 0;
         }
         function _closePairTimeValue(pair) {
-            const ts = pair && (pair.publishedAt || pair.fetchedAt);
+            // 上傳時間不是行情修訂時間；重傳舊資料不可讓舊值勝出。
+            const ts = pair && pair.fetchedAt;
             const t = ts ? new Date(ts).getTime() : 0;
             return Number.isFinite(t) ? t : 0;
         }
@@ -2944,6 +2946,7 @@
         }
         function _sanitizeFinalClosePair(pair, symbol, dateKey, marketKey) {
             if (!pair || typeof pair !== 'object' || pair.final !== true) return null;
+            if (_isUntrustedFinalCloseSource(pair.source)) return null;
             const targetDate = pair.targetDate || dateKey;
             if (!_isClosePairDateKey(targetDate)) return null;
             if (dateKey && targetDate !== dateKey) return null;
@@ -2990,12 +2993,28 @@
             const af = _isFinalClosePair(a);
             const bf = _isFinalClosePair(b);
             if (af !== bf) return af ? a : b;
-            if (af && bf) {
+            const ao = ae && String(a.source || '').startsWith('final-closes:') && _isTrustedFinalCloseSource(a.source);
+            const bo = be && String(b.source || '').startsWith('final-closes:') && _isTrustedFinalCloseSource(b.source);
+            if (ao !== bo) return ao ? a : b;
+            if (af && bf && !ao) {
                 const ar = _closePairRank(a);
                 const br = _closePairRank(b);
                 if (ar !== br) return ar > br ? a : b;
             }
-            return _closePairTimeValue(a) >= _closePairTimeValue(b) ? a : b;
+            const at = _closePairTimeValue(a), bt = _closePairTimeValue(b);
+            if (at !== bt) return at > bt ? a : b;
+            // 相同順位也要可交換；不依賴 local/remote 的傳入順序。
+            const key = p => _closePairContentKey(p) + '|' + (p.sourceDeviceClass || '') + '|' + (p.sourceDeviceId || '');
+            return key(a) >= key(b) ? a : b;
+        }
+        function _closePairContentKey(pair) {
+            return pair ? JSON.stringify([pair.market, pair.targetDate, pair.prevDate, pair.close, pair.prevClose, pair.final, pair.source, pair.fetchedAt]) : '';
+        }
+        function _closePairPayloadContentKey(payload) {
+            return JSON.stringify(Object.keys(payload?.symbols || {}).sort().map(sym => [sym,
+                Object.keys(payload.symbols[sym]?.byDate || {}).sort().map(date =>
+                    [date, _closePairContentKey(payload.symbols[sym].byDate[date])])
+            ]));
         }
         function _mergeClosePairCache(local, remote) {
             const out = _normalizeClosePairCache(local || {});
@@ -3088,17 +3107,16 @@
         let _finalCloseData = null;
         let _finalCloseDataPromise = null;
         let _finalCloseDataState = 'idle';
+        let _finalCloseDataLastAttempt = 0;
+        const _FINAL_CLOSE_TTL_MS = 3 * 60 * 1000;
         let _closePairRefreshStarted = false;
         let _closePairRefreshInFlight = false;
         const _closePairMarketStatus = {};
 
         async function _loadFinalCloseData(force = false) {
-            if (force) {
-                _finalCloseData = null;
-                _finalCloseDataState = 'idle';
-            }
-            if (_finalCloseData) return _finalCloseData;
             if (_finalCloseDataPromise) return _finalCloseDataPromise;
+            if (!force && _finalCloseDataLastAttempt && Date.now() - _finalCloseDataLastAttempt < _FINAL_CLOSE_TTL_MS) return _finalCloseData;
+            _finalCloseDataLastAttempt = Date.now();
             _finalCloseDataPromise = (async () => {
                 const ctrl = new AbortController();
                 const timeoutId = setTimeout(() => ctrl.abort(), 8000);
@@ -3106,19 +3124,22 @@
                     const res = await fetch('./data/final-closes.json', { cache: 'no-store', signal: ctrl.signal });
                     if (!res.ok) {
                         _finalCloseDataState = 'missing';
-                        return null;
+                        return _finalCloseData;
                     }
                     const parsed = await res.json();
                     if (!parsed || typeof parsed !== 'object' || !parsed.symbols || typeof parsed.symbols !== 'object') {
                         throw new Error('final-closes.json 格式無效');
                     }
-                    _finalCloseData = parsed;
+                    // CDN 偶爾回舊版本時保留較新的整份資料。
+                    const oldTime = Date.parse(_finalCloseData?.generatedAt || '') || 0;
+                    const newTime = Date.parse(parsed.generatedAt || '') || 0;
+                    if (!_finalCloseData || newTime >= oldTime) _finalCloseData = parsed;
                     _finalCloseDataState = 'ready';
-                    return parsed;
+                    return _finalCloseData;
                 } catch(e) {
                     _finalCloseDataState = 'error';
                     try { _recordAppError('final_close_data_load', e); } catch(_) {}
-                    return null;
+                    return _finalCloseData;
                 } finally {
                     clearTimeout(timeoutId);
                     _finalCloseDataPromise = null;
@@ -3133,16 +3154,22 @@
             const s = String(source || '');
             return ['fundamentals-bootstrap'].some(bad => s === bad || s.includes(bad));
         }
+        function _isTrustedFinalCloseSource(source) {
+            const s = String(source || '').replace(/^final-closes:/, '');
+            return ['yahoo-yfinance-final', 'twse-stock-day', 'hkex-daily-quotation']
+                .some(name => s === name || s.startsWith(name + ':'));
+        }
         function _finalCloseBarForDate(symbol, marketKey, dateKey) {
             if (!_finalCloseData?.symbols || !dateKey) return null;
             for (const alias of _symbolLookupAliases(symbol, marketKey)) {
                 const slot = _finalCloseData.symbols[alias];
+                if (!slot || slot.market !== marketKey) continue;
                 const bar = slot?.byDate?.[dateKey];
                 if (!bar || bar.final !== true) continue;
                 // v15.965：bootstrap 取自 fundamentals.json 快照，可能在收盤瞬間採樣、尚未定盤
                 // （實測 2026-09-03 全標的偏差 -6.45%~+1.54%，MSTU 35.22 vs 實際 37.65）。
                 // 後端已改為不標 final，此處再擋一次，讓既有線上壞檔立即失效不必等 Actions 重跑。
-                if (_isUntrustedFinalCloseSource(bar.source)) continue;
+                if (!_isTrustedFinalCloseSource(bar.source)) continue;
                 const close = Number(bar.close);
                 if (!(Number.isFinite(close) && close > 0)) continue;
                 return {
@@ -3162,7 +3189,7 @@
             for (const slot of Object.values(_finalCloseData.symbols)) {
                 if (!slot || slot.market !== market) continue;
                 const bar = slot.byDate && slot.byDate[dateStr];
-                if (!bar || bar.final !== true) continue;
+                if (!bar || bar.final !== true || !_isTrustedFinalCloseSource(bar.source)) continue;
                 const close = Number(bar.close);
                 if (Number.isFinite(close) && close > 0) return true;
             }
@@ -3204,7 +3231,8 @@
                     close: targetBar.close,
                     prevDate: expectedPrevDate,
                     prevClose: prevBar.close,
-                    fetchedAt: targetBar.fetchedAt || prevBar.fetchedAt || new Date().toISOString(),
+                    fetchedAt: [targetBar.fetchedAt, prevBar.fetchedAt].filter(t => Number.isFinite(Date.parse(t)))
+                        .sort((a, b) => Date.parse(b) - Date.parse(a))[0] || null,
                     source: 'final-closes:' + targetBar.source,
                     final: true
                 };
@@ -3356,22 +3384,25 @@
             }
         }
 
-        // 對所有 active holdings 補抓 close pair（同 symbol + targetDate 已有 → skip；全域 3min cooldown）
+        // 對所有 active holdings 校正 close pair（正式來源先比對；全域 3min cooldown）
         // v15.903：優先讀 fundamentals.json（後端集中抓），缺值才 fallback Yahoo chart 5d
         let _closePairRefreshLastRun = 0;
         let _closePairRefreshTimer = null;
+        let _closePairRefreshForcePending = false;
         const _CLOSE_PAIR_COOLDOWN_MS = 3 * 60 * 1000;
         // v15.934：opts.force（手動一鍵更新）跳過 3min cooldown、debounce 縮 300ms —— 使用者主動按更新時補抓必定執行
         function _scheduleRefreshClosePair(reason, opts) {
             const force = !!(opts && opts.force);
-            if (!force && Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS) return;
-            if (force) {
-                // 手動重試要重新讀取 Actions 剛推送的 final-closes.json；不碰使用者資料。
-                _finalCloseData = null;
-                _finalCloseDataState = 'idle';
-            }
+            if (force) _closePairRefreshForcePending = true;
+            if (_closePairRefreshInFlight) return;
+            if (!force && (_closePairRefreshTimer || Date.now() - _closePairRefreshLastRun < _CLOSE_PAIR_COOLDOWN_MS)) return;
             clearTimeout(_closePairRefreshTimer);
-            _closePairRefreshTimer = setTimeout(() => _refreshClosePairForActiveHoldings(reason), force ? 300 : 1500);
+            _closePairRefreshTimer = setTimeout(() => {
+                _closePairRefreshTimer = null;
+                const forceReload = _closePairRefreshForcePending;
+                _closePairRefreshForcePending = false;
+                _refreshClosePairForActiveHoldings(reason, { force: forceReload });
+            }, _closePairRefreshForcePending ? 300 : 1500);
         }
 
         let _symbolDataScanTimer = null;
@@ -3555,8 +3586,8 @@
         }
         // v15.932：改併發池（原逐檔串行 await，25 檔 ≈ 25-35 個串行 proxy 請求要 10 幾秒）
         // v15.957：先讀伺服器端 final-closes.json；只有精確日期資料不存在才走既有 fallback。
-        // job 構建、skip 檢查、_isExactFinalClosePair 驗證、儲存與 system push 行為維持不變。
-        async function _refreshClosePairForActiveHoldings(reason) {
+        // v15.966：正式來源可校正既有 final，缺正式資料才沿用有效 cache／Yahoo 備援。
+        async function _refreshClosePairForActiveHoldings(reason, opts) {
             if (!Array.isArray(holdings) || holdings.length === 0) return;
             if (_closePairRefreshInFlight) return;
             _closePairRefreshStarted = true;
@@ -3568,12 +3599,13 @@
             const marketResolvedCounts = { TW: 0, HK: 0, US: 0 };
             const marketTargets = { TW: null, HK: null, US: null };
             try {
-                try { await _loadFinalCloseData(); } catch(_) {}
+                try { await _loadFinalCloseData(!!opts?.force); } catch(_) {}
                 try { if (_repairKnownCorporateActionQuoteScales()) shouldRender = true; } catch(_) {}
                 try { auditChanged = !!_healAdhocClosuresFromFinalData(); } catch(_) {}
                 try { auditChanged = !!(await _auditRecentAdhocClosures(reason)) || auditChanged; } catch(_) {}
                 _closePairRefreshLastRun = Date.now();
-                const data = _loadClosePair();
+                // 非同步期間 Gist 可能寫入另一份快取；最後再與當下版本合併。
+                const data = _normalizeClosePairCache(_loadClosePair());
                 if (!data.symbols) data.symbols = {};
                 let resolved = 0, fetched = 0, missing = 0, finalSaved = 0;
                 const now = new Date();
@@ -3604,6 +3636,16 @@
                                 if (seenJobs.has(jobKey)) continue;
                                 seenJobs.add(jobKey);
                                 const existing = _getClosePairForDate(data, h.symbol, job.target, mk);
+                                const official = _resolveClosePairFromFinalData(_canonicalYahooSymbol(h.symbol, mk), mk, job.target, { final: job.final });
+                                if (official) {
+                                    const chosen = _chooseClosePair(existing, official);
+                                    if (_closePairContentKey(chosen) !== _closePairContentKey(existing)) {
+                                        _setClosePairForDate(data, h.symbol, chosen);
+                                        resolved++;
+                                        finalSaved++;
+                                    }
+                                    continue;
+                                }
                                 if (existing && job.final && _isExactFinalClosePair(existing, mk, job.target)) continue;
                                 if (existing && !job.final && !(job.refreshIfNotFinal && !_isFinalClosePair(existing))) continue;
                                 marketTaskCounts[mk]++;
@@ -3645,7 +3687,7 @@
                 }
                 if (resolved + fetched > 0) {
                     data.updatedAt = new Date().toISOString();
-                    _saveClosePair(data);
+                    _saveClosePair(_mergeClosePairCache(_loadClosePair(), data));
                     shouldRender = true;
                     console.log(`[ClosePair v15.957] ${reason}: final/resolved ${resolved} / fetched ${fetched} / missing ${missing} (pool=${_CLOSE_PAIR_FETCH_CONCURRENCY})`);
                     if (finalSaved > 0) _scheduleClosePairSystemPush('close_pair_final');
@@ -3670,6 +3712,7 @@
                     }
                 }
                 _closePairRefreshInFlight = false;
+                if (_closePairRefreshForcePending) _scheduleRefreshClosePair('queued-manual', { force: true });
                 // Most importantly, redraw after both success and failure so a failed request
                 // cannot leave the market row in a permanent loading state.
                 if (hadTasks || shouldRender) renderAll();
@@ -8086,6 +8129,8 @@
                     deviceClass
                 );
                 if (!mergedClosePairs) return false;
+                // 只重傳發布中繼資料、或 iPhone 無可補缺時，不製造新的 Gist revision。
+                if (_closePairPayloadContentKey(state.saved.daily_pnl_close_pairs) === _closePairPayloadContentKey(mergedClosePairs)) return false;
                 payload.daily_pnl_close_pairs = mergedClosePairs;
                 payload.system_meta = {
                     ...(payload.system_meta || {}),
@@ -12089,11 +12134,88 @@ function _isLegacy9747Holding(h) {
             return null; // 全部失敗
         }
 
+        // v15.966：手動／自動共用單一執行中請求；手動最多追加一次強制刷新。
+        let _priceRefreshPromise = null;
+        let _priceRefreshManual = false;
+        let _manualPriceRefreshQueued = null;
+        let _lastQuoteRefreshAt = 0;
+        let _quoteSheetRates = {};
+        let _quoteSheetRatesUrl = '';
+        function _requestPriceRefresh(manual) {
+            if (_priceRefreshPromise) {
+                if (!manual || _priceRefreshManual) return _manualPriceRefreshQueued || _priceRefreshPromise;
+                if (!_manualPriceRefreshQueued) {
+                    _manualPriceRefreshQueued = _priceRefreshPromise.catch(() => {}).then(() => {
+                        _manualPriceRefreshQueued = null;
+                        return _requestPriceRefresh(true);
+                    });
+                }
+                return _manualPriceRefreshQueued;
+            }
+            _priceRefreshManual = manual;
+            _priceRefreshPromise = (manual ? _refreshAllData() : _silentRefreshPrices()).finally(() => {
+                _priceRefreshPromise = null;
+                _priceRefreshManual = false;
+            });
+            return _priceRefreshPromise;
+        }
+        // Sheet 覆蓋按幣別判定；API 較晚完成（含啟動請求）也不得洗掉 Sheet。
+        function _applyQuoteFx(fx, sheetRates) {
+            const url = (document.getElementById('sheet-url')?.value || '').trim();
+            if (sheetRates !== undefined) {
+                _quoteSheetRates = sheetRates || {};
+                _quoteSheetRatesUrl = url;
+            }
+            const overrides = url === _quoteSheetRatesUrl ? _quoteSheetRates : {};
+            let changed = false, applied = false;
+            for (const key of ['USD_TWD', 'HKD_TWD']) {
+                const sheetValue = Number(overrides[key]);
+                const apiValue = Number(fx?.[key]);
+                const value = Number.isFinite(sheetValue) && sheetValue > 0 ? sheetValue
+                    : Number.isFinite(apiValue) && apiValue > 0 ? apiValue : null;
+                if (value == null) continue;
+                applied = true;
+                if (exchangeRates[key] !== value) { exchangeRates[key] = value; changed = true; }
+            }
+            if (applied) {
+                syncRateInputs();
+                const rateEl = document.getElementById('rate-source');
+                if (rateEl) {
+                    const stamp = fx?.ts || Date.now();
+                    const hasSheet = ['USD_TWD', 'HKD_TWD'].some(key => Number(overrides[key]) > 0);
+                    rateEl.textContent = `✓ ${hasSheet ? 'Sheet 優先' : '即時匯率'}（${new Date(stamp).toLocaleTimeString('zh-TW')}）`;
+                    rateEl.style.color = _freshnessColor(Date.now() - stamp, 30*60*1000, 90*60*1000);
+                }
+            }
+            return changed;
+        }
+        function _renderQuoteProgress(updatedSymbols, source) {
+            const coverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
+            if (coverage.fullMarkets.length) _markBatchQuoteRefresh(coverage.fullMarkets, source);
+            _clearStaleMarketOpenedForSymbols(updatedSymbols);
+            if (updatedSymbols.size > 0) {
+                _lastQuoteRefreshAt = Date.now();
+                const el = document.getElementById('auto-refresh-time');
+                if (el) el.textContent = new Date(_lastQuoteRefreshAt).toLocaleTimeString('zh-TW');
+            }
+            renderAll();
+            return coverage;
+        }
         async function refreshAllData() {
             const btn = document.getElementById('refresh-btn');
             const text = document.getElementById('refresh-text');
             const icon = document.getElementById('refresh-icon');
             btn.disabled = true; text.textContent = '更新中...'; icon.style.animation = 'spin 1s linear infinite';
+            try {
+                await _requestPriceRefresh(true);
+            } finally {
+                btn.disabled = false; text.textContent = '一鍵更新報價 + 匯率'; icon.style.animation = 'none';
+            }
+        }
+        async function _refreshAllData() {
+            let fxPromise = Promise.resolve();
+            let currentFx = null;
+            _scheduleRefreshClosePair('csv-manual', { force: true });
             try {
                 const sheetUrl = document.getElementById('sheet-url').value.trim();
                 if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
@@ -12102,7 +12224,10 @@ function _isLegacy9747Holding(h) {
                 }
 
                 // 同時發出：① 股價 CSV ② 即時匯率（手動更新 → 強制重新抓取，清快取）
-                const fxPromise = _fetchFxRates(true);
+                fxPromise = _fetchFxRates(true).then(fx => {
+                    currentFx = fx;
+                    if (_applyQuoteFx(fx)) renderAll();
+                }).catch(e => { try { _recordAppError('quote_fx_refresh', e); } catch(_) {} });
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 35000);
@@ -12129,21 +12254,7 @@ function _isLegacy9747Holding(h) {
                 const { prices, sheetRates, quoteMoves } = _parseQuoteCsv(csvText);
                 _recordQuoteMoves(quoteMoves, 'csv-manual');
 
-                // 套用匯率：Sheet 指定 > 即時 API > 維持現值
-                const fx = await fxPromise;
-                let rateUpdated = false;
-                if (sheetRates.USD_TWD) { exchangeRates.USD_TWD = sheetRates.USD_TWD; rateUpdated = true; }
-                if (sheetRates.HKD_TWD) { exchangeRates.HKD_TWD = sheetRates.HKD_TWD; rateUpdated = true; }
-                if (!rateUpdated && fx) {
-                    exchangeRates.USD_TWD = fx.USD_TWD;
-                    exchangeRates.HKD_TWD = fx.HKD_TWD;
-                    rateUpdated = true;
-                }
-                if (rateUpdated) {
-                    syncRateInputs();
-                    const updated = new Date().toLocaleTimeString('zh-TW');
-                    document.getElementById('rate-source').textContent = `✓ ${sheetRates.USD_TWD ? 'Sheet 覆蓋' : '即時匯率'}（${updated}）`;
-                }
+                if (_applyQuoteFx(currentFx, sheetRates)) renderAll();
 
                 if (Object.keys(prices).length === 0) {
                     const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-empty');
@@ -12175,7 +12286,7 @@ function _isLegacy9747Holding(h) {
             } catch(e) {
                 alert(`❌ 更新失敗：${e.message}`);
             } finally {
-                btn.disabled = false; text.textContent = '一鍵更新報價 + 匯率'; icon.style.animation = 'none';
+                await fxPromise;
             }
         }
 
@@ -12279,11 +12390,8 @@ function _isLegacy9747Holding(h) {
             const updated = Number(result?.us?.updated || 0);
             const repaired = !!result?.us?.repaired;
             if (updated <= 0 && !repaired) return 0;
-            if (result?.us?.fullMarkets?.length) {
-                try { _markBatchQuoteRefresh(result.us.fullMarkets, 'yahoo-us-fallback'); } catch(_) {}
-            }
             _scheduleRefreshClosePair(reason, forceClosePair ? { force: true } : undefined);
-            renderAll();
+            _renderQuoteProgress(result.us.updatedSymbols, 'yahoo-us-fallback');
             return updated;
         }
 
@@ -12332,15 +12440,13 @@ function _isLegacy9747Holding(h) {
                     updatedSymbols.add(h.symbol);
                 }
             });
+            // 已驗證的 CSV 價格先顯示，不等缺漏股票的 Yahoo 備援。
+            if (updated > 0) _renderQuoteProgress(updatedSymbols, 'csv-manual');
             const fallback = await _refreshIndependentQuoteFallbacks('csv-manual', updatedSymbols);
             updated += fallback.us.updated;
             fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
             const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
-            // v15.947：只有完整覆蓋該市場的 active holdings 才推進 quote meta 的 freshness。
-            if (quoteCoverage.fullMarkets.length > 0) {
-                try { _markBatchQuoteRefresh(quoteCoverage.fullMarkets, 'csv-manual'); } catch(_) {}
-            }
-            try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
+            if (fallback.us.updated > 0 || fallback.us.repaired) _renderQuoteProgress(updatedSymbols, 'csv-manual');
             // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
             // （避免 currentPrice 已新但 prevClose 為空，今日漲幅顯示「-」過久）
             // v15.934 錯峰：1500→8000ms —— 損益數字只等 close pair（v15.902 起不讀 _prevCloseCache），
@@ -12355,8 +12461,6 @@ function _isLegacy9747Holding(h) {
                     window._missingBaselineTimer = setTimeout(() => loadAnalysis(false, true), 8000);
                 }
             } catch(_) {}
-            _scheduleRefreshClosePair('csv-manual', { force: true });   // v15.902；v15.934 手動必跑
-            renderAll();
             const partialNote = quoteCoverage.partialMarkets.length
                 ? `；${quoteCoverage.partialMarkets.join('、')}市場尚有缺漏`
                 : '';
@@ -14810,20 +14914,7 @@ function _isLegacy9747Holding(h) {
             (async () => {
                 const fx = await _fetchFxRates(false);
                 if (fx) {
-                    exchangeRates.USD_TWD = fx.USD_TWD;
-                    exchangeRates.HKD_TWD = fx.HKD_TWD;
-                    syncRateInputs();
-                    const rateEl = document.getElementById('rate-source');
-                    if (rateEl) {
-                        const t = new Date(fx.ts).toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
-                        rateEl.textContent = fx.fromCache
-                            ? `✓ 即時匯率（${t} · 快取 ${_fxAgeStr(fx.ts)}）`
-                            : `✓ 即時匯率（${new Date().toLocaleTimeString('zh-TW')}）`;
-                        // v15.063：匯率快取年齡套色
-                        rateEl.style.color = fx.fromCache
-                            ? _freshnessColor(Date.now() - fx.ts, 30*60*1000, 90*60*1000)
-                            : '#7e93a6';
-                    }
+                    _applyQuoteFx(fx);
                     try { _migrate9747HoldingsTo7747Once('fx-ready'); } catch(_) {}
                     renderAll();
                     recordSnapshot(); // 每月首次開啟，自動記錄市值快照
@@ -14939,16 +15030,22 @@ function _isLegacy9747Holding(h) {
         let _countdownTimer   = null;
         let _secondsLeft      = 60;
 
+        function _refreshVisiblePrices(reason) {
+            if (document.hidden) return;
+            // 換日／開收盤不能依賴 CSV 成功；即使離線也先呈現正確時段。
+            renderAll();
+            _scheduleRefreshClosePair(reason);
+            if (reason === 'auto-tick' || !_lastQuoteRefreshAt || Date.now() - _lastQuoteRefreshAt >= 60000) {
+                silentRefreshPrices();
+            }
+        }
         function startAutoRefresh() {
             if (_autoRefreshTimer) clearInterval(_autoRefreshTimer);
             if (_countdownTimer)   clearInterval(_countdownTimer);
 
             // 每 60 秒抓一次報價
-            _autoRefreshTimer = setInterval(async () => {
-                const url = (document.getElementById('sheet-url')?.value || '').trim();
-                if (!url || !url.includes('docs.google.com')) return;
-                if (document.getElementById('refresh-btn')?.disabled) return; // 手動更新中，跳過
-                await silentRefreshPrices();
+            _autoRefreshTimer = setInterval(() => {
+                _refreshVisiblePrices('auto-tick');
                 _secondsLeft = 60; // 重置倒數
             }, 60000);
 
@@ -14963,6 +15060,8 @@ function _isLegacy9747Holding(h) {
                 const cd = document.getElementById('auto-refresh-countdown');
                 if (cd) cd.textContent = _secondsLeft;
             }, 1000);
+            _secondsLeft = 60;
+            _refreshVisiblePrices('visible');
         }
 
         // v15.912 起由下方版本接手（原 legacy Toast 版被完全遮蔽，v15.939 移除死碼，含其中一個死的 symbols.json fetch）
@@ -15848,16 +15947,24 @@ function _isLegacy9747Holding(h) {
             </div>`;
         }
 
-        async function silentRefreshPrices() {
+        function silentRefreshPrices() {
+            return _requestPriceRefresh(false);
+        }
+        async function _silentRefreshPrices() {
             const sheetUrl = (document.getElementById('sheet-url')?.value || '').trim();
             if (!sheetUrl || !sheetUrl.includes('docs.google.com')) {
                 return;
             }
-            try { await _loadFinalCloseData(); } catch(_) {}
-            try { _repairKnownCorporateActionQuoteScales(); } catch(_) {}
+            // 正式資料與 CSV 同時下載，套用價格前仍保留尺度校驗。
+            const finalPromise = _loadFinalCloseData().catch(() => null);
+            let fxPromise = Promise.resolve();
+            let currentFx = null;
             try {
                 // 匯率：快取 1hr 內不打 API（按需更新策略）
-                const fxPromise = _fetchFxRates(false);
+                fxPromise = _fetchFxRates(false).then(fx => {
+                    currentFx = fx;
+                    if (_applyQuoteFx(fx)) renderAll();
+                }).catch(e => { try { _recordAppError('quote_fx_refresh', e); } catch(_) {} });
                 const controller  = new AbortController();
                 const tid = setTimeout(() => controller.abort(), 35000);
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
@@ -15878,15 +15985,9 @@ function _isLegacy9747Holding(h) {
                 const { prices, sheetRates, quoteMoves } = _parseQuoteCsv(csvText);
                 _recordQuoteMoves(quoteMoves, 'csv-silent');
 
-                // 更新匯率（Sheet 指定 > 快取/即時 API）
-                const fx = await fxPromise;
-                if (sheetRates.USD_TWD) exchangeRates.USD_TWD = sheetRates.USD_TWD;
-                if (sheetRates.HKD_TWD) exchangeRates.HKD_TWD = sheetRates.HKD_TWD;
-                if (!sheetRates.USD_TWD && fx) {
-                    exchangeRates.USD_TWD = fx.USD_TWD;
-                    exchangeRates.HKD_TWD = fx.HKD_TWD;
-                }
-                syncRateInputs();
+                if (_applyQuoteFx(currentFx, sheetRates)) renderAll();
+                await finalPromise;
+                try { _repairKnownCorporateActionQuoteScales(); } catch(_) {}
 
                 // 靜默更新股價（不存入 undo 歷史）
                 let updated = 0;
@@ -15899,16 +16000,12 @@ function _isLegacy9747Holding(h) {
                         updatedSymbols.add(h.symbol);
                     }
                 });
+                if (updated > 0) _renderQuoteProgress(updatedSymbols, 'csv-silent');
                 const fallback = await _refreshIndependentQuoteFallbacks('csv-silent', updatedSymbols);
                 updated += fallback.us.updated;
                 fallback.us.updatedSymbols.forEach(symbol => updatedSymbols.add(symbol));
                 if (updated > 0 || Object.keys(sheetRates).length > 0) {
-                    const quoteCoverage = _quoteCoverageForUpdatedSymbols(updatedSymbols);
-                    // v15.947：partial market 只更新現價，不推進該市場的 quote freshness。
-                    if (quoteCoverage.fullMarkets.length > 0) {
-                        try { _markBatchQuoteRefresh(quoteCoverage.fullMarkets, 'csv-silent'); } catch(_) {}
-                    }
-                    try { _clearStaleMarketOpenedForSymbols(updatedSymbols); } catch(_) {}
+                    if (fallback.us.updated > 0 || fallback.us.repaired) _renderQuoteProgress(updatedSymbols, 'csv-silent');
                     // v15.080 後續修補：報價更新後若 _prevCloseCache 缺失，背景排 loadAnalysis 補正
                     // v15.934 錯峰：1500→8000ms（同 directApplyPrices，close pair 優先）
                     try {
@@ -15922,15 +16019,13 @@ function _isLegacy9747Holding(h) {
                         }
                     } catch(_) {}
                     _scheduleRefreshClosePair('csv-silent');   // v15.902（60s 靜默維持 cooldown）
-                    renderAll();
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
-                    const now = new Date().toLocaleTimeString('zh-TW');
-                    const el = document.getElementById('auto-refresh-time');
-                    if (el) el.textContent = now;
-                    const rateEl = document.getElementById('rate-source');
-                    if (rateEl) rateEl.textContent = `✓ 自動更新（${now}）`;
                 }
-            } catch(e) { /* 靜默失敗 */ }
+            } catch(e) {
+                try { _recordAppError('silent_quote_refresh', e); } catch(_) {}
+            } finally {
+                await fxPromise;
+            }
         }
 
         // ── 字體大小調整 ──
