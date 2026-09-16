@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.966 同版修補 - 開頁自動更新報價：等待啟動 Gist／本地同步完成後，立即刷新目前持倉報價與收盤基準，避免先更新的現價被稍後載入的雲端舊值覆蓋；同步超過 8 秒先更新本機資料，完成後再補抓。維持 60 秒輪詢，不改部署排程、Storage Key、schema、userDataHash 或 pending。
   v15.966 - 2026-09-16 收盤損益一致性與報價更新提速：正式收盤以 3 分鐘 TTL 校正既有 final pair，失敗保留快取；同步優先正式來源與 fetchedAt，同順位固定排序，避免重新上傳舊值造成倒退。CSV 股價先顯示、匯率與備援分段補齊，統一逐幣別 Sheet > API > 現值；更新請求去重且保留一次手動追加，切回畫面補抓過期報價，換日與收盤刷新不依賴 CSV 成敗。保留 08:00 投資日、收盤凍結、拆併股保護與裝置發布限制；不改 Storage Key、Gist schema、userDataHash、pending 或損益公式。
   v15.964 - 派網目前倉位列加「每U效率」：24h 利潤 ÷ 倉位大小，放在最後一欄。不改 schema、Gist 檔名、userDataHash、pending 或損益公式。
   v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
@@ -12139,6 +12140,7 @@ function _isLegacy9747Holding(h) {
         let _priceRefreshManual = false;
         let _manualPriceRefreshQueued = null;
         let _lastQuoteRefreshAt = 0;
+        let _startupQuotesPending = true;
         let _quoteSheetRates = {};
         let _quoteSheetRatesUrl = '';
         function _requestPriceRefresh(manual) {
@@ -14874,8 +14876,7 @@ function _isLegacy9747Holding(h) {
             // 取代舊的「pending > 0 → 先推後拉，push 失敗就卡死」分支
             _updatePendingPushIndicator();
             _renderRollbackCard();   // v15.079：若本機有 master rollback summary 則顯示卡片
-            _gistSilentPull();
-            _scheduleRefreshClosePair('startup');   // v15.902：啟動排一次 close pair refresh
+            const startupGistPull = _gistSilentPull();
             _scheduleSymbolDataScan('startup');     // v15.912：掃描新增標的補資料
             // v15.080：啟動 + silent pull 後 8 秒，若本機今日損益仍缺 prevClose（_dailyPnlBaselines 為空），啟動 backfill
             //   只在有 holdings 時觸發；fail-safe：cooldown 已自帶
@@ -14890,7 +14891,7 @@ function _isLegacy9747Holding(h) {
             // v15.077 → v15.078 hotfix：FSA silent pull — 只在權限 granted 時自動拉
             // 移除原本「全域 click/keydown capture handler 自動 requestPermission」的 hack（會在 Android Chrome 卡死整個 UI）
             // 權限過期時：只顯示 status 提示，user 必須到設定 Tab → 本地同步 → 主動點「拉取」按鈕重新授權
-            (async () => {
+            const startupLocalPull = (async () => {
                 try {
                     if (_hasGistCreds()) { _renderLocalSyncStatus(); return; }
                     if (!_isLocalSyncEnabled()) { _renderLocalSyncStatus(); return; }
@@ -14910,6 +14911,7 @@ function _isLegacy9747Holding(h) {
                     }
                 }
             })();
+            _refreshAfterStartupSync([startupGistPull, startupLocalPull]);
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
@@ -15030,11 +15032,28 @@ function _isLegacy9747Holding(h) {
         let _countdownTimer   = null;
         let _secondsLeft      = 60;
 
+        // 啟動只在持倉與 Sheet URL 還原後抓價；雲端慢回應也不能永久擋住本機更新。
+        async function _refreshAfterStartupSync(syncTasks) {
+            const fallbackTimer = setTimeout(() => {
+                _startupQuotesPending = false;
+                _refreshVisiblePrices('startup-timeout');
+            }, 8000);
+            await Promise.allSettled(syncTasks);
+            clearTimeout(fallbackTimer);
+            // 若逾時備援／手動更新仍在跑，等它完成再針對剛載入的持倉補抓。
+            _startupQuotesPending = true;
+            try {
+                await (_manualPriceRefreshQueued || _priceRefreshPromise);
+            } catch(_) {}
+            _startupQuotesPending = false;
+            _lastQuoteRefreshAt = 0;
+            _refreshVisiblePrices('startup-ready');
+        }
         function _refreshVisiblePrices(reason) {
-            if (document.hidden) return;
+            if (document.hidden || _startupQuotesPending) return;
             // 換日／開收盤不能依賴 CSV 成功；即使離線也先呈現正確時段。
             renderAll();
-            _scheduleRefreshClosePair(reason);
+            _scheduleRefreshClosePair(reason, reason === 'startup-ready' ? { force: true } : undefined);
             if (reason === 'auto-tick' || !_lastQuoteRefreshAt || Date.now() - _lastQuoteRefreshAt >= 60000) {
                 silentRefreshPrices();
             }
