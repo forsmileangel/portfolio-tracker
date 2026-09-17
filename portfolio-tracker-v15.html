@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.966 同版修補 - 2026-09-17 網格月平均：月曆上方顯示所選月份每日網格利潤合計、有效紀錄天數與平均（USDT）；0 元日計入，缺值／未來日期不計入，同日只計一次。新增已結束月份平均紀錄，由完整日記帳自動彙整，跨月自動列入、補登修正後同步重算。不新增儲存、排程或同步寫入，不改版號、schema、userDataHash、pending 或既有損益公式。
   v15.966 同版修補 - 派網目前倉位新增「以目前倉位填入加密欄」，直接採用該次快照的錢包 TWD；每日快照按鈕與時間獨立標示。移除 Gist 拉取後強制以每日錢包覆蓋加密欄，保留使用者選值並沿用持倉同步；USDT 提示只配對相同 TWD 的快照。維持版號、Storage Key、schema 與既有 hash／pending 規則。
   v15.966 同版修補 - 開頁自動更新報價：等待啟動 Gist／本地同步完成後，立即刷新目前持倉報價與收盤基準，避免先更新的現價被稍後載入的雲端舊值覆蓋；同步超過 8 秒先更新本機資料，完成後再補抓。維持 60 秒輪詢，不改部署排程、Storage Key、schema、userDataHash 或 pending。
   v15.966 - 2026-09-16 收盤損益一致性與報價更新提速：正式收盤以 3 分鐘 TTL 校正既有 final pair，失敗保留快取；同步優先正式來源與 fetchedAt，同順位固定排序，避免重新上傳舊值造成倒退。CSV 股價先顯示、匯率與備援分段補齊，統一逐幣別 Sheet > API > 現值；更新請求去重且保留一次手動追加，切回畫面補抓過期報價，換日與收盤刷新不依賴 CSV 成敗。保留 08:00 投資日、收盤凍結、拆併股保護與裝置發布限制；不改 Storage Key、Gist schema、userDataHash、pending 或損益公式。
@@ -399,6 +400,16 @@
         .pionex-cal-amt { display:grid; grid-template-columns:2.15em minmax(0,1fr); column-gap:0.12rem; align-items:baseline; min-width:0; font-size:0.62rem; font-weight:700; margin-top:0.12rem; font-variant-numeric:tabular-nums; text-align:left; overflow:hidden; }
         .pionex-cal-amt-label { min-width:0; text-align:left; white-space:nowrap; }
         .pionex-cal-amt-value { min-width:0; display:block; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pionex-month-summary { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.65rem 1.25rem; padding:0.9rem 1rem; margin-bottom:0.8rem; background:var(--pt-surface-2); border:1px solid var(--pt-border); border-left:3px solid var(--pt-accent); border-radius:7px; }
+        .pionex-month-label { color:var(--pt-text-soft); font-size:0.75rem; margin-bottom:0.3rem; }
+        .pionex-month-average { font-size:1.5rem; font-weight:800; line-height:1.2; overflow-wrap:anywhere; }
+        .pionex-month-unit { color:var(--pt-text-muted); font-size:0.72rem; font-weight:500; }
+        .pionex-month-note { color:var(--pt-text-muted); font-size:0.72rem; line-height:1.6; }
+        .pionex-month-history { padding:1.1rem 1.5rem; margin-bottom:1rem; }
+        .pionex-month-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+        .pionex-month-table th, .pionex-month-table td { padding:0.55rem 0.35rem; text-align:right; white-space:nowrap; border-bottom:1px solid var(--pt-border); }
+        .pionex-month-table th:first-child, .pionex-month-table td:first-child { text-align:left; padding-left:0; }
+        .pionex-month-table tbody tr:last-child td { border-bottom:0; }
         @media (max-width:540px) {
             .pionex-cal-cell { min-height:2.55rem; padding:0.12rem 0.08rem; }
             .pionex-cal-amt { grid-template-columns:1.85em minmax(0,1fr); column-gap:0; font-size:0.5rem; }
@@ -12724,11 +12735,51 @@ function _isLegacy9747Holding(h) {
             renderPionexGridTab();
         }
 
+        // 沿用月曆同日最後一筆紀錄；月平均由完整日記帳推導，不另存裝置限定的月底快照。
+        function _pionexMonthlyStats(byDate, today) {
+            const months = {};
+            for (const [date, rec] of Object.entries(byDate)) {
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) continue;
+                const ts = Date.parse(date + 'T00:00:00Z');
+                if (!Number.isFinite(ts) || new Date(ts).toISOString().slice(0, 10) !== date) continue;
+                const raw = rec.daily_profit_usdt;
+                if (typeof raw !== 'number' && (typeof raw !== 'string' || !raw.trim())) continue;
+                const profit = Number(raw);
+                if (!Number.isFinite(profit)) continue;
+                const key = date.slice(0, 7);
+                if (!months[key]) months[key] = { count: 0, total: 0 };
+                months[key].count += 1;
+                months[key].total += profit;
+            }
+            return months;
+        }
+
+        function _renderPionexMonthlyHistory(months, currentMonth) {
+            const keys = Object.keys(months).filter(key => key < currentMonth).sort().reverse();
+            const rows = keys.map(key => {
+                const stats = months[key];
+                const average = stats.total / stats.count;
+                return `<tr><td>${key}</td><td>${stats.count} 天</td>
+                    <td class="mono pv-field">${pv(_fmtPionexJournalPnl(stats.total))}</td>
+                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(average)};">${pv(_fmtPionexJournalPnl(average))}</td></tr>`;
+            }).join('');
+            return `<div class="glass-card pionex-month-history">
+                <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.3rem;color:var(--pt-text);">每月平均紀錄</h2>
+                <div class="pionex-month-note">已結束月份 · 每日利潤合計 ÷ 有紀錄天數 · USDT</div>
+                ${rows ? `<div style="overflow-x:auto;margin-top:0.45rem;"><table class="pionex-month-table" aria-label="已結束月份網格平均紀錄">
+                    <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">利潤合計</th><th scope="col">每日平均</th></tr></thead>
+                    <tbody>${rows}</tbody></table></div>`
+                    : '<div class="pionex-month-note" style="padding:1rem 0;">尚無已結束月份的紀錄，跨月後會自動列入。</div>'}
+                <div class="pionex-month-note" style="margin-top:0.45rem;">依已保存的每日紀錄彙整；缺資料的日期不計入，補登或修正後同步更新。</div>
+            </div>`;
+        }
+
         function renderPionexGridTab() {
             const pane = document.getElementById('tab-pane-10');
             if (!pane) return;
             const liveCard = _renderPionexLiveCard(_loadPionexLive());
             const ledger = _loadPionexLedger();
+            const today = _taipeiCalendarDate();
             const statusLabel = {
                 baseline: '基準',
                 new: '新增',
@@ -12737,7 +12788,7 @@ function _isLegacy9747Holding(h) {
                 closed_unresolved: '關倉未對上'
             };
             if (!ledger || !ledger.days || ledger.days.length === 0) {
-                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>`;
+                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7));
                 return;
             }
             const byDate = {};
@@ -12751,6 +12802,10 @@ function _isLegacy9747Holding(h) {
             const selParts = String(_pionexCalSelected).split('-').map(Number);
             if (!_pionexCalMonth) _pionexCalMonth = { y: selParts[0], m: selParts[1] };
             const y = _pionexCalMonth.y, m = _pionexCalMonth.m;
+            const monthKey = `${y}-${String(m).padStart(2, '0')}`;
+            const monthlyStats = _pionexMonthlyStats(byDate, today);
+            const monthStats = monthlyStats[monthKey];
+            const monthAverage = monthStats ? monthStats.total / monthStats.count : null;
             const first = new Date(y, m - 1, 1);
             const startPad = first.getDay();
             const daysInMonth = new Date(y, m, 0).getDate();
@@ -12801,6 +12856,15 @@ function _isLegacy9747Holding(h) {
                     <div style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${monthLabel}</div>
                     <button type="button" onclick="shiftPionexCalMonth(1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">›</button>
                 </div>
+                <div class="pionex-month-summary">
+                    <div>
+                        <div class="pionex-month-label">${monthKey === today.slice(0, 7) ? '當月' : '本月'}平均每日網格利潤</div>
+                        <div class="pionex-month-average mono" style="color:${_pnlColor(monthAverage)};"><span class="pv-field">${pv(_fmtPionexJournalPnl(monthAverage))}</span> <span class="pionex-month-unit">USDT／日</span></div>
+                    </div>
+                    <div class="pionex-month-note">${monthStats
+                        ? `本月合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthStats.total))}</span> USDT ÷ ${monthStats.count} 天<br>依有紀錄天數計算，含 0 元日`
+                        : '本月尚無有效每日紀錄'}</div>
+                </div>
                 <div class="pionex-cal">${cells}</div>
                 <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
                     <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
@@ -12835,6 +12899,7 @@ function _isLegacy9747Holding(h) {
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
                 <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日取 v2 每日快照差額並依事件分類；累積為當日仍開倉位 GridProfit 加總。畫面損益四捨五入至小數點後 2 位，原始資料與計算精度不變。</div>
             </div>
+            ${_renderPionexMonthlyHistory(monthlyStats, today.slice(0, 7))}
             <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
                 <div style="color:#c5d0d8;font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">${_escapeHtml(_pionexCalSelected || '')} 明細</div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
