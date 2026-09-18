@@ -47,9 +47,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 15.260000228881836,
-        "chg1d": -1.16579894037145,
-        "chg7d": -3.661615644689852
+        "price": 15.359999656677246,
+        "chg1d": -0.5181342349755989,
+        "chg7d": -3.0303061318608857
       },
       {
         "symbol": "^TNX",
@@ -63,36 +63,318 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 100.33499908447266,
-        "chg1d": 0.11474542243946348,
-        "chg7d": 1.2257831963513761
+        "price": 100.3740005493164,
+        "chg1d": 0.1536612719392669,
+        "chg7d": 1.265130920083249
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4428,
-        "chg1d": 0.6432212067006519,
-        "chg7d": 0.43321685861129394
+        "price": 4420.7998046875,
+        "chg1d": 0.4795692533204833,
+        "chg7d": 0.2699063849788032
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 95.69000244140625,
-        "chg1d": -6.103425568824458,
-        "chg7d": -4.357821566578114
+        "price": 95.80000305175781,
+        "chg1d": -5.995486596791567,
+        "chg7d": -4.247875932398914
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 77906.5,
-        "chg1d": 1.966822441995308,
-        "chg7d": 0.9494195629467012
+        "price": 78135.3671875,
+        "chg1d": 2.2663720286230133,
+        "chg7d": 1.2459803086499366
       }
     ],
     "news": [
+      {
+        "uuid": "1921e6e5-7c6c-3cc6-ae73-750d397323c3",
+        "title": "Dow Jones Futures Rise After Bullish S&P 500, Nasdaq Rebound; Moderna, AMD, SpaceX Flash Buy Signals",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/1921e6e5-7c6c-3cc6-ae73-750d397323c3/dow-jones-futures-rise-after.html",
+        "providerPublishTime": 1789727507,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/ibd.com/1e242217d237f37d8fde7d17c2c712ae.jpg",
+              "width": 1012,
+              "height": 572,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/4B3B3959B96E8FD5D21871B5B601A3121CF1B970F7596506AB6875B8E90C36FC/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fibd.com%2F1e242217d237f37d8fde7d17c2c712ae.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^DJI",
+          "NTAP",
+          "SPCX",
+          "AMD",
+          "MRNA",
+          "CL=F",
+          "^GSPC",
+          "^IXIC",
+          "INCY"
+        ],
+        "_sym": "AMD",
+        "titleZh": "道瓊斯期貨在標準普爾500指數、納斯達克反彈看漲後上漲； Moderna、AMD、SpaceX閃購信號"
+      },
+      {
+        "uuid": "04131d8a-651a-383c-8989-9b8b42b52113",
+        "title": "This Market Signal Seen Only Once in History Points to What Comes Next",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/market-signal-seen-only-once-102200395.html",
+        "providerPublishTime": 1789726920,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/9f40dfc92d72261546c5ccda478cf316.jpg",
+              "width": 1400,
+              "height": 934,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/D5040BC021E040FF2367B294B9EB491720596CA3D21FDE02F6C5AC6132FEDC35/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F9f40dfc92d72261546c5ccda478cf316.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "^GSPC"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "這個市場信號在歷史上只看過一次，指向接下來會發生什麼"
+      },
+      {
+        "uuid": "a1c768a3-9bb8-303e-a2fb-fa8b346daece",
+        "title": "Fed Chair Kevin Warsh Raises Interest Rates for the First Time in Over 3 Years. These AI Stocks Will Benefit",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/economy/policy/articles/fed-chair-kevin-warsh-raises-102002774.html",
+        "providerPublishTime": 1789726802,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/c637d9a122a8c85bda8d4ae70de497f9.jpg",
+              "width": 1400,
+              "height": 879,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/7E390FDB90265696C26609C5A96480EF1E88522349229A316BF3B84841EC7D87/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Fc637d9a122a8c85bda8d4ae70de497f9.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "美聯儲主席凱文·沃什（ Kevin Warsh ） 3年多來首次提高利率。這些AI股票將受益於"
+      },
+      {
+        "uuid": "a0f48c74-67ce-35b0-a13a-52ace5439406",
+        "title": "The Anthropic IPO Could Be Bigger Than SpaceX. Here's What That Means for Vistra, Bloom Energy, and Oklo.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/technology/ai/articles/anthropic-ipo-could-bigger-spacex-102000686.html",
+        "providerPublishTime": 1789726800,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/f4d6e0d73262c5b0c5f6fc0a62631718.jpg",
+              "width": 1400,
+              "height": 933,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/2B6712D3ADB6E1E968DDF742F38AE67C3F63A5965439DFAAF15DD3901379ACAE/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Ff4d6e0d73262c5b0c5f6fc0a62631718.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "VST",
+          "OKLO",
+          "NVDA",
+          "BE"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "Anthropic IPO可能比SpaceX更大。以下是Vistra、Bloom Energy和Oklo的含義。"
+      },
+      {
+        "uuid": "59572bd3-fd87-3ba6-afc3-d878b451373f",
+        "title": "Zacks Investment Ideas feature highlights: NVIDIA, Advanced Micro Devices, Tempus, Moderna, Super Micro Computer and Aya Gold & Silver",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/zacks-investment-ideas-feature-highlights-101300743.html",
+        "providerPublishTime": 1789726380,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/zacks.com/cbfcc2d36e5d5391b79e00de30b0354f.jpg",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/D325D9D1C73378EF3E5E8E2BED2659A692B9C4BE99A16D2F333C14514CA67301/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fzacks.com%2Fcbfcc2d36e5d5391b79e00de30b0354f.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "AMD",
+          "SMCI",
+          "MRNA",
+          "AYA",
+          "CL=F",
+          "TEM"
+        ],
+        "_sym": "AMD",
+        "titleZh": "Zacks投資理念特色亮點： NVIDIA、Advanced Micro Devices、Tempus、Moderna、Super Micro Computer和Aya Gold & Silver"
+      },
+      {
+        "uuid": "3bdd1259-e52e-3467-a6af-b89b2a2e38cc",
+        "title": "Why Is Taiwan Semiconductor Manufacturing (TSM) Ramping 2nm Production And Spending More?",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/technology/articles/why-taiwan-semiconductor-manufacturing-tsm-101222060.html",
+        "providerPublishTime": 1789726342,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/simply_wall_st__316/0f9606c11fab5873fe681760ed38df34.jpg",
+              "width": 1600,
+              "height": 900,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/86FEA36B2D70C23388218773B856CAE9AD63DC8ADFB4D4EFA42BABE0C6CC6D3C/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fsimply_wall_st__316%2F0f9606c11fab5873fe681760ed38df34.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "TSM"
+        ],
+        "_sym": "TSM",
+        "titleZh": "為什麼臺灣半導體製造（ TSM ）增加2奈米生產並花費更多？"
+      },
+      {
+        "uuid": "b6bcf4a2-8193-338c-9cb2-4dd8288e2e1e",
+        "title": "Apple Just Announced a Groundbreaking iPhone, but It Has Alienated a Key Market",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/apple-just-announced-groundbreaking-iphone-101201078.html",
+        "providerPublishTime": 1789726321,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/214281b8922bbabd2c3ab8cac552a1d7.png",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/6A37A265CD21FFB00C735AF6A3F844AFEF4269ED80345A93AB9771EA9E9B1A35/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F214281b8922bbabd2c3ab8cac552a1d7.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "AAPL",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "蘋果剛剛推出了一款突破性的iPhone ，但它已經疏遠了一個關鍵市場"
+      },
+      {
+        "uuid": "6bf7ce59-7459-3a22-ad9a-568ef0d43ff7",
+        "title": "Micron Is Still 22% Below Its All-Time High Heading Into Earnings -- Buying Opportunity or Warning Sign?",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/micron-still-22-below-time-101000583.html",
+        "providerPublishTime": 1789726200,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/7cdce288cc83d7f42740a2697316a757.png",
+              "width": 1200,
+              "height": 800,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/911021DE29F2D2EE0F41DEF66FF0A335529C92AC68D551FF33FAC52BD8FC2764/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F7cdce288cc83d7f42740a2697316a757.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "MU",
+          "NVDA"
+        ],
+        "_sym": "MU",
+        "titleZh": "美光公司的收入仍低於其歷史最高水平22% --購買機會還是警告標誌？"
+      },
+      {
+        "uuid": "657be76a-2041-30be-8724-f7f8bef320c3",
+        "title": "AMD Stock Rises Premarket: Report Flags Chip Price Hike Linked To TSMC Costs",
+        "publisher": "Stocktwits",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/amd-stock-rises-premarket-report-092213707.html",
+        "providerPublishTime": 1789723333,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/stocktwits_383/36259031967f5a9cae78d54c86b76580.jpg",
+              "width": 1280,
+              "height": 854,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/4FFD897C191C55F84328B19B59C794D4B68BC3386728B19197AC54C8D7A9A40E/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fstocktwits_383%2F36259031967f5a9cae78d54c86b76580.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "TSM",
+          "AMD"
+        ],
+        "_sym": "AMD",
+        "titleZh": "AMD股價上漲上市前：報告標誌與臺積電成本相關的晶片價格上漲"
+      },
       {
         "uuid": "794c9b8e-92f1-3830-bddc-82279ed087b3",
         "title": "Why Are Nasdaq, S&P 500 And Dow Futures Rising Premarket? NVDA, CRWV, AMD, SPCX, BE Stocks In Focus",
@@ -127,134 +409,6 @@
         ],
         "_sym": "AMD",
         "titleZh": "為什麼納斯達克、標準普爾500指數和道瓊斯指數期貨在市場前上漲？ NVDA、CRWV、AMD、SPCX、BE股票聚焦"
-      },
-      {
-        "uuid": "dd70e161-9a73-394e-af14-3aa469437893",
-        "title": "I Can Almost Guarantee You Just Missed the Most Important Number in Fed Chair Kevin Warsh's and the FOMC's Interest Rate Decision",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/economy/policy/articles/almost-guarantee-just-missed-most-082601755.html",
-        "providerPublishTime": 1789719961,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/07942cd3bd7917809122858018eb6b76.jpg",
-              "width": 1400,
-              "height": 933,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/7ECB7127C464B37D3647E337C5E9D2B3B508F7057F59227BF4CFC73C10EA40BC/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F07942cd3bd7917809122858018eb6b76.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^DJI",
-          "^IXIC",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "我幾乎可以保證你剛剛錯過了美聯儲主席凱文·沃什和聯邦公開市場委員會利率決定中最重要的數字"
-      },
-      {
-        "uuid": "e32a6209-529e-378f-ad72-1d3e98debb1b",
-        "title": "The “Magnificent Seven” Stocks Have Seen Valuations Tumble. Stocks to Avoid or Once-in-a-Decade Buying Opportunity?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/magnificent-seven-stocks-seen-valuations-082301435.html",
-        "providerPublishTime": 1789719781,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/eae59920c44c4446906b58a7c736900f.jpg",
-              "width": 1400,
-              "height": 933,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/1150A6315652C1BE8B3F85CF19C63A514ED0EE824DC36C88E059315A9261D9FD/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Feae59920c44c4446906b58a7c736900f.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "NVDA",
-          "GOOG",
-          "^GSPC",
-          "AAPL",
-          "AMZN",
-          "META",
-          "MSFT",
-          "TSLA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "「華麗七人」股票的估值下跌。要避免的股票，還是十年一次的購買機會？"
-      },
-      {
-        "uuid": "1477d31a-d312-30de-9644-53d758ef51f7",
-        "title": "Warren Buffett Just Issued a Blunt Message as This Stock Market Warning Rings for the Second Time in 155 Years",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/warren-buffett-just-issued-blunt-082000351.html",
-        "providerPublishTime": 1789719600,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/a65d1063090c641a142149b124ffc20c.jpg",
-              "width": 1200,
-              "height": 780,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/123A5C587B93C5F9F9686F16E576396C19EE87C39D0046946AF6D352EDF1C922/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Fa65d1063090c641a142149b124ffc20c.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "BRK-B",
-          "^GSPC",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "華倫·巴菲特（ Warren Buffett ）剛剛發出直言不諱的信息，這是155年來第二次發出股市警告"
-      },
-      {
-        "uuid": "cff7ca59-f9de-3659-905f-d8ca3cf5777f",
-        "title": "If You Invest $50 a Week in SCHD, Here's What History Says You Could Collect in Passive Income by 2046",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/invest-50-week-schd-heres-081500887.html",
-        "providerPublishTime": 1789719300,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/4f42537f6b20a5e2737347d02a34f109.png",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/74141DECB8A1F91D5CEB073591EEE94DD04CAFB46589F8D2170F5ABD9F415292/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F4f42537f6b20a5e2737347d02a34f109.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SCHD",
-          "NVDA"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "如果您每週在SCHD投資$ 50 ，以下是到2046年您可以收集被動收入的歷史記錄"
       },
       {
         "uuid": "aadfe062-0205-321c-81ce-610b0b8898d2",
@@ -382,43 +536,6 @@
         "titleZh": "臺灣半導體製造（ TSM ）可能被高估14 ％ ，因為2nm MediaTek Win Lands"
       },
       {
-        "uuid": "1921e6e5-7c6c-3cc6-ae73-750d397323c3",
-        "title": "Dow Jones Futures: S&P 500, Nasdaq Rebound Above Key Level; Moderna, AMD, SpaceX Flash Buy Signals",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/1921e6e5-7c6c-3cc6-ae73-750d397323c3/dow-jones-futures%3A-s%26p-500%2C.html",
-        "providerPublishTime": 1789700941,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/ibd.com/1e242217d237f37d8fde7d17c2c712ae.jpg",
-              "width": 1012,
-              "height": 572,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/4B3B3959B96E8FD5D21871B5B601A3121CF1B970F7596506AB6875B8E90C36FC/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fibd.com%2F1e242217d237f37d8fde7d17c2c712ae.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "^DJI",
-          "NTAP",
-          "SPCX",
-          "AMD",
-          "MRNA",
-          "CL=F",
-          "^GSPC",
-          "^IXIC",
-          "INCY"
-        ],
-        "_sym": "AMD",
-        "titleZh": "道瓊斯期貨：標準普爾500指數、納斯達克反彈高於關鍵水平； Moderna、AMD、SpaceX閃購信號"
-      },
-      {
         "uuid": "6249909d-e04a-3e1a-a9fc-75555154ab04",
         "title": "INTC, AMD, MU, NVDA: Chip Stocks Rally As Investors Look Past AI Concerns",
         "publisher": "Stocktwits",
@@ -451,40 +568,8 @@
           "MRVL",
           "SNDK"
         ],
-        "_sym": "AMD",
+        "_sym": "MU",
         "titleZh": "INTC、AMD、MU、NVDA ：隨著投資者對AI的擔憂過去，晶片股反彈"
-      },
-      {
-        "uuid": "3e953442-7ecf-3bbf-8e97-ee0e05b53323",
-        "title": "Why AMD Stock Jumped Today",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/why-amd-stock-jumped-today-233549219.html",
-        "providerPublishTime": 1789688149,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/76066df1f299f060909f2b56c17da30c.jpg",
-              "width": 1200,
-              "height": 833,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/EA0957F493B4BFF5F06E361ECE089CB4129C50795B65118ED862D45F252635BE/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F76066df1f299f060909f2b56c17da30c.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA",
-          "^GSPC",
-          "^IXIC"
-        ],
-        "_sym": "AMD",
-        "titleZh": "為何AMD股價今日大漲"
       },
       {
         "uuid": "1553b86a-0107-35df-a6e2-4dfe30d4753e",
@@ -549,40 +634,6 @@
         ],
         "_sym": "MU",
         "titleZh": "預測：美光和Sandisk之間的5,000 $投資分割將在2028年之前增加三倍"
-      },
-      {
-        "uuid": "81e49b9f-32dc-3113-b729-3393218074f7",
-        "title": "Micron, Qualcomm, Nova, Lattice Semiconductor, and Workday Shares Are Soaring, What You Need To Know",
-        "publisher": "StockStory",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/micron-qualcomm-nova-lattice-semiconductor-211417375.html",
-        "providerPublishTime": 1789679657,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/stockstory_922/dcf057c27655d03a050775ca9f19c022.jpg",
-              "width": 1400,
-              "height": 700,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/3E908F023A88F3FD39F4386E977F90EA55B47D1330CD609C67AD9FA6309F21E9/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fstockstory_922%2Fdcf057c27655d03a050775ca9f19c022.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "CL=F",
-          "QCOM",
-          "LSCC",
-          "WDAY",
-          "NVMI"
-        ],
-        "_sym": "MU",
-        "titleZh": "Micron、Qualcomm、Nova、Lattice Semiconductor和Workday的股價正在飆升，您需要知道的是"
       },
       {
         "uuid": "36b88880-e3f9-3336-bfc3-edbb83a6653d",
@@ -673,73 +724,8 @@
         ],
         "_sym": "TSM",
         "titleZh": "2奈米電話離開實驗室，臺積公司股價上漲1.65%"
-      },
-      {
-        "uuid": "c4e95a07-0887-3d7b-89cb-8a46f110a247",
-        "title": "Sandisk Is Up More Than 1,700% in a Year and Still 33% Off Its Peak. History Says This is What Happens Next.",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/sandisk-more-1-700-still-182000871.html",
-        "providerPublishTime": 1789669200,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/53accd493a2a03c543e66941774ce68d.jpg",
-              "width": 1400,
-              "height": 933,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/6385C7E2118E418C1774DCACF922970DBA8BA6A87F60F427F4E7C4709F4B0876/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F53accd493a2a03c543e66941774ce68d.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SNDK",
-          "NVDA",
-          "WDC"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "Sandisk一年內上漲超過1,700% ，仍然比峯值低33%。歷史告訴我們，接下來會發生這樣的事情。"
-      },
-      {
-        "uuid": "51210fda-acb1-3b64-beda-20e27ed4d2e4",
-        "title": "AMD Jumps 7% as Semiconductor Rebound Reaches a Third Session; Broadcom Rises 3%, NVIDIA Edges Higher",
-        "publisher": "24/7 Wall St.",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/amd-jumps-7-semiconductor-rebound-173707172.html",
-        "providerPublishTime": 1789666627,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/24_7_wall_st__718/8b16e79cf4e05275a3c2fa92d3611298.png",
-              "width": 1200,
-              "height": 675,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/37A16114F73DCE4DDBC49D2C51E197ABCA4E47B2907759AB58F59FC22D176404/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2F24_7_wall_st__718%2F8b16e79cf4e05275a3c2fa92d3611298.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "AMD",
-          "NVDA",
-          "AVGO",
-          "SOXX",
-          "QQQ",
-          "^NDX"
-        ],
-        "_sym": "SOXX",
-        "titleZh": "隨著半導體反彈達到第三階段， AMD上漲7 ％ ； Broadcom上漲3 ％ ， NVIDIA優勢更高"
       }
     ],
-    "fetched_at": 1789721064066
+    "fetched_at": 1789728255362
   }
 }
