@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
   v15.966 同版修補 - 2026-09-17 網格月平均：月曆上方顯示所選月份每日網格利潤合計、有效紀錄天數與平均（USDT）；0 元日計入，缺值／未來日期不計入，同日只計一次。新增已結束月份平均紀錄，由完整日記帳自動彙整，跨月自動列入、補登修正後同步重算。不新增儲存、排程或同步寫入，不改版號、schema、userDataHash、pending 或既有損益公式。
   v15.966 同版修補 - 派網目前倉位新增「以目前倉位填入加密欄」，直接採用該次快照的錢包 TWD；每日快照按鈕與時間獨立標示。移除 Gist 拉取後強制以每日錢包覆蓋加密欄，保留使用者選值並沿用持倉同步；USDT 提示只配對相同 TWD 的快照。維持版號、Storage Key、schema 與既有 hash／pending 規則。
   v15.966 同版修補 - 開頁自動更新報價：等待啟動 Gist／本地同步完成後，立即刷新目前持倉報價與收盤基準，避免先更新的現價被稍後載入的雲端舊值覆蓋；同步超過 8 秒先更新本機資料，完成後再補抓。維持 60 秒輪詢，不改部署排程、Storage Key、schema、userDataHash 或 pending。
@@ -103,6 +104,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
         v15.965 - 前次收盤損益採用未定盤 bootstrap 收盤價修正：使用者回報前交易日漲跌與實際美股對不上（實測 09-03 美股應為 +NT$182,300，系統顯示 +NT$24,265，少算約 NT$158,000 且方向感失真）。四方對帳（app close pair / final-closes.json / fundamentals.json / Yahoo）確認根因：data/update_final_closes.py 的 merge_bar() 對所有來源硬寫 final:true，含信任度最低的 fundamentals-bootstrap；且 completed_latest_day() 僅要求收盤後 5 分鐘，final-closes.json generatedAt=09-04T00:10Z（美股收盤後 10 分）即把未定盤價寫成權威收盤（09-03 全標的偏差 -6.45%~+1.54%，MSTU 35.22 vs 實際 37.65、MSTR 139.38 vs 144.82）。前端 v15.957 起視 final-closes 為權威並存成 exact-final pair，而既有 pair 一旦是 exact-final 就永不重抓 → 錯值凍結在使用者快取並同步到所有裝置（實測 AMDL 09-02 存 45.85 vs 正確 45.69、MUU 29.60 vs 30.47），隔日後端雖已修正為 yahoo-yfinance-final 也拿不回來。修法：(1) 後端新增 FINAL_SOURCES，final 依來源信任度決定，bootstrap 寫入 final:false 不再冒充定盤價；同 rank 早退條件改比對 final 狀態避免卡住升級。(2) 後端新增 MARKET_SETTLE_BUFFER_MIN（三市場各 30 分）取代原 +5 分，避免收盤瞬間採樣。(3) 後端 PSEUDO_SYMBOLS 移除 USD —— 它是真實美股 ETF（ProShares Ultra Semiconductors）且在 symbols.json 追蹤清單內，原本被當幣別代碼整檔排除；加密貨幣對仍由 endswith('-USD') 規則擋掉。(4) 前端 _finalCloseBarForDate 新增 _isUntrustedFinalCloseSource 防護，線上壞檔在 Actions 重跑前即失效，不必等後端。(5) 前端 _normalizeClosePairCache 自癒：丟棄 bootstrap 來源的既有 pair 使其重抓，於 normalize 這個唯一漏斗處理，載入／儲存／雲端合併三路徑一次覆蓋，修復已凍結的歷史錯值。close pair 屬 system data，不入 userDataHash／dirty／pending；不改損益公式、Gist/FSA schema、Storage Key、快照或 PWA。
         v15.964 - 派網目前倉位列加「每U效率」：24h 利潤 ÷ 倉位大小，放在最後一欄。不改 schema、Gist 檔名、userDataHash、pending 或損益公式。
         v15.963 - 派網網格日記帳：每次進入網格分頁自動定位台北當月；今天有資料優先選今天，否則選本月最新資料，本月無資料仍保留當月並顯示尚無資料。日記帳單日／累積標籤固定對齊，損益畫面四捨五入至小數點後 2 位，底部補充快照口徑與精度說明；不改原始資料、計算精度或其他頁面顯示位數。
@@ -843,7 +845,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.966</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.967</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1593,7 +1595,10 @@
         let _realizedDateFrom = ''; // 篩選起始日
         let _realizedDateTo   = ''; // 篩選截止日
         let marketSnapshots = []; // [{ date, stockTWD, capturedAt?, sourceDeviceId? }] 每日市值快照
+        let netWorthSnapshots = []; // v15.967：[{ date, netWorthTWD, grandTotalTWD, loansTotalTWD, capturedAt?, sourceDeviceId? }]
         let _returnMode = 'year'; // 'day' | 'month' | 'quarter' | 'year'
+        let _netWorthChartMode = 'day'; // v15.967：'day' | 'month' | 'year'
+        let _netWorthChart = null;
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
@@ -1691,7 +1696,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.966';
+        const APP_VERSION = 'v15.967';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1711,6 +1716,7 @@
             corporateActionPlans: 'pt_corporate_action_plans_v1', // v15.922：股票分割 / 反分割預約
             watchlist:        'pt_watchlist',
             snapshots:        'pt_snapshots',
+            netWorthSnapshots:'pt_net_worth_snapshots_v1', // v15.967：貸款頁淨資產每日快照（system data，不入 hash/pending）
             // 圓餅圖手動欄位
             cashLegacy:       'pt_v13_cash',          // 已棄用，向下相容保留
             cashPie:          'pt_cash_pie_cb',
@@ -6103,6 +6109,111 @@
             renderLoansTab();
         }
 
+        function _netWorthSeries(mode) {
+            const snaps = _normalizeNetWorthSnapshots(netWorthSnapshots);
+            if (mode === 'month' || mode === 'year') {
+                const byKey = new Map();
+                snaps.forEach(s => {
+                    const key = mode === 'month' ? s.date.slice(0, 7) : s.date.slice(0, 4);
+                    byKey.set(key, s);
+                });
+                return [...byKey.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([key, s]) => ({
+                    label: key,
+                    date: s.date,
+                    netWorthTWD: s.netWorthTWD
+                }));
+            }
+            return snaps.map(s => ({
+                label: s.date.slice(5),
+                date: s.date,
+                netWorthTWD: s.netWorthTWD
+            }));
+        }
+        function setNetWorthChartMode(mode) {
+            if (mode !== 'day' && mode !== 'month' && mode !== 'year') return;
+            _netWorthChartMode = mode;
+            document.querySelectorAll('[data-nw-mode]').forEach(btn => {
+                const active = btn.getAttribute('data-nw-mode') === mode;
+                btn.style.border = '1.5px solid ' + (active ? 'rgba(96,165,250,0.5)' : 'rgba(56,139,253,0.2)');
+                btn.style.background = active ? 'rgba(56,139,253,0.15)' : 'transparent';
+                btn.style.color = active ? '#60a5fa' : '#7e93a6';
+            });
+            _paintNetWorthChart();
+        }
+        function _netWorthModeBtnStyle(mode) {
+            const active = _netWorthChartMode === mode;
+            return `padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid ${active ? 'rgba(96,165,250,0.5)' : 'rgba(56,139,253,0.2)'};background:${active ? 'rgba(56,139,253,0.15)' : 'transparent'};color:${active ? '#60a5fa' : '#7e93a6'};`;
+        }
+        function _paintNetWorthChart() {
+            const canvas = document.getElementById('net-worth-chart');
+            const summary = document.getElementById('net-worth-chart-summary');
+            const hint = document.getElementById('net-worth-chart-hint');
+            if (!canvas) return;
+            const series = _netWorthSeries(_netWorthChartMode);
+            const fmtN = v => Math.round(v || 0).toLocaleString('en-US');
+            if (_netWorthChart) {
+                try { _netWorthChart.destroy(); } catch(_) {}
+                _netWorthChart = null;
+            }
+            if (summary) {
+                if (!series.length) {
+                    summary.textContent = '尚無紀錄';
+                } else {
+                    const first = series[0].netWorthTWD;
+                    const last = series[series.length - 1].netWorthTWD;
+                    const diff = last - first;
+                    const pct = first !== 0 ? (diff / Math.abs(first)) * 100 : null;
+                    const diffStr = (diff >= 0 ? '+' : '-') + 'NT$ ' + fmtN(Math.abs(diff));
+                    const pctStr = pct == null || !Number.isFinite(pct) ? '' : '（' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%）';
+                    summary.innerHTML = series.length === 1
+                        ? '基準 ' + pv('NT$ ' + fmtN(last)) + ' · 之後每天開啟會再記一筆'
+                        : '首筆 ' + pv('NT$ ' + fmtN(first)) + ' → 最新 ' + pv('NT$ ' + fmtN(last)) + ' · ' + pv(diffStr) + pctStr;
+                }
+            }
+            if (hint) {
+                hint.style.display = series.length < 2 ? '' : 'none';
+            }
+            if (typeof Chart !== 'function') return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            _netWorthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: series.map(p => p.label),
+                    datasets: [{
+                        data: series.map(p => p.netWorthTWD),
+                        borderColor: '#6f8f82',
+                        backgroundColor: 'rgba(111,143,130,0.16)',
+                        fill: true,
+                        tension: 0.25,
+                        pointRadius: series.length === 1 ? 4 : 2.5,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8aa89b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            ticks: { color: '#7e93a6', maxRotation: 0, autoSkip: true, maxTicksLimit: 8, font: { size: 11 } },
+                            grid: { color: 'rgba(148,163,184,0.08)' }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#7e93a6',
+                                font: { size: 11 },
+                                callback: (v) => _privacyMode ? '*****' : ('NT$ ' + Math.round(Number(v) || 0).toLocaleString('en-US'))
+                            },
+                            grid: { color: 'rgba(148,163,184,0.08)' }
+                        }
+                    }
+                }
+            });
+        }
+
         function renderLoansTab() {
             const pane = document.getElementById('tab-pane-8');
             if (!pane) return;
@@ -6146,6 +6257,23 @@
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">淨資產（只在貸款頁顯示）</div>
                         <div class="mono pv-field" style="font-size:1.25rem;font-weight:800;color:${netWorthTWD >= 0 ? '#10b981' : '#ef4444'};">${pv('NT$ ' + fmtN(netWorthTWD))}</div>
                         <div style="color:#607585;font-size:0.72rem;margin-top:0.25rem;">既有總資產 - 貸款總額</div>
+                    </div>
+                </div>
+                <div style="margin-top:1rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.12);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.45rem;">
+                        <div>
+                            <div style="color:#c5d0d8;font-size:0.78rem;font-weight:600;">淨資產走勢</div>
+                            <div id="net-worth-chart-summary" style="color:#607585;font-size:0.7rem;margin-top:0.15rem;"></div>
+                        </div>
+                        <div style="display:flex;gap:0.35rem;">
+                            <button type="button" data-nw-mode="day" onclick="setNetWorthChartMode('day')" style="${_netWorthModeBtnStyle('day')}">日</button>
+                            <button type="button" data-nw-mode="month" onclick="setNetWorthChartMode('month')" style="${_netWorthModeBtnStyle('month')}">月</button>
+                            <button type="button" data-nw-mode="year" onclick="setNetWorthChartMode('year')" style="${_netWorthModeBtnStyle('year')}">年</button>
+                        </div>
+                    </div>
+                    <div id="net-worth-chart-hint" style="color:#607585;font-size:0.72rem;margin-bottom:0.35rem;">從今天開始記錄，之後開啟 App 會自動記一筆當日淨資產。</div>
+                    <div style="height:200px;position:relative;">
+                        <canvas id="net-worth-chart"></canvas>
                     </div>
                 </div>
                 ${dueListHtml}
@@ -6193,6 +6321,8 @@
 
             pane.innerHTML = statsHtml + formHtml + cardsHtml;
             _renderTotalAssetsLoanChip();
+            try { recordNetWorthSnapshot(); } catch(_) {}
+            try { _paintNetWorthChart(); } catch(_) {}
         }
 
         function _buildLoanCardHtml(rawLoan) {
@@ -7487,6 +7617,86 @@
             catch(_) { marketSnapshots = []; }
         }
 
+        // v15.967：貸款頁淨資產每日快照（system data）
+        const PT_NET_WORTH_KEY = STORAGE_KEYS.netWorthSnapshots;
+        function _netWorthSnapshotTs(snapshot) {
+            if (!snapshot || typeof snapshot.capturedAt !== 'string') return null;
+            const ts = Date.parse(snapshot.capturedAt);
+            return Number.isFinite(ts) ? ts : null;
+        }
+        function _cleanNetWorthSnapshot(snapshot) {
+            if (!snapshot || typeof snapshot !== 'object' || !_isValidSnapshotDate(snapshot.date)) return null;
+            const netWorthTWD = Number(snapshot.netWorthTWD);
+            if (!Number.isFinite(netWorthTWD)) return null;
+            const clean = { date: snapshot.date, netWorthTWD };
+            const grand = Number(snapshot.grandTotalTWD);
+            const loans = Number(snapshot.loansTotalTWD);
+            if (Number.isFinite(grand)) clean.grandTotalTWD = grand;
+            if (Number.isFinite(loans)) clean.loansTotalTWD = loans;
+            if (_netWorthSnapshotTs(snapshot) !== null) clean.capturedAt = snapshot.capturedAt;
+            if (typeof snapshot.sourceDeviceId === 'string' && snapshot.sourceDeviceId.trim()) {
+                clean.sourceDeviceId = snapshot.sourceDeviceId.trim();
+            }
+            return clean;
+        }
+        function _chooseNetWorthSnapshot(current, candidate, preferCandidateWithoutTimestamp) {
+            if (!current) return candidate;
+            if (!candidate) return current;
+            const currentTs = _netWorthSnapshotTs(current);
+            const candidateTs = _netWorthSnapshotTs(candidate);
+            if (currentTs !== null || candidateTs !== null) {
+                if (currentTs === null) return candidate;
+                if (candidateTs === null) return current;
+                return candidateTs >= currentTs ? candidate : current;
+            }
+            return preferCandidateWithoutTimestamp ? candidate : current;
+        }
+        function _normalizeNetWorthSnapshots(list) {
+            const byDate = new Map();
+            (Array.isArray(list) ? list : []).forEach(raw => {
+                const clean = _cleanNetWorthSnapshot(raw);
+                if (!clean) return;
+                byDate.set(clean.date, _chooseNetWorthSnapshot(byDate.get(clean.date), clean, true));
+            });
+            return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+        }
+        function _mergeNetWorthSnapshots(local, remote) {
+            const byDate = new Map();
+            _normalizeNetWorthSnapshots(local).forEach(s => byDate.set(s.date, s));
+            _normalizeNetWorthSnapshots(remote).forEach(s => {
+                byDate.set(s.date, _chooseNetWorthSnapshot(byDate.get(s.date), s, true));
+            });
+            return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+        }
+        function saveNetWorthSnapshots() {
+            netWorthSnapshots = _normalizeNetWorthSnapshots(netWorthSnapshots);
+            try { localStorage.setItem(PT_NET_WORTH_KEY, JSON.stringify(netWorthSnapshots)); }
+            catch(e) { _handleStorageWriteError('netWorthSnapshots', e); }
+        }
+        function loadNetWorthSnapshots() {
+            try { netWorthSnapshots = _normalizeNetWorthSnapshots(JSON.parse(localStorage.getItem(PT_NET_WORTH_KEY) || '[]') || []); }
+            catch(_) { netWorthSnapshots = []; }
+        }
+        function recordNetWorthSnapshot() {
+            if (typeof _isApplyingCloudPull !== 'undefined' && _isApplyingCloudPull) return;
+            const today = _taipeiSnapshotDate();
+            if (netWorthSnapshots.some(s => s.date === today)) return;
+            const grandTotalTWD = _grandTotalTWD();
+            const loansTotalTWD = _activeLoansTotalTWD();
+            const netWorthTWD = grandTotalTWD - loansTotalTWD;
+            if (!Number.isFinite(netWorthTWD)) return;
+            netWorthSnapshots.push({
+                date: today,
+                netWorthTWD,
+                grandTotalTWD,
+                loansTotalTWD,
+                capturedAt: new Date().toISOString(),
+                sourceDeviceId: _getDeviceId()
+            });
+            saveNetWorthSnapshots();
+            try { _scheduleSystemSyncPush('net_worth_snapshot'); } catch(_) {}
+        }
+
         // 計算目前所有股票持倉的台幣市值（不含加密/MOXA/現金）
         function _currentStockValueTWD() {
             return holdings.reduce((sum, h) => {
@@ -7874,14 +8084,20 @@
 
         // 嚴格驗證雲端 system payload — 失敗只忽略 system 區塊，不影響 user data pull
         function _validateSystemPayload(payload) {
-            if (!payload || typeof payload !== 'object') return { marketSnapshots: null, baselines: null, priceCache: null, closePairs: null };
-            const out = { marketSnapshots: null, baselines: null, priceCache: null, closePairs: null };
+            if (!payload || typeof payload !== 'object') return { marketSnapshots: null, netWorthSnapshots: null, baselines: null, priceCache: null, closePairs: null };
+            const out = { marketSnapshots: null, netWorthSnapshots: null, baselines: null, priceCache: null, closePairs: null };
             try {
                 if (payload.marketSnapshots != null) {
                     if (!Array.isArray(payload.marketSnapshots)) throw new Error('marketSnapshots 不是 array');
                     out.marketSnapshots = _normalizeMarketSnapshots(payload.marketSnapshots);
                 }
             } catch(e) { _recordAppError('system_payload_validate', e, { section: 'marketSnapshots' }); }
+            try {
+                if (payload.net_worth_snapshots != null) {
+                    if (!Array.isArray(payload.net_worth_snapshots)) throw new Error('net_worth_snapshots 不是 array');
+                    out.netWorthSnapshots = _normalizeNetWorthSnapshots(payload.net_worth_snapshots);
+                }
+            } catch(e) { _recordAppError('system_payload_validate', e, { section: 'net_worth_snapshots' }); }
             // baselines
             try {
                 const b = payload.daily_pnl_baselines;
@@ -7951,6 +8167,10 @@
             if (v.marketSnapshots) {
                 marketSnapshots = _mergeMarketSnapshots(marketSnapshots, v.marketSnapshots);
                 saveSnapshots();
+            }
+            if (v.netWorthSnapshots) {
+                netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, v.netWorthSnapshots);
+                saveNetWorthSnapshots();
             }
             if (v.baselines)  _dailyPnlBaselines  = _mergeBaselines(_dailyPnlBaselines, v.baselines);
             if (v.priceCache) _dailyPnlPriceCache = _mergePriceCache(_dailyPnlPriceCache, v.priceCache);
@@ -8042,6 +8262,7 @@
                 const payload = { ...state.saved };
                 // 4a. 市值快照：按日期聯集，不讓任一裝置的獨有日期被整包覆蓋。
                 payload.marketSnapshots = _mergeMarketSnapshots(marketSnapshots, state.saved.marketSnapshots);
+                payload.net_worth_snapshots = _mergeNetWorthSnapshots(netWorthSnapshots, state.saved.net_worth_snapshots);
                 // 4b. snapshots：用既有 _mergeDailyPnlSnapshots 完整性優先排序
                 const localSnap  = _loadDailyPnlSnapshots();
                 const remoteSnap = state.saved.daily_pnl_snapshots;
@@ -8069,6 +8290,10 @@
                 try {
                     marketSnapshots = payload.marketSnapshots;
                     saveSnapshots();
+                    if (Array.isArray(payload.net_worth_snapshots)) {
+                        netWorthSnapshots = _normalizeNetWorthSnapshots(payload.net_worth_snapshots);
+                        saveNetWorthSnapshots();
+                    }
                     if (payload.daily_pnl_snapshots && payload.daily_pnl_snapshots.markets) _saveDailyPnlSnapshots(payload.daily_pnl_snapshots);
                     if (payload.daily_pnl_baselines)  _dailyPnlBaselines  = payload.daily_pnl_baselines;
                     if (payload.daily_pnl_price_cache) _dailyPnlPriceCache = payload.daily_pnl_price_cache;
@@ -8390,6 +8615,10 @@
                 corporateActions = Array.isArray(before.corporate_actions) ? before.corporate_actions : []; saveCorporateActions();   // v15.920
                 corporateActionPlans = Array.isArray(before.corporate_action_plans) ? before.corporate_action_plans : []; saveCorporateActionPlans();   // v15.922
                 if (Array.isArray(before.marketSnapshots)) { marketSnapshots = before.marketSnapshots; saveSnapshots(); }
+                if (Array.isArray(before.net_worth_snapshots)) {
+                    netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, before.net_worth_snapshots);
+                    saveNetWorthSnapshots();
+                }
                 if (before.currency) currency = before.currency;
                 if (before.exchangeRates) { exchangeRates = before.exchangeRates; try { syncRateInputs(); } catch(_) {} }
                 if (before.sheet_url != null) {
@@ -8855,6 +9084,7 @@
                     moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                     moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false,
                     marketSnapshots,
+                    net_worth_snapshots: netWorthSnapshots,   // v15.967
                     daily_pnl_snapshots: _loadDailyPnlSnapshots(),   // v15.071：跨裝置同步
                     pushedAt,
                     sync_meta
@@ -8904,6 +9134,7 @@
         // 每日首次開啟時自動記錄市值快照
         // v15.960：marketSnapshots 不入 userDataHash / pending；新增後走 hash-match system sync。
         function recordSnapshot() {
+            try { recordNetWorthSnapshot(); } catch(_) {}
             const today = _taipeiSnapshotDate();
             if (marketSnapshots.some(s => s.date === today)) return;
             const stockTWD = _closingStockValueTWD();   // v15.905 hotfix #5：改用前一交易日收盤價算市值
@@ -10030,6 +10261,7 @@
                 moxa_twd:     parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                 moxa_pie_cb:  document.getElementById('moxa-pie-cb')?.checked   || false,
                 marketSnapshots,
+                net_worth_snapshots: netWorthSnapshots,   // v15.967
                 daily_pnl_snapshots: _loadDailyPnlSnapshots(),   // v15.071：跨裝置同步
                 pushedAt,
                 sync_meta
@@ -10213,6 +10445,7 @@
                 saveCorporateActionPlans();
                 // 市值快照是 system data：手動 pull 也按日期聯集，避免其他裝置獨有日期消失。
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
+                if (Array.isArray(saved.net_worth_snapshots)) { netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, saved.net_worth_snapshots); saveNetWorthSnapshots(); }
                 // 永遠記住 Token 和 Gist ID
                 saveGistSettings(token, gistId);
                 // v15.075/079：統一寫 baseline + 清 dirty；同時計算 hash 寫 lastUserDataHash + 標 master 處理（如有）
@@ -10472,6 +10705,7 @@
                 }
                 // 市值快照按日期聯集；master 只主導 user data，不刪除本機 system history。
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
+                if (Array.isArray(saved.net_worth_snapshots)) { netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, saved.net_worth_snapshots); saveNetWorthSnapshots(); }
                 // v15.071/080：merge 雲端 daily_pnl_snapshots 進本機（傳本機 hash 給 priority 用）
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
@@ -13468,6 +13702,7 @@ function _isLegacy9747Holding(h) {
                 corporate_action_plans: corporateActionPlans,       // v15.922
                 deposits,
                 marketSnapshots,
+                net_worth_snapshots: netWorthSnapshots,
                 daily_pnl_snapshots: _loadDailyPnlSnapshots(),
                 currency,
                 exchangeRates,
@@ -13558,6 +13793,7 @@ function _isLegacy9747Holding(h) {
                 corporateActionPlans = Array.isArray(saved.corporate_action_plans) ? saved.corporate_action_plans : [];
                 saveCorporateActionPlans();
                 if (Array.isArray(saved.marketSnapshots)) { marketSnapshots = _mergeMarketSnapshots(marketSnapshots, saved.marketSnapshots); saveSnapshots(); }
+                if (Array.isArray(saved.net_worth_snapshots)) { netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, saved.net_worth_snapshots); saveNetWorthSnapshots(); }
                 try {
                     if (saved.daily_pnl_snapshots && saved.daily_pnl_snapshots.markets) {
                         const merged = _mergeDailyPnlSnapshots(_loadDailyPnlSnapshots(), saved.daily_pnl_snapshots);
@@ -14929,6 +15165,7 @@ function _isLegacy9747Holding(h) {
                 }
             }
             loadSnapshots();         // 還原月度市值快照
+            loadNetWorthSnapshots(); // v15.967：貸款頁淨資產走勢
             holdings.forEach(_ensureLots); // 舊資料向下相容：補齊 lots 欄位
             loadPrivacy();           // 還原隱私模式設定
             loadFont();              // 還原字型設定
@@ -14998,6 +15235,7 @@ function _isLegacy9747Holding(h) {
                     try { _migrate9747HoldingsTo7747Once('fx-ready'); } catch(_) {}
                     renderAll();
                     recordSnapshot(); // 每月首次開啟，自動記錄市值快照
+                    try { recordNetWorthSnapshot(); } catch(_) {}
                 }
             })();
             // 啟動時抓取 USDT/TWD 匯率（CoinGecko）
@@ -16117,6 +16355,7 @@ function _isLegacy9747Holding(h) {
                     } catch(_) {}
                     _scheduleRefreshClosePair('csv-silent');   // v15.902（60s 靜默維持 cooldown）
                     recordSnapshot(); // 自動報價更新後記錄快照（同月已有則略過）
+                    try { recordNetWorthSnapshot(); } catch(_) {}
                 }
             } catch(e) {
                 try { _recordAppError('silent_quote_refresh', e); } catch(_) {}
