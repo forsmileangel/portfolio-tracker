@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
   v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
   v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
   v15.966 同版修補 - 2026-09-17 網格月平均：月曆上方顯示所選月份每日網格利潤合計、有效紀錄天數與平均（USDT）；0 元日計入，缺值／未來日期不計入，同日只計一次。新增已結束月份平均紀錄，由完整日記帳自動彙整，跨月自動列入、補登修正後同步重算。不新增儲存、排程或同步寫入，不改版號、schema、userDataHash、pending 或既有損益公式。
@@ -105,6 +106,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
         v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
         v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
         v15.965 - 前次收盤損益採用未定盤 bootstrap 收盤價修正：使用者回報前交易日漲跌與實際美股對不上（實測 09-03 美股應為 +NT$182,300，系統顯示 +NT$24,265，少算約 NT$158,000 且方向感失真）。四方對帳（app close pair / final-closes.json / fundamentals.json / Yahoo）確認根因：data/update_final_closes.py 的 merge_bar() 對所有來源硬寫 final:true，含信任度最低的 fundamentals-bootstrap；且 completed_latest_day() 僅要求收盤後 5 分鐘，final-closes.json generatedAt=09-04T00:10Z（美股收盤後 10 分）即把未定盤價寫成權威收盤（09-03 全標的偏差 -6.45%~+1.54%，MSTU 35.22 vs 實際 37.65、MSTR 139.38 vs 144.82）。前端 v15.957 起視 final-closes 為權威並存成 exact-final pair，而既有 pair 一旦是 exact-final 就永不重抓 → 錯值凍結在使用者快取並同步到所有裝置（實測 AMDL 09-02 存 45.85 vs 正確 45.69、MUU 29.60 vs 30.47），隔日後端雖已修正為 yahoo-yfinance-final 也拿不回來。修法：(1) 後端新增 FINAL_SOURCES，final 依來源信任度決定，bootstrap 寫入 final:false 不再冒充定盤價；同 rank 早退條件改比對 final 狀態避免卡住升級。(2) 後端新增 MARKET_SETTLE_BUFFER_MIN（三市場各 30 分）取代原 +5 分，避免收盤瞬間採樣。(3) 後端 PSEUDO_SYMBOLS 移除 USD —— 它是真實美股 ETF（ProShares Ultra Semiconductors）且在 symbols.json 追蹤清單內，原本被當幣別代碼整檔排除；加密貨幣對仍由 endswith('-USD') 規則擋掉。(4) 前端 _finalCloseBarForDate 新增 _isUntrustedFinalCloseSource 防護，線上壞檔在 Actions 重跑前即失效，不必等後端。(5) 前端 _normalizeClosePairCache 自癒：丟棄 bootstrap 來源的既有 pair 使其重抓，於 normalize 這個唯一漏斗處理，載入／儲存／雲端合併三路徑一次覆蓋，修復已凍結的歷史錯值。close pair 屬 system data，不入 userDataHash／dirty／pending；不改損益公式、Gist/FSA schema、Storage Key、快照或 PWA。
@@ -847,7 +849,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.967</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.968</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1701,7 +1703,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.967';
+        const APP_VERSION = 'v15.968';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -10199,7 +10201,7 @@
                     </div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div></div>
                     <div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>
-                    <div><div style="color:#7e93a6;font-size:0.72rem;">網格利潤加總</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">運行中配對利潤</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
                 </div>
                 <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">金額為上方更新時間的錢包估值；填入會取用這筆台幣金額。需更新資料時，先在本機更新目前倉位，再重新進入本頁。點欄位標題可排序。</div>
                 <div style="margin-top:0.7rem;overflow:auto;">
@@ -13171,6 +13173,7 @@ function _isLegacy9747Holding(h) {
                 if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) continue;
                 const ts = Date.parse(date + 'T00:00:00Z');
                 if (!Number.isFinite(ts) || new Date(ts).toISOString().slice(0, 10) !== date) continue;
+                if (Number(rec.unresolved_count) > 0) continue;
                 const raw = rec.daily_profit_usdt;
                 if (typeof raw !== 'number' && (typeof raw !== 'string' || !raw.trim())) continue;
                 const profit = Number(raw);
@@ -13199,15 +13202,37 @@ function _isLegacy9747Holding(h) {
                     <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">利潤合計</th><th scope="col">每日平均</th></tr></thead>
                     <tbody>${rows}</tbody></table></div>`
                     : '<div class="pionex-month-note" style="padding:1rem 0;">尚無已結束月份的紀錄，跨月後會自動列入。</div>'}
-                <div class="pionex-month-note" style="margin-top:0.45rem;">依已保存的每日紀錄彙整；缺資料的日期不計入，補登或修正後同步更新。</div>
+                <div class="pionex-month-note" style="margin-top:0.45rem;">依已保存的每日配對紀錄彙整；缺資料或關倉配對待補的日期暫不計入，補齊後同步重算。</div>
+            </div>`;
+        }
+
+        function _renderPionexSettlements(ledger) {
+            const rows = ledger && Array.isArray(ledger.settlements) ? ledger.settlements : [];
+            const labels = { settled: '結算已確認', partial: '部分資料待補', pending: '待結算資料' };
+            const amount = value => `<span class="mono pv-field" style="color:${_pnlColor(value)}">${pv(_fmtPionexJournalPnl(value))}</span>`;
+            return `<div class="glass-card" style="padding:1.1rem 1.3rem;margin-bottom:1rem;">
+                <h2 style="color:#e2e8f0;font-size:1rem;font-weight:600;margin:0 0 0.5rem;">關倉紀錄</h2>
+                <div style="color:#7e93a6;font-size:0.74rem;line-height:1.6;">${rows.length} 筆 · ${rows.filter(r => r.status !== 'settled').length} 筆結算資料待補。最終淨損益含配對收益與已確認費用，與配對統計分開顯示，錢包不再重複扣除。補登請使用本機儀表板的「關倉紀錄」。</div>
+                ${rows.length ? `<div style="overflow-x:auto;margin-top:0.6rem;"><table class="pionex-month-table" style="min-width:740px;" aria-label="關倉結算明細">
+                    <thead><tr><th>標的／關倉時間</th><th>最終配對</th><th>最終淨損益</th><th>非配對淨損益</th><th>資金費</th><th>狀態／來源</th></tr></thead>
+                    <tbody>${rows.map(r => `<tr>
+                        <td style="text-align:left;white-space:nowrap;">${_escapeHtml(r.symbol || '')}<br><small style="color:#7e93a6;">${_escapeHtml(r.closed_at ? _fmtPionexTs(r.closed_at) : '關倉時間待補')}</small></td>
+                        <td>${amount(r.grid_profit)}<br><small>${_escapeHtml(r.currency || 'USDT')}</small></td>
+                        <td>${amount(r.net_profit)}<br><small>${_escapeHtml(r.currency || 'USDT')}</small></td>
+                        <td>${amount(r.non_grid_profit)}<br><small>${_escapeHtml(r.currency || 'USDT')}</small></td>
+                        <td>${amount(r.funding_fee)}<br><small>${_escapeHtml(r.currency || 'USDT')}</small></td>
+                        <td style="text-align:left;white-space:nowrap;">${_escapeHtml(labels[r.status] || '待核對')}<br><small style="color:#7e93a6;">${r.source === 'api' ? 'API' : 'API＋人工補登'} · ${r.daily_reconciled ? '配對日報已對帳' : '配對日報待對帳'}</small></td>
+                    </tr>`).join('')}</tbody></table></div>` : '<div style="padding:0.8rem 0;color:#607585;font-size:0.8rem;">尚無關倉結算紀錄。</div>'}
+                <div style="margin-top:0.6rem;color:#607585;font-size:0.72rem;line-height:1.5;">配對為派網最後顯示值；有提領／複投時，完整配對收益另行核對。金額以原結算幣種顯示，缺值保持待補。非配對淨損益僅於完整配對與淨損益口徑確認後顯示。</div>
             </div>`;
         }
 
         function renderPionexGridTab() {
             const pane = document.getElementById('tab-pane-10');
             if (!pane) return;
-            const liveCard = _renderPionexLiveCard(_loadPionexLive());
             const ledger = _loadPionexLedger();
+            const liveCard = _renderPionexLiveCard(_loadPionexLive());
+            const settlementCard = _renderPionexSettlements(ledger);
             const today = _taipeiCalendarDate();
             const statusLabel = {
                 baseline: '基準',
@@ -13217,7 +13242,7 @@ function _isLegacy9747Holding(h) {
                 closed_unresolved: '關倉未對上'
             };
             if (!ledger || !ledger.days || ledger.days.length === 0) {
-                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7));
+                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7)) + settlementCard;
                 return;
             }
             const byDate = {};
@@ -13249,7 +13274,7 @@ function _isLegacy9747Holding(h) {
                     cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}" onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
                         + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">單日</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.daily_profit_usdt))}</span></span>`
-                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">累積</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.cumulative_usdt)}">${pv(_fmtPionexJournalPnl(rec.cumulative_usdt))}</span></span>`
+                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`
                         + `</button>`;
                 } else {
                     cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
@@ -13291,22 +13316,27 @@ function _isLegacy9747Holding(h) {
                         <div class="pionex-month-average mono" style="color:${_pnlColor(monthAverage)};"><span class="pv-field">${pv(_fmtPionexJournalPnl(monthAverage))}</span> <span class="pionex-month-unit">USDT／日</span></div>
                     </div>
                     <div class="pionex-month-note">${monthStats
-                        ? `本月合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthStats.total))}</span> USDT ÷ ${monthStats.count} 天<br>依有紀錄天數計算，含 0 元日`
+                        ? `本月合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthStats.total))}</span> USDT ÷ ${monthStats.count} 天<br>依完整紀錄天數計算，含 0 元日；關倉配對待補日暫不計入`
                         : '本月尚無有效每日紀錄'}</div>
                 </div>
                 <div class="pionex-cal">${cells}</div>
                 <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
                     <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;">
                         <div>
-                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日網格利潤</div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日配對利潤</div>
                             <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.daily_profit_usdt))}</div>
                             <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.daily_profit_twd)) : ''}</div>
                         </div>
                         <div>
-                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">累計網格利潤</div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">運行中配對利潤</div>
                             <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.cumulative_usdt))}</div>
                             <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.cumulative_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.cumulative_twd)) : '各倉網格利潤加總'}</div>
+                        </div>
+                        <div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">歷史累計配對利潤（含已關倉）</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.true_profit_usdt)};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.true_profit_usdt))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.true_profit_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.true_profit_twd)) : '歷史資料尚未提供'}</div>
                         </div>
                     </div>
                 </div>
@@ -13325,10 +13355,12 @@ function _isLegacy9747Holding(h) {
                             : ''}
                     </div>
                 </div>
+                ${Number(selected.unresolved_count) > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">此日有 ${Number(selected.unresolved_count)} 倉配對資料待補，單日與歷史金額暫計，補齊後自動重算。</div>` : ''}
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日取 v2 每日快照差額並依事件分類；累積為當日仍開倉位 GridProfit 加總。畫面損益四捨五入至小數點後 2 位，原始資料與計算精度不變。</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日為兩次每日快照間的配對增量。歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。金額顯示至小數點後 2 位。</div>
             </div>
             ${_renderPionexMonthlyHistory(monthlyStats, today.slice(0, 7))}
+            ${settlementCard}
             <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
                 <div style="color:#c5d0d8;font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">${_escapeHtml(_pionexCalSelected || '')} 明細</div>
                 <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
