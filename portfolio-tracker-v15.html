@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.968 同版修補 - 2026-09-22 派網每 U 效率統一換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%；顯示與排序使用相同換算，缺少有效槓桿時顯示 —。
   v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
   v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
   v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
@@ -10109,8 +10110,10 @@
         function _pionexLiveEff(r) {
             const inv = parseFloat(r && r.investment_usdt);
             const day = parseFloat(r && r.profit_24h_usdt);
-            if (!Number.isFinite(inv) || inv <= 0 || !Number.isFinite(day)) return null;
-            return day / inv * 100;
+            const leverage = parseFloat(r && r.leverage);
+            if (!Number.isFinite(inv) || inv <= 0 || !Number.isFinite(day)
+                || !Number.isFinite(leverage) || leverage <= 0) return null;
+            return day / inv * 100 * 3 / leverage;
         }
 
         function _pionexLiveSortValue(r, key) {
@@ -10204,6 +10207,7 @@
                     <div><div style="color:#7e93a6;font-size:0.72rem;">運行中配對利潤</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
                 </div>
                 <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">金額為上方更新時間的錢包估值；填入會取用這筆台幣金額。需更新資料時，先在本機更新目前倉位，再重新進入本頁。點欄位標題可排序。</div>
+                <div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">每 U 效率按比例換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%。</div>
                 <div style="margin-top:0.7rem;overflow:auto;">
                     <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
                         <thead><tr>
@@ -10212,7 +10216,7 @@
                             ${_pionexLiveSortTh('investment', '倉位', 'right')}
                             ${_pionexLiveSortTh('grid', '網格', 'right')}
                             ${_pionexLiveSortTh('profit24h', '24h', 'right')}
-                            ${_pionexLiveSortTh('eff', '每U效率', 'right')}
+                            ${_pionexLiveSortTh('eff', '每U效率（3倍）', 'right')}
                         </tr></thead>
                         <tbody>${rowHtml}</tbody>
                     </table>
