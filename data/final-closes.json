@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-23T11:43:51Z",
+  "generatedAt": "2026-09-23T14:16:43Z",
   "symbols": {
     "AAOI": {
       "market": "US",
@@ -9215,10 +9215,10 @@
           "fetchedAt": "2026-09-22T14:03:42Z"
         },
         "2026-09-23": {
-          "close": 42.9,
-          "final": false,
-          "source": "fundamentals-bootstrap",
-          "fetchedAt": "2026-09-23T02:56:01.977807+00:00"
+          "close": 43.84,
+          "final": true,
+          "source": "hkex-daily-quotation",
+          "fetchedAt": "2026-09-23T14:16:07Z"
         }
       }
     },
@@ -10866,6 +10866,12 @@
           "final": true,
           "source": "hkex-daily-quotation",
           "fetchedAt": "2026-09-22T14:03:42Z"
+        },
+        "2026-09-23": {
+          "close": 86.3,
+          "final": true,
+          "source": "hkex-daily-quotation",
+          "fetchedAt": "2026-09-23T14:16:07Z"
         }
       }
     },
@@ -11056,11 +11062,10 @@
     }
   },
   "markets": {
-    "TW": {
+    "HK": {
       "status": "ok",
-      "source": "twse-stock-day",
-      "symbols": 2,
-      "total": 2,
+      "source": "hkex-daily-quotation",
+      "dates": 4,
       "errors": 0
     }
   }
