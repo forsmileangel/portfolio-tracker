@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.968 同版修補 - 2026-09-26 收盤資料補日與發布銜接：美股更新依共用交易日曆檢查最新／前一交易日，缺日改用 Yahoo chart 補抓；收盤後保留 30 分鐘定盤緩衝，仍缺資料則回報失敗並保留已取得資料。網頁優先直接讀 GitHub 最新收盤檔，失敗才用 raw／部署檔與既有快取，沿用 3 分鐘 TTL，不增加例行部署。維持版號、損益公式、08:00 換日、schema、userDataHash、pending 與裝置同步限制。
   v15.968 同版修補 - 2026-09-22 派網每 U 效率統一換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%；顯示與排序使用相同換算，缺少有效槓桿時顯示 —。
   v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
   v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
@@ -3145,30 +3146,43 @@
             if (!force && _finalCloseDataLastAttempt && Date.now() - _finalCloseDataLastAttempt < _FINAL_CLOSE_TTL_MS) return _finalCloseData;
             _finalCloseDataLastAttempt = Date.now();
             _finalCloseDataPromise = (async () => {
-                const ctrl = new AbortController();
-                const timeoutId = setTimeout(() => ctrl.abort(), 8000);
+                const local = typeof location !== 'undefined' && (location.protocol === 'file:'
+                    || ['localhost', '127.0.0.1', '::1', '[::1]'].includes(location.hostname));
+                // API 直接讀 main；資料更新不必等待 Pages 重部署。限流／斷線時保留備援。
+                const sources = local ? [] : [
+                    { url: 'https://api.github.com/repos/forsmileangel/portfolio-tracker/contents/data/final-closes.json?ref=main', headers: { Accept: 'application/vnd.github.raw+json' } },
+                    { url: 'https://raw.githubusercontent.com/forsmileangel/portfolio-tracker/main/data/final-closes.json' }
+                ];
+                sources.push({ url: './data/final-closes.json' });
+                let lastError;
                 try {
-                    const res = await fetch('./data/final-closes.json', { cache: 'no-store', signal: ctrl.signal });
-                    if (!res.ok) {
-                        _finalCloseDataState = 'missing';
-                        return _finalCloseData;
+                    for (const source of sources) {
+                        const ctrl = new AbortController();
+                        const timeoutId = setTimeout(() => ctrl.abort(), 8000);
+                        try {
+                            const res = await fetch(source.url, { headers: source.headers, cache: 'no-store', signal: ctrl.signal });
+                            if (!res.ok) throw new Error('final-closes.json HTTP ' + res.status);
+                            const parsed = await res.json();
+                            if (!parsed || typeof parsed !== 'object' || !parsed.symbols
+                                || typeof parsed.symbols !== 'object' || Array.isArray(parsed.symbols)) {
+                                throw new Error('final-closes.json 格式無效');
+                            }
+                            // CDN 偶爾回舊版本時保留較新的整份資料。
+                            const oldTime = Date.parse(_finalCloseData?.generatedAt || '') || 0;
+                            const newTime = Date.parse(parsed.generatedAt || '') || 0;
+                            if (!_finalCloseData || newTime >= oldTime) _finalCloseData = parsed;
+                            _finalCloseDataState = 'ready';
+                            return _finalCloseData;
+                        } catch(e) {
+                            lastError = e;
+                        } finally {
+                            clearTimeout(timeoutId);
+                        }
                     }
-                    const parsed = await res.json();
-                    if (!parsed || typeof parsed !== 'object' || !parsed.symbols || typeof parsed.symbols !== 'object') {
-                        throw new Error('final-closes.json 格式無效');
-                    }
-                    // CDN 偶爾回舊版本時保留較新的整份資料。
-                    const oldTime = Date.parse(_finalCloseData?.generatedAt || '') || 0;
-                    const newTime = Date.parse(parsed.generatedAt || '') || 0;
-                    if (!_finalCloseData || newTime >= oldTime) _finalCloseData = parsed;
-                    _finalCloseDataState = 'ready';
-                    return _finalCloseData;
-                } catch(e) {
                     _finalCloseDataState = 'error';
-                    try { _recordAppError('final_close_data_load', e); } catch(_) {}
+                    try { _recordAppError('final_close_data_load', lastError); } catch(_) {}
                     return _finalCloseData;
                 } finally {
-                    clearTimeout(timeoutId);
                     _finalCloseDataPromise = null;
                 }
             })();
@@ -3183,7 +3197,7 @@
         }
         function _isTrustedFinalCloseSource(source) {
             const s = String(source || '').replace(/^final-closes:/, '');
-            return ['yahoo-yfinance-final', 'twse-stock-day', 'hkex-daily-quotation']
+            return ['yahoo-yfinance-final', 'yahoo-chart-final', 'twse-stock-day', 'hkex-daily-quotation']
                 .some(name => s === name || s.startsWith(name + ':'));
         }
         function _finalCloseBarForDate(symbol, marketKey, dateKey) {

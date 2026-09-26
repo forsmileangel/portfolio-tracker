@@ -59,7 +59,13 @@ jobs:
           fi
 
       - name: Fetch final close data
-        run: python data/update_final_closes.py --market "${{ steps.target.outputs.market }}"
+        id: fetch
+        continue-on-error: true
+        run: |
+          python data/update_final_closes.py --market "${{ steps.target.outputs.market }}" || {
+            sleep 20
+            python data/update_final_closes.py --market "${{ steps.target.outputs.market }}"
+          }
 
       - name: Commit & push updated data
         shell: bash
@@ -73,3 +79,9 @@ jobs:
           fi
           git commit -m "chore: update final closes $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
+
+      - name: Report incomplete close data
+        if: steps.fetch.outcome == 'failure'
+        run: |
+          echo "Final-close data is incomplete. Available bars were saved; check missing dates in the fetch log."
+          exit 1

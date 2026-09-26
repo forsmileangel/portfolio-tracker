@@ -18,6 +18,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from urllib.parse import quote
 
 try:
     import requests
@@ -49,10 +50,11 @@ MARKET_SETTLE_BUFFER_MIN = {"TW": 30, "HK": 30, "US": 30}
 PSEUDO_SYMBOLS = {"TWD", "HKD", "CASH", "BTC", "ETH", "ADA", "BNB", "SUI", "SOL"}
 # v15.965：只有真正定盤的來源才可標 final=True。fundamentals-bootstrap 取自 fundamentals.json 快照，
 # 可能在收盤瞬間採樣、尚未反映正式定盤價（槓桿 ETF 誤差可達數 %），只能當暫用值。
-FINAL_SOURCES = {"yahoo-yfinance-final", "twse-stock-day", "hkex-daily-quotation"}
+FINAL_SOURCES = {"yahoo-yfinance-final", "yahoo-chart-final", "twse-stock-day", "hkex-daily-quotation"}
 SOURCE_RANK = {
     "fundamentals-bootstrap": 10,
     "yahoo-yfinance-final": 20,
+    "yahoo-chart-final": 20,
     "twse-stock-day": 30,
     "hkex-daily-quotation": 30,
 }
@@ -378,43 +380,93 @@ def history_date(index_value, market_tz: ZoneInfo) -> date:
     return timestamp.date() if hasattr(timestamp, "date") else date.fromisoformat(str(timestamp)[:10])
 
 
+def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
+    # Share the app's holiday / early-close calendar instead of maintaining a second one.
+    app = (ROOT / "portfolio-tracker-v15.html").read_text(encoding="utf-8")
+    calendar = re.search(r"\bUS:\s*\{\s*tz:\s*'America/New_York'.*?holidays:\s*new Set\(\[(.*?)\]\).*?earlyClose:\s*\{(.*?)\}", app, re.S)
+    if not calendar:
+        raise ValueError("US market calendar not found in app")
+    holidays = set(re.findall(r"'([0-9]{4}-[0-9]{2}-[0-9]{2})'", re.sub(r"//[^\n]*", "", calendar[1])))
+    early = {day: int(hour) * 60 for day, hour in re.findall(r"'([0-9-]+)':\s*(\d+)\s*\*\s*60", re.sub(r"//[^\n]*", "", calendar[2]))}
+    local_now = (now or datetime.now(timezone.utc)).astimezone(MARKET_TZ["US"])
+    latest = local_now.date()
+    close_min = early.get(latest.isoformat(), MARKET_CLOSE_MIN["US"])
+    if local_now.hour * 60 + local_now.minute < close_min + MARKET_SETTLE_BUFFER_MIN["US"]:
+        latest -= timedelta(days=1)
+    dates = []
+    while len(dates) < 2:
+        if latest.weekday() < 5 and latest.isoformat() not in holidays:
+            dates.append(latest)
+        latest -= timedelta(days=1)
+    return tuple(dates)
+
+
+def fetch_us_chart(symbol: str, latest: date) -> list[tuple[str, float]]:
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}?interval=1d&range=1mo"
+    status, body = http_text(url)
+    if status != 200:
+        raise RuntimeError(f"Yahoo chart HTTP {status}")
+    chart = json.loads(body)["chart"]["result"][0]
+    closes = chart["indicators"]["quote"][0]["close"]
+    bars = []
+    # Keep timestamp / close indexes paired; a null day must never shift another price.
+    for stamp, close in zip(chart.get("timestamp") or [], closes):
+        day = datetime.fromtimestamp(stamp, timezone.utc).astimezone(MARKET_TZ["US"]).date()
+        value = safe_price(close)
+        if value is not None and day <= latest:
+            bars.append((day.isoformat(), value))
+    return bars
+
+
 def fetch_us(payload: dict, symbols: set[str], reports: dict, dry_run: bool) -> int:
-    if yf is None:
-        reports["US"] = {"status": "error", "source": "yahoo-yfinance-final", "error": "yfinance unavailable"}
-        return 0
-    local_now = datetime.now(timezone.utc).astimezone(MARKET_TZ["US"])
-    today = local_now.date()
-    after_close = local_now.hour * 60 + local_now.minute >= MARKET_CLOSE_MIN["US"] + 5
+    latest, previous = expected_us_close_dates()
     updated = 0
     successes = 0
-    errors = 0
+    missing = []
     checked_at = now_utc_iso()
     for symbol in sorted(symbols):
         try:
+            if yf is None:
+                raise RuntimeError("yfinance unavailable")
             history = yf.Ticker(symbol).history(period="45d", interval="1d", auto_adjust=False, actions=False)
-            if history is None or history.empty or "Close" not in history.columns:
-                continue
-            got_bar = False
-            for index_value, row in history.iterrows():
-                day = history_date(index_value, MARKET_TZ["US"])
-                if day > today or (day == today and not after_close):
-                    continue
-                close = row.get("Close")
-                if close is None:
-                    continue
-                updated += int(merge_bar(payload, symbol, "US", day.isoformat(), close, "yahoo-yfinance-final", checked_at))
-                got_bar = safe_price(close) is not None or got_bar
-            successes += int(got_bar)
+            if history is not None and not history.empty and "Close" in history.columns:
+                for index_value, row in history.iterrows():
+                    day = history_date(index_value, MARKET_TZ["US"])
+                    if day <= latest:
+                        updated += int(merge_bar(payload, symbol, "US", day.isoformat(), row.get("Close"), "yahoo-yfinance-final", checked_at))
         except Exception as exc:
-            errors += 1
             print(f"US {symbol}: {exc}", file=sys.stderr)
+
+        def has_required_dates() -> bool:
+            bars = payload.get("symbols", {}).get(symbol, {}).get("byDate", {})
+            return all(
+                bars.get(day.isoformat(), {}).get("final") is True
+                and source_rank(bars[day.isoformat()].get("source", "")) >= 20
+                and safe_price(bars[day.isoformat()].get("close")) is not None
+                for day in (latest, previous)
+            )
+
+        if not has_required_dates():
+            try:
+                for day, close in fetch_us_chart(symbol, latest):
+                    updated += int(merge_bar(payload, symbol, "US", day, close, "yahoo-chart-final", checked_at))
+            except Exception as exc:
+                print(f"US {symbol} chart fallback: {exc}", file=sys.stderr)
+        if has_required_dates():
+            successes += 1
+        else:
+            missing.append(symbol)
+            print(f"US {symbol}: missing final close for {latest} / {previous}", file=sys.stderr)
         time.sleep(0.15)
     reports["US"] = {
         "status": "ok" if successes == len(symbols) else ("partial" if successes else "error"),
-        "source": "yahoo-yfinance-final",
+        "source": "yahoo-yfinance-final / yahoo-chart-final",
         "symbols": successes,
         "total": len(symbols),
-        "errors": errors,
+        "errors": len(missing),
+        "targetDate": latest.isoformat(),
+        "previousDate": previous.isoformat(),
+        "missingSymbols": missing,
     }
     return updated
 
@@ -481,13 +533,14 @@ def run(target_market: str, dry_run: bool = False) -> int:
     changed = before != after
     if changed or not OUTPUT_PATH.exists():
         payload["generatedAt"] = now_utc_iso()
-    payload["markets"] = reports
-    if (changed or not OUTPUT_PATH.exists()) and not dry_run:
+    reports_changed = any(payload["markets"].get(market) != report for market, report in reports.items())
+    payload["markets"].update(reports)
+    if (changed or reports_changed or not OUTPUT_PATH.exists()) and not dry_run:
         write_payload(payload)
     print(json.dumps({"changed": changed, "dryRun": dry_run, "reports": reports}, ensure_ascii=False))
     if dry_run and changed:
         print(f"dry-run: {len(payload.get('symbols', {}))} symbols contain final-close bars")
-    return 0
+    return 1 if any(report.get("status") in {"partial", "error"} for report in reports.values()) else 0
 
 
 def main() -> int:
