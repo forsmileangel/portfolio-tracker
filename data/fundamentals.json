@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-27T03:12:16.949524+00:00",
+  "generated": "2026-09-27T16:15:38.520736+00:00",
   "data": {
     "AAOI": {
       "pe": null,
@@ -762,11 +762,15 @@
       "number_of_analysts": null,
       "earnings_history": [],
       "prev_close": 84429.016,
-      "prev_prev_close": 84379.0625,
+      "prev_prev_close": 84406.4531,
       "recent_closes": [
         {
           "date": "2026-09-27",
-          "close": 84502.3438
+          "close": 84536.9531
+        },
+        {
+          "date": "2026-09-26",
+          "close": 84406.4531
         },
         {
           "date": "2026-09-25",
@@ -787,41 +791,37 @@
         {
           "date": "2026-09-21",
           "close": 86602.9141
-        },
-        {
-          "date": "2026-09-20",
-          "close": 81142.6094
         }
       ],
-      "daily_k": 75.6,
-      "daily_d": 75.3,
-      "daily_cross": "none",
+      "daily_k": 70.6,
+      "daily_d": 73.7,
+      "daily_cross": "death",
       "weekly_k": 84.3,
       "weekly_d": 76.2,
       "weekly_cross": "none",
-      "hourly_k": 84.7,
-      "hourly_d": 78.3,
+      "hourly_k": 35.8,
+      "hourly_d": 52.7,
       "hourly_cross": "none",
       "daily_macd": {
-        "macd": 2478.3556,
-        "signal": 2169.0127,
-        "histogram": 309.3429,
+        "macd": 2446.6548,
+        "signal": 2223.3172,
+        "histogram": 223.3375,
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 873.9061,
-        "signal": -1921.3831,
-        "histogram": 2795.2893,
+        "macd": 876.667,
+        "signal": -1920.831,
+        "histogram": 2797.4979,
         "bullish": true
       },
       "hourly_macd": {
-        "macd": 95.7502,
-        "signal": 46.6953,
-        "histogram": 49.0549,
-        "bullish": true
+        "macd": 130.077,
+        "signal": 157.5379,
+        "histogram": -27.4609,
+        "bullish": false
       },
       "daily_rsi": {
-        "rsi": 65.2,
+        "rsi": 65.3,
         "overbought": false,
         "oversold": false
       },
@@ -831,7 +831,7 @@
         "oversold": false
       },
       "hourly_rsi": {
-        "rsi": 61.9,
+        "rsi": 51.4,
         "overbought": false,
         "oversold": false
       }
@@ -4462,7 +4462,7 @@
       }
     },
     "WDC": {
-      "pe": 16.9629,
+      "pe": 16.9755,
       "fpe": 14.3879,
       "peg": 0.9019,
       "ps": 12.7486,
@@ -4470,7 +4470,7 @@
       "rev_yoy": 0.438,
       "rev_fwd": 0.3677,
       "hist_avg_pe": 79.96,
-      "eps_ttm": 26.93,
+      "eps_ttm": 26.91,
       "eps_cur_q": 4.0424,
       "eps_next_q2": 4.67158,
       "eps_cur_y": 20.0914,
@@ -4924,8 +4924,8 @@
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 120738.5383,
-        "signal": 181256.5648,
+        "macd": 120738.5388,
+        "signal": 181256.5654,
         "histogram": -60518.0266,
         "bullish": false
       },
@@ -5169,9 +5169,9 @@
         "bullish": true
       },
       "weekly_macd": {
-        "macd": 14156.3066,
-        "signal": 20801.7265,
-        "histogram": -6645.4199,
+        "macd": 14156.3069,
+        "signal": 20801.7269,
+        "histogram": -6645.42,
         "bullish": false
       },
       "hourly_macd": {
@@ -7898,7 +7898,7 @@
       "next_earnings_date": "2026-12-01",
       "earnings_proxy_symbol": null,
       "no_earnings": false,
-      "target_mean_price": 289.1099,
+      "target_mean_price": 289.8076,
       "target_low_price": 210.0,
       "target_high_price": 400.0,
       "target_median_price": 284.0,
