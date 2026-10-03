@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.972 - 2026-10-04 網格頁與財報頁圖表化：(1) 網格日記帳月曆加熱度底色——透明度依當月 |單日配對利潤| 比例（綠賺、紅賠，0 與待補資料日不上色），選取日仍以框線辨識，月曆下加說明。(2) 日記帳卡片上方新增「歷史累計配對利潤」曲線（true_profit_usdt，含已關倉；不用關倉會下降的 cumulative_usdt），標出目前選取日，點圖直接把月曆跳到該日。(3) 財報卡片在估值標籤下加「近 8 季 EPS」小柱狀圖：預估外框柱、實際實心柱（達標綠／未達紅），0 軸細線、負 EPS 往下長，滑過顯示數值與驚喜 %；純 HTML/CSS 不建 canvas，原「近 4 季 EPS」表格保留；不足兩季不顯示。隱私模式遮網格金額。(4) 熱度底色以 CSS 變數 --pt-heat + .pionex-cal-cell.has-data[data-heat] 規則套用，才蓋得過全域 button 底色的 !important。(5) v15.970 起的新圖一律 plugins.legend: false（本來就自繪圖例），避開 Chart.js 4.4.1 legend afterEvent 無防護、圖銷毀時可能丟 TypeError。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.971 - 2026-10-04 持倉頁圖表化：(1) 持倉分布圖加「個股／市場／幣別／原型」分組切換——市場依 TW/US/HK 加總；幣別依原幣加總，勾選含現金時現金改依各筆存款幣別拆開併入、加密獨立、未上市併入 TWD，看真正的幣別曝險；原型以 getQuerySymbol 把槓桿 ETF 併入原型股票；圖例附成員說明；<0.5% 併入「其他」只在個股模式；_pieSnapshot 記錄 groupMode。(2) 圓餅下方新增「持倉損益排行」橫條圖（未實現損益，跟隨 TWD/USD 幣別，可切金額／%），賺往右、賠往左；renderAll 每次呼叫但以指紋比對，數值沒變不動圖、檔數沒變原地 update('none')，60 秒自動刷新不閃爍；隱私模式遮金額、% 照常。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -111,6 +112,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.972 - 2026-10-04 網格頁與財報頁圖表化：(1) 網格日記帳月曆加熱度底色——透明度依當月 |單日配對利潤| 比例（綠賺、紅賠，0 與待補資料日不上色），選取日仍以框線辨識，月曆下加說明。(2) 日記帳卡片上方新增「歷史累計配對利潤」曲線（true_profit_usdt，含已關倉；不用關倉會下降的 cumulative_usdt），標出目前選取日，點圖直接把月曆跳到該日。(3) 財報卡片在估值標籤下加「近 8 季 EPS」小柱狀圖：預估外框柱、實際實心柱（達標綠／未達紅），0 軸細線、負 EPS 往下長，滑過顯示數值與驚喜 %；純 HTML/CSS 不建 canvas，原「近 4 季 EPS」表格保留；不足兩季不顯示。隱私模式遮網格金額。(4) 熱度底色以 CSS 變數 --pt-heat + .pionex-cal-cell.has-data[data-heat] 規則套用，才蓋得過全域 button 底色的 !important。(5) v15.970 起的新圖一律 plugins.legend: false（本來就自繪圖例），避開 Chart.js 4.4.1 legend afterEvent 無防護、圖銷毀時可能丟 TypeError。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.971 - 2026-10-04 持倉頁圖表化：(1) 持倉分布圖加「個股／市場／幣別／原型」分組切換——市場依 TW/US/HK 加總；幣別依原幣加總，勾選含現金時現金改依各筆存款幣別拆開併入、加密獨立、未上市併入 TWD，看真正的幣別曝險；原型以 getQuerySymbol 把槓桿 ETF 併入原型股票；圖例附成員說明；<0.5% 併入「其他」只在個股模式；_pieSnapshot 記錄 groupMode。(2) 圓餅下方新增「持倉損益排行」橫條圖（未實現損益，跟隨 TWD/USD 幣別，可切金額／%），賺往右、賠往左；renderAll 每次呼叫但以指紋比對，數值沒變不動圖、檔數沒變原地 update('none')，60 秒自動刷新不閃爍；隱私模式遮金額、% 照常。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -410,6 +412,8 @@
         .pionex-cal-cell.has-data:hover { border-color:var(--pt-accent); background:var(--pt-accent-soft); }
         .pionex-cal-cell.is-selected { border-color:var(--pt-accent); background:var(--pt-accent-soft); box-shadow:inset 0 0 0 1px var(--pt-accent); }
         .pionex-cal-cell.is-muted { opacity:0.35; }
+        /* v15.972：日曆熱度底色；全域 button 底色帶 !important，這裡用較高權重 + !important 才蓋得過 */
+        .pionex-cal-cell.has-data[data-heat] { background:var(--pt-heat) !important; }
         .pionex-cal-num { display:block; font-size:0.78rem; font-weight:700; line-height:1.2; }
         .pionex-cal-amt { display:grid; grid-template-columns:2.15em minmax(0,1fr); column-gap:0.12rem; align-items:baseline; min-width:0; font-size:0.62rem; font-weight:700; margin-top:0.12rem; font-variant-numeric:tabular-nums; text-align:left; overflow:hidden; }
         .pionex-cal-amt-label { min-width:0; text-align:left; white-space:nowrap; }
@@ -857,7 +861,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.971</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.972</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1738,7 +1742,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.971';
+        const APP_VERSION = 'v15.972';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -5549,7 +5553,7 @@
                     responsive: true, maintainAspectRatio: false, animation: false,
                     interaction: { mode: 'index', intersect: false, axis: 'y' },
                     plugins: {
-                        legend: { display: false },
+                        legend: false,
                         tooltip: _ptTooltip({
                             title: items => _pnlRankRows[items[0].dataIndex]?.symbol || '',
                             label: item => {
@@ -9773,6 +9777,8 @@
         // 只給 v15.970 起新增的圖使用；淨值圖 / 圓餅維持原寫法。
         // 配色經 dataviz validator（深色 surface #222a26）驗證：市場三色 all-pairs 通過；
         // 漲跌對 CVD ΔE 7.7（警示帶），一律搭配「0 軸方向 + 正負號」雙重編碼，不單靠顏色辨識。
+        // 新圖一律 plugins.legend: false（自繪 HTML 圖例）：Chart.js 4.4.1 的 legend afterEvent 沒有防護，
+        // 圖被銷毀後若還有排隊中的滑鼠事件會丟 TypeError；停用該 plugin 即可避開。
         function _ptChartTheme() {
             return {
                 text: '#7e93a6',
@@ -9904,7 +9910,7 @@
                         responsive: true, maintainAspectRatio: false, animation: false,
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
-                            legend: { display: false },
+                            legend: false,
                             tooltip: _ptTooltip({
                                 title: items => series.dates[items[0].dataIndex],
                                 label: item => '股票市值 ' + _ptMoneyTick(item.raw)
@@ -9932,7 +9938,7 @@
                     responsive: true, maintainAspectRatio: false, animation: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: false },
+                        legend: false,
                         tooltip: _ptTooltip({
                             title: items => pts[items[0].dataIndex].key,
                             label: item => {
@@ -10227,7 +10233,7 @@
                         indexAxis: 'y',
                         interaction: { mode: 'index', intersect: false, axis: 'y' },
                         plugins: {
-                            legend: { display: false },
+                            legend: false,
                             tooltip: _ptTooltip({
                                 title: items => rows[items[0].dataIndex].symbol,
                                 label: item => {
@@ -10268,7 +10274,7 @@
                     },
                     options: Object.assign({}, baseOpts, {
                         plugins: {
-                            legend: { display: false },
+                            legend: false,
                             tooltip: _ptTooltip({
                                 title: items => pts[items[0].dataIndex].date,
                                 label: item => {
@@ -10324,7 +10330,7 @@
                 },
                 options: Object.assign({}, baseOpts, {
                     plugins: {
-                        legend: { display: false },
+                        legend: false,
                         tooltip: _ptTooltip({
                             label: item => `${item.dataset.label} ${_ptSignedMoney(item.raw)}`,
                             footer: items => {
@@ -13888,6 +13894,7 @@ function _isLegacy9747Holding(h) {
             };
             if (!ledger || !ledger.days || ledger.days.length === 0) {
                 pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7)) + settlementCard;
+                _pionexCumChart = _ptDestroyChart(_pionexCumChart);   // v15.972
                 return;
             }
             const byDate = {};
@@ -13911,12 +13918,29 @@ function _isLegacy9747Holding(h) {
             const dows = ['日', '一', '二', '三', '四', '五', '六'];
             let cells = dows.map(d => `<div class="pionex-cal-dow">${d}</div>`).join('');
             for (let i = 0; i < startPad; i++) cells += `<div class="pionex-cal-cell is-muted"></div>`;
+            // v15.972：日曆熱度——底色深淺依當月 |單日利潤| 比例；待補資料日不上色
+            const heatOf = (rec) => {
+                if (!rec || Number(rec.unresolved_count) > 0) return null;
+                const v = Number(rec.daily_profit_usdt);
+                return Number.isFinite(v) && v !== 0 ? v : null;
+            };
+            let monthMaxAbs = 0;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const v = heatOf(byDate[`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`]);
+                if (v != null) monthMaxAbs = Math.max(monthMaxAbs, Math.abs(v));
+            }
+            const heatStyle = (rec) => {
+                const v = heatOf(rec);
+                if (v == null || monthMaxAbs <= 0) return '';
+                const a = (0.08 + 0.32 * Math.abs(v) / monthMaxAbs).toFixed(3);
+                return ` data-heat style="--pt-heat:${v > 0 ? `rgba(47,158,122,${a})` : `rgba(229,100,95,${a})`};"`;
+            };
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const rec = byDate[dateStr];
                 const selectedCls = dateStr === _pionexCalSelected ? ' is-selected' : '';
                 if (rec) {
-                    cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}" onclick="selectPionexCalDay('${dateStr}')">`
+                    cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}"${heatStyle(rec)} onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
                         + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">單日</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.daily_profit_usdt))}</span></span>`
                         + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`
@@ -13950,6 +13974,11 @@ function _isLegacy9747Holding(h) {
                     <h2 style="color:#f1f5f9;font-size:1.1rem;font-weight:600;margin:0;"><i class="ic">▥</i> 日記帳</h2>
                     <div style="color:${fresh.color};font-size:0.72rem;">${_escapeHtml(when)} · ${fresh.label}</div>
                 </div>
+                ${_pionexCumSeries(ledger).length >= 2 ? `
+                <div style="margin:0.2rem 0 0.75rem;">
+                    <div style="color:#c5d0d8;font-size:0.78rem;font-weight:600;">歷史累計配對利潤 <span style="color:#607585;font-size:0.7rem;font-weight:400;">USDT · 點圖跳到該日</span></div>
+                    <div style="height:180px;position:relative;touch-action:pan-y;margin-top:0.35rem;"><canvas id="pionex-cum-chart" aria-label="網格歷史累計配對利潤"></canvas></div>
+                </div>` : ''}
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin:0.35rem 0 0.65rem;">
                     <button type="button" onclick="shiftPionexCalMonth(-1)" style="padding:0.28rem 0.65rem;font-size:0.78rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">‹</button>
                     <div style="color:#e2e8f0;font-weight:700;font-size:0.92rem;">${monthLabel}</div>
@@ -13965,6 +13994,7 @@ function _isLegacy9747Holding(h) {
                         : '本月尚無有效每日紀錄'}</div>
                 </div>
                 <div class="pionex-cal">${cells}</div>
+                <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">底色越深代表當日利潤越高（綠賺、紅賠）；待補資料的日子不上色</div>
                 <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
                     <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;">
@@ -14019,6 +14049,89 @@ function _isLegacy9747Holding(h) {
                     <tbody>${rowHtml}</tbody>
                 </table>
             </div>`;
+            _paintPionexCumChart(ledger);   // v15.972
+        }
+
+        // v15.972：網格歷史累計配對利潤曲線（true_profit_usdt，含已關倉；cumulative_usdt 關倉時會下降所以不用）
+        let _pionexCumChart = null;
+        function _pionexCumSeries(ledger) {
+            return (ledger && Array.isArray(ledger.days) ? ledger.days : [])
+                .filter(d => d && /^\d{4}-\d{2}-\d{2}$/.test(String(d.date || '')) && d.true_profit_usdt != null && d.true_profit_usdt !== '' && Number.isFinite(Number(d.true_profit_usdt)))
+                .map(d => ({ date: d.date, v: Number(d.true_profit_usdt), day: Number(d.daily_profit_usdt), unresolved: Number(d.unresolved_count) > 0 }))
+                .sort((a, b) => a.date.localeCompare(b.date));
+        }
+        function _pionexJumpToDay(dateStr) {
+            const [yy, mm] = String(dateStr).split('-').map(Number);
+            if (!yy || !mm) return;
+            _pionexCalSelected = dateStr;
+            _pionexCalMonth = { y: yy, m: mm };
+            _pionexCalAutoSelected = false;
+            renderPionexGridTab();
+        }
+        function _paintPionexCumChart(ledger) {
+            _pionexCumChart = _ptDestroyChart(_pionexCumChart);
+            const canvas = document.getElementById('pionex-cum-chart');
+            if (!canvas || typeof Chart !== 'function') return;
+            const pts = _pionexCumSeries(ledger);
+            if (pts.length < 2) return;
+            const t = _ptChartTheme();
+            const selIdx = pts.findIndex(p => p.date === _pionexCalSelected);
+            const multiYear = pts[0].date.slice(0, 4) !== pts[pts.length - 1].date.slice(0, 4);
+            const usdt = (v, signed) => {
+                if (_privacyMode) return '*****';
+                const n = Number(v);
+                if (!Number.isFinite(n)) return '—';
+                return (signed && n >= 0 ? '+' : '') + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            };
+            _pionexCumChart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: pts.map(p => multiYear ? p.date.slice(2) : p.date.slice(5)),
+                    datasets: [{
+                        data: pts.map(p => p.v),
+                        borderColor: t.line,
+                        backgroundColor: t.lineFill,
+                        fill: true,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: (ctx) => ctx.dataIndex === selIdx ? 5 : 0,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 12,
+                        pointBackgroundColor: t.line,
+                        pointBorderColor: t.surface,
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    interaction: { mode: 'index', intersect: false },
+                    onClick(evt) {
+                        const ch = _pionexCumChart;
+                        if (!ch) return;
+                        const els = ch.getElementsAtEventForMode(evt, 'index', { intersect: false }, true);
+                        const target = els && els.length && pts[els[0].index] ? pts[els[0].index].date : null;
+                        // 跳日會重畫整頁並銷毀這張圖；等 Chart.js 處理完這次事件再做，避免 afterEvent 讀到已銷毀的圖
+                        if (target) setTimeout(() => _pionexJumpToDay(target), 0);
+                    },
+                    plugins: {
+                        legend: false,
+                        tooltip: _ptTooltip({
+                            title: items => pts[items[0].dataIndex].date,
+                            label: item => {
+                                const p = pts[item.dataIndex];
+                                const lines = ['累計 ' + usdt(p.v, true) + ' USDT'];
+                                if (Number.isFinite(p.day)) lines.push('單日 ' + usdt(p.day, true) + ' USDT');
+                                if (p.unresolved) lines.push('配對資料待補');
+                                return lines;
+                            }
+                        }, { displayColors: false })
+                    },
+                    scales: {
+                        x: _ptAxis(null, { maxTicks: 6 }),
+                        y: _ptAxis(v => _privacyMode ? '*****' : Math.round(v).toLocaleString('en-US'))
+                    }
+                }
+            });
         }
 
         // ==================== Leveraged ETF → Underlying Map ====================
@@ -16691,6 +16804,60 @@ function _isLegacy9747Holding(h) {
         function gradeZh(g) { return (g && GRADE_ZH[g]) ? GRADE_ZH[g] : (g || '-'); }
         function actionZh(a) { return (a && ACTION_ZH[a]) ? ACTION_ZH[a] : (a || ''); }
 
+        // v15.972：近 8 季 EPS 實際 vs 預估小柱狀圖。財報頁約 30 張卡片，用純 HTML/CSS 不建 canvas、不用管生命週期。
+        // 預估 = 外框柱，實際 = 實心柱（達標綠、未達紅；沒有預估時用中性色），0 軸為細線，EPS 為負時往下長。
+        function _epsMiniBarsHtml(eh) {
+            const num = (x) => (typeof x === 'number' && Number.isFinite(x)) ? x : null;
+            const rows = (eh || []).slice(-8).map(e => ({
+                q: String(e?.quarter?.fmt || ''),
+                est: num(e?.epsEstimate?.raw),
+                act: num(e?.epsActual?.raw)
+            })).filter(r => r.est != null || r.act != null);
+            if (rows.length < 2) return '';
+            const t = _ptChartTheme();
+            const vals = rows.flatMap(r => [r.est, r.act]).filter(v => v != null);
+            const max = Math.max(0, ...vals), min = Math.min(0, ...vals);
+            const span = (max - min) || 1;
+            const H = 64;                          // 繪圖區高度（px）
+            const zeroTop = (max / span) * H;      // 0 軸距頂端
+            const fmt = (v) => v == null ? '—' : v.toFixed(2);
+            const barCss = (v, left) => {
+                const h = Math.max(1.5, Math.abs(v) / span * H);
+                const top = v >= 0 ? zeroTop - h : zeroTop;
+                const radius = v >= 0 ? '2px 2px 0 0' : '0 0 2px 2px';
+                return `position:absolute;left:${left};width:8px;top:${top.toFixed(1)}px;height:${h.toFixed(1)}px;border-radius:${radius};`;
+            };
+            const cols = rows.map(r => {
+                const beat = (r.act != null && r.est != null) ? r.act >= r.est : null;
+                const actColor = beat === null ? t.line : (beat ? t.pos : t.neg);
+                const surp = (r.act != null && r.est != null && r.est !== 0) ? (r.act - r.est) / Math.abs(r.est) * 100 : null;
+                const tip = `${r.q} · 預估 ${fmt(r.est)} · 實際 ${fmt(r.act)}${surp != null ? `（${surp >= 0 ? '+' : ''}${surp.toFixed(1)}%）` : ''}`;
+                const estBar = r.est != null ? `<span style="${barCss(r.est, 'calc(50% - 9px)')}border:1px solid rgba(147,175,192,0.75);box-sizing:border-box;"></span>` : '';
+                const actBar = r.act != null ? `<span style="${barCss(r.act, 'calc(50% + 1px)')}background:${actColor};"></span>` : '';
+                return `<div title="${_escapeHtml(tip)}" style="position:relative;height:${H}px;">${estBar}${actBar}</div>`;
+            }).join('');
+            const qLabel = (q) => {
+                const m = q.match(/(\d{4})\s*Q(\d)/i);
+                return m ? `${m[1].slice(2)}Q${m[2]}` : q;
+            };
+            const labels = rows.map(r => `<div style="text-align:center;color:#7e93a6;font-size:0.62rem;white-space:nowrap;">${_escapeHtml(qLabel(r.q))}</div>`).join('');
+            const sw = (css, label) => `<span style="display:inline-flex;align-items:center;gap:0.25rem;"><span style="width:8px;height:8px;border-radius:2px;${css}"></span>${label}</span>`;
+            const grid = `display:grid;grid-template-columns:repeat(${rows.length},minmax(0,1fr));gap:2px;`;
+            return `<div style="margin-bottom:0.75rem;padding:0.55rem 0.7rem 0.45rem;border:1px solid rgba(255,255,255,0.06);border-radius:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.4rem;">
+                    <span style="color:#a8bdd0;font-size:0.74rem;font-weight:600;">近 ${rows.length} 季 EPS</span>
+                    <span style="display:inline-flex;gap:0.6rem;color:#7e93a6;font-size:0.66rem;">
+                        ${sw('border:1px solid rgba(147,175,192,0.75);box-sizing:border-box;', '預估')}${sw(`background:${t.pos};`, '實際達標')}${sw(`background:${t.neg};`, '實際未達')}
+                    </span>
+                </div>
+                <div style="position:relative;">
+                    <div style="position:absolute;left:0;right:0;top:${zeroTop.toFixed(1)}px;border-top:1px solid ${t.zero};"></div>
+                    <div style="${grid}">${cols}</div>
+                </div>
+                <div style="${grid}margin-top:0.25rem;">${labels}</div>
+            </div>`;
+        }
+
         function renderEarningsTab(allQs) {
             const container = document.getElementById('earnings-list');
             if (!container) return;
@@ -16854,6 +17021,7 @@ function _isLegacy9747Holding(h) {
                     ${targetBlock}
                     <!-- 估值指標列 -->
                     ${valuationPills ? `<div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.75rem;">${valuationPills}</div>` : ''}
+                    ${_epsMiniBarsHtml(eh)}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                         <!-- 左：財報EPS -->
                         <div>
