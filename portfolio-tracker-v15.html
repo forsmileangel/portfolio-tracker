@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.971 - 2026-10-04 持倉頁圖表化：(1) 持倉分布圖加「個股／市場／幣別／原型」分組切換——市場依 TW/US/HK 加總；幣別依原幣加總，勾選含現金時現金改依各筆存款幣別拆開併入、加密獨立、未上市併入 TWD，看真正的幣別曝險；原型以 getQuerySymbol 把槓桿 ETF 併入原型股票；圖例附成員說明；<0.5% 併入「其他」只在個股模式；_pieSnapshot 記錄 groupMode。(2) 圓餅下方新增「持倉損益排行」橫條圖（未實現損益，跟隨 TWD/USD 幣別，可切金額／%），賺往右、賠往左；renderAll 每次呼叫但以指紋比對，數值沒變不動圖、檔數沒變原地 update('none')，60 秒自動刷新不閃爍；隱私模式遮金額、% 照常。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.968 同版修補 - 2026-09-26 收盤資料補日與發布銜接：美股更新依共用交易日曆檢查最新／前一交易日，缺日改用 Yahoo chart 補抓；收盤後保留 30 分鐘定盤緩衝，仍缺資料則回報失敗並保留已取得資料。網頁優先直接讀 GitHub 最新收盤檔，失敗才用 raw／部署檔與既有快取，沿用 3 分鐘 TTL，不增加例行部署。維持版號、損益公式、08:00 換日、schema、userDataHash、pending 與裝置同步限制。
@@ -110,6 +111,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.971 - 2026-10-04 持倉頁圖表化：(1) 持倉分布圖加「個股／市場／幣別／原型」分組切換——市場依 TW/US/HK 加總；幣別依原幣加總，勾選含現金時現金改依各筆存款幣別拆開併入、加密獨立、未上市併入 TWD，看真正的幣別曝險；原型以 getQuerySymbol 把槓桿 ETF 併入原型股票；圖例附成員說明；<0.5% 併入「其他」只在個股模式；_pieSnapshot 記錄 groupMode。(2) 圓餅下方新增「持倉損益排行」橫條圖（未實現損益，跟隨 TWD/USD 幣別，可切金額／%），賺往右、賠往左；renderAll 每次呼叫但以指紋比對，數值沒變不動圖、檔數沒變原地 update('none')，60 秒自動刷新不閃爍；隱私模式遮金額、% 照常。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
@@ -855,7 +857,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.970</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.971</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -984,7 +986,16 @@
             </div>
             <!-- 標題列 + 輸入欄 -->
             <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-bottom:1.25rem;">
-                <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
+                <div>
+                    <h2 style="color:#f1f5f9; font-size:1.25rem; font-weight:600; margin:0; padding-top:0.2rem;">持倉分布圖</h2>
+                    <!-- v15.971：分組切換（個股 / 市場 / 幣別 / 原型） -->
+                    <div id="pie-group-btns" style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.6rem;">
+                        <button type="button" data-pie-group="symbol" onclick="setPieGroupMode('symbol')" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(96,165,250,0.5);background:rgba(56,139,253,0.15);color:#60a5fa;">個股</button>
+                        <button type="button" data-pie-group="market" onclick="setPieGroupMode('market')" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(56,139,253,0.2);background:transparent;color:#7e93a6;">市場</button>
+                        <button type="button" data-pie-group="currency" onclick="setPieGroupMode('currency')" title="現金依存款幣別拆開併入，看真正的幣別曝險" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(56,139,253,0.2);background:transparent;color:#7e93a6;">幣別</button>
+                        <button type="button" data-pie-group="underlying" onclick="setPieGroupMode('underlying')" title="槓桿 ETF 併入原型股票" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(56,139,253,0.2);background:transparent;color:#7e93a6;">原型</button>
+                    </div>
+                </div>
                 <!-- Grid 4欄：標籤 | 輸入框 | 提示/空白 | 打勾 → 三列完全對齊（v15.061 加 class 以套用 mobile media query） -->
                 <div class="pie-input-grid">
                     <!-- 現金列（從存款頁籤自動計算） -->
@@ -1022,6 +1033,21 @@
                     <div id="pie-legend" style="display:flex; flex-direction:column; gap:0.15rem; max-height:400px; overflow-y:auto; padding-right:0.5rem;"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- v15.971：持倉損益排行 -->
+        <div id="pnl-rank-section" class="glass-card" style="padding:1.25rem 1.5rem; margin-bottom:2rem; display:none;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                <div>
+                    <h2 style="color:#f1f5f9; font-size:1.1rem; font-weight:600; margin:0; display:inline;">持倉損益排行</h2>
+                    <span id="pnl-rank-sub" style="color:#607585; font-size:0.72rem; margin-left:0.5rem;">未實現損益</span>
+                </div>
+                <div style="display:flex; gap:0.35rem;">
+                    <button type="button" data-pnl-rank="amount" onclick="setPnlRankMode('amount')" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(96,165,250,0.5);background:rgba(56,139,253,0.15);color:#60a5fa;">金額</button>
+                    <button type="button" data-pnl-rank="pct" onclick="setPnlRankMode('pct')" style="padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid rgba(56,139,253,0.2);background:transparent;color:#7e93a6;">%</button>
+                </div>
+            </div>
+            <div id="pnl-rank-wrap" style="position:relative; height:200px; touch-action:pan-y;"><canvas id="pnl-rank-chart" aria-label="持倉損益排行"></canvas></div>
         </div>
 
         <!-- Trade Form -->
@@ -1712,7 +1738,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.970';
+        const APP_VERSION = 'v15.971';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -4316,6 +4342,11 @@
         let tradeType = 'buy';
         let priceReviewData = null;
         let chartInstance = null;
+        let _pieGroupMode = 'symbol'; // v15.971：'symbol' | 'market' | 'currency' | 'underlying'（記憶體，不存 storage）
+        let _pnlRankChart = null;     // v15.971：持倉損益排行
+        let _pnlRankMode = 'amount';  // v15.971：'amount' | 'pct'
+        let _pnlRankFp = '';          // v15.971：上次繪製的指紋，相同就不重畫（60 秒自動刷新不閃爍）
+        let _pnlRankRows = [];
         let _pieSnapshot = null;      // 上次圓餅渲染時的快照
         let _lastPieRenderTime = 0;   // 上次圓餅渲染的時間戳
         let _selectedHoldingSymbol = null;  // 持倉一覽點選鎖定行
@@ -5380,6 +5411,8 @@
             if (currency !== _pieSnapshot.currency) return true;
             // 隱私模式切換
             if (_privacyMode !== _pieSnapshot.privacyMode) return true;
+            // v15.971：分組模式切換
+            if (_pieGroupMode !== _pieSnapshot.groupMode) return true;
             // v15.076 P0-2：cashNow 改用 _depositsTWD()（跟 renderPie 一致；v15.049 改存款 Tab 後 #cash-twd-input 已非真實來源）
             const cashNow    = _depositsTWD();
             const cryptoNow  = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
@@ -5404,6 +5437,138 @@
                 if (Math.abs(ratio - prev) > 0.005) return true; // 佔比差距超過 0.5%
             }
             return false;
+        }
+
+        // v15.971：分段按鈕的選中樣式（圓餅分組、損益排行共用）。
+        // 整段寫回 style 字串：主題 CSS 以 button[style*="#60a5fa"] 比對選中態，逐項設 style.color 會被瀏覽器轉成 rgb() 而比對不到
+        function _syncSegBtns(attr, mode) {
+            document.querySelectorAll(`[${attr}]`).forEach(btn => {
+                btn.setAttribute('style', _ptModeBtnStyle(btn.getAttribute(attr) === mode));
+            });
+        }
+        function setPieGroupMode(mode) {
+            if (!['symbol', 'market', 'currency', 'underlying'].includes(mode)) return;
+            _pieGroupMode = mode;
+            _syncSegBtns('data-pie-group', mode);
+            renderPie(calculateStats());
+        }
+        // v15.971：圓餅分組（市場 / 幣別 / 原型）→ [{ name, value(% of 圓餅總額), members[], isCrypto? }]
+        function _pieGroupedData(stats, stockScale, grandTotal, inc) {
+            const groups = new Map();
+            const add = (name, value, member, extra) => {
+                if (!(value > 0)) return;
+                const g = groups.get(name) || Object.assign({ name, value: 0, members: [] }, extra || {});
+                g.value += value;
+                if (member && !g.members.includes(member)) g.members.push(member);
+                groups.set(name, g);
+            };
+            stats.holdingsWithStats.forEach(h => {
+                const v = h.percentage * stockScale;
+                if (_pieGroupMode === 'market') add(_PT_MARKET_LABEL[h.market] || h.market || '其他', v, h.symbol);
+                else if (_pieGroupMode === 'currency') add(_holdingNativeCurrency(h), v, '股票');
+                else add(getQuerySymbol(h.symbol), v, h.symbol);   // 原型：槓桿 ETF 併入原型股票
+            });
+            if (_pieGroupMode === 'currency' && grandTotal > 0) {
+                // 現金依存款幣別拆開，才看得到真正的幣別曝險
+                if (inc.cash) deposits.forEach(d => add(d.currency || 'TWD', _depositToTWD(d) / grandTotal * 100, '現金'));
+                if (inc.crypto > 0) add('加密', inc.crypto / grandTotal * 100, '加密倉位', { isCrypto: true });
+                if (inc.moxa > 0) add('TWD', inc.moxa / grandTotal * 100, '未上市');
+            }
+            return [...groups.values()];
+        }
+        function _pieGroupMemberLabel(d) {
+            const m = d.members || [];
+            let text = '';
+            if (_pieGroupMode === 'market') text = `${m.length} 檔`;
+            else if (_pieGroupMode === 'currency') text = m.join('・');
+            else if (m.length > 1 || (m[0] && m[0] !== d.name)) text = m.join('、');
+            return text ? `<span style="color:#7e93a6;font-size:0.72rem;margin-left:0.25rem;">(${_escapeHtml(text)})</span>` : '';
+        }
+
+        // v15.971：持倉損益排行（未實現損益橫條圖，賺往右、賠往左）
+        function setPnlRankMode(mode) {
+            if (mode !== 'amount' && mode !== 'pct') return;
+            _pnlRankMode = mode;
+            _syncSegBtns('data-pnl-rank', mode);
+            _pnlRankFp = '';
+            _renderPnlRank(calculateStats());
+        }
+        function _renderPnlRank(stats) {
+            const section = document.getElementById('pnl-rank-section');
+            const canvas = document.getElementById('pnl-rank-chart');
+            const wrap = document.getElementById('pnl-rank-wrap');
+            if (!section || !canvas || !wrap) return;
+            const list = (stats && stats.holdingsWithStats) || [];
+            section.style.display = list.length ? 'block' : 'none';
+            if (!list.length) {
+                _pnlRankChart = _ptDestroyChart(_pnlRankChart);
+                _pnlRankFp = '';
+                return;
+            }
+            if (typeof Chart !== 'function') return;
+            const useUSD = currency === 'USD';
+            const rows = list.map(h => {
+                const cost = useUSD ? h.costTotalUSD : h.costTotalTWD;
+                const pnl = useUSD ? h.valueTotalUSD - h.costTotalUSD : h.valueTotalTWD - h.costTotalTWD;
+                return { symbol: h.symbol, pnl, pct: cost > 0 ? pnl / cost * 100 : 0 };
+            });
+            const isPct = _pnlRankMode === 'pct';
+            rows.sort((a, b) => isPct ? b.pct - a.pct : b.pnl - a.pnl);
+            const values = rows.map(r => isPct ? Math.round(r.pct * 100) / 100 : Math.round(r.pnl));
+            // 指紋相同（排序、數值、模式、幣別、隱私都沒變）就不動圖，60 秒自動刷新不會閃
+            const fp = [_pnlRankMode, currency, _privacyMode ? 1 : 0, rows.map((r, i) => r.symbol + ':' + values[i]).join(',')].join('|');
+            if (fp === _pnlRankFp && _pnlRankChart) return;
+            _pnlRankFp = fp;
+            _pnlRankRows = rows;
+            const sub = document.getElementById('pnl-rank-sub');
+            if (sub) sub.textContent = `未實現損益 · ${useUSD ? 'USD' : 'TWD'}`;
+            const t = _ptChartTheme();
+            const labels = rows.map(r => r.symbol);
+            const colors = values.map(v => v >= 0 ? t.pos : t.neg);
+            const height = Math.max(140, rows.length * 26 + 36);
+            if (_pnlRankChart && _pnlRankChart.data.labels.length === labels.length) {
+                // 檔數沒變：原地換資料，不重建圖
+                _pnlRankChart.data.labels = labels;
+                _pnlRankChart.data.datasets[0].data = values;
+                _pnlRankChart.data.datasets[0].backgroundColor = colors;
+                _pnlRankChart.update('none');
+                return;
+            }
+            _pnlRankChart = _ptDestroyChart(_pnlRankChart);
+            wrap.style.height = height + 'px';
+            const yAxis = _ptAxis(null, { noGrid: true });
+            yAxis.ticks.autoSkip = false;
+            _pnlRankChart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, borderSkipped: 'start', maxBarThickness: 16 }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    interaction: { mode: 'index', intersect: false, axis: 'y' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: _ptTooltip({
+                            title: items => _pnlRankRows[items[0].dataIndex]?.symbol || '',
+                            label: item => {
+                                const r = _pnlRankRows[item.dataIndex];
+                                if (!r) return '';
+                                const prefix = currency === 'USD' ? '$' : 'NT$ ';
+                                const pctStr = (r.pct >= 0 ? '+' : '') + r.pct.toFixed(2) + '%';
+                                return _pnlRankMode === 'pct'
+                                    ? [pctStr, _ptSignedMoney(r.pnl, prefix)]
+                                    : [_ptSignedMoney(r.pnl, prefix), pctStr];
+                            }
+                        }, { displayColors: false })
+                    },
+                    scales: {
+                        x: _ptAxis(v => _pnlRankMode === 'pct' ? v + '%' : _ptCompactTWD(v), { zeroLine: true, maxTicks: 5 }),
+                        y: yAxis
+                    }
+                }
+            });
         }
 
         function renderPie(stats) {
@@ -5468,21 +5633,31 @@
             const effectiveMoxa   = showMoxaInPie   ? moxaTWD   : 0;
             const grandTotal = stats.totalValueTWD + effectiveCash + effectiveCrypto + effectiveMoxa;
             const stockScale = (grandTotal > 0 && stats.totalValueTWD > 0) ? stats.totalValueTWD / grandTotal : 1;
-            const adjHoldings = stats.holdingsWithStats.map(h => ({ name: h.symbol, value: h.percentage * stockScale }));
-
-            let pieData = adjHoldings.filter(d => d.value >= 0.5);
-            let others  = adjHoldings.filter(d => d.value < 0.5).reduce((sum, d) => sum + d.value, 0);
-            if (others > 0) pieData.push({ name: '其他', value: others });
-
             const cashColor   = '#7f9f8d';
             const cryptoColor = '#a08f72';
             const moxaColor   = '#8f8198';
-            if (showCashInPie   && cashTWD   > 0 && grandTotal > 0)
-                pieData.push({ name: '現金',     value: (cashTWD   / grandTotal) * 100, isCash:   true });
-            if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
-                pieData.push({ name: '加密倉位', value: (cryptoTWD / grandTotal) * 100, isCrypto: true });
-            if (showMoxaInPie   && moxaTWD    > 0 && grandTotal > 0)
-                pieData.push({ name: '未上市股票', value: (moxaTWD   / grandTotal) * 100, isMoxa:   true });
+            let pieData;
+            if (_pieGroupMode === 'symbol') {
+                const adjHoldings = stats.holdingsWithStats.map(h => ({ name: h.symbol, value: h.percentage * stockScale }));
+                pieData = adjHoldings.filter(d => d.value >= 0.5);
+                const others = adjHoldings.filter(d => d.value < 0.5).reduce((sum, d) => sum + d.value, 0);
+                if (others > 0) pieData.push({ name: '其他', value: others });
+            } else {
+                // v15.971：市場 / 幣別 / 原型分組（幣別模式會把現金、加密、未上市一起併入）
+                pieData = _pieGroupedData(stats, stockScale, grandTotal, {
+                    cash: showCashInPie && cashTWD > 0,
+                    crypto: showCryptoInPie ? cryptoTWD : 0,
+                    moxa: showMoxaInPie ? moxaTWD : 0
+                });
+            }
+            if (_pieGroupMode !== 'currency') {
+                if (showCashInPie   && cashTWD   > 0 && grandTotal > 0)
+                    pieData.push({ name: '現金',     value: (cashTWD   / grandTotal) * 100, isCash:   true });
+                if (showCryptoInPie && cryptoTWD  > 0 && grandTotal > 0)
+                    pieData.push({ name: '加密倉位', value: (cryptoTWD / grandTotal) * 100, isCrypto: true });
+                if (showMoxaInPie   && moxaTWD    > 0 && grandTotal > 0)
+                    pieData.push({ name: '未上市股票', value: (moxaTWD   / grandTotal) * 100, isMoxa:   true });
+            }
 
             // 強制 100%
             const total = pieData.reduce((s, d) => s + d.value, 0);
@@ -5515,6 +5690,7 @@
                     ? `<span style="color:#a8bdd0;font-size:0.75rem;margin-left:0.25rem;">(${pv(cashTWD.toLocaleString('zh-TW',{maximumFractionDigits:0}) + ' TWD')})</span>`
                     : d.isCrypto && _usdtTWD > 0
                     ? `<span style="color:#a8bdd0;font-size:0.75rem;margin-left:0.25rem;">(${pv('≈' + (cryptoTWD/_usdtTWD).toLocaleString('en-US',{maximumFractionDigits:0}) + ' USDT')})</span>`
+                    : d.members ? _pieGroupMemberLabel(d)
                     : '';
                 return `
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.22rem 0.55rem; background:rgba(15,23,42,0.3); border-radius:4px; font-size:0.82rem; border-left:3px solid ${color};">
@@ -5539,6 +5715,7 @@
                 count:    stats.holdingsWithStats.length,
                 currency,
                 privacyMode: _privacyMode,
+                groupMode: _pieGroupMode,
                 cash:     cashTWD, crypto: cryptoTWD, moxa: moxaTWD,
                 cbCash:   _cbCash, cbCrypto: _cbCrypto, cbMoxa: _cbMoxa,
                 ratios:   Object.fromEntries(
@@ -5557,6 +5734,7 @@
             renderHoldingsDetail(stats);
             renderCorporateActionTool();
             if (_shouldRenderPie(stats)) renderPie(stats);
+            try { _renderPnlRank(stats); } catch (e) { console.warn('[pnl rank] render failed', e); }   // v15.971：只畫圖，不標 dirty、不存檔
             document.getElementById('table-section').style.display = holdings.length > 0 ? 'block' : 'none';
             document.getElementById('rate-usd-twd').textContent = exchangeRates.USD_TWD.toFixed(2);
             document.getElementById('rate-hkd-twd').textContent = exchangeRates.HKD_TWD.toFixed(4);
