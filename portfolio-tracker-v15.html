@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.968 同版修補 - 2026-09-26 收盤資料補日與發布銜接：美股更新依共用交易日曆檢查最新／前一交易日，缺日改用 Yahoo chart 補抓；收盤後保留 30 分鐘定盤緩衝，仍缺資料則回報失敗並保留已取得資料。網頁優先直接讀 GitHub 最新收盤檔，失敗才用 raw／部署檔與既有快取，沿用 3 分鐘 TTL，不增加例行部署。維持版號、損益公式、08:00 換日、schema、userDataHash、pending 與裝置同步限制。
   v15.968 同版修補 - 2026-09-22 派網每 U 效率統一換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%；顯示與排序使用相同換算，缺少有效槓桿時顯示 —。
   v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
@@ -108,6 +109,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
         v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
         v15.967 - 貸款頁淨資產走勢：從今天起每日記錄淨資產（總資產 − 貸款），圖表可切日／月／年；快照不進 userDataHash／pending，走既有 system sync。不改損益公式、貸款推導或 PT_SCHEMA_VERSION。
@@ -851,7 +853,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.968</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.969</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1705,7 +1707,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.968';
+        const APP_VERSION = 'v15.969';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -2160,10 +2162,12 @@
                         date: new Date(x.ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }),
                         close: x.close
                     }));
+                // v15.969：bar 的 close 還是 null 時，meta 的成交時間落在 target 也代表該日有開盤
+                const metaSession = _yahooMetaSessionClose(ch, market, tz);
                 return {
                     ok: true,
                     symbol: _cleanSymbolKey(symbol),
-                    hasTarget: valid.some(x => x.date === targetDate),
+                    hasTarget: valid.some(x => x.date === targetDate) || !!(metaSession && metaSession.date === targetDate),
                     hasBefore: valid.some(x => x.date < targetDate),
                     hasAfter: valid.some(x => x.date > targetDate)
                 };
@@ -3300,6 +3304,49 @@
             return (typeof pair.close === 'number' && pair.close > 0) ? pair.close : null;
         }
 
+        // v15.969：Yahoo 收盤後數小時內，當日日 K 可能有 timestamp 但 close=null
+        // （實測 2026-10-02 美股收盤後 5 小時 55 檔全部如此），此時 meta.regularMarketPrice 已是該日收盤。
+        // 休市日沒有成交，regularMarketTime 會停在前一交易日；因此 meta 落在某日 = 該日有開盤的正面證據。
+        function _marketCloseMinForDate(marketKey, dateStr) {
+            const cal = MARKET_CALENDARS[marketKey];
+            return (cal && cal.earlyClose && cal.earlyClose[dateStr])
+                || (cal && cal.closeMin)
+                || (marketKey === 'TW' ? 13*60+30 : marketKey === 'HK' ? 16*60+10 : 16*60);
+        }
+        function _yahooMetaSessionClose(ch, marketKey, tz) {
+            try {
+                const meta = ch && ch.meta;
+                const ts = Number(meta && meta.regularMarketTime);
+                if (!(Number.isFinite(ts) && ts > 0)) return null;
+                const parts = {};
+                const fmt = new Intl.DateTimeFormat('en-US', {
+                    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+                });
+                for (const p of fmt.formatToParts(new Date(ts * 1000))) parts[p.type] = p.value;
+                const date = `${parts.year}-${parts.month}-${parts.day}`;
+                const minutes = (parseInt(parts.hour, 10) || 0) * 60 + (parseInt(parts.minute, 10) || 0);
+                // 港股收市競價於 16:08–16:10 隨機收市，最後成交時間可能早於 closeMin
+                const closeWindow = marketKey === 'HK' ? 10 : 0;
+                const price = Number(meta.regularMarketPrice);
+                return {
+                    date, minutes,
+                    atClose: minutes >= _marketCloseMinForDate(marketKey, date) - closeWindow,
+                    close: (Number.isFinite(price) && price > 0) ? price : null
+                };
+            } catch(_) { return null; }
+        }
+        // 收盤後 30 分定盤緩衝（與 data/update_final_closes.py 的 MARKET_SETTLE_BUFFER_MIN 一致）
+        function _isPastCloseSettleBuffer(marketKey, dateStr) {
+            const session = _marketSession(marketKey, new Date());
+            if (!session || !session.localDate || !dateStr) return false;
+            if (dateStr < session.localDate) return true;
+            if (dateStr > session.localDate || session.status !== 'closed') return false;
+            const hm = String(session.localHHMM || '').split(':');
+            const nowMin = (parseInt(hm[0], 10) || 0) * 60 + (parseInt(hm[1], 10) || 0);
+            return nowMin >= (session.closeMin || 0) + 30;
+        }
+
         // 從 Yahoo chart 10d 抓 close pair：target 與 prevDate 都必須精確匹配市場行事曆。
         // Yahoo 的精確前交易日 close=null 時，只可用同日期 fundamentals / cache 補值，不可跳到更早交易日。
         async function _fetchClosePairFromYahoo(symbol, marketKey, targetDate, options) {
@@ -3333,6 +3380,8 @@
                         close: p.close
                     }));
 
+                const metaSession = _yahooMetaSessionClose(ch, marketKey, tz);
+
                 // v15.938 自癒：chart 回應中若出現「已標臨時休市但實際有有效 close」的日期 → 解除誤標
                 try {
                     for (const bar of dated) {
@@ -3341,13 +3390,27 @@
                             _healAdhocClosure(marketKey, bar.date);
                         }
                     }
+                    // v15.969：meta 顯示該日有成交 → 該日不可能是臨時休市
+                    if (metaSession && _adhocClosureEntry(marketKey, metaSession.date)) {
+                        _healAdhocClosure(marketKey, metaSession.date);
+                    }
                 } catch(_) {}
 
                 const targetBar = dated.find(d => d.date === target);
-                if (!targetBar || !(typeof targetBar.close === 'number' && targetBar.close > 0)) {
-                    // v15.938：行事曆交易日卻收盤後仍無有效 bar → 累積臨時休市證據（達 quorum 才標記）
-                    try { _maybeRecordAdhocEvidence(marketKey, target, symbol, dated); } catch(_) {}
-                    return null;
+                let targetClose = (targetBar && typeof targetBar.close === 'number' && targetBar.close > 0)
+                    ? targetBar.close : null;
+                let closeFromMeta = false;
+                if (!(targetClose > 0)) {
+                    if (!(metaSession && metaSession.date === target)) {
+                        // v15.938：行事曆交易日卻收盤後仍無有效 bar → 累積臨時休市證據（達 quorum 才標記）
+                        try { _maybeRecordAdhocEvidence(marketKey, target, symbol, dated); } catch(_) {}
+                        return null;
+                    }
+                    // v15.969：bar 的 close 還是 null，但 meta 證明 target 有開盤 → 不記休市證據；
+                    // 收盤後過了定盤緩衝才採用 meta 收盤價，否則等下一輪。
+                    if (!(metaSession.atClose && metaSession.close > 0 && _isPastCloseSettleBuffer(marketKey, target))) return null;
+                    targetClose = metaSession.close;
+                    closeFromMeta = true;
                 }
 
                 const yahooPrevBar = dated.find(d => d.date === expectedPrevDate);
@@ -3371,11 +3434,12 @@
                 return {
                     market: marketKey,
                     targetDate: target,
-                    close:     targetBar.close,
+                    close:     targetClose,
                     prevDate:  expectedPrevDate,
                     prevClose,
                     fetchedAt: new Date().toISOString(),
                     source:    (final ? 'yahoo-chart-10d-final' : 'yahoo-chart-10d')
+                             + (closeFromMeta ? '+meta' : '')
                              + (prevSource !== 'yahoo' ? `+prev-${prevSource}` : '')
                              + (querySymbol !== _cleanSymbolKey(symbol) ? ':' + querySymbol : ''),
                     final

@@ -380,7 +380,7 @@ def history_date(index_value, market_tz: ZoneInfo) -> date:
     return timestamp.date() if hasattr(timestamp, "date") else date.fromisoformat(str(timestamp)[:10])
 
 
-def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
+def us_calendar() -> tuple[set[str], dict[str, int]]:
     # Share the app's holiday / early-close calendar instead of maintaining a second one.
     app = (ROOT / "portfolio-tracker-v15.html").read_text(encoding="utf-8")
     calendar = re.search(r"\bUS:\s*\{\s*tz:\s*'America/New_York'.*?holidays:\s*new Set\(\[(.*?)\]\).*?earlyClose:\s*\{(.*?)\}", app, re.S)
@@ -388,6 +388,11 @@ def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
         raise ValueError("US market calendar not found in app")
     holidays = set(re.findall(r"'([0-9]{4}-[0-9]{2}-[0-9]{2})'", re.sub(r"//[^\n]*", "", calendar[1])))
     early = {day: int(hour) * 60 for day, hour in re.findall(r"'([0-9-]+)':\s*(\d+)\s*\*\s*60", re.sub(r"//[^\n]*", "", calendar[2]))}
+    return holidays, early
+
+
+def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
+    holidays, early = us_calendar()
     local_now = (now or datetime.now(timezone.utc)).astimezone(MARKET_TZ["US"])
     latest = local_now.date()
     close_min = early.get(latest.isoformat(), MARKET_CLOSE_MIN["US"])
@@ -401,7 +406,7 @@ def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
     return tuple(dates)
 
 
-def fetch_us_chart(symbol: str, latest: date) -> list[tuple[str, float]]:
+def fetch_us_chart(symbol: str, latest: date, early: dict[str, int] | None = None) -> list[tuple[str, float]]:
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}?interval=1d&range=1mo"
     status, body = http_text(url)
     if status != 200:
@@ -409,17 +414,32 @@ def fetch_us_chart(symbol: str, latest: date) -> list[tuple[str, float]]:
     chart = json.loads(body)["chart"]["result"][0]
     closes = chart["indicators"]["quote"][0]["close"]
     bars = []
+    seen = set()
     # Keep timestamp / close indexes paired; a null day must never shift another price.
     for stamp, close in zip(chart.get("timestamp") or [], closes):
         day = datetime.fromtimestamp(stamp, timezone.utc).astimezone(MARKET_TZ["US"]).date()
         value = safe_price(close)
         if value is not None and day <= latest:
             bars.append((day.isoformat(), value))
+            seen.add(day)
+    # v15.969：Yahoo 收盤後數小時內，最新一根日 K 可能 close=null（實測 2026-10-02 收盤後 5 小時 55 檔全部如此），
+    # yfinance 與上面的 bar 都拿不到；此時 meta.regularMarketPrice 已是該日收盤。
+    # 只在 regularMarketTime 落在該日收盤時間（含 early close）之後才採用；休市日沒有成交，不會落在該日。
+    meta = chart.get("meta") or {}
+    meta_time = meta.get("regularMarketTime")
+    meta_price = safe_price(meta.get("regularMarketPrice"))
+    if meta_price is not None and isinstance(meta_time, (int, float)) and meta_time > 0:
+        meta_local = datetime.fromtimestamp(meta_time, timezone.utc).astimezone(MARKET_TZ["US"])
+        meta_day = meta_local.date()
+        close_min = (early or {}).get(meta_day.isoformat(), MARKET_CLOSE_MIN["US"])
+        if meta_day <= latest and meta_day not in seen and meta_local.hour * 60 + meta_local.minute >= close_min:
+            bars.append((meta_day.isoformat(), meta_price))
     return bars
 
 
 def fetch_us(payload: dict, symbols: set[str], reports: dict, dry_run: bool) -> int:
     latest, previous = expected_us_close_dates()
+    _, early = us_calendar()
     updated = 0
     successes = 0
     missing = []
@@ -448,7 +468,7 @@ def fetch_us(payload: dict, symbols: set[str], reports: dict, dry_run: bool) -> 
 
         if not has_required_dates():
             try:
-                for day, close in fetch_us_chart(symbol, latest):
+                for day, close in fetch_us_chart(symbol, latest, early):
                     updated += int(merge_bar(payload, symbol, "US", day, close, "yahoo-chart-final", checked_at))
             except Exception as exc:
                 print(f"US {symbol} chart fallback: {exc}", file=sys.stderr)
@@ -478,6 +498,9 @@ def bootstrap_from_fundamentals(payload: dict, market_symbols: dict[str, set[str
         return 0
     updated = 0
     fetched_at = fundamentals.get("generated") if isinstance(fundamentals.get("generated"), str) else now_utc_iso()
+    # v15.969：fundamentals.json 可能在盤中產生，最新一筆 recent_closes 只是盤中價
+    # （2026-10-02 美東 14:00 寫入 AAOI 114.4，實際收盤 115.59），未完成的交易日不得當成該日收盤。
+    completed = {market: completed_latest_day(market).isoformat() for market in MARKET_TZ}
     for raw_symbol, entry in data.items():
         market = symbol_market(raw_symbol, hk_codes)
         if not market:
@@ -492,7 +515,7 @@ def bootstrap_from_fundamentals(payload: dict, market_symbols: dict[str, set[str
             if not isinstance(bar, dict):
                 continue
             day = str(bar.get("date") or "")
-            if DATE_RE.fullmatch(day):
+            if DATE_RE.fullmatch(day) and day <= completed[market]:
                 updated += int(merge_bar(payload, symbol, market, day, bar.get("close"), "fundamentals-bootstrap", fetched_at))
     return updated
 

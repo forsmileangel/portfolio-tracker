@@ -42,11 +42,11 @@ function app(handler, location = { protocol: 'https:', hostname: 'forsmileangel.
     };
 }
 
-test('all inline app scripts compile and version stays v15.968', () => {
+test('all inline app scripts compile and version stays v15.969', () => {
     for (const [, attrs, code] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
         if (!/\bsrc\s*=|type\s*=\s*["']application\//i.test(attrs)) new vm.Script(code);
     }
-    assert.match(html, /const APP_VERSION\s*=\s*'v15\.968'/);
+    assert.match(html, /const APP_VERSION\s*=\s*'v15\.969'/);
 });
 
 test('latest repository data uses one request for concurrent loads and the 3-minute TTL', async () => {
@@ -156,4 +156,113 @@ test('Taipei 08:00 rollover and the Taiwan holiday keep their original market da
     assert.equal(a.context._portfolioPreviousTradingDate('US', '2026-09-26'), '2026-09-25');
     assert.equal(a.context._portfolioPreviousTradingDate('TW', '2026-09-26'), '2026-09-24');
     assert.equal(a.context._isTradingDay('TW', '2026-09-25'), false);
+});
+
+// v15.969：Yahoo 收盤後當日 bar close=null 不可被當成臨時休市；meta 成交時間是有開盤的正面證據。
+const yahooCode = section('const MARKET_CALENDARS =', 'function _marketPortfolioDayStatus(')
+    + section('let _finalCloseData =', 'function _resolveClosePairFromFundamentals(');
+const DAY = d => Date.parse(d + 'T13:30:00Z') / 1000;
+function chart(days, closes, metaIso, metaPrice) {
+    return { chart: { result: [{
+        timestamp: days.map(DAY),
+        indicators: { quote: [{ close: closes }] },
+        meta: metaIso ? { regularMarketTime: Date.parse(metaIso) / 1000, regularMarketPrice: metaPrice } : {}
+    }] } };
+}
+function yahooApp(nowIso, charts, holdings, store = {}) {
+    const now = Date.parse(nowIso);
+    const errors = [], renders = [];
+    const context = vm.createContext({
+        Date: class extends Date {
+            constructor(...args) { super(...(args.length ? args : [now])); }
+            static now() { return now; }
+        },
+        Intl, console: { log() {}, warn() {} },
+        localStorage: {
+            getItem: k => (k in store ? store[k] : null),
+            setItem: (k, v) => { store[k] = String(v); }
+        },
+        STORAGE_KEYS: { adhocClosures: 'pt_adhoc_closures_v1' },
+        holdings,
+        renderAll: () => renders.push(1),
+        _recordAppError: (...args) => errors.push(args),
+        _isClosePairDateKey: s => /^\d{4}-\d{2}-\d{2}$/.test(String(s)),
+        _loadClosePair: () => ({ symbols: {} }),
+        _getClosePairForDate: () => null,
+        _isFinalClosePair: p => !!(p && p.final === true),
+        _exchangeTz: sym => sym.endsWith('.TW') ? 'Asia/Taipei' : sym.endsWith('.HK') ? 'Asia/Hong_Kong' : 'America/New_York',
+        yfFetch: async url => {
+            const sym = decodeURIComponent(url.split('/chart/')[1].split('?')[0]).replace(/\.(TW|TWO|HK)$/, '');
+            return charts[sym];
+        }
+    });
+    vm.runInContext(yahooCode, context);
+    return { context, store, errors, renders, run: code => vm.runInContext(code, context) };
+}
+const usHoldings = ['AAOI', 'MSTU', 'NVDL'].map(symbol => ({ symbol, market: 'US', quantity: 10 }));
+const usDays = ['2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02'];
+const usCharts = {
+    AAOI: chart(usDays, [100.67, 99.26, 107.32, null], '2026-10-02T20:00:00Z', 115.59),
+    MSTU: chart(usDays, [40.57, 39.76, 43.47, null], '2026-10-02T20:00:00Z', 43.16),
+    NVDL: chart(usDays, [36.39, 36.71, 37.52, null], '2026-10-02T20:00:00Z', 38.5)
+};
+const falseClosure = () => ({ pt_adhoc_closures_v1: JSON.stringify({ US: { '2026-10-02': {
+    detectedAt: '2026-10-02T21:30:00Z', detectedOnMarketDate: '2026-10-02', evidenceVersion: 2,
+    status: 'provisional', symbols: ['AAOI', 'MSTU', 'NVDL']
+} } }) });
+
+test('null latest Yahoo bar after the US close uses the meta close and never marks a holiday', async () => {
+    // 2026-10-03 09:05 台北 = 2026-10-02 21:05 美東（實際出事時段）
+    const a = yahooApp('2026-10-03T01:05:00Z', usCharts, usHoldings);
+    for (const [sym, close, prev] of [['AAOI', 115.59, 107.32], ['MSTU', 43.16, 43.47], ['NVDL', 38.5, 37.52]]) {
+        const pair = await a.context._fetchClosePairFromYahoo(sym, 'US', '2026-10-02', { final: true });
+        assert.equal(pair.targetDate, '2026-10-02');
+        assert.equal(pair.prevDate, '2026-10-01');
+        assert.equal(pair.close, close);
+        assert.equal(pair.prevClose, prev);
+        assert.equal(pair.final, true);
+        assert.match(pair.source, /^yahoo-chart-10d-final\+meta/);
+    }
+    assert.equal(a.context._isTradingDay('US', '2026-10-02'), true);
+    assert.equal(a.context._marketSession('US').lastCompletedTradingDate, '2026-10-02');
+    assert.equal(a.store.pt_adhoc_closures_v1, undefined);
+});
+
+test('meta close waits for the 30-minute settle buffer but still blocks holiday evidence', async () => {
+    const a = yahooApp('2026-10-02T21:10:00Z', usCharts, usHoldings);   // 美東 17:10，已過休市偵測的 +60 分
+    for (const sym of ['AAOI', 'MSTU', 'NVDL']) {
+        assert.ok(await a.context._fetchClosePairFromYahoo(sym, 'US', '2026-10-02', { final: true }));
+    }
+    assert.equal(a.store.pt_adhoc_closures_v1, undefined);
+    const early = yahooApp('2026-10-02T20:20:00Z', usCharts, usHoldings);   // 美東 16:20，未過 30 分緩衝
+    assert.equal(await early.context._fetchClosePairFromYahoo('AAOI', 'US', '2026-10-02', { final: true }), null);
+    assert.equal(early.store.pt_adhoc_closures_v1, undefined);
+});
+
+test('a false US closure already saved on the device is healed by fetch and by audit', async () => {
+    const a = yahooApp('2026-10-03T01:05:00Z', usCharts, usHoldings, falseClosure());
+    assert.equal(a.context._isTradingDay('US', '2026-10-02'), false);
+    assert.equal(a.context._marketSession('US').status, 'closed_or_holiday');
+    // 誤判狀態下 target 已退回 10/01；抓取時看到 meta 落在 10/02 即解除
+    assert.ok(await a.context._fetchClosePairFromYahoo('AAOI', 'US', '2026-10-01', { final: true }));
+    assert.equal(a.context._isTradingDay('US', '2026-10-02'), true);
+    assert.equal(a.context._marketSession('US').status, 'closed');
+
+    const b = yahooApp('2026-10-03T01:05:00Z', usCharts, usHoldings, falseClosure());
+    assert.equal(await b.context._auditRecentAdhocClosures('test'), true);
+    assert.equal(b.context._isTradingDay('US', '2026-10-02'), true);
+});
+
+test('a real unscheduled closure (no trades, meta on the previous day) is still detected', async () => {
+    const twHoldings = ['2330', '2317', '0050'].map(symbol => ({ symbol, market: 'TW', quantity: 1000 }));
+    const bars = ['2026-09-24', '2026-09-29', '2026-09-30'];
+    const charts = Object.fromEntries(twHoldings.map((h, i) =>
+        [h.symbol, chart(bars, [100 + i, 101 + i, 102 + i], '2026-09-30T05:30:00Z', 102 + i)]));
+    const a = yahooApp('2026-10-01T08:00:00Z', charts, twHoldings);   // 台北 10/01 16:00
+    assert.equal(a.context._isTradingDay('TW', '2026-10-01'), true);
+    for (const h of twHoldings) {
+        assert.equal(await a.context._fetchClosePairFromYahoo(h.symbol, 'TW', '2026-10-01', { final: true }), null);
+    }
+    assert.equal(a.context._isTradingDay('TW', '2026-10-01'), false);
+    assert.equal(JSON.parse(a.store.pt_adhoc_closures_v1).TW['2026-10-01'].status, 'provisional');
 });

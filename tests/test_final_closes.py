@@ -95,6 +95,48 @@ class FinalCloseTests(unittest.TestCase):
         with patch.object(closes, "http_text", return_value=(200, json.dumps(body))):
             self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0]), [("2026-09-23", 10), ("2026-09-25", 12)])
 
+    def chart_body(self, days, values, meta_time=None, meta_price=None):
+        stamps = [int(datetime.fromisoformat(day + "T13:30:00+00:00").timestamp()) for day in days]
+        result = {"timestamp": stamps, "indicators": {"quote": [{"close": values}]}}
+        if meta_time:
+            result["meta"] = {"regularMarketTime": int(datetime.fromisoformat(meta_time).timestamp()),
+                              "regularMarketPrice": meta_price}
+        return json.dumps({"chart": {"result": [result]}})
+
+    def test_chart_null_latest_bar_uses_meta_close_after_session(self):
+        # 2026-10-02 實況：收盤後數小時當日 bar 仍為 null，meta 已是正式收盤。
+        body = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-25T20:00:00+00:00", 158.61)
+        with patch.object(closes, "http_text", return_value=(200, body)):
+            self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0]),
+                             [("2026-09-24", 161.61), ("2026-09-25", 158.61)])
+
+    def test_chart_meta_ignored_before_close_or_on_closure_day(self):
+        intraday = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-25T19:00:00+00:00", 158.0)
+        closure = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-24T20:00:00+00:00", 161.61)
+        for body in (intraday, closure):
+            with self.subTest(body=body[-120:]), patch.object(closes, "http_text", return_value=(200, body)):
+                self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0]), [("2026-09-24", 161.61)])
+
+    def test_chart_meta_respects_early_close(self):
+        body = self.chart_body(["2026-11-25", "2026-11-27"], [100.0, None], "2026-11-27T18:00:00+00:00", 101.5)
+        with patch.object(closes, "http_text", return_value=(200, body)):
+            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27)), [("2026-11-25", 100.0)])
+            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27), {"2026-11-27": 13 * 60}),
+                             [("2026-11-25", 100.0), ("2026-11-27", 101.5)])
+
+    def test_bootstrap_skips_unfinished_trading_day(self):
+        fundamentals = {"generated": "2026-10-02T17:18:54Z", "data": {"MSTR": {"recent_closes": [
+            {"date": "2026-10-02", "close": 114.4}, {"date": "2026-10-01", "close": 107.32}]}}}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "fundamentals.json"
+            path.write_text(json.dumps(fundamentals), encoding="utf-8")
+            with patch.object(closes, "FUNDAMENTALS_PATH", path), \
+                 patch.object(closes, "completed_latest_day", return_value=date(2026, 10, 1)):
+                closes.bootstrap_from_fundamentals(self.payload, {"TW": set(), "HK": set(), "US": {"MSTR"}}, set())
+        by_date = self.payload["symbols"]["MSTR"]["byDate"]
+        self.assertNotIn("2026-10-02", by_date)
+        self.assertEqual(by_date["2026-10-01"]["source"], "fundamentals-bootstrap")
+
     def test_yfinance_outage_still_allows_chart_recovery(self):
         with patch.object(closes, "yf", None), \
              patch.object(closes, "expected_us_close_dates", return_value=self.dates), \
