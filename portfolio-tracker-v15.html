@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.968 同版修補 - 2026-09-26 收盤資料補日與發布銜接：美股更新依共用交易日曆檢查最新／前一交易日，缺日改用 Yahoo chart 補抓；收盤後保留 30 分鐘定盤緩衝，仍缺資料則回報失敗並保留已取得資料。網頁優先直接讀 GitHub 最新收盤檔，失敗才用 raw／部署檔與既有快取，沿用 3 分鐘 TTL，不增加例行部署。維持版號、損益公式、08:00 換日、schema、userDataHash、pending 與裝置同步限制。
   v15.968 同版修補 - 2026-09-22 派網每 U 效率統一換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%；顯示與排序使用相同換算，缺少有效槓桿時顯示 —。
@@ -109,6 +110,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.970 - 2026-10-04 已實現損益頁圖表化：(1) 期間資產報酬加圖——日模式為股票市值折線（缺快照日斷線），月／季／年為各期漲跌幅紅綠柱，tooltip 含市值變化、已實現與缺漏天數；可比較期間不足兩期時改顯示提示；圖下註明含買賣資金進出、不等於投資報酬率。(2) 新增「已實現損益圖」卡片，可切換每月（台／美／港分色堆疊）／累積／個股排行，跟隨上方日期篩選，以目前匯率約合 TWD，不含期間補錄。新增 _ptChartTheme / _ptMoneyTick / _ptCompactTWD 等共用圖表工具（配色經 dataviz validator 驗證，漲跌另以 0 軸方向與正負號雙重編碼），隱私模式下金額全遮。切換狀態只存記憶體；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.969 - 2026-10-03 美股收盤後誤判休市修正：Yahoo 日 K 在收盤後數小時內對當日 bar 回 close=null（實測 10/2 收盤後 5 小時 55 檔全部如此），被 v15.938 臨時休市偵測當成未開盤，美股顯示「休市，沿用 10-01」。改以 meta.regularMarketTime 作為該日有開盤的正面證據：落在 target 即不記休市證據，既有誤判在抓取與 audit 時立即解除；收盤後過 30 分定盤緩衝才以 meta.regularMarketPrice 暫代 target 收盤（source +meta），正式 final-closes.json 到位後依既有優先序覆蓋。後端美股 chart 補抓同樣採 meta 收盤，fundamentals bootstrap 不再寫入未完成交易日的盤中價。颱風假（無成交、meta 停在前一日）偵測不變；不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
         v15.968 - 2026-09-21 派網關倉結算：區分運行中與歷史累計配對利潤，新增唯讀關倉明細與待補狀態；關倉淨損益獨立呈現，不重複扣錢包。關倉配對待補日暫不計月平均，補齊後重算；保持 Gist schema 1、持倉與同步規則。
         v15.967 同版修補 - 淨資產走勢可點選／沿線拖曳；當日數字顯示在圖下方與選中點旁。不改版號、schema、同步或損益公式。
@@ -853,7 +855,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.969</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.970</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1610,6 +1612,9 @@
         let _netWorthInspectDate = null;
         let _netWorthDragging = false;
         let _netWorthPtrCleanup = null;
+        let _returnChart = null;            // v15.970：期間資產報酬圖
+        let _realizedChart = null;          // v15.970：已實現損益圖
+        let _realizedChartMode = 'month';   // v15.970：'month' | 'cum' | 'symbol'（記憶體，不存 storage）
 
         function setTableSort(by) {
             if (_tableSort.by === by) {
@@ -1707,7 +1712,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.969';
+        const APP_VERSION = 'v15.970';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -9586,6 +9591,193 @@
             return total;
         }
 
+        // ==================== v15.970：新圖表共用工具 ====================
+        // 只給 v15.970 起新增的圖使用；淨值圖 / 圓餅維持原寫法。
+        // 配色經 dataviz validator（深色 surface #222a26）驗證：市場三色 all-pairs 通過；
+        // 漲跌對 CVD ΔE 7.7（警示帶），一律搭配「0 軸方向 + 正負號」雙重編碼，不單靠顏色辨識。
+        function _ptChartTheme() {
+            return {
+                text: '#7e93a6',
+                grid: 'rgba(148,163,184,0.08)',
+                zero: 'rgba(148,163,184,0.38)',
+                surface: '#222a26',
+                pos: '#2f9e7a',
+                neg: '#e5645f',
+                line: '#93afc0',
+                lineFill: 'rgba(147,175,192,0.10)',
+                market: { TW: '#3987e5', US: '#c98500', HK: '#d55181' }
+            };
+        }
+        const _PT_MARKET_LABEL = { TW: '台股', US: '美股', HK: '港股' };
+        function _ptMoneyTick(v, prefix = 'NT$ ') {
+            if (_privacyMode) return '*****';
+            const n = Math.round(Number(v) || 0);
+            return (n < 0 ? '-' : '') + prefix + Math.abs(n).toLocaleString('en-US');
+        }
+        function _ptSignedMoney(v, prefix = 'NT$ ') {
+            if (_privacyMode) return '*****';
+            const n = Math.round(Number(v) || 0);
+            return (n >= 0 ? '+' : '-') + prefix + Math.abs(n).toLocaleString('en-US');
+        }
+        // 座標軸用精簡單位（萬 / 億），手機上不會被長數字擠爆；完整金額看 tooltip
+        function _ptCompactTWD(v) {
+            if (_privacyMode) return '*****';
+            const n = Number(v) || 0, a = Math.abs(n), s = n < 0 ? '-' : '';
+            if (a >= 1e8) return s + (a / 1e8).toFixed(1).replace(/\.0$/, '') + '億';
+            if (a >= 1e5) return s + Math.round(a / 1e4).toLocaleString('en-US') + '萬';
+            if (a >= 1e4) return s + (a / 1e4).toFixed(1).replace(/\.0$/, '') + '萬';
+            return s + Math.round(a).toLocaleString('en-US');
+        }
+        function _ptAxis(tickCallback, opts = {}) {
+            const t = _ptChartTheme();
+            const ticks = { color: t.text, font: { size: 11 }, maxRotation: 0, autoSkip: true };
+            if (opts.maxTicks) ticks.maxTicksLimit = opts.maxTicks;
+            if (tickCallback) ticks.callback = tickCallback;
+            const grid = { color: opts.zeroLine ? (c => (c.tick && c.tick.value === 0) ? t.zero : t.grid) : t.grid };
+            if (opts.noGrid) grid.display = false;
+            return { ticks, grid, border: { display: false } };
+        }
+        function _ptTooltip(callbacks, extra = {}) {
+            return Object.assign({
+                enabled: true,
+                backgroundColor: 'rgba(16,28,24,0.94)',
+                borderColor: 'rgba(168,196,180,0.45)',
+                borderWidth: 1,
+                titleColor: '#e8f0ea',
+                bodyColor: '#c5d0d8',
+                padding: 8,
+                boxPadding: 4,
+                callbacks: callbacks || {}
+            }, extra);
+        }
+        function _ptDestroyChart(chart) {
+            if (chart) { try { chart.destroy(); } catch (_) {} }
+            return null;
+        }
+        function _ptModeBtnStyle(active) {
+            return `padding:0.28rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;border:1.5px solid ${active ? 'rgba(96,165,250,0.5)' : 'rgba(56,139,253,0.2)'};background:${active ? 'rgba(56,139,253,0.15)' : 'transparent'};color:${active ? '#60a5fa' : '#7e93a6'};`;
+        }
+        function _ptLegendHtml(items) {
+            return items.map(it => `<span style="display:inline-flex;align-items:center;gap:0.3rem;color:#a8bdd0;font-size:0.72rem;">`
+                + `<span style="width:9px;height:9px;border-radius:2px;background:${it.color};flex-shrink:0;"></span>${_escapeHtml(it.label)}</span>`).join('');
+        }
+
+        // v15.970：期間資產報酬圖的資料（日 = 市值折線；月 / 季 / 年 = 各期漲跌幅柱）。資料不足兩點回傳 null
+        function _returnChartSeries() {
+            if (_returnMode === 'day') {
+                const rows = _snapshotDailyRows().slice().reverse();
+                if (rows.filter(r => r.snapshot).length < 2) return null;
+                const multiYear = rows[0].date.slice(0, 4) !== rows[rows.length - 1].date.slice(0, 4);
+                return {
+                    kind: 'day',
+                    dates: rows.map(r => r.date),
+                    labels: rows.map(r => multiYear ? r.date.slice(2) : r.date.slice(5)),
+                    values: rows.map(r => r.snapshot ? r.snapshot.stockTWD : null)
+                };
+            }
+            const pts = _snapshotPeriods(_returnMode).slice().reverse().map(p => {
+                const s = p.first?.stockTWD ?? null;
+                const e = p.last?.stockTWD ?? null;
+                const same = !!p.first && !!p.last && p.first.date === p.last.date;
+                const ok = s > 0 && e != null && !same;
+                return {
+                    key: p.key,
+                    pct: ok ? (e - s) / s * 100 : null,
+                    diff: ok ? e - s : null,
+                    realized: _realizedInPeriod(p.key, _returnMode),
+                    missingDays: p.missingDays
+                };
+            });
+            if (pts.filter(p => p.pct != null).length < 2) return null;
+            return { kind: 'period', pts };
+        }
+
+        function _paintReturnChart(series) {
+            _returnChart = _ptDestroyChart(_returnChart);
+            const canvas = document.getElementById('return-chart');
+            if (!canvas || !series || typeof Chart !== 'function') return;
+            const t = _ptChartTheme();
+            if (series.kind === 'day') {
+                _returnChart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: series.labels,
+                        datasets: [{
+                            data: series.values,
+                            borderColor: t.line,
+                            backgroundColor: t.lineFill,
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.2,
+                            spanGaps: false,          // 缺快照的日子直接斷線
+                            // 前後都沒快照的孤立單日畫成小點，否則斷線後會完全看不到
+                            pointRadius: (ctx) => {
+                                const d = ctx.dataset.data, i = ctx.dataIndex;
+                                return d[i] != null && d[i - 1] == null && d[i + 1] == null ? 3 : 0;
+                            },
+                            pointHoverRadius: 5,
+                            pointHitRadius: 12,
+                            pointBackgroundColor: t.line,
+                            pointBorderColor: t.surface,
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: _ptTooltip({
+                                title: items => series.dates[items[0].dataIndex],
+                                label: item => '股票市值 ' + _ptMoneyTick(item.raw)
+                            })
+                        },
+                        scales: { x: _ptAxis(null, { maxTicks: 6 }), y: _ptAxis(v => _ptCompactTWD(v)) }
+                    }
+                });
+                return;
+            }
+            const pts = series.pts;
+            _returnChart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: pts.map(p => p.key),
+                    datasets: [{
+                        data: pts.map(p => p.pct),
+                        backgroundColor: pts.map(p => (p.pct ?? 0) >= 0 ? t.pos : t.neg),
+                        borderRadius: 4,
+                        borderSkipped: 'start',
+                        maxBarThickness: 24
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: _ptTooltip({
+                            title: items => pts[items[0].dataIndex].key,
+                            label: item => {
+                                const p = pts[item.dataIndex];
+                                if (p.pct == null) return '資料不足';
+                                const lines = [
+                                    '漲跌幅 ' + (p.pct >= 0 ? '+' : '') + p.pct.toFixed(2) + '%',
+                                    '市值變化 ' + _ptSignedMoney(p.diff)
+                                ];
+                                if (p.realized) lines.push('已實現 ' + _ptSignedMoney(p.realized));
+                                if (p.missingDays > 0) lines.push('缺 ' + p.missingDays + ' 天快照');
+                                return lines;
+                            }
+                        }, { displayColors: false })
+                    },
+                    scales: {
+                        x: _ptAxis(null, { maxTicks: 8, noGrid: true }),
+                        y: _ptAxis(v => v + '%', { zeroLine: true })
+                    }
+                }
+            });
+        }
+
         function renderReturnAnalysis() {
             const container = document.getElementById('return-analysis-section');
             if (!container) return;
@@ -9697,6 +9889,20 @@
                 ? '每日開啟時將自動記錄市值，累積後可計算各期間報酬'
                 : `已累積 ${snCount} 筆 · ${coverage.start} ～ ${coverage.end} · ${coverage.missingDays > 0 ? `缺 ${coverage.missingDays} 天` : '日期完整'}`;
 
+            // v15.970：表格上方加圖（日 = 市值折線，缺快照處斷線；月 / 季 / 年 = 各期漲跌幅柱）
+            const chartSeries = _returnChartSeries();
+            const chartNote = _returnMode === 'day'
+                ? '股票持倉市值走勢（含買賣資金進出，買進也會讓曲線上升）· 斷線處為未記錄快照'
+                : '漲跌幅含買賣資金進出，不等於投資報酬率';
+            const chartHtml = chartSeries
+                ? `<div style="padding:0.75rem 1.25rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div style="height:220px;position:relative;touch-action:pan-y;"><canvas id="return-chart" aria-label="期間資產報酬圖"></canvas></div>
+                    <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">${chartNote}</div>
+                </div>`
+                : (snCount > 0
+                    ? `<div style="padding:0.6rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.06);color:#607585;font-size:0.72rem;">${_returnMode === 'day' ? '快照少於兩筆，暫時畫不出走勢' : '此模式可比較的期間少於兩期，切到「日」或「月」可看走勢'}</div>`
+                    : '');
+
             container.innerHTML = `
             <div class="glass-card" style="margin-top:0.75rem;">
                 <div style="padding:1rem 1.25rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -9711,6 +9917,7 @@
                         <button onclick="_returnMode='year';renderReturnAnalysis();" style="${modeBtnStyle('year')}">年</button>
                     </div>
                 </div>
+                ${chartHtml}
                 <div style="overflow:auto;max-height:70vh;">
                     <table style="width:100%;border-collapse:collapse;">
                         <thead>${tableHeadHtml}</thead>
@@ -9718,6 +9925,7 @@
                     </table>
                 </div>
             </div>`;
+            _paintReturnChart(chartSeries);
         }
 
         // 確保 holding 有 lots 欄位（舊資料向下相容）
@@ -9779,6 +9987,181 @@
             _realizedSymbolsHidden = !_realizedSymbolsHidden;
             renderRealizedTab();
         }
+        // v15.970：已實現損益圖（每月 / 累積 / 個股），一律約合 TWD（目前匯率），口徑同 _realizedInPeriod
+        function _setRealizedChartMode(mode) {
+            if (mode !== 'month' && mode !== 'cum' && mode !== 'symbol') return;
+            _realizedChartMode = mode;
+            renderRealizedTab();
+        }
+        function _realizedMarketKey(t) {
+            const ccy = _holdingNativeCurrency(t);
+            return ccy === 'TWD' ? 'TW' : ccy === 'HKD' ? 'HK' : 'US';
+        }
+        function _realizedChartCardHtml(filtered, bySymbol) {
+            if (!filtered.length) return '';
+            const symbolCount = Object.keys(bySymbol).length;
+            const h = _realizedChartMode === 'symbol' ? Math.max(160, symbolCount * 24 + 40) : 220;
+            const btn = (m, label) => `<button onclick="_setRealizedChartMode('${m}')" style="${_ptModeBtnStyle(_realizedChartMode === m)}">${label}</button>`;
+            return `
+            <div class="glass-card" style="padding:1rem 1.25rem; margin-bottom:1rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.45rem;">
+                    <div>
+                        <span style="color:#f1f5f9;font-weight:600;font-size:0.9rem;margin-right:0.5rem;">◈ 已實現損益圖</span>
+                        <span style="color:#607585;font-size:0.72rem;">依上方日期篩選 · 約合 TWD</span>
+                    </div>
+                    <div style="display:flex;gap:0.35rem;">${btn('month', '每月')}${btn('cum', '累積')}${btn('symbol', '個股')}</div>
+                </div>
+                <div id="realized-chart-legend" style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.35rem;"></div>
+                <div style="height:${h}px;position:relative;touch-action:pan-y;"><canvas id="realized-chart" aria-label="已實現損益圖"></canvas></div>
+                <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">以目前匯率換算台幣；期間補錄不列入此圖</div>
+            </div>`;
+        }
+        function _paintRealizedChart(filtered, bySymbol) {
+            _realizedChart = _ptDestroyChart(_realizedChart);
+            const canvas = document.getElementById('realized-chart');
+            const legendEl = document.getElementById('realized-chart-legend');
+            if (!canvas || !filtered.length || typeof Chart !== 'function') return;
+            const t = _ptChartTheme();
+            const twdOf = (tr) => (tr.realizedPL || 0) * _nativeFxToTWD(tr);
+            const baseOpts = {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                interaction: { mode: 'index', intersect: false }
+            };
+
+            if (_realizedChartMode === 'symbol') {
+                const rows = Object.values(bySymbol)
+                    .map(s => ({ symbol: s.symbol, market: s.market, twd: s.totalPL * _nativeFxToTWD(s), count: s.trades.length }))
+                    .sort((a, b) => b.twd - a.twd);
+                if (legendEl) legendEl.innerHTML = '';
+                const yAxis = _ptAxis(null, { noGrid: true });
+                yAxis.ticks.autoSkip = false;   // 每檔代號都要看得到（圖高已依檔數撐開）
+                _realizedChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: rows.map(r => r.symbol),
+                        datasets: [{
+                            data: rows.map(r => r.twd),
+                            backgroundColor: rows.map(r => r.twd >= 0 ? t.pos : t.neg),
+                            borderRadius: 4, borderSkipped: 'start', maxBarThickness: 16
+                        }]
+                    },
+                    options: Object.assign({}, baseOpts, {
+                        indexAxis: 'y',
+                        interaction: { mode: 'index', intersect: false, axis: 'y' },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: _ptTooltip({
+                                title: items => rows[items[0].dataIndex].symbol,
+                                label: item => {
+                                    const r = rows[item.dataIndex];
+                                    return [_ptSignedMoney(r.twd), `${_PT_MARKET_LABEL[r.market] || r.market} · ${r.count} 筆賣出`];
+                                }
+                            }, { displayColors: false })
+                        },
+                        scales: { x: _ptAxis(v => _ptCompactTWD(v), { zeroLine: true, maxTicks: 5 }), y: yAxis }
+                    })
+                });
+                return;
+            }
+
+            const sorted = [...filtered].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+            if (_realizedChartMode === 'cum') {
+                const byDay = new Map();
+                sorted.forEach(tr => {
+                    const d = String(tr.date || '').slice(0, 10);
+                    if (!d) return;
+                    byDay.set(d, (byDay.get(d) || 0) + twdOf(tr));
+                });
+                let run = 0;
+                const pts = [...byDay.entries()].map(([date, v]) => { run += v; return { date, day: v, cum: run }; });
+                if (legendEl) legendEl.innerHTML = '';
+                _realizedChart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: pts.map(p => p.date.slice(2)),
+                        datasets: [{
+                            data: pts.map(p => p.cum),
+                            borderColor: t.line, backgroundColor: t.lineFill, fill: 'origin',
+                            borderWidth: 2, tension: 0,
+                            pointRadius: pts.length <= 40 ? 3 : 0, pointHoverRadius: 5, pointHitRadius: 12,
+                            pointBackgroundColor: t.line, pointBorderColor: t.surface, pointBorderWidth: 2
+                        }]
+                    },
+                    options: Object.assign({}, baseOpts, {
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: _ptTooltip({
+                                title: items => pts[items[0].dataIndex].date,
+                                label: item => {
+                                    const p = pts[item.dataIndex];
+                                    return ['累積 ' + _ptSignedMoney(p.cum), '當日 ' + _ptSignedMoney(p.day)];
+                                }
+                            }, { displayColors: false })
+                        },
+                        scales: {
+                            x: _ptAxis(null, { maxTicks: 6 }),
+                            y: _ptAxis(v => _ptCompactTWD(v), { zeroLine: true })
+                        }
+                    })
+                });
+                return;
+            }
+
+            // 每月：依市場堆疊，月份連續（沒有交易的月份補 0，時間軸不跳格）
+            const firstM = String(sorted[0].date || '').slice(0, 7);
+            const lastM = String(sorted[sorted.length - 1].date || '').slice(0, 7);
+            const months = [];
+            if (/^\d{4}-\d{2}$/.test(firstM) && /^\d{4}-\d{2}$/.test(lastM)) {
+                let [y, m] = firstM.split('-').map(Number);
+                while (`${y}-${String(m).padStart(2, '0')}` <= lastM && months.length < 240) {
+                    months.push(`${y}-${String(m).padStart(2, '0')}`);
+                    m += 1; if (m > 12) { m = 1; y += 1; }
+                }
+            }
+            const idx = new Map(months.map((k, i) => [k, i]));
+            const sums = { TW: months.map(() => 0), US: months.map(() => 0), HK: months.map(() => 0) };
+            sorted.forEach(tr => {
+                const i = idx.get(String(tr.date || '').slice(0, 7));
+                if (i == null) return;
+                sums[_realizedMarketKey(tr)][i] += twdOf(tr);
+            });
+            const markets = ['TW', 'US', 'HK'].filter(mk => sums[mk].some(v => v !== 0));
+            if (legendEl) legendEl.innerHTML = markets.length >= 2
+                ? _ptLegendHtml(markets.map(mk => ({ label: _PT_MARKET_LABEL[mk], color: t.market[mk] })))
+                : '';
+            _realizedChart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: markets.map(mk => ({
+                        label: _PT_MARKET_LABEL[mk],
+                        data: sums[mk],
+                        backgroundColor: t.market[mk],
+                        borderColor: t.surface,
+                        borderWidth: 1,
+                        borderSkipped: false,
+                        maxBarThickness: 24
+                    }))
+                },
+                options: Object.assign({}, baseOpts, {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: _ptTooltip({
+                            label: item => `${item.dataset.label} ${_ptSignedMoney(item.raw)}`,
+                            footer: items => {
+                                const total = items.reduce((s, it) => s + (Number(it.raw) || 0), 0);
+                                return '合計 ' + _ptSignedMoney(total);
+                            }
+                        }, { footerColor: '#e8f0ea', filter: item => Number(item.raw) !== 0 })
+                    },
+                    scales: {
+                        x: Object.assign(_ptAxis(null, { maxTicks: 8, noGrid: true }), { stacked: true }),
+                        y: Object.assign(_ptAxis(v => _ptCompactTWD(v), { zeroLine: true }), { stacked: true })
+                    }
+                })
+            });
+        }
         function renderRealizedTab() {
             const pane = document.getElementById('tab-pane-6');
             if (!pane) return;
@@ -9789,6 +10172,7 @@
                     <div style="color:#7e93a6; font-size:0.95rem; font-weight:600;">尚無已實現損益紀錄</div>
                     <div style="color:#607585; font-size:0.82rem; margin-top:0.35rem;">完成賣出交易後將自動記錄於此，或在下方新增「期間補錄」</div>
                 </div><div id="return-analysis-section"></div><div id="manual-realized-section"></div>`;
+                _realizedChart = _ptDestroyChart(_realizedChart);   // v15.970
                 renderReturnAnalysis();
                 _renderManualRealizedSection();
                 return;
@@ -9984,7 +10368,8 @@
                     </div>
                 </div>`;
             const symbolsRendered = _realizedSymbolsHidden ? '' : symbolsHtml;
-            pane.innerHTML = summaryHtml + symbolsToolbar + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsRendered) + '<div id="return-analysis-section"></div><div id="manual-realized-section"></div>';
+            pane.innerHTML = summaryHtml + _realizedChartCardHtml(filtered, bySymbol) + symbolsToolbar + (filtered.length === 0 ? '<div style="text-align:center;padding:2rem;color:#607585;font-size:0.9rem;">此區間無交易紀錄</div>' : symbolsRendered) + '<div id="return-analysis-section"></div><div id="manual-realized-section"></div>';
+            _paintRealizedChart(filtered, bySymbol);   // v15.970
             renderReturnAnalysis();
             _renderManualRealizedSection();   // v15.905
         }
