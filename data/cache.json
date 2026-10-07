@@ -23,9 +23,9 @@
         "symbol": "^GSPC",
         "name": "S&P 500",
         "cat": "股市",
-        "price": 7801.77001953125,
-        "chg1d": -0.21946936299741793,
-        "chg7d": 1.9633953387396355
+        "price": null,
+        "chg1d": null,
+        "chg7d": null
       },
       {
         "symbol": "^IXIC",
@@ -47,9 +47,9 @@
         "symbol": "^VIX",
         "name": "恐慌指數 VIX",
         "cat": "情緒",
-        "price": 15,
-        "chg1d": -0.06662377567852243,
-        "chg7d": -8.200735251374306
+        "price": 15.079999923706055,
+        "chg1d": 0.46635372256375607,
+        "chg7d": -7.711139639630176
       },
       {
         "symbol": "^TNX",
@@ -63,36 +63,341 @@
         "symbol": "DX-Y.NYB",
         "name": "美元指數",
         "cat": "外匯",
-        "price": 102.28099822998047,
-        "chg1d": 0.4428914767909222,
-        "chg7d": 0.8191240086111011
+        "price": 102.28700256347656,
+        "chg1d": 0.44878790553306785,
+        "chg7d": 0.8250425238173235
       },
       {
         "symbol": "GC=F",
         "name": "黃金",
         "cat": "商品",
-        "price": 4129.10009765625,
-        "chg1d": -1.3852069128336766,
-        "chg7d": -1.3757874929936478
+        "price": 4136.7001953125,
+        "chg1d": -1.2036947091845642,
+        "chg7d": -1.1942579517869667
       },
       {
         "symbol": "CL=F",
         "name": "原油 (WTI)",
         "cat": "商品",
-        "price": 89.01000213623047,
-        "chg1d": -0.48076955885313416,
-        "chg7d": -1.559385159553239
+        "price": 88.94000244140625,
+        "chg1d": -0.559033974006831,
+        "chg7d": -1.6368013243859652
       },
       {
         "symbol": "BTC-USD",
         "name": "Bitcoin",
         "cat": "加密",
-        "price": 83483.5078125,
-        "chg1d": -2.4241628991008244,
-        "chg7d": -0.08418971559603261
+        "price": 83255.2734375,
+        "chg1d": -2.6909240927708757,
+        "chg7d": -0.35734812868160537
       }
     ],
     "news": [
+      {
+        "uuid": "152ce1c7-02e7-38e6-84db-770f362879dd",
+        "title": "Stock Market Today, Oct. 7: Markets Edge Lower as Treasury Yields Surge",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/stock-market-today-oct-7-211702509.html",
+        "providerPublishTime": 1791407822,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/39176ffcefb083c4cbf0fddf64efb961.png",
+              "width": 800,
+              "height": 520,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/3131176140AF7F0874F22BC9B3621037CB5FE65EEBA429B6F9102D286BE4E543/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F39176ffcefb083c4cbf0fddf64efb961.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "STZ",
+          "CAT",
+          "INTC",
+          "NVDA",
+          "^GSPC",
+          "^DJI",
+          "GC=F",
+          "^IXIC",
+          "SPCX"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "10月7日今日股市：隨著美國國庫券孳息率飆升，市場邊緣走低"
+      },
+      {
+        "uuid": "8dec525d-ca47-34c7-83a1-5b187328fd97",
+        "title": "Taiwan Semiconductor Manufacturing Heads 3 AI Chip Stocks To Watch",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/technology/ai/articles/taiwan-semiconductor-manufacturing-heads-3-211548167.html",
+        "providerPublishTime": 1791407748,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/simply_wall_st__316/0f9606c11fab5873fe681760ed38df34.jpg",
+              "width": 1600,
+              "height": 900,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/86FEA36B2D70C23388218773B856CAE9AD63DC8ADFB4D4EFA42BABE0C6CC6D3C/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fsimply_wall_st__316%2F0f9606c11fab5873fe681760ed38df34.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "TSM",
+          "688825",
+          "AMAT",
+          "2330"
+        ],
+        "_sym": "TSM",
+        "titleZh": "臺灣半導體製造三大AI晶片股值得關注"
+      },
+      {
+        "uuid": "c861c57f-11ed-33ef-ad7c-615f55181128",
+        "title": "Dow Jones Futures: Stocks Pare Losses As Yields Back Off; Samsung, Micron, Taiwan Semi, Sandisk In Focus",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/c861c57f-11ed-33ef-ad7c-615f55181128/dow-jones-futures%3A-stocks.html",
+        "providerPublishTime": 1791407652,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/ibd.com/e6ce284711e0b847401bbc51cf5e7e27.jpg",
+              "width": 1000,
+              "height": 511,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/0BD571B13D5151A1A98BC3DCD8EF67653CE47ADDA004D3D8AEFB6456A790C945/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fibd.com%2Fe6ce284711e0b847401bbc51cf5e7e27.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "005930.KS",
+          "^DJI",
+          "TSM",
+          "MU",
+          "SNDK",
+          "LLY",
+          "^GSPC",
+          "^IXIC",
+          "AAPL",
+          "^RUT",
+          "SKHY",
+          "ABBV",
+          "SKHY"
+        ],
+        "_sym": "MU",
+        "titleZh": "道瓊期貨：隨著孳息率回落，股票價格虧損；三星、美光、臺灣Semi、Sandisk聚焦"
+      },
+      {
+        "uuid": "06a29f87-8869-33a5-8fbe-90d7976fe7e3",
+        "title": "Stock Market Today: S&P 500, Nasdaq Cut Losses; Nuclear Play Holds Firm",
+        "publisher": "Investor's Business Daily",
+        "link": "https://finance.yahoo.com/m/06a29f87-8869-33a5-8fbe-90d7976fe7e3/stock-market-today%3A-s%26p-500%2C.html",
+        "providerPublishTime": 1791407611,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/ibd.com/379de946820595ab4dd559a01c995ba2.jpg",
+              "width": 1000,
+              "height": 563,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/8DFB0EC362CD3EA051BBE22AEED37ECA51D65D1BFDE93ABF9BF7B7AF91136029/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fibd.com%2F379de946820595ab4dd559a01c995ba2.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "^DJI",
+          "AMGN",
+          "NTAP",
+          "CAT",
+          "ABBV",
+          "MU",
+          "CEG",
+          "INTC",
+          "NVDA"
+        ],
+        "_sym": "MU",
+        "titleZh": "今日股市：標準普爾500指數、納斯達克虧損；核能發展持穩"
+      },
+      {
+        "uuid": "e39fcdd0-e4b7-3f39-a4cf-df10bf59471a",
+        "title": "Netlist (NLST) Is Up 22.3% After $600 Million Micron Licensing Deal - Has The Bull Case Changed?",
+        "publisher": "Simply Wall St.",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/netlist-nlst-22-3-600-211201362.html",
+        "providerPublishTime": 1791407521,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/simply_wall_st__316/c26bc18954ee387ac2ad49b7f6e48732.jpg",
+              "width": 1600,
+              "height": 900,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/746DB2D69F6B83E021784EEEF5EF3A73DB580497E9540BF5280ED661FDBD3845/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fsimply_wall_st__316%2Fc26bc18954ee387ac2ad49b7f6e48732.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NLST",
+          "MU",
+          "005930.KS"
+        ],
+        "_sym": "MU",
+        "titleZh": "NETLIST （ NLST ）在6億$微米授權交易後上漲22.3 ％ -牛市是否發生了變化？"
+      },
+      {
+        "uuid": "83a7a8aa-887f-3c40-a4bd-fdadb20064e6",
+        "title": "Donald Trump Threatened 300% Tariffs on Countries That Don't Invest in the U.S., Just Days After a Trump-Xi Summit Offered Only Limited Trade Relief. Here's Why That Threat Keeps Markets on Edge.",
+        "publisher": "Motley Fool",
+        "link": "https://finance.yahoo.com/economy/policy/articles/donald-trump-threatened-300-tariffs-211038750.html",
+        "providerPublishTime": 1791407438,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/motleyfool.com/d1d5626f811920fa8ccf2b694f322acd.jpg",
+              "width": 1280,
+              "height": 853,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/06D1591060085679F478D8B0DAFD034A5C62E43DE6F7C2E97D4942EE20249BDF/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Fd1d5626f811920fa8ccf2b694f322acd.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "唐納德特朗普威脅要對不投資美國的國家徵收300 ％的關稅，就在特朗普-習近平峯會僅提供有限貿易救濟的幾天後。這就是這種威脅讓市場保持邊緣的原因。"
+      },
+      {
+        "uuid": "1a827e1e-3418-349e-8fff-a31af9ccbcca",
+        "title": "Rising Rates Are Eroding the Value of Even the Most High-Flying Tech Stocks",
+        "publisher": "The Wall Street Journal",
+        "link": "https://finance.yahoo.com/m/1a827e1e-3418-349e-8fff-a31af9ccbcca/rising-rates-are-eroding-the.html",
+        "providerPublishTime": 1791407400,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/wsj.com/3c4383821bd54478d2e8412fc333b0db.png",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/DFDA7AF79D3BB8E0105C85848F4988D6D47C4C37228D3ACDC38D90AEAB36C787/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fwsj.com%2F3c4383821bd54478d2e8412fc333b0db.png",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "NVDA",
+          "^GSPC"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "利率上升正在侵蝕即使是最高科技股的價值"
+      },
+      {
+        "uuid": "42c620c2-8353-3553-9651-a8a5778ba250",
+        "title": "IQVIA Launches IQVIA Life Science Models to Help Life Sciences Companies Predict Clinical Trial Outcomes",
+        "publisher": "Business Wire",
+        "link": "https://finance.yahoo.com/healthcare/articles/iqvia-launches-iqvia-life-science-201500184.html",
+        "providerPublishTime": 1791407340,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/business-wire.com/7c70fda79672e4f9a089a8b99182e91d.jpg",
+              "width": 546,
+              "height": 209,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/13872AA2F1660891769130A51B475B8AFD583C3766E9579BD14592D962DDD561/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fbusiness-wire.com%2F7c70fda79672e4f9a089a8b99182e91d.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "IQV",
+          "NVDA"
+        ],
+        "_sym": "NVDA",
+        "titleZh": "IQVIA推出IQVIA生命科學模型，幫助生命科學公司預測臨牀試驗結果"
+      },
+      {
+        "uuid": "5f05a8c3-9011-3fab-926f-5801882d8f34",
+        "title": "Caterpillar, Intel, TSMC, Micron, SpaceX, HPE, and More Stocks That Explain Today’s Market",
+        "publisher": "Barrons.com",
+        "link": "https://finance.yahoo.com/m/5f05a8c3-9011-3fab-926f-5801882d8f34/caterpillar%2C-intel%2C-tsmc%2C.html",
+        "providerPublishTime": 1791405780,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/Barrons.com/7bdd0f2403821fd78feb09ed5ec10810.jpg",
+              "width": 1280,
+              "height": 640,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/8E417E46282FBA028D09A76B4BCFAC33E76F893BF5068E16895E77EC5DC1ABA0/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2FBarrons.com%2F7bdd0f2403821fd78feb09ed5ec10810.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "INTC",
+          "TSM",
+          "MU",
+          "SPCX",
+          "CAT",
+          "CL=F",
+          "HPE",
+          "BULL",
+          "NVDA",
+          "DE"
+        ],
+        "_sym": "MU",
+        "titleZh": "Caterpillar、Intel、TSMC、Micron、SpaceX、HPE等股票解釋當今市場"
+      },
       {
         "uuid": "69048ca8-65bb-4e5c-9ea0-ae457054cc60",
         "title": "Amazon stock is trading at its lowest trailing PE ratio as a public company, despite AI boom",
@@ -126,6 +431,73 @@
         ],
         "_sym": "AMD",
         "titleZh": "儘管人工智能熱潮，亞馬遜股票作為上市公司的歷史市盈率仍處於最低水平"
+      },
+      {
+        "uuid": "00b5e36b-d1d7-3366-8f4d-4f4400fefa6a",
+        "title": "SanDisk's Forecast And Its Chart Now Say The Same Thing. Pay Attention.",
+        "publisher": "Trefis",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/sandisks-forecast-chart-now-same-200512874.html",
+        "providerPublishTime": 1791403512,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/trefis_142/deda6fef663b3e9239e68c43e3b9155c.jpg",
+              "width": 1280,
+              "height": 960,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/E373B6F231831CC95DE8F32548607B0B4DC21026201E6F6B9023A993FDF3DF5B/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Ftrefis_142%2Fdeda6fef663b3e9239e68c43e3b9155c.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "SNDK",
+          "MU",
+          "STX",
+          "WDC",
+          "NTAP",
+          "HPE",
+          "SPGI"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "SanDisk的預測和圖表現在也說了同樣的話。請注意。"
+      },
+      {
+        "uuid": "e02afbc2-5f75-39a6-863e-20122b835f15",
+        "title": "Memory Trade: Cyclical or Durable Growth?",
+        "publisher": "Zacks",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/memory-trade-cyclical-durable-growth-200500197.html",
+        "providerPublishTime": 1791403500,
+        "type": "STORY",
+        "thumbnail": {
+          "resolutions": [
+            {
+              "url": "https://media.zenfs.com/en/zacks.com/f137593ef3b3f5b2675404f14056fe62.jpg",
+              "width": 635,
+              "height": 400,
+              "tag": "original"
+            },
+            {
+              "url": "https://s.yimg.com/lo/mysterio/api/993030B3F207EA2CBF082BFB1BA679CA8448E1DD3F92030E9BFB2DFF007FAE75/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fzacks.com%2Ff137593ef3b3f5b2675404f14056fe62.jpg",
+              "width": 140,
+              "height": 140,
+              "tag": "140x140"
+            }
+          ]
+        },
+        "relatedTickers": [
+          "QQQ",
+          "MU",
+          "MRVL",
+          "SNDK"
+        ],
+        "_sym": "SNDK",
+        "titleZh": "回憶貿易：週期性成長還是持久性成長？"
       },
       {
         "uuid": "b211b97d-1051-3f11-993d-379c7253021a",
@@ -227,92 +599,6 @@
         "titleZh": "科技行業希望您在家中運行AI模型，但並不適合所有人"
       },
       {
-        "uuid": "e4f5a037-08d3-3bde-bab0-2eefe72de86f",
-        "title": "Sector Update: Tech Stocks Fall Late Afternoon",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/sector-tech-stocks-fall-afternoon-194711799.html",
-        "providerPublishTime": 1791402431,
-        "type": "STORY",
-        "relatedTickers": [
-          "GOOG",
-          "NVDA",
-          "SPCX",
-          "DELL",
-          "XLK",
-          "XSD",
-          "APO",
-          "MSFT"
-        ],
-        "_sym": "NVDA",
-        "titleZh": "行業最新消息：科技股下午晚些時候下跌"
-      },
-      {
-        "uuid": "d757b343-4933-3796-9d36-aa1fc7fabba0",
-        "title": "How Much Should One Number Worry Seagate Technology Stock Holders?",
-        "publisher": "Trefis",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/much-one-number-worry-seagate-194517800.html",
-        "providerPublishTime": 1791402317,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/trefis_142/fc92153dc23ef018a452bd64603c8f45.jpg",
-              "width": 1280,
-              "height": 802,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/409B804C3181C72C9BC99A754374424C86488AA6929F43266BAA3252A0797334/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Ftrefis_142%2Ffc92153dc23ef018a452bd64603c8f45.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "WDC",
-          "HPE",
-          "DELL",
-          "NTAP",
-          "SPGI",
-          "STX"
-        ],
-        "_sym": "MU",
-        "titleZh": "One Number Worry Seagate Technology股票持有人應持有多少股份？"
-      },
-      {
-        "uuid": "e401d501-c1c4-3613-92b1-97f724f74f76",
-        "title": "At $1,069, Is Micron Stock Going to Split?",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/1-069-micron-stock-going-193500326.html",
-        "providerPublishTime": 1791401700,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/4481cf235597d33e3e28d7c9c7fc6a5c.jpg",
-              "width": 1280,
-              "height": 853,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/7F451D8DA120D72D3588B4C199D715413243C9B07801345BCC7F0C413608730A/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2F4481cf235597d33e3e28d7c9c7fc6a5c.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "NVDA",
-          "AVGO"
-        ],
-        "_sym": "MU",
-        "titleZh": "$ 1,069的美光股票會分拆嗎？"
-      },
-      {
         "uuid": "12118dd2-ae15-33df-9d7e-41138ed09d0a",
         "title": "Is There A Risk Hiding In Marvell Stock's Rapid Growth?",
         "publisher": "Trefis",
@@ -348,75 +634,6 @@
         "titleZh": "漫威股票的快速增長是否隱藏著風險？"
       },
       {
-        "uuid": "06a29f87-8869-33a5-8fbe-90d7976fe7e3",
-        "title": "Stock Market Today: S&P 500 Cuts Losses As Oil, Yields Drop But Caterpillar Shares Get Pounded (Live Coverage)",
-        "publisher": "Investor's Business Daily",
-        "link": "https://finance.yahoo.com/m/06a29f87-8869-33a5-8fbe-90d7976fe7e3/stock-market-today%3A-s%26p-500.html",
-        "providerPublishTime": 1791401324,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/ibd.com/8ad185856c85865eaa554275a33e6e2a.jpg",
-              "width": 1000,
-              "height": 563,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/CCCA4B73B1A136CFF9B78AA8D7052695721ADEDA1806D6A3349534ABA57C893F/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fibd.com%2F8ad185856c85865eaa554275a33e6e2a.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "CAT",
-          "^DJI",
-          "^IXIC",
-          "ABBV",
-          "AMGN",
-          "NTAP",
-          "MU",
-          "INTC",
-          "NVDA",
-          "STX"
-        ],
-        "_sym": "MU",
-        "titleZh": "今天的股市：標準普爾500指數隨著油價下跌而減少虧損，收益率下降，但卡特彼勒股票受到打擊（實時報導）"
-      },
-      {
-        "uuid": "c532caf8-5355-324a-8d25-ca577b150f7b",
-        "title": "Prediction: Micron Will Have a Larger Market Cap Than Nvidia by 2030",
-        "publisher": "Motley Fool",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/prediction-micron-larger-market-cap-191100363.html",
-        "providerPublishTime": 1791400260,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/motleyfool.com/b3cd13ce25eda6d2ea6e8b3b567fc504.jpg",
-              "width": 1200,
-              "height": 800,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/190D58FA7C6738C0F1BE6312AE58331C893FC67FA811646963206911A37256DC/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fmotleyfool.com%2Fb3cd13ce25eda6d2ea6e8b3b567fc504.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "MU",
-          "NVDA",
-          "^GSPC"
-        ],
-        "_sym": "MU",
-        "titleZh": "預測：到2030年， Micron的市值將超過Nvidia"
-      },
-      {
         "uuid": "7f8c8db4-a4f8-355b-b9e2-c331484afe4f",
         "title": "Why Intel Stock Is Defying Today’s Chip-Sector Slump",
         "publisher": "Barrons.com",
@@ -450,40 +667,6 @@
         "titleZh": "為什麼英特爾股票無視今天的芯片行業暴跌"
       },
       {
-        "uuid": "eb31e16c-2330-32fc-b6ff-b22f4b983ef9",
-        "title": "Western Digital Stock Has One Thing Left To Prove",
-        "publisher": "Trefis",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/western-digital-stock-one-thing-184409857.html",
-        "providerPublishTime": 1791398649,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/trefis_142/bad1d2b498d51fb68e5ae08956546f38.jpg",
-              "width": 1024,
-              "height": 683,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/D332BAA49B4B23D9BED68F3C2C8F4334763D4EC1B544113076CA7C3D931A6358/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Ftrefis_142%2Fbad1d2b498d51fb68e5ae08956546f38.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "HPE",
-          "WDC",
-          "MU",
-          "DELL",
-          "NTAP",
-          "STX"
-        ],
-        "_sym": "MU",
-        "titleZh": "Western Digital股票還有一件事需要證明"
-      },
-      {
         "uuid": "4dd45c27-55a2-39f9-9117-15d65d20c220",
         "title": "SK Hynix vs. Taiwan Semiconductor Manufacturing: Which Computer Chip Stock Is a Better Buy in 2026?",
         "publisher": "Motley Fool",
@@ -514,75 +697,6 @@
         "titleZh": "SK海力士與臺灣半導體製造： 2026年哪種電腦晶片股買得更好？"
       },
       {
-        "uuid": "5f05a8c3-9011-3fab-926f-5801882d8f34",
-        "title": "Caterpillar, Intel, TSMC, Micron, SpaceX, HPE, and More Stocks That Explain Today’s Market",
-        "publisher": "Barrons.com",
-        "link": "https://finance.yahoo.com/m/5f05a8c3-9011-3fab-926f-5801882d8f34/caterpillar%2C-intel%2C-tsmc%2C.html",
-        "providerPublishTime": 1791392520,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/Barrons.com/7bdd0f2403821fd78feb09ed5ec10810.jpg",
-              "width": 1280,
-              "height": 640,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/8E417E46282FBA028D09A76B4BCFAC33E76F893BF5068E16895E77EC5DC1ABA0/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2FBarrons.com%2F7bdd0f2403821fd78feb09ed5ec10810.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "INTC",
-          "TSM",
-          "MU",
-          "SPCX",
-          "CAT",
-          "CL=F",
-          "HPE",
-          "BULL",
-          "NVDA",
-          "DE"
-        ],
-        "_sym": "TSM",
-        "titleZh": "Caterpillar、Intel、TSMC、Micron、SpaceX、HPE等股票解釋當今市場"
-      },
-      {
-        "uuid": "a4766afc-c598-30a3-9458-e91ed32487a4",
-        "title": "Musk: “Let There Be ZERO Doubt” SpaceX Will Run Terafab – Here’s What that Means for TSMC",
-        "publisher": "TIKR",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/musk-let-zero-doubt-spacex-161359300.html",
-        "providerPublishTime": 1791389639,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/tikr_258/4da7eb3745232c166e4400d5decd7b9b.png",
-              "width": 1200,
-              "height": 720,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/30DC427E8D2CAF75AFC644ABFF38B609FDE2B885947E9C867DBB81E5B2F673EF/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Ftikr_258%2F4da7eb3745232c166e4400d5decd7b9b.png",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "TSM",
-          "SPCX",
-          "TSLA"
-        ],
-        "_sym": "TSM",
-        "titleZh": "馬斯克：「讓零懷疑」SpaceX將運行Terafab –這對臺積公司意味著什麼"
-      },
-      {
         "uuid": "e4713ce6-d468-3a3f-bc3b-7f6ca7ffef52",
         "title": "SanDisk and Micron Rise 3% as Tight Memory Supply Outruns a Softer Tech Tape; Western Digital Lags",
         "publisher": "24/7 Wall St.",
@@ -606,9 +720,9 @@
           ]
         },
         "relatedTickers": [
-          "WDC",
-          "SNDK",
           "MU",
+          "SNDK",
+          "WDC",
           "DRAM",
           "QQQ"
         ],
@@ -633,77 +747,9 @@
         ],
         "_sym": "SOXX",
         "titleZh": "行業更新：科技股周三漲價前下跌"
-      },
-      {
-        "uuid": "2a2a25b1-ee0a-33ff-b695-fbcebca0051e",
-        "title": "Sector Update: Tech",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/sector-tech-125657478.html",
-        "providerPublishTime": 1791377817,
-        "type": "STORY",
-        "relatedTickers": [
-          "AMD",
-          "SOXX",
-          "XLK",
-          "005930.KS"
-        ],
-        "_sym": "SOXX",
-        "titleZh": "產業更新：科技系"
-      },
-      {
-        "uuid": "26e008cc-c664-30f1-a550-73c22b242bd5",
-        "title": "Michael Burry Sees a Government-Backed AI Boom. A Memory-Style Rally Could Be Around the Corner.",
-        "publisher": "Barchart",
-        "link": "https://finance.yahoo.com/technology/ai/articles/michael-burry-sees-government-backed-113002005.html",
-        "providerPublishTime": 1791372602,
-        "type": "STORY",
-        "thumbnail": {
-          "resolutions": [
-            {
-              "url": "https://media.zenfs.com/en/barchart_com_477/5cc362b39bc2178ddbddb62f59f92dae.jpg",
-              "width": 1600,
-              "height": 1067,
-              "tag": "original"
-            },
-            {
-              "url": "https://s.yimg.com/lo/mysterio/api/4DEC6A25C0F7C1689F5153D22A696D7EE1772131DD50E190A2D960691A50E2F3/subgraphmysterio/resizefill_w140_h140/https:%2F%2Fmedia.zenfs.com%2Fen%2Fbarchart_com_477%2F5cc362b39bc2178ddbddb62f59f92dae.jpg",
-              "width": 140,
-              "height": 140,
-              "tag": "140x140"
-            }
-          ]
-        },
-        "relatedTickers": [
-          "SOXX",
-          "AMD",
-          "MU",
-          "INTC",
-          "NVDA"
-        ],
-        "_sym": "SOXX",
-        "titleZh": "Michael Burry看到了政府支持的人工智能繁榮。記憶風格的拉力賽可能即將到來。"
-      },
-      {
-        "uuid": "0ed65638-72a4-3432-95f1-90360e3776cd",
-        "title": "Social Buzz: Wallstreetbets Stocks Mostly Lower Pre-Bell Wednesday; SpaceX, Micron to Fall",
-        "publisher": "MT Newswires",
-        "link": "https://finance.yahoo.com/markets/stocks/articles/social-buzz-wallstreetbets-stocks-mostly-103947245.html",
-        "providerPublishTime": 1791369587,
-        "type": "STORY",
-        "relatedTickers": [
-          "MU",
-          "SPCX",
-          "SNDK",
-          "MRVL",
-          "AMD",
-          "WDC",
-          "NVDA"
-        ],
-        "_sym": "SNDK",
-        "titleZh": "社交嗡嗡聲： Wallstreetbets股票周三上市前大幅下跌； SpaceX、美光股票下跌"
       }
     ],
-    "fetched_at": 1791403618631
+    "fetched_at": 1791409086759
   },
   "earnings": {
     "AMD": {
