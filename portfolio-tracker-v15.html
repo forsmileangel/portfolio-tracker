@@ -14164,10 +14164,15 @@ function _isLegacy9747Holding(h) {
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.85rem 1rem;margin-top:0.85rem;">
-                    <div>
+                    ${selEq != null ? `<div>
+                        <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">等效倉位</div>
+                        <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selEq))}</div>
+                        <div class="pionex-sub">投入 ${pv(_fmtUsdtAmt(selected.investment_usdt))}${selected.leverage_equivalent != null ? ` · 等效槓桿 ${_fmtPionexX(selected.leverage_equivalent)}` : ''}</div>
+                        <div class="pionex-sub">投入＋追加保證金；調高槓桿但保證金留在倉內時不變</div>
+                    </div>` : `<div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">投資總倉位</div>
                         <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(selected.investment_usdt))}</div>
-                    </div>
+                    </div>`}
                     <div>
                         <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">最新每日快照錢包</div>
                         <div class="mono pv-field" style="font-size:1.15rem;font-weight:800;color:#e2e8f0;">${pv(ledger.wallet && ledger.wallet.twd != null ? ('NT$ ' + _fmtTwdAmt(ledger.wallet.twd)) : '—')}</div>
