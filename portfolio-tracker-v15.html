@@ -13944,18 +13944,22 @@ function _isLegacy9747Holding(h) {
 
         function _renderPionexMonthlyHistory(months, currentMonth) {
             const keys = Object.keys(months).filter(key => key < currentMonth).sort().reverse();
+            const withFunding = keys.some(key => months[key].hasFunding);
             const rows = keys.map(key => {
                 const stats = months[key];
                 const average = stats.total / stats.count;
+                const netAverage = stats.hasFunding ? (stats.total + stats.funding) / stats.count : null;
                 return `<tr><td>${key}</td><td>${stats.count} 天</td>
                     <td class="mono pv-field">${pv(_fmtPionexJournalPnl(stats.total))}</td>
-                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(average)};">${pv(_fmtPionexJournalPnl(average))}</td></tr>`;
+                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(average)};">${pv(_fmtPionexJournalPnl(average))}</td>
+                    ${withFunding ? `<td class="mono pv-field" style="color:${_pnlColor(stats.hasFunding ? stats.funding : null)};">${stats.hasFunding ? pv(_fmtPionexJournalPnl(stats.funding)) : '—'}</td>
+                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(netAverage)};">${netAverage == null ? '—' : pv(_fmtPionexJournalPnl(netAverage))}</td>` : ''}</tr>`;
             }).join('');
             return `<div class="glass-card pionex-month-history">
                 <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.3rem;color:var(--pt-text);">每月平均紀錄</h2>
-                <div class="pionex-month-note">已結束月份 · 每日利潤合計 ÷ 有紀錄天數 · USDT</div>
+                <div class="pionex-month-note">已結束月份 · 每日利潤合計 ÷ 有紀錄天數 · USDT${withFunding ? ' · 淨利＝配對＋資金費' : ''}</div>
                 ${rows ? `<div style="overflow-x:auto;margin-top:0.45rem;"><table class="pionex-month-table" aria-label="已結束月份網格平均紀錄">
-                    <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">利潤合計</th><th scope="col">每日平均</th></tr></thead>
+                    <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">利潤合計</th><th scope="col">每日平均</th>${withFunding ? '<th scope="col">資金費合計</th><th scope="col">淨利每日平均</th>' : ''}</tr></thead>
                     <tbody>${rows}</tbody></table></div>`
                     : '<div class="pionex-month-note" style="padding:1rem 0;">尚無已結束月份的紀錄，跨月後會自動列入。</div>'}
                 <div class="pionex-month-note" style="margin-top:0.45rem;">依已保存的每日配對紀錄彙整；缺資料或關倉配對待補的日期暫不計入，補齊後同步重算。</div>
