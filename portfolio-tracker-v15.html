@@ -13889,11 +13889,57 @@ function _isLegacy9747Holding(h) {
                 const profit = Number(raw);
                 if (!Number.isFinite(profit)) continue;
                 const key = date.slice(0, 7);
-                if (!months[key]) months[key] = { count: 0, total: 0 };
+                if (!months[key]) months[key] = { count: 0, total: 0, funding: 0, hasFunding: false };
                 months[key].count += 1;
                 months[key].total += profit;
+                // v15.974：資金費另計，不加進每日利潤；缺值日（如盤中補登）的資金費已併進下一天
+                if (rec.funding_usdt !== undefined) months[key].hasFunding = true;
+                const funding = _pionexNum(rec.funding_usdt);
+                if (funding != null) months[key].funding += funding;
             }
             return months;
+        }
+
+        function _pionexFundingShareText(funding, grid) {
+            if (funding == null || grid == null || grid <= 0) return '';
+            return `${funding < 0 ? '吃掉' : '加回'}配對 ${(Math.abs(funding) / grid * 100).toFixed(1)}%`;
+        }
+
+        // v15.974：資金費總覽。帳本沒有資金費欄位（舊版）時不顯示
+        function _renderPionexFundingCard(ledger, monthlyStats) {
+            const days = (ledger && Array.isArray(ledger.days) ? ledger.days : [])
+                .filter(d => d && /^\d{4}-\d{2}-\d{2}$/.test(String(d.date || '')))
+                .sort((a, b) => b.date.localeCompare(a.date));
+            if (!days.some(d => d.funding_usdt !== undefined)) return '';
+            const latest = days[0];
+            const month = monthlyStats[latest.date.slice(0, 7)];
+            const sinceTs = Date.parse(latest.date + 'T00:00:00Z') - 30 * 86400000;
+            const since = new Date(sinceTs).toISOString().slice(0, 10);
+            const recent = days.filter(d => d.date > since && _pionexNum(d.funding_usdt) != null);
+            const sum30 = recent.reduce((a, d) => a + _pionexNum(d.funding_usdt), 0);
+            const span30 = recent.reduce((a, d) => a + (_pionexNum(d.funding_span_days) || 1), 0);
+            const avg30 = span30 ? sum30 / span30 : null;
+            const eq = _pionexNum(latest.equivalent_usdt);
+            const annual = avg30 != null && eq ? avg30 * 365 / eq * 100 : null;
+            const total = _pionexNum((ledger.latest || {}).funding_total_usdt) ?? _pionexNum(latest.funding_total_usdt);
+            const trueProfit = _pionexNum(latest.true_profit_usdt);
+            const tile = (label, value, sub) => `<div>
+                    <div class="pionex-tile-label">${label}</div>
+                    <div class="mono pv-field" style="font-size:1.2rem;font-weight:800;color:${_pnlColor(value)};line-height:1.15;">${pv(_fmtPionexJournalPnl(value))}</div>
+                    <div class="pionex-sub">${sub}</div>
+                </div>`;
+            return `<div class="glass-card" style="padding:1.1rem 1.35rem;margin-bottom:1rem;">
+                <h2 style="color:#e2e8f0;font-size:1rem;font-weight:600;margin:0 0 0.55rem;">資金費</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.85rem 1rem;">
+                    ${tile('本月資金費', month && month.hasFunding ? month.funding : null,
+                        month && month.hasFunding ? (_pionexFundingShareText(month.funding, month.total) || '本月配對為 0') + ` · ${month.count} 天` : '本月尚無資料')}
+                    ${tile('近 30 天資金費', recent.length ? sum30 : null,
+                        avg30 != null ? `日均 ${pv(_fmtPionexJournalPnl(avg30))}${annual != null ? ` · 年化 ${annual.toFixed(1)}%（÷ 等效倉位）` : ''}` : '尚無資料')}
+                    ${tile('歷史累計資金費', total,
+                        total != null && trueProfit ? `佔歷史累計配對 ${(Math.abs(total) / trueProfit * 100).toFixed(1)}%（含已關倉）` : '')}
+                </div>
+                <div style="margin-top:0.6rem;color:#607585;font-size:0.72rem;line-height:1.5;">口徑：派網每倉累計資金費（淨額，付出為負、收到為正）和上一次每日快照相減。幣本位是當天新增的幣 × 抓取價。資金費只另外顯示，不算進單日配對利潤與月平均。</div>
+            </div>`;
         }
 
         function _renderPionexMonthlyHistory(months, currentMonth) {
