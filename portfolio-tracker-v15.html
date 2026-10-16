@@ -10903,12 +10903,16 @@
                             ? `<button type="button" onclick="fillPionexWalletIntoCrypto('live')" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">以目前倉位填入加密欄</button>`
                             : ''}
                     </div>
-                    <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div></div>
-                    <div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div>${pct24 != null && totalEq != null ? `<div class="pionex-sub">÷ 等效倉位 ${(pct24 > 0 ? '+' : '') + pct24.toFixed(3)}%</div>` : ''}</div>
+                    ${totalEq != null
+                        ? `<div><div style="color:#7e93a6;font-size:0.72rem;">等效倉位</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(totalEq))}</div><div class="pionex-sub">投入 ${pv(_fmtUsdtAmt(live.total_investment_usdt))} · 等效槓桿 ${_fmtPionexX(live.leverage_equivalent)}</div></div>`
+                        : `<div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>`}
                     <div><div style="color:#7e93a6;font-size:0.72rem;">運行中配對利潤</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
+                    ${fundTotal != null ? `<div><div style="color:#7e93a6;font-size:0.72rem;">累計資金費（運行中）</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(fundTotal)};">${pv(_fmtPionexJournalPnl(fundTotal))}</div>${fundShare != null ? `<div class="pionex-sub">${fundTotal < 0 ? '約吃掉' : '約加回'}運行中配對 ${fundShare.toFixed(1)}%</div>` : ''}</div>` : ''}
                 </div>
                 <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">金額為上方更新時間的錢包估值；填入會取用這筆台幣金額。需更新資料時，先在本機更新目前倉位，再重新進入本頁。點欄位標題可排序。</div>
-                <div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">每 U 效率按比例換算為 3 倍槓桿：24h 配對利潤 ÷ 倉位 × 3 ÷ 原槓桿 × 100%。</div>
+                <div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">每 U 效率按比例換算為 3 倍槓桿：24h 配對利潤 ÷ 投入 × 3 ÷ 原槓桿 × 100%。</div>
+                ${totalEq != null ? `<div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">等效倉位＝投入＋追加保證金，調高槓桿但保證金留在倉內時不變；等效槓桿＝投入 × 派網槓桿 ÷ 等效倉位。${hasFunding ? '資金費為各倉從建倉起的累計淨額，付出為負，不算進網格利潤。' : ''}</div>` : ''}
                 <div style="margin-top:0.7rem;overflow:auto;">
                     <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
                         <thead><tr>
