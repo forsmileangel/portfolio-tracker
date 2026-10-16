@@ -14196,8 +14196,10 @@ function _isLegacy9747Holding(h) {
                     <thead><tr style="color:#7e93a6;">
                         <th style="text-align:left;padding:0.35rem 0.4rem;">標的</th>
                         <th style="text-align:left;padding:0.35rem 0.4rem;">狀態</th>
-                        <th style="text-align:right;padding:0.35rem 0.4rem;">倉位</th>
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">${hasFundingData ? '等效倉位' : '倉位'}</th>
                         <th style="text-align:right;padding:0.35rem 0.4rem;">單日利潤</th>
+                        ${hasFundingData ? `<th style="text-align:right;padding:0.35rem 0.4rem;">資金費</th>
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">淨利</th>` : ''}
                         <th style="text-align:right;padding:0.35rem 0.4rem;">累計</th>
                     </tr></thead>
                     <tbody>${rowHtml}</tbody>
