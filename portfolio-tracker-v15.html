@@ -14297,11 +14297,13 @@ function _isLegacy9747Holding(h) {
                             label: item => {
                                 const p = pts[item.dataIndex];
                                 const lines = ['累計 ' + usdt(p.v, true) + ' USDT'];
+                                if (p.net != null) lines.push('扣資金費後 ' + usdt(p.net, true) + ' USDT');
                                 if (Number.isFinite(p.day)) lines.push('單日 ' + usdt(p.day, true) + ' USDT');
+                                if (p.fund != null) lines.push('當日資金費 ' + usdt(p.fund, true) + ' USDT');
                                 if (p.unresolved) lines.push('配對資料待補');
                                 return lines;
                             }
-                        }, { displayColors: false })
+                        }, { displayColors: false, filter: item => item.datasetIndex === 0 })
                     },
                     scales: {
                         x: _ptAxis(null, { maxTicks: 6 }),
