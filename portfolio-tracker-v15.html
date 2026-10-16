@@ -14212,7 +14212,16 @@ function _isLegacy9747Holding(h) {
         function _pionexCumSeries(ledger) {
             return (ledger && Array.isArray(ledger.days) ? ledger.days : [])
                 .filter(d => d && /^\d{4}-\d{2}-\d{2}$/.test(String(d.date || '')) && d.true_profit_usdt != null && d.true_profit_usdt !== '' && Number.isFinite(Number(d.true_profit_usdt)))
-                .map(d => ({ date: d.date, v: Number(d.true_profit_usdt), day: Number(d.daily_profit_usdt), unresolved: Number(d.unresolved_count) > 0 }))
+                .map(d => {
+                    // v15.974：扣資金費後＝歷史累計配對＋累計資金費（資金費付出為負）
+                    const fundTotal = _pionexNum(d.funding_total_usdt);
+                    return {
+                        date: d.date, v: Number(d.true_profit_usdt), day: Number(d.daily_profit_usdt),
+                        unresolved: Number(d.unresolved_count) > 0,
+                        net: fundTotal == null ? null : Number(d.true_profit_usdt) + fundTotal,
+                        fund: _pionexNum(d.funding_usdt), fundTotal
+                    };
+                })
                 .sort((a, b) => a.date.localeCompare(b.date));
         }
         function _pionexJumpToDay(dateStr) {
