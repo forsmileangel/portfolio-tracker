@@ -10918,10 +10918,11 @@
                         <thead><tr>
                             ${_pionexLiveSortTh('symbol', '標的', 'left')}
                             ${_pionexLiveSortTh('leverage', '槓桿', 'left')}
-                            ${_pionexLiveSortTh('investment', '倉位', 'right')}
+                            ${_pionexLiveSortTh('investment', totalEq != null ? '等效倉位' : '倉位', 'right')}
                             ${_pionexLiveSortTh('grid', '網格', 'right')}
                             ${_pionexLiveSortTh('profit24h', '24h', 'right')}
                             ${_pionexLiveSortTh('eff', '每U效率（3倍）', 'right')}
+                            ${hasFunding ? _pionexLiveSortTh('funding', '資金費', 'right') : ''}
                         </tr></thead>
                         <tbody>${rowHtml}</tbody>
                     </table>
