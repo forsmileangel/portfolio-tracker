@@ -10788,13 +10788,33 @@
             return day / inv * 100 * 3 / leverage;
         }
 
+        // v15.974：等效倉位＝投入＋追加保證金；舊 cache 沒有這欄時退回投入
+        function _pionexNum(v) {
+            if (v == null || v === '') return null;
+            const n = Number(v);
+            return Number.isFinite(n) ? n : null;
+        }
+        function _pionexEquivalent(r) {
+            const eq = _pionexNum(r && r.equivalent_usdt);
+            return eq != null ? eq : _pionexNum(r && r.investment_usdt);
+        }
+        function _fmtPionexX(v) {
+            const n = _pionexNum(v);
+            return n == null ? '—' : n.toFixed(2) + '×';
+        }
+        function _fmtPionexPct(v, digits = 1) {
+            const n = _pionexNum(v);
+            return n == null ? '—' : n.toFixed(digits) + '%';
+        }
+
         function _pionexLiveSortValue(r, key) {
             if (key === 'symbol') return String(r.symbol || '').toLowerCase();
             if (key === 'leverage') return String(r.leverage || r.trend || '').toLowerCase();
-            if (key === 'investment') return parseFloat(r.investment_usdt);
+            if (key === 'investment') return _pionexEquivalent(r);
             if (key === 'grid') return parseFloat(r.grid_profit_usdt);
             if (key === 'profit24h') return parseFloat(r.profit_24h_usdt);
             if (key === 'eff') return _pionexLiveEff(r);
+            if (key === 'funding') return _pionexNum(r.funding_total_usdt);
             return null;
         }
 
