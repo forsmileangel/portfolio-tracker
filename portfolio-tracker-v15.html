@@ -14148,6 +14148,9 @@ function _isLegacy9747Holding(h) {
                             <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.daily_profit_usdt))}</div>
                             <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.daily_profit_twd)) : ''}</div>
                         </div>
+                        ${hasFundingData ? tile('當日資金費', selFunding, selFundNote) + tile('當日淨利（配對＋資金費）', _pionexNum(selected.net_usdt), selFunding == null ? '資金費未知，淨利不計' : '') : ''}
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-top:0.85rem;">
                         <div>
                             <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">運行中配對利潤</div>
                             <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.cumulative_usdt))}</div>
