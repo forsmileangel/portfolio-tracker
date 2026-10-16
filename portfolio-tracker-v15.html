@@ -14073,16 +14073,38 @@ function _isLegacy9747Holding(h) {
             const rowHtml = rows.length
                 ? rows.map(r => {
                     const st = statusLabel[r.status] || r.status || '';
+                    // v15.974：倉位改顯示等效倉位（投入＋追加保證金），不同時小字附投入；關倉列沒有等效倉位
+                    const eq = _pionexNum(r.equivalent_usdt);
+                    const inv = _pionexNum(r.investment_usdt);
+                    const daily = _pionexNum(r.daily_profit_usdt);
+                    const fund = _pionexNum(r.funding_usdt);
+                    const net = daily != null && fund != null ? daily + fund : null;
                     return `<tr>
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml(st)}</td>
-                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(eq != null ? eq : r.investment_usdt))}${eq != null && inv != null && Math.abs(eq - inv) >= 0.01 ? `<span class="pionex-cell-sub">投入 ${pv(_fmtUsdtAmt(inv))}</span>` : ''}</td>
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtPionexJournalPnl(r.daily_profit_usdt))}</td>
+                        ${hasFundingData ? `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(fund)};">${pv(_fmtPionexJournalPnl(fund))}</td>
+                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;font-weight:700;color:${_pnlColor(net)};">${pv(_fmtPionexJournalPnl(net))}</td>` : ''}
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtPionexJournalPnl(r.cumulative_usdt))}</td>
                     </tr>`;
                 }).join('')
-                : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
+                : `<tr><td colspan="${hasFundingData ? 7 : 5}" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
             const monthLabel = `${y} 年 ${m} 月`;
+            // v15.974：點選日的資金費、淨利與等效倉位
+            const selFunding = _pionexNum(selected.funding_usdt);
+            const selSpan = _pionexNum(selected.funding_span_days) || 1;
+            const selEq = _pionexNum(selected.equivalent_usdt);
+            const selFundNote = selFunding == null
+                ? (selected.date ? '這天沒有可比較的前一筆資金費' : '')
+                : (selSpan > 1 ? `含前 ${selSpan - 1} 天未記到的部分 · ` : '') + _pionexFundingShareText(selFunding, _pionexNum(selected.daily_profit_usdt));
+            const monthNetAverage = monthStats && monthStats.hasFunding ? (monthStats.total + monthStats.funding) / monthStats.count : null;
+            const fundingCard = _renderPionexFundingCard(ledger, monthlyStats);
+            const tile = (label, value, sub, size = '1.35rem') => `<div>
+                            <div class="pionex-tile-label">${label}</div>
+                            <div class="mono pv-field" style="font-size:${size};font-weight:800;color:${_pnlColor(value)};line-height:1.1;">${pv(_fmtPionexJournalPnl(value))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${sub || ''}</div>
+                        </div>`;
             pane.innerHTML = liveCard + `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
