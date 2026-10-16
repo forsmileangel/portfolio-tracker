@@ -10864,22 +10864,31 @@
             const fresh = _pionexLiveFreshness(live.captured_at);
             const when = _fmtPionexTs(live.captured_at) || '—';
             const rows = _pionexLiveSortedRows(Array.isArray(live.rows) ? live.rows : []);
+            const hasFunding = rows.some(r => r.funding_total_usdt !== undefined);
             const rowHtml = rows.length
                 ? rows.map(r => {
                     const eff = _pionexLiveEff(r);
                     const effText = eff == null ? '—' : ((eff > 0 ? '+' : '') + eff.toFixed(3) + '%');
+                    const eq = _pionexNum(r.equivalent_usdt);
+                    const extra = _pionexNum(r.extra_margin_usdt);
                     return `<tr>
                     <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
-                    <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml((r.leverage || r.trend || ''))}</td>
-                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(r.investment_usdt))}</td>
+                    <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml((r.leverage || r.trend || ''))}${r.equivalent_leverage != null ? `<span class="pionex-cell-sub">等效 ${_fmtPionexX(r.equivalent_leverage)}</span>` : ''}</td>
+                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(_pionexEquivalent(r)))}${eq != null && extra ? `<span class="pionex-cell-sub">投入 ${pv(_fmtUsdtAmt(r.investment_usdt))}</span>` : ''}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.grid_profit_usdt)};">${pv(_fmtUsdtAmt(r.grid_profit_usdt))}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.profit_24h_usdt)};">${pv(_fmtUsdtAmt(r.profit_24h_usdt))}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(eff)};">${pv(effText)}</td>
+                    ${hasFunding ? `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.funding_total_usdt)};">${pv(_fmtPionexJournalPnl(r.funding_total_usdt))}</td>` : ''}
                 </tr>`;
                 }).join('')
-                : `<tr><td colspan="6" style="padding:0.5rem;color:#607585;">無倉位列</td></tr>`;
+                : `<tr><td colspan="${hasFunding ? 7 : 6}" style="padding:0.5rem;color:#607585;">無倉位列</td></tr>`;
             const walletTwd = live.wallet && live.wallet.twd != null ? pv('NT$ ' + _fmtTwdAmt(live.wallet.twd)) : '—';
             const walletUsdt = live.wallet && live.wallet.usdt ? pv(_fmtUsdtAmt(live.wallet.usdt) + ' USDT') : '';
+            const totalEq = _pionexNum(live.total_equivalent_usdt);
+            const pct24 = _pionexNum(live.profit_24h_pct);
+            const fundTotal = _pionexNum(live.total_funding_usdt);
+            const gridTotal = _pionexNum(live.total_grid_profit_usdt);
+            const fundShare = fundTotal != null && gridTotal != null && gridTotal > 0 ? Math.abs(fundTotal) / gridTotal * 100 : null;
             return `<div class="glass-card" style="padding:1.15rem 1.35rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
                     <h2 style="color:#f1f5f9;font-size:1.05rem;font-weight:600;margin:0;">目前倉位</h2>
