@@ -430,8 +430,18 @@
         .pionex-month-table th, .pionex-month-table td { padding:0.55rem 0.35rem; text-align:right; white-space:nowrap; border-bottom:1px solid var(--pt-border); }
         .pionex-month-table th:first-child, .pionex-month-table td:first-child { text-align:left; padding-left:0; }
         .pionex-month-table tbody tr:last-child td { border-bottom:0; }
+        /* v15.974：月曆三行（單日／資金／淨利）；淨利行稍粗 */
+        .pionex-cal-cell.has-data { min-height:4.35rem; }
+        .pionex-cal-amt.is-net .pionex-cal-amt-value { font-weight:800; }
+        .pionex-sub { color:var(--pt-text-muted); font-size:0.7rem; margin-top:0.25rem; line-height:1.45; }
+        .pionex-tile-label { color:#7e93a6; font-size:0.72rem; margin-bottom:0.2rem; }
+        .pionex-legend { display:inline-flex; align-items:center; gap:0.3rem; margin-left:0.6rem; color:#7e93a6; font-size:0.7rem; font-weight:400; }
+        .pionex-legend i { display:inline-block; width:16px; height:0; border-top:2px solid currentColor; }
+        .pionex-legend i.is-dashed { border-top-style:dashed; }
+        .pionex-cell-sub { display:block; color:#607585; font-size:0.68rem; margin-top:0.1rem; }
         @media (max-width:540px) {
             .pionex-cal-cell { min-height:2.55rem; padding:0.12rem 0.08rem; }
+            .pionex-cal-cell.has-data { min-height:3.25rem; }
             .pionex-cal-amt { grid-template-columns:1.85em minmax(0,1fr); column-gap:0; font-size:0.5rem; }
         }
 
