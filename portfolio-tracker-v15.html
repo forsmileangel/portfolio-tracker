@@ -14055,7 +14055,10 @@ function _isLegacy9747Holding(h) {
                     cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}"${heatStyle(rec)} onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
                         + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">單日</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.daily_profit_usdt))}</span></span>`
-                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`
+                        + (hasFundingData
+                            ? `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">資金</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.funding_usdt)}">${pv(_fmtPionexJournalPnl(rec.funding_usdt))}</span></span>`
+                                + `<span class="pionex-cal-amt is-net"><span class="pionex-cal-amt-label">淨利</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.net_usdt)}">${pv(_fmtPionexJournalPnl(rec.net_usdt))}</span></span>`
+                            : `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`)
                         + `</button>`;
                 } else {
                     cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
