@@ -14185,8 +14185,9 @@ function _isLegacy9747Holding(h) {
                 </div>
                 ${Number(selected.unresolved_count) > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">此日有 ${Number(selected.unresolved_count)} 倉配對資料待補，單日與歷史金額暫計，補齊後自動重算。</div>` : ''}
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日為兩次每日快照間的配對增量。歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。金額顯示至小數點後 2 位。</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日為兩次每日快照間的配對增量。歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。${hasFundingData ? '資金費與淨利另外顯示，單日配對利潤與月平均不含資金費。' : ''}金額顯示至小數點後 2 位。</div>
             </div>
+            ${fundingCard}
             ${_renderPionexMonthlyHistory(monthlyStats, today.slice(0, 7))}
             ${settlementCard}
             <div class="glass-card" style="padding:1rem 1.15rem;overflow:auto;">
