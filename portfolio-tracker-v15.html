@@ -14264,7 +14264,20 @@ function _isLegacy9747Holding(h) {
                         pointBackgroundColor: t.line,
                         pointBorderColor: t.surface,
                         pointBorderWidth: 2
-                    }]
+                    }].concat(pts.some(p => p.net != null) ? [{
+                        data: pts.map(p => p.net),
+                        borderColor: t.market.US,
+                        borderDash: [5, 4],
+                        fill: false,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        spanGaps: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHitRadius: 12,
+                        pointBackgroundColor: t.market.US,
+                        pointBorderColor: t.surface
+                    }] : [])
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false,
