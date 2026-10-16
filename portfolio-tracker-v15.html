@@ -14113,7 +14113,8 @@ function _isLegacy9747Holding(h) {
                 </div>
                 ${_pionexCumSeries(ledger).length >= 2 ? `
                 <div style="margin:0.2rem 0 0.75rem;">
-                    <div style="color:#c5d0d8;font-size:0.78rem;font-weight:600;">歷史累計配對利潤 <span style="color:#607585;font-size:0.7rem;font-weight:400;">USDT · 點圖跳到該日</span></div>
+                    <div style="color:#c5d0d8;font-size:0.78rem;font-weight:600;">歷史累計配對利潤 <span style="color:#607585;font-size:0.7rem;font-weight:400;">USDT · 點圖跳到該日</span>${hasFundingData
+                        ? `<span class="pionex-legend" style="color:${_ptChartTheme().line};"><i></i><span style="color:#7e93a6;">配對</span></span><span class="pionex-legend" style="color:${_ptChartTheme().market.US};"><i class="is-dashed"></i><span style="color:#7e93a6;">扣資金費後</span></span>` : ''}</div>
                     <div style="height:180px;position:relative;touch-action:pan-y;margin-top:0.35rem;"><canvas id="pionex-cum-chart" aria-label="網格歷史累計配對利潤"></canvas></div>
                 </div>` : ''}
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin:0.35rem 0 0.65rem;">
