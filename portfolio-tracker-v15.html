@@ -14028,11 +14028,14 @@ function _isLegacy9747Holding(h) {
             let cells = dows.map(d => `<div class="pionex-cal-dow">${d}</div>`).join('');
             for (let i = 0; i < startPad; i++) cells += `<div class="pionex-cal-cell is-muted"></div>`;
             // v15.972：日曆熱度——底色深淺依當月 |單日利潤| 比例；待補資料日不上色
+            // v15.974：有淨利（配對＋資金費）時改依淨利，沒有資金費的日子退回單日配對
             const heatOf = (rec) => {
                 if (!rec || Number(rec.unresolved_count) > 0) return null;
-                const v = Number(rec.daily_profit_usdt);
+                const net = _pionexNum(rec.net_usdt);
+                const v = net != null ? net : Number(rec.daily_profit_usdt);
                 return Number.isFinite(v) && v !== 0 ? v : null;
             };
+            const hasFundingData = (ledger.days || []).some(d => d && d.funding_usdt !== undefined);
             let monthMaxAbs = 0;
             for (let d = 1; d <= daysInMonth; d++) {
                 const v = heatOf(byDate[`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`]);
