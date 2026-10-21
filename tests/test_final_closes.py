@@ -107,21 +107,38 @@ class FinalCloseTests(unittest.TestCase):
         # 2026-10-02 實況：收盤後數小時當日 bar 仍為 null，meta 已是正式收盤。
         body = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-25T20:00:00+00:00", 158.61)
         with patch.object(closes, "http_text", return_value=(200, body)):
-            self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0]),
+            self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0],
+                                                   now=datetime.fromisoformat("2026-09-25T21:00:00+00:00")),
                              [("2026-09-24", 161.61), ("2026-09-25", 158.61)])
 
     def test_chart_meta_ignored_before_close_or_on_closure_day(self):
         intraday = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-25T19:00:00+00:00", 158.0)
         closure = self.chart_body(["2026-09-24", "2026-09-25"], [161.61, None], "2026-09-24T20:00:00+00:00", 161.61)
+        in_session = datetime.fromisoformat("2026-09-25T19:05:00+00:00")
         for body in (intraday, closure):
             with self.subTest(body=body[-120:]), patch.object(closes, "http_text", return_value=(200, body)):
-                self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0]), [("2026-09-24", 161.61)])
+                self.assertEqual(closes.fetch_us_chart("MSTR", self.dates[0], now=in_session),
+                                 [("2026-09-24", 161.61)])
+
+    def test_chart_thin_etf_last_trade_before_close_uses_meta_after_settle(self):
+        # 2026-10-20 實況：AAPX 最後成交 15:42、當日 bar 仍為 null；收盤 + 30 分後 meta 即為收盤價。
+        body = self.chart_body(["2026-10-19", "2026-10-20"], [42.14, None], "2026-10-20T19:42:37+00:00", 41.222)
+        cases = (("2026-10-20T20:20:00+00:00", [("2026-10-19", 42.14)]),
+                 ("2026-10-20T20:30:00+00:00", [("2026-10-19", 42.14), ("2026-10-20", 41.222)]),
+                 ("2026-10-21T00:40:00+00:00", [("2026-10-19", 42.14), ("2026-10-20", 41.222)]))
+        for now, expected in cases:
+            with self.subTest(now=now), patch.object(closes, "http_text", return_value=(200, body)):
+                self.assertEqual(closes.fetch_us_chart("AAPX", date(2026, 10, 20), now=datetime.fromisoformat(now)),
+                                 expected)
 
     def test_chart_meta_respects_early_close(self):
         body = self.chart_body(["2026-11-25", "2026-11-27"], [100.0, None], "2026-11-27T18:00:00+00:00", 101.5)
+        before_regular_close = datetime.fromisoformat("2026-11-27T19:00:00+00:00")
         with patch.object(closes, "http_text", return_value=(200, body)):
-            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27)), [("2026-11-25", 100.0)])
-            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27), {"2026-11-27": 13 * 60}),
+            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27), now=before_regular_close),
+                             [("2026-11-25", 100.0)])
+            self.assertEqual(closes.fetch_us_chart("MSTR", date(2026, 11, 27), {"2026-11-27": 13 * 60},
+                                                   now=before_regular_close),
                              [("2026-11-25", 100.0), ("2026-11-27", 101.5)])
 
     def test_bootstrap_skips_unfinished_trading_day(self):

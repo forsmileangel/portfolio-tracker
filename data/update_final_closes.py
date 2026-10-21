@@ -406,7 +406,8 @@ def expected_us_close_dates(now: datetime | None = None) -> tuple[date, date]:
     return tuple(dates)
 
 
-def fetch_us_chart(symbol: str, latest: date, early: dict[str, int] | None = None) -> list[tuple[str, float]]:
+def fetch_us_chart(symbol: str, latest: date, early: dict[str, int] | None = None,
+                   now: datetime | None = None) -> list[tuple[str, float]]:
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}?interval=1d&range=1mo"
     status, body = http_text(url)
     if status != 200:
@@ -424,7 +425,10 @@ def fetch_us_chart(symbol: str, latest: date, early: dict[str, int] | None = Non
             seen.add(day)
     # v15.969：Yahoo 收盤後數小時內，最新一根日 K 可能 close=null（實測 2026-10-02 收盤後 5 小時 55 檔全部如此），
     # yfinance 與上面的 bar 都拿不到；此時 meta.regularMarketPrice 已是該日收盤。
-    # 只在 regularMarketTime 落在該日收盤時間（含 early close）之後才採用；休市日沒有成交，不會落在該日。
+    # 只在 regularMarketTime 落在該日收盤時間（含 early close）之後，或該日收盤 + 定盤緩衝已過才採用；
+    # 休市日沒有成交，不會落在該日。
+    # 冷門槓桿 ETF（AAPX/CCUP/LNOK）最後一筆成交常早於 16:00（實測 AAPX 10/20 停在 15:42），
+    # 只看成交時間會一直被拒 → 每天 US 排程 partial 失敗；收盤後 regularMarketPrice 已不會再變，可視為收盤。
     meta = chart.get("meta") or {}
     meta_time = meta.get("regularMarketTime")
     meta_price = safe_price(meta.get("regularMarketPrice"))
@@ -432,7 +436,12 @@ def fetch_us_chart(symbol: str, latest: date, early: dict[str, int] | None = Non
         meta_local = datetime.fromtimestamp(meta_time, timezone.utc).astimezone(MARKET_TZ["US"])
         meta_day = meta_local.date()
         close_min = (early or {}).get(meta_day.isoformat(), MARKET_CLOSE_MIN["US"])
-        if meta_day <= latest and meta_day not in seen and meta_local.hour * 60 + meta_local.minute >= close_min:
+        local_now = (now or datetime.now(timezone.utc)).astimezone(MARKET_TZ["US"])
+        session_over = local_now.date() > meta_day or (
+            local_now.date() == meta_day
+            and local_now.hour * 60 + local_now.minute >= close_min + MARKET_SETTLE_BUFFER_MIN["US"])
+        traded_at_close = meta_local.hour * 60 + meta_local.minute >= close_min
+        if meta_day <= latest and meta_day not in seen and (traded_at_close or session_over):
             bars.append((meta_day.isoformat(), meta_price))
     return bars
 
