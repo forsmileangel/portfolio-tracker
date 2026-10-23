@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變，富途仍是可缺席的加分來源）：(1) 讀富途 Gist 加 10 秒逾時（AbortController + setTimeout），GitHub 卡住不再拖住整個報價更新；(2) 富途 last_price 只會是正規盤價格（實測），收盤後即正式收盤價——收盤後同日 35 分內接受橋接程式 session=closed（半日市仍標 regular）的列，避免延遲的 Sheet CSV 讓現價、市值短暫倒退，之後交回 CSV；今日／前次收盤損益、close pair、final close 不受影響；(3) 只有持有的美股／港股盤中或收盤後 35 分內才讀富途 Gist，其餘時間不發請求、狀態列顯示灰色「富途 休市」，開盤中從未讀到則紅字「富途 未取得」；(4) 手動一鍵更新在 CSV 失敗的四個分支改與自動更新共用 _quoteFallbackWithoutSheet（先套富途、再 Yahoo），toast 列出富途檔數。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull、timer 或 PWA 啟動流程。
   v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.975 - 2026-10-22 富途 OpenD 報價接入（美股／港股盤中現價）：本機 portfolio-quote-bridge 於美港股交易時段每 60 秒把 OpenD 快照寫進「獨立私有 Gist」futu-quotes.json（不碰持倉同步 Gist）；PT 與 Sheet CSV 並行讀取（API inline content，自動從 Gist 清單找到 id，存 STORAGE_KEYS.futuQuoteGistId 本機快取），CSV 套用後以富途覆蓋 US/HK 持倉 currentPrice，套到的檔數 Yahoo 備援自動跳過；條件：generatedAt 5 分內、status=ok、session=regular、marketDate＝該市場今天且盤中、通過分割防護。只改現價，不碰 prevClose／close pair／final close／今日與前次收盤損益基準；不入 userDataHash／pending／push。橋接停掉或任何錯誤即退回 Sheet CSV／Yahoo。狀態列加「富途 hh:mm:ss（N 檔）」依新鮮度變色。
   v15.974 - 2026-10-16 網格頁加資金費檢視與等效倉位：(1) 讀 Gist 帳本新增欄位（只新增、schema 仍為 1）：days[].funding_usdt／net_usdt／funding_total_usdt／funding_span_days／leverage_equivalent、rows[].equivalent_usdt／funding_usdt／funding_total_usdt；第三檔 rows[].equivalent_usdt／extra_margin_usdt／equivalent_leverage／funding_total_usdt 與 total_funding_usdt。(2) 日記帳月曆每格改為三行「單日／資金／淨利」，淨利＝單日配對＋資金費，底色改依淨利；沒有資金費資料的日子依單日配對。月合計區加平均每日淨利與本月資金費（吃掉配對 %）；點選日加當日資金費、當日淨利，跨天時註明；「投資總倉位」改為等效倉位（投入＋追加保證金），附投入與等效槓桿。(3) 歷史累計曲線加虛線「扣資金費後」（歷史累計配對＋累計資金費），自繪圖例、tooltip 加資金費。(4) 新增「資金費」卡：本月、近 30 天（日均、年化 ÷ 等效倉位）、歷史累計（佔歷史配對 %）。(5) 每月平均紀錄加資金費合計與淨利每日平均；明細表加資金費、淨利欄，倉位改顯示等效倉位。(6) 目前倉位卡：「投入」改為等效倉位（附投入與等效槓桿）、加累計資金費（運行中）；表格倉位欄改等效倉位、槓桿欄附等效槓桿、新增可排序資金費欄。資金費只另外顯示，單日配對利潤與月平均口徑不變；舊帳本沒有新欄位時退回原畫面。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -116,6 +117,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變）：讀富途 Gist 加 10 秒逾時；收盤後 35 分內沿用富途正式收盤價，避免現價短暫倒退；休市時不讀富途、狀態列顯示「富途 休市」；手動一鍵更新 CSV 失敗時也先套富途。損益、close pair、同步流程不受影響。
         v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
         v15.975 - 2026-10-22 富途 OpenD 報價接入（美股／港股盤中現價）：本機 portfolio-quote-bridge 於美港股交易時段每 60 秒把 OpenD 快照寫進「獨立私有 Gist」futu-quotes.json（不碰持倉同步 Gist）；PT 與 Sheet CSV 並行讀取（API inline content，自動從 Gist 清單找到 id，存 STORAGE_KEYS.futuQuoteGistId 本機快取），CSV 套用後以富途覆蓋 US/HK 持倉 currentPrice，套到的檔數 Yahoo 備援自動跳過；條件：generatedAt 5 分內、status=ok、session=regular、marketDate＝該市場今天且盤中、通過分割防護。只改現價，不碰 prevClose／close pair／final close／今日與前次收盤損益基準；不入 userDataHash／pending／push。橋接停掉或任何錯誤即退回 Sheet CSV／Yahoo。狀態列加「富途 hh:mm:ss（N 檔）」依新鮮度變色。
         v15.974 - 2026-10-16 網格頁加資金費檢視與等效倉位：(1) 讀 Gist 帳本新增欄位（只新增、schema 仍為 1）：days[].funding_usdt／net_usdt／funding_total_usdt／funding_span_days／leverage_equivalent、rows[].equivalent_usdt／funding_usdt／funding_total_usdt；第三檔 rows[].equivalent_usdt／extra_margin_usdt／equivalent_leverage／funding_total_usdt 與 total_funding_usdt。(2) 日記帳月曆每格改為三行「單日／資金／淨利」，淨利＝單日配對＋資金費，底色改依淨利；沒有資金費資料的日子依單日配對。月合計區加平均每日淨利與本月資金費（吃掉配對 %）；點選日加當日資金費、當日淨利，跨天時註明；「投資總倉位」改為等效倉位（投入＋追加保證金），附投入與等效槓桿。(3) 歷史累計曲線加虛線「扣資金費後」（歷史累計配對＋累計資金費），自繪圖例、tooltip 加資金費。(4) 新增「資金費」卡：本月、近 30 天（日均、年化 ÷ 等效倉位）、歷史累計（佔歷史配對 %）。(5) 每月平均紀錄加資金費合計與淨利每日平均；明細表加資金費、淨利欄，倉位改顯示等效倉位。(6) 目前倉位卡：「投入」改為等效倉位（附投入與等效槓桿）、加累計資金費（運行中）；表格倉位欄改等效倉位、槓桿欄附等效槓桿、新增可排序資金費欄。資金費只另外顯示，單日配對利潤與月平均口徑不變；舊帳本沒有新欄位時退回原畫面。不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
@@ -879,7 +881,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.976</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.977</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1760,7 +1762,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.976';
+        const APP_VERSION = 'v15.977';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -13414,18 +13416,16 @@ function _isLegacy9747Holding(h) {
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(timeoutId);
                 if (!res) {
-                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-failed');
-                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-failed', true);
-                    if (fallbackUpdated > 0) showImportToast(`CSV 來源未回應，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
-                    else showWarnToast(`⏱ 無法取得報價 CSV 與獨立備援\n${_quoteFallbackSummary(fallback)}`, 5000);
+                    const { fallback, futuApplied, updated: fallbackUpdated } = await _quoteFallbackWithoutSheet('manual-sheet-failed', futuPromise, true);
+                    if (fallbackUpdated > 0) showImportToast(`CSV 來源未回應，已使用獨立備援：${_quoteFallbackSummary(fallback, futuApplied)}`, 5000);
+                    else showWarnToast(`⏱ 無法取得報價 CSV 與獨立備援\n${_quoteFallbackSummary(fallback, futuApplied)}`, 5000);
                     return;
                 }
                 const csvText = await res.text();
 
                 if (csvText.trim().startsWith('<')) {
-                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-html');
-                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-html', true);
-                    if (fallbackUpdated > 0) showImportToast(`Sheet 回傳非 CSV，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                    const { fallback, futuApplied, updated: fallbackUpdated } = await _quoteFallbackWithoutSheet('manual-sheet-html', futuPromise, true);
+                    if (fallbackUpdated > 0) showImportToast(`Sheet 回傳非 CSV，已使用獨立備援：${_quoteFallbackSummary(fallback, futuApplied)}`, 5000);
                     else showWarnToast('❌ Google Sheet 尚未以 CSV 格式發布，且獨立備援失敗\n請至 檔案→共用→發布到網路→選逗號分隔值(.csv)');
                     return;
                 }
@@ -13437,9 +13437,8 @@ function _isLegacy9747Holding(h) {
                 if (_applyQuoteFx(currentFx, sheetRates)) renderAll();
 
                 if (Object.keys(prices).length === 0) {
-                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-empty');
-                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-empty', true);
-                    if (fallbackUpdated > 0) showImportToast(`CSV 無有效股價，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                    const { fallback, futuApplied, updated: fallbackUpdated } = await _quoteFallbackWithoutSheet('manual-sheet-empty', futuPromise, true);
+                    if (fallbackUpdated > 0) showImportToast(`CSV 無有效股價，已使用獨立備援：${_quoteFallbackSummary(fallback, futuApplied)}`, 5000);
                     else {
                         showWarnToast('⚠️ CSV 無有效股價，請確認格式\n第一欄=代碼，第二欄=價格');
                         manualPriceReview();
@@ -13449,10 +13448,9 @@ function _isLegacy9747Holding(h) {
 
                 const matchCount = holdings.filter(h => _lookupPrice(prices, h) != null).length;
                 if (matchCount === 0) {
-                    const fallback = await _refreshIndependentQuoteFallbacks('manual-sheet-mismatch');
-                    const fallbackUpdated = _renderIndependentQuoteFallback(fallback, 'manual-sheet-mismatch', true);
+                    const { fallback, futuApplied, updated: fallbackUpdated } = await _quoteFallbackWithoutSheet('manual-sheet-mismatch', futuPromise, true);
                     if (fallbackUpdated > 0) {
-                        showImportToast(`CSV 代碼未匹配，已使用獨立備援：${_quoteFallbackSummary(fallback)}`, 5000);
+                        showImportToast(`CSV 代碼未匹配，已使用獨立備援：${_quoteFallbackSummary(fallback, futuApplied)}`, 5000);
                         return;
                     }
                     const sheetSymbols = Object.keys(prices).slice(0, 3).join(', ');
@@ -13552,21 +13550,32 @@ function _isLegacy9747Holding(h) {
         const FUTU_QUOTE_FILENAME = 'futu-quotes.json';
         const FUTU_QUOTE_MAX_AGE_MS = 5 * 60 * 1000;
         const FUTU_GIST_DISCOVERY_RETRY_MS = 30 * 60 * 1000;
+        const FUTU_GIST_TIMEOUT_MS = 10000;   // v15.977：卡住的 GitHub 請求不能拖住 CSV 報價
+        // v15.977：富途 last_price 只會是正規盤價格，收盤後即正式收盤價；橋接程式收盤後續寫 30 分（session=closed），
+        // PT 收盤後 35 分內沿用，避免延遲的 Sheet CSV 讓現價倒退。之後交回 CSV。
+        const FUTU_AFTER_CLOSE_MIN = 35;
         let _futuGistDiscoveryAt = 0;
-        let _futuQuoteStatus = null;   // { generatedAt(ms), applied }
+        let _futuQuoteStatus = null;   // { generatedAt(ms), applied } | { idle: true }
 
         async function _futuGistGet(url, token) {
-            const res = await fetch(url, {
-                headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' },
-                cache: 'no-store'
-            });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                const e = new Error(err.message || `HTTP ${res.status}`);
-                e.status = res.status;
-                throw e;
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), FUTU_GIST_TIMEOUT_MS);
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' },
+                    cache: 'no-store',
+                    signal: ctrl.signal
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    const e = new Error(err.message || `HTTP ${res.status}`);
+                    e.status = res.status;
+                    throw e;
+                }
+                return await res.json();
+            } finally {
+                clearTimeout(tid);
             }
-            return res.json();
         }
         // 不需每台裝置手動填：從 Gist 清單找出含 futu-quotes.json 的那個；找不到 30 分內不再找。
         async function _discoverFutuQuoteGistId(token) {
@@ -13596,9 +13605,35 @@ function _isLegacy9747Holding(h) {
             const payload = await _parseGistJsonFile(data.files?.[FUTU_QUOTE_FILENAME]);
             return (payload && payload.schema === 1 && payload.quotes && typeof payload.quotes === 'object') ? payload : null;
         }
+        // 收盤後第幾分鐘（同一個當地日期）；未收盤回 null
+        function _futuMinutesAfterClose(clock) {
+            if (!clock || clock.status !== 'closed' || !clock.localHHMM) return null;
+            const [hh, mm] = clock.localHHMM.split(':').map(Number);
+            return hh * 60 + mm - clock.closeMin;
+        }
+        function _futuMarketActive(mk, now) {
+            const clock = _marketClock(mk, now);
+            if (clock.status === 'open') return true;
+            const after = _futuMinutesAfterClose(clock);
+            return after != null && after >= 0 && after <= FUTU_AFTER_CLOSE_MIN;
+        }
+        function _futuHeldMarkets() {
+            return ['US', 'HK'].filter(mk => holdings.some(h => _holdingMarketKey(h) === mk && Number(h.quantity || 0) > 0));
+        }
+        // 只有持有的美股／港股在盤中或收盤後 35 分內才讀富途 Gist；休市時不發請求
+        function _futuQuoteWanted(now) {
+            return _futuHeldMarkets().some(mk => _futuMarketActive(mk, now || new Date()));
+        }
         function _fetchFutuQuotesSafe() {
+            if (!_futuQuoteWanted(new Date())) {
+                _futuQuoteStatus = { idle: true };
+                return Promise.resolve(null);
+            }
+            if (_futuQuoteStatus && _futuQuoteStatus.idle) _futuQuoteStatus = null;
             return _fetchFutuQuotes().catch(e => {
                 try { _recordAppError('futu_quotes', e, { status: e?.status }); } catch(_) {}
+                // 開盤中讀不到且從沒成功過 → 紅字提示；有舊時間就沿用（年齡會讓顏色變紅）
+                if (!_futuQuoteStatus || !_futuQuoteStatus.generatedAt) _futuQuoteStatus = { failed: true };
                 return null;
             });
         }
@@ -13613,9 +13648,17 @@ function _isLegacy9747Holding(h) {
             const mk = _holdingMarketKey(h);
             if ((mk !== 'US' && mk !== 'HK') || !(Number(h.quantity || 0) > 0)) return null;
             const q = payload.quotes[_futuQuoteKey(h.symbol, mk)];
-            if (!q || q.market !== mk || q.status !== 'ok' || q.session !== 'regular') return null;
-            const session = _marketClock(mk, now);
-            if (session.status !== 'open' || q.marketDate !== session.localDate) return null;
+            if (!q || q.market !== mk || q.status !== 'ok') return null;
+            const clock = _marketClock(mk, now);
+            if (q.marketDate !== clock.localDate) return null;
+            if (clock.status === 'open') {
+                if (q.session !== 'regular') return null;
+            } else {
+                // 收盤後同日 35 分內：closed＝正式收盤價；半日市橋接程式不知提早收盤，仍標 regular，last_price 一樣是收盤價
+                const after = _futuMinutesAfterClose(clock);
+                if (after == null || after < 0 || after > FUTU_AFTER_CLOSE_MIN) return null;
+                if (q.session !== 'closed' && q.session !== 'regular') return null;
+            }
             const price = Number(q.price);
             return (Number.isFinite(price) && price > 0) ? price : null;
         }
@@ -13648,22 +13691,32 @@ function _isLegacy9747Holding(h) {
             const el = document.getElementById('futu-quote-status');
             if (!el) return;
             const st = _futuQuoteStatus;
+            if (st && st.idle) {
+                el.textContent = _futuHeldMarkets().length ? ' ｜ 富途 休市' : '';
+                el.style.color = '#7e93a6';
+                return;
+            }
+            if (st && st.failed) {
+                el.textContent = ' ｜ 富途 未取得';
+                el.style.color = '#ef4444';
+                return;
+            }
             if (!st || !st.generatedAt) { el.textContent = ''; return; }
             const age = Date.now() - st.generatedAt;
             el.textContent = ` ｜ 富途 ${new Date(st.generatedAt).toLocaleTimeString('zh-TW')}${st.applied ? `（${st.applied} 檔）` : ''}`;
             el.style.color = _freshnessColor(age, 2 * 60 * 1000, FUTU_QUOTE_MAX_AGE_MS);
         }
-        // CSV 失敗的早退分支：先套富途，再讓 Yahoo 補其餘美股。
-        async function _silentQuoteFallbackWithoutSheet(reason, futuPromise) {
+        // CSV 失敗的早退分支（v15.977 自動／手動共用）：先套富途，再讓 Yahoo 補其餘美股。
+        async function _quoteFallbackWithoutSheet(reason, futuPromise, forceClosePair = false) {
             const futuSymbols = new Set();
             const futuApplied = _applyFutuQuotes(await futuPromise, futuSymbols);
             const fallback = await _refreshIndependentQuoteFallbacks(reason, futuSymbols);
-            const rendered = _renderIndependentQuoteFallback(fallback, reason);
+            const rendered = _renderIndependentQuoteFallback(fallback, reason, forceClosePair);
             if (futuApplied > 0 && rendered === 0) {
-                _scheduleRefreshClosePair(reason);
+                _scheduleRefreshClosePair(reason, forceClosePair ? { force: true } : undefined);
                 _renderQuoteProgress(futuSymbols, 'futu');
             }
-            if (rendered + futuApplied > 0) recordSnapshot();
+            return { futuApplied, fallback, updated: rendered + futuApplied };
         }
 
         async function _refreshIndependentQuoteFallbacks(reason, alreadyUpdatedSymbols) {
@@ -13678,8 +13731,9 @@ function _isLegacy9747Holding(h) {
             return { us: await usPromise };
         }
 
-        function _quoteFallbackSummary(result) {
+        function _quoteFallbackSummary(result, futuApplied) {
             const parts = [];
+            if (futuApplied > 0) parts.push(`富途 ${futuApplied} 檔`);
             if (result?.us?.expected > 0) {
                 const covered = result.us.coverage?.coverage?.US?.updated || 0;
                 parts.push(`美股 Yahoo 備援 ${covered}/${result.us.expected} 檔`);
@@ -17662,12 +17716,12 @@ function _isLegacy9747Holding(h) {
                 const res = await _fetchSheetCSV(sheetUrl, controller.signal);
                 clearTimeout(tid);
                 if (!res) {
-                    await _silentQuoteFallbackWithoutSheet('silent-sheet-failed', futuPromise);
+                    if ((await _quoteFallbackWithoutSheet('silent-sheet-failed', futuPromise)).updated > 0) recordSnapshot();
                     return;
                 }
                 const csvText = await res.text();
                 if (csvText.trim().startsWith('<')) {
-                    await _silentQuoteFallbackWithoutSheet('silent-sheet-html', futuPromise);
+                    if ((await _quoteFallbackWithoutSheet('silent-sheet-html', futuPromise)).updated > 0) recordSnapshot();
                     return;
                 }
 
