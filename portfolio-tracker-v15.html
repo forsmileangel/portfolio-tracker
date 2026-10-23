@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.978 - 2026-10-23 台股颱風假：MARKET_CALENDARS.TW holidays 加入 2026-10-23（同 v15.938 處理 7/10）。原本只靠臨時休市自動偵測，暫時標記只在當天有效、要等 10/27 出現新交易日 bar 才能確認，10/24–10/26 期間會把 10/23 當交易日而找不到收盤價，台股前次收盤損益顯示資料不足；寫進行事曆後各裝置立即視為休市，前次收盤改用 10/22。後端 final-closes 取 TWSE 月資料本來就略過無交易日，不受影響。只改休市日清單，不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變，富途仍是可缺席的加分來源）：(1) 讀富途 Gist 加 10 秒逾時（AbortController + setTimeout），GitHub 卡住不再拖住整個報價更新；(2) 富途 last_price 只會是正規盤價格（實測），收盤後即正式收盤價——收盤後同日 35 分內接受橋接程式 session=closed（半日市仍標 regular）的列，避免延遲的 Sheet CSV 讓現價、市值短暫倒退，之後交回 CSV；今日／前次收盤損益、close pair、final close 不受影響；(3) 只有持有的美股／港股盤中或收盤後 35 分內才讀富途 Gist，其餘時間不發請求、狀態列顯示灰色「富途 休市」，開盤中從未讀到則紅字「富途 未取得」；(4) 手動一鍵更新在 CSV 失敗的四個分支改與自動更新共用 _quoteFallbackWithoutSheet（先套富途、再 Yahoo），toast 列出富途檔數。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull、timer 或 PWA 啟動流程。
   v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.975 - 2026-10-22 富途 OpenD 報價接入（美股／港股盤中現價）：本機 portfolio-quote-bridge 於美港股交易時段每 60 秒把 OpenD 快照寫進「獨立私有 Gist」futu-quotes.json（不碰持倉同步 Gist）；PT 與 Sheet CSV 並行讀取（API inline content，自動從 Gist 清單找到 id，存 STORAGE_KEYS.futuQuoteGistId 本機快取），CSV 套用後以富途覆蓋 US/HK 持倉 currentPrice，套到的檔數 Yahoo 備援自動跳過；條件：generatedAt 5 分內、status=ok、session=regular、marketDate＝該市場今天且盤中、通過分割防護。只改現價，不碰 prevClose／close pair／final close／今日與前次收盤損益基準；不入 userDataHash／pending／push。橋接停掉或任何錯誤即退回 Sheet CSV／Yahoo。狀態列加「富途 hh:mm:ss（N 檔）」依新鮮度變色。
@@ -117,6 +118,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.978 - 2026-10-23 台股颱風假：10/23 加入台股休市日，各裝置立即視為休市，週末到 10/27 前台股前次收盤損益正常顯示 10/22 的數字，不再顯示資料不足。
         v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變）：讀富途 Gist 加 10 秒逾時；收盤後 35 分內沿用富途正式收盤價，避免現價短暫倒退；休市時不讀富途、狀態列顯示「富途 休市」；手動一鍵更新 CSV 失敗時也先套富途。損益、close pair、同步流程不受影響。
         v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
         v15.975 - 2026-10-22 富途 OpenD 報價接入（美股／港股盤中現價）：本機 portfolio-quote-bridge 於美港股交易時段每 60 秒把 OpenD 快照寫進「獨立私有 Gist」futu-quotes.json（不碰持倉同步 Gist）；PT 與 Sheet CSV 並行讀取（API inline content，自動從 Gist 清單找到 id，存 STORAGE_KEYS.futuQuoteGistId 本機快取），CSV 套用後以富途覆蓋 US/HK 持倉 currentPrice，套到的檔數 Yahoo 備援自動跳過；條件：generatedAt 5 分內、status=ok、session=regular、marketDate＝該市場今天且盤中、通過分割防護。只改現價，不碰 prevClose／close pair／final close／今日與前次收盤損益基準；不入 userDataHash／pending／push。橋接停掉或任何錯誤即退回 Sheet CSV／Yahoo。狀態列加「富途 hh:mm:ss（N 檔）」依新鮮度變色。
@@ -881,7 +883,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.977</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.978</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1762,7 +1764,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.977';
+        const APP_VERSION = 'v15.978';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1962,6 +1964,7 @@
                     '2026-09-25',                                           // 中秋節
                     '2026-09-28',                                            // v15.074：教師節（依 TWSE 公告）
                     '2026-10-09','2026-10-10',                               // 國慶連假
+                    '2026-10-23',                                            // v15.978：颱風假臨時休市（Yahoo 最後成交停在 10/22 13:30，10/23 無有效 bar）
                     '2026-10-26',                                            // v15.074：光復節補假（10/25 為週日）
                     '2026-12-25'                                             // v15.074：行憲紀念日
                 ])
