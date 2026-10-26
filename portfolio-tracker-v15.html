@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.980 - 2026-10-26 派網網格 90 天明細：本機發布的 Gist 帳本改為每倉位明細（days[].rows）只保留最近 90 天，更早的日期改帶 rows_trimmed: true；每日總計欄位全部保留，月曆單日／資金／淨利、月平均與各月紀錄、歷史累計配對利潤曲線、資金費卡、點選日上方數字卡都不受影響。點選 90 天前的日期時，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」，取代「當日無倉位明細」。rows 金額改為最多 4 位小數、倉位 id 縮短，畫面顯示位數不變。只改這一行顯示文字，不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.979 - 2026-10-26 GitHub API 額度用完不再誤報 Token 失效：整個 GitHub 帳號每小時 5,000 次額度（同帳號所有 token 與授權 app 共用）用完時，API 也回 403（次要限制可能回 429）。原本 _isAuthError 把所有 403 當成 Token 失效 → 跳「❌ Gist Token 失效或權限不足」並把 _pushRetryCount 設滿停止重試，額度恢復後也不會自己推送（2026-10-22 23:29 實際發生）。新增 _gistRateLimitResetAt / _isRateLimitError：403／429 且有 Retry-After、X-RateLimit-Remaining 為 0、或訊息含 rate limit 才算限流（與 portfolio-quote-bridge 相同）；_fetchGistState、silent push、手動 push 的錯誤都帶 e.rateLimitResetAt（silent push 改用標準寫法讀出 GitHub 訊息）。限流時：silent push 記下重置時間（最少 1 分鐘、最多 1 小時），期間不打 API，沿用 _retryTimer 到時間自動重試，同一個重置時間只提示一次；手動 push 顯示恢復時間，有未同步修改才排自動重試（自動推送不寫 master flag，「標記最新版」請屆時再按一次）；手動拉取改顯示恢復時間；silent pull 遇限流也記下重置時間。真正的 401／403 照舊停止重試。不改 localStorage key、Gist payload、userDataHash、pending、master flag；gist-sync.md 的 401/403 規則同步升級（使用者 2026-10-26 同意）。
   v15.978 - 2026-10-23 台股颱風假：MARKET_CALENDARS.TW holidays 加入 2026-10-23（同 v15.938 處理 7/10）。原本只靠臨時休市自動偵測，暫時標記只在當天有效、要等 10/27 出現新交易日 bar 才能確認，10/24–10/26 期間會把 10/23 當交易日而找不到收盤價，台股前次收盤損益顯示資料不足；寫進行事曆後各裝置立即視為休市，前次收盤改用 10/22。後端 final-closes 取 TWSE 月資料本來就略過無交易日，不受影響。只改休市日清單，不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變，富途仍是可缺席的加分來源）：(1) 讀富途 Gist 加 10 秒逾時（AbortController + setTimeout），GitHub 卡住不再拖住整個報價更新；(2) 富途 last_price 只會是正規盤價格（實測），收盤後即正式收盤價——收盤後同日 35 分內接受橋接程式 session=closed（半日市仍標 regular）的列，避免延遲的 Sheet CSV 讓現價、市值短暫倒退，之後交回 CSV；今日／前次收盤損益、close pair、final close 不受影響；(3) 只有持有的美股／港股盤中或收盤後 35 分內才讀富途 Gist，其餘時間不發請求、狀態列顯示灰色「富途 休市」，開盤中從未讀到則紅字「富途 未取得」；(4) 手動一鍵更新在 CSV 失敗的四個分支改與自動更新共用 _quoteFallbackWithoutSheet（先套富途、再 Yahoo），toast 列出富途檔數。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull、timer 或 PWA 啟動流程。
@@ -119,6 +120,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.980 - 2026-10-26 網格頁：90 天前的日期點進去，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」；月曆、月平均、歷史累計曲線照舊保留全部歷史。
         v15.979 - 2026-10-26 GitHub API 額度用完（整個帳號每小時 5,000 次共用）時不再誤報「Gist Token 失效」：改提示恢復時間，額度恢復後自動同步未上傳的修改；真正的 Token 失效照舊提示。
         v15.978 - 2026-10-23 台股颱風假：10/23 加入台股休市日，各裝置立即視為休市，週末到 10/27 前台股前次收盤損益正常顯示 10/22 的數字，不再顯示資料不足。
         v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變）：讀富途 Gist 加 10 秒逾時；收盤後 35 分內沿用富途正式收盤價，避免現價短暫倒退；休市時不讀富途、狀態列顯示「富途 休市」；手動一鍵更新 CSV 失敗時也先套富途。損益、close pair、同步流程不受影響。
@@ -885,7 +887,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.979</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.980</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1766,7 +1768,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.979';
+        const APP_VERSION = 'v15.980';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -14371,7 +14373,7 @@ function _isLegacy9747Holding(h) {
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtPionexJournalPnl(r.cumulative_usdt))}</td>
                     </tr>`;
                 }).join('')
-                : `<tr><td colspan="${hasFundingData ? 7 : 5}" style="padding:0.5rem;color:#607585;">當日無倉位明細</td></tr>`;
+                : `<tr><td colspan="${hasFundingData ? 7 : 5}" style="padding:0.5rem;color:#607585;">${selected.rows_trimmed ? '90 天前的倉位明細請到本機 dashboard 查看' : '當日無倉位明細'}</td></tr>`;
             const monthLabel = `${y} 年 ${m} 月`;
             // v15.974：點選日的資金費、淨利與等效倉位
             const selFunding = _pionexNum(selected.funding_usdt);
