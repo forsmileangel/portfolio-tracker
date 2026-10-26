@@ -72,7 +72,7 @@ if (gistFile.content && !gistFile.truncated) {
 
 ---
 
-## Gist API 錯誤處理規則（v15.061 / v15.062 起）
+## Gist API 錯誤處理規則（v15.061 / v15.062 起；v15.979 起額度用完的 403 除外）
 
 ### 必須保留 HTTP status
 
@@ -87,6 +87,7 @@ if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     const e = new Error(err.message || `HTTP ${res.status}`);
     e.status = res.status;   // 保留 HTTP status 給 _isAuthError / _recordPushError
+    e.rateLimitResetAt = _gistRateLimitResetAt(res, e.message);   // v15.979：額度用完的 403 不是 Token 失效
     throw e;
 }
 ```
@@ -95,6 +96,7 @@ if (!res.ok) {
 
 ```javascript
 function _isAuthError(err) {
+    if (_isRateLimitError(err)) return false;   // v15.979：額度用完不是 Token 失效
     if (err?.status === 401 || err?.status === 403) return true;
     const msg = (err?.message || '').toLowerCase();
     if (msg.includes('bad credentials')) return true;
@@ -107,7 +109,18 @@ function _isAuthError(err) {
 }
 ```
 
-### 401/403 必須立即停止 retry
+### 額度用完的 403／429 不是 Token 失效（v15.979 起）
+
+GitHub 整個帳號每小時 5,000 次額度（同帳號所有 token 與授權的 app 共用）用完時，API 也回 403；次要限制可能回 403 或 429。這不是 Token 失效，不能停止重試。
+
+- **判斷**：403／429 且符合任一項才算限流：有 `Retry-After`、`X-RateLimit-Remaining` 為 `0`、或訊息含 `rate limit`。`_gistRateLimitResetAt(res, message)` 算出可重試時間，掛在 `e.rateLimitResetAt`；`_isRateLimitError(err)` 負責判斷；`_isAuthError` 第一行先排除限流。判斷方式與 portfolio-quote-bridge 的 `rate_limit_retry_at` 相同。
+- **限流時不可**呼叫 `_handleAuthFailure()`、不可跳 Token 失效提示、不可把 `_pushRetryCount` 設成上限。
+- **等重置再推**：`_noteGistRateLimit(err)` 記下 `_gistRateLimitUntil`（最少 1 分鐘、最多 1 小時，防裝置時鐘誤差）。期間 `_gistSilentPush()` 一開始就不打 API，改由 `_scheduleRateLimitRetry()` 用既有的 `_retryTimer` 排到重置時間自動重試一次；手動拉取與新修改（`_scheduleAutoPush`）照舊會清掉這個 timer。
+- **提示**：`_showRateLimitToast()` 同一個重置時間只提示一次；使用者手動操作（手動推送、點未同步提示）時可以再提示。
+- **手動推送**：`_handleManualPushRateLimit(e, mode)` 顯示恢復時間，有未同步修改才排自動重試。自動推送**不寫** master flag（`sync-invariants.md` §5），所以「標記最新版」要提示使用者屆時再按一次。
+- **緣由**：v15.979 之前所有 403 都當 Token 失效。2026-10-22 帳號額度用完時誤報 Token 失效並停止重試，額度恢復後也不會自動推送。2026-10-26 使用者同意升級本規則。
+
+### 401/403（不是額度用完）必須立即停止 retry
 
 當判定為 auth error 時：
 
@@ -126,9 +139,10 @@ function _handleAuthFailure() {
 `_gistSilentPush()` 與手動 `gistPush()` 的 catch 區塊都必須：
 
 1. 呼叫 `_recordPushError(e)` 寫 `pt_last_push_error` localStorage
-2. 用 `_isAuthError(e)` 判斷是否 auth 失敗
-3. 若是 → `_handleAuthFailure()`；若否 → 顯示一般錯誤 toast
-4. 推送成功時記得 `localStorage.removeItem('pt_last_push_error')` 清除
+2. 先用 `_isRateLimitError(e)` 判斷是否額度用完 → 是：silent push 走 `_noteGistRateLimit` + `_scheduleRateLimitRetry` + `_showRateLimitToast`，手動推送走 `_handleManualPushRateLimit(e, mode)`，然後 return
+3. 再用 `_isAuthError(e)` 判斷是否 auth 失敗
+4. 若是 → `_handleAuthFailure()`；若否 → 顯示一般錯誤 toast
+5. 推送成功時記得 `localStorage.removeItem('pt_last_push_error')` 清除
 
 ### Preflight 也要做這套處理
 

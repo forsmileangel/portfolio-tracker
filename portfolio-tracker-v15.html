@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.979 - 2026-10-26 GitHub API 額度用完不再誤報 Token 失效：整個 GitHub 帳號每小時 5,000 次額度（同帳號所有 token 與授權 app 共用）用完時，API 也回 403（次要限制可能回 429）。原本 _isAuthError 把所有 403 當成 Token 失效 → 跳「❌ Gist Token 失效或權限不足」並把 _pushRetryCount 設滿停止重試，額度恢復後也不會自己推送（2026-10-22 23:29 實際發生）。新增 _gistRateLimitResetAt / _isRateLimitError：403／429 且有 Retry-After、X-RateLimit-Remaining 為 0、或訊息含 rate limit 才算限流（與 portfolio-quote-bridge 相同）；_fetchGistState、silent push、手動 push 的錯誤都帶 e.rateLimitResetAt（silent push 改用標準寫法讀出 GitHub 訊息）。限流時：silent push 記下重置時間（最少 1 分鐘、最多 1 小時），期間不打 API，沿用 _retryTimer 到時間自動重試，同一個重置時間只提示一次；手動 push 顯示恢復時間，有未同步修改才排自動重試（自動推送不寫 master flag，「標記最新版」請屆時再按一次）；手動拉取改顯示恢復時間；silent pull 遇限流也記下重置時間。真正的 401／403 照舊停止重試。不改 localStorage key、Gist payload、userDataHash、pending、master flag；gist-sync.md 的 401/403 規則同步升級（使用者 2026-10-26 同意）。
   v15.978 - 2026-10-23 台股颱風假：MARKET_CALENDARS.TW holidays 加入 2026-10-23（同 v15.938 處理 7/10）。原本只靠臨時休市自動偵測，暫時標記只在當天有效、要等 10/27 出現新交易日 bar 才能確認，10/24–10/26 期間會把 10/23 當交易日而找不到收盤價，台股前次收盤損益顯示資料不足；寫進行事曆後各裝置立即視為休市，前次收盤改用 10/22。後端 final-closes 取 TWSE 月資料本來就略過無交易日，不受影響。只改休市日清單，不改損益公式、Gist/FSA、userDataHash、pending、Storage Key 或 PWA。
   v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變，富途仍是可缺席的加分來源）：(1) 讀富途 Gist 加 10 秒逾時（AbortController + setTimeout），GitHub 卡住不再拖住整個報價更新；(2) 富途 last_price 只會是正規盤價格（實測），收盤後即正式收盤價——收盤後同日 35 分內接受橋接程式 session=closed（半日市仍標 regular）的列，避免延遲的 Sheet CSV 讓現價、市值短暫倒退，之後交回 CSV；今日／前次收盤損益、close pair、final close 不受影響；(3) 只有持有的美股／港股盤中或收盤後 35 分內才讀富途 Gist，其餘時間不發請求、狀態列顯示灰色「富途 休市」，開盤中從未讀到則紅字「富途 未取得」；(4) 手動一鍵更新在 CSV 失敗的四個分支改與自動更新共用 _quoteFallbackWithoutSheet（先套富途、再 Yahoo），toast 列出富途檔數。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull、timer 或 PWA 啟動流程。
   v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -118,6 +119,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.979 - 2026-10-26 GitHub API 額度用完（整個帳號每小時 5,000 次共用）時不再誤報「Gist Token 失效」：改提示恢復時間，額度恢復後自動同步未上傳的修改；真正的 Token 失效照舊提示。
         v15.978 - 2026-10-23 台股颱風假：10/23 加入台股休市日，各裝置立即視為休市，週末到 10/27 前台股前次收盤損益正常顯示 10/22 的數字，不再顯示資料不足。
         v15.977 - 2026-10-23 富途報價小修正（原本 Sheet CSV／Yahoo 機制不變）：讀富途 Gist 加 10 秒逾時；收盤後 35 分內沿用富途正式收盤價，避免現價短暫倒退；休市時不讀富途、狀態列顯示「富途 休市」；手動一鍵更新 CSV 失敗時也先套富途。損益、close pair、同步流程不受影響。
         v15.976 - 2026-10-23 派網網格容量防護：_applyPionexLedger／_applyPionexLive 改成先更新記憶體與畫面、再寫 localStorage；原本先存檔，瀏覽器儲存空間滿時存檔失敗會讓網格頁一直停在舊帳本。存檔失敗仍照舊提示並記錄錯誤。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -883,7 +885,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.978</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.979</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1764,7 +1766,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.978';
+        const APP_VERSION = 'v15.979';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -8222,6 +8224,8 @@
         let _autoPushTimer  = null;
         let _retryTimer     = null;
         let _pushRetryCount = 0;
+        let _gistRateLimitUntil = 0;      // v15.979：GitHub 額度用完時，silent push 等到這個時間（ms）才再打 API
+        let _gistRateLimitToastFor = 0;   // v15.979：同一個重置時間只提示一次
 
         function _readJsonStorage(key, fallback) {
             try {
@@ -8358,6 +8362,7 @@
                 const err = await res.json().catch(() => ({}));
                 const e = new Error(err.message || `HTTP ${res.status}`);
                 e.status = res.status;   // v15.062：保留 HTTP status 給 _isAuthError / _recordPushError 判斷
+                e.rateLimitResetAt = _gistRateLimitResetAt(res, e.message);   // v15.979：額度用完不是 Token 失效
                 throw e;
             }
             const data = await res.json();
@@ -9248,6 +9253,12 @@
         }
 
         function _retryPushNow() {
+            // v15.979：額度用完期間按了也不打 API，提示恢復時間並排好自動重試
+            if (Date.now() < _gistRateLimitUntil) {
+                _showRateLimitToast(true);
+                _scheduleRateLimitRetry();
+                return;
+            }
             _pushRetryCount = 0;
             clearTimeout(_retryTimer);
             _gistSilentPush();
@@ -9484,9 +9495,57 @@
                 _recordAppError('gist_push', err, { status });
             } catch(_) {}
         }
+        // v15.979：GitHub 額度用完（主要或次要 rate limit）也回 403／429，那不是 Token 失效。
+        // 有 Retry-After、剩餘次數為 0，或訊息含 rate limit，就回傳可以重試的時間（ms），否則 null。
+        function _gistRateLimitResetAt(res, message) {
+            if (!res || (res.status !== 403 && res.status !== 429)) return null;
+            const now = Date.now();
+            const retryAfter = parseInt(res.headers?.get('Retry-After') || '', 10);
+            if (retryAfter > 0) return now + retryAfter * 1000;
+            const reset = parseInt(res.headers?.get('X-RateLimit-Reset') || '', 10);
+            if (res.headers?.get('X-RateLimit-Remaining') === '0' && reset > 0) return Math.max(now, reset * 1000);
+            if (/rate limit/i.test(message || '')) return now + 60 * 1000;
+            return null;
+        }
+        function _isRateLimitError(err) {
+            if (err?.rateLimitResetAt) return true;
+            return (err?.status === 403 || err?.status === 429) && /rate limit/i.test(err?.message || '');
+        }
+        // 記下重置時間：最少 1 分鐘、最多 1 小時（防裝置時鐘誤差造成連續重試或等太久）
+        function _noteGistRateLimit(err) {
+            const now = Date.now();
+            const at = Math.max(err?.rateLimitResetAt || 0, now + 60 * 1000);
+            _gistRateLimitUntil = Math.min(Math.max(_gistRateLimitUntil, at), now + 60 * 60 * 1000);
+        }
+        function _gistRateLimitTime() {
+            return new Date(_gistRateLimitUntil).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+        // 沿用既有 _retryTimer：手動拉取、新修改（_scheduleAutoPush）照舊會清掉它
+        function _scheduleRateLimitRetry() {
+            clearTimeout(_retryTimer);
+            const delay = Math.max(_gistRateLimitUntil - Date.now(), 0) + 5000;
+            _retryTimer = setTimeout(() => { _pushRetryCount = 0; _gistSilentPush(); }, delay);
+            console.warn(`[AutoPush] GitHub API 額度用完，${_gistRateLimitTime()} 後重試`);
+        }
+        function _showRateLimitToast(force, tail) {
+            if (!force && _gistRateLimitToastFor === _gistRateLimitUntil) return;
+            _gistRateLimitToastFor = _gistRateLimitUntil;
+            showWarnToast(`⏳ GitHub API 額度暫時用完（整個帳號共用，不是 Token 問題），約 ${_gistRateLimitTime()} 恢復${tail || '後自動同步'}`, 8000);
+        }
+        // 手動推送遇到額度用完：有未同步修改才排自動重試；自動推送不寫最新版標記，所以請使用者屆時再按一次
+        function _handleManualPushRateLimit(err, mode) {
+            _noteGistRateLimit(err);
+            setGistStatus(`⏳ GitHub API 額度暫時用完，約 ${_gistRateLimitTime()} 恢復`, '#fbbf24');
+            const pending = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10) > 0;
+            if (pending) _scheduleRateLimitRetry();
+            _showRateLimitToast(true, !pending ? '後請再推送一次'
+                : mode === 'master' ? '後自動同步；「標記最新版」請屆時再按一次' : '後自動同步');
+        }
+
         // v15.061：判斷錯誤是否為 401/403（Token 失效或權限不足）
         // v15.062 修正：優先看 err.status；GitHub API 401 回 "Bad credentials" 不含 "HTTP 401"
         function _isAuthError(err) {
+            if (_isRateLimitError(err)) return false;   // v15.979：額度用完不是 Token 失效
             if (err?.status === 401 || err?.status === 403) return true;
             const msg = (err?.message || '').toLowerCase();
             if (msg.includes('bad credentials')) return true;
@@ -9531,6 +9590,11 @@
             const token  = localStorage.getItem(GIST_TOKEN_KEY);
             const gistId = localStorage.getItem(GIST_ID_KEY);
             if (!token || !gistId) return false; // 未設定憑證，只存 localStorage
+            // v15.979：額度用完期間不打 API，到重置時間再推
+            if (Date.now() < _gistRateLimitUntil) {
+                _scheduleRateLimitRetry();
+                return false;
+            }
             try {
                 const _pf = await _preflightGistPush(token, gistId);
                 if (_pf.action === 'reject') return false;
@@ -9590,8 +9654,11 @@
                     })
                 });
                 if (!res.ok) {
-                    const e = new Error(`HTTP ${res.status}`);
+                    // v15.979：照標準寫法讀出 GitHub 的訊息，才分得出「額度用完」和 Token 失效
+                    const err = await res.json().catch(() => ({}));
+                    const e = new Error(err.message || `HTTP ${res.status}`);
                     e.status = res.status;   // v15.062：保留 HTTP status
+                    e.rateLimitResetAt = _gistRateLimitResetAt(res, e.message);
                     throw e;
                 }
                 const data = await res.json().catch(() => null);
@@ -9609,6 +9676,12 @@
             } catch(e) {
                 console.warn('[Snapshot] 靜默推送失敗：', e.message);
                 _recordPushError(e);
+                if (_isRateLimitError(e)) {   // v15.979：額度用完 → 等重置時間再推，不算 Token 失效
+                    _noteGistRateLimit(e);
+                    _scheduleRateLimitRetry();
+                    _showRateLimitToast();
+                    return false;
+                }
                 if (_isAuthError(e)) {
                     _handleAuthFailure();
                     return false;
@@ -11087,6 +11160,10 @@
             } catch(e) {
                 // v15.062：preflight 失敗時也要記錄錯誤、判斷 401/403 後停止重試
                 _recordPushError(e);
+                if (_isRateLimitError(e)) {   // v15.979
+                    _handleManualPushRateLimit(e, mode);
+                    return;
+                }
                 setGistStatus(`❌ 推送前檢查失敗：${e.message}`, '#ef4444');
                 if (_isAuthError(e)) {
                     _handleAuthFailure();
@@ -11224,6 +11301,7 @@
                     const err = await res.json().catch(() => ({}));
                     const e = new Error(err.message || `HTTP ${res.status}`);
                     e.status = res.status;   // v15.062：保留 HTTP status
+                    e.rateLimitResetAt = _gistRateLimitResetAt(res, e.message);   // v15.979
                     throw e;
                 }
 
@@ -11258,6 +11336,10 @@
 
             } catch(e) {
                 _recordPushError(e);
+                if (_isRateLimitError(e)) {   // v15.979
+                    _handleManualPushRateLimit(e, mode);
+                    return;
+                }
                 setGistStatus(`❌ 推送失敗：${e.message}`, '#ef4444');
                 if (_isAuthError(e)) {
                     _handleAuthFailure();
@@ -11433,7 +11515,12 @@
                 showImportToast(`✅ 已從雲端拉取 ${holdings.length} 筆持倉${_depPull}`, 2500);
 
             } catch(e) {
-                setGistStatus(`❌ 拉取失敗：${e.message}`, '#ef4444');
+                if (_isRateLimitError(e)) {   // v15.979：額度用完時顯示恢復時間
+                    _noteGistRateLimit(e);
+                    setGistStatus(`⏳ GitHub API 額度暫時用完，約 ${_gistRateLimitTime()} 恢復後再拉取`, '#fbbf24');
+                } else {
+                    setGistStatus(`❌ 拉取失敗：${e.message}`, '#ef4444');
+                }
                 // v15.064：記錄到錯誤日誌
                 _recordAppError('gist_pull', e);
             } finally {
@@ -11664,6 +11751,7 @@
 
             } catch(e) {
                 console.warn('[Auto-pull] 靜默拉取失敗：', e.message);
+                if (_isRateLimitError(e)) _noteGistRateLimit(e);   // v15.979：之後的 silent push 等額度重置再打
             } finally {
                 _isApplyingCloudPull = false;   // v15.075：解除防反彈 flag
                 try { _processAllLoansAutoDebit(); } catch(_) {}   // v15.918：相容 no-op，日期推導不寫資料
