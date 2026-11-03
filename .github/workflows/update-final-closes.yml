@@ -1,6 +1,8 @@
 name: Update Final Close Data
 
 on:
+  # 本機排程「Portfolio Final Close Trigger」（scripts/trigger_final_closes.py）會在各市場收盤後
+  # 40 分鐘內以 workflow_dispatch 提早觸發（GitHub 的 schedule 實測晚 3-10 小時）；下列排程留作備援。
   schedule:
     - cron: '17 22 * * 1-5'  # Taipei 06:17: US is complete
     - cron: '17 6 * * 1-5'   # Taipei 14:17: TW is complete
