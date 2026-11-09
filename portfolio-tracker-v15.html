@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.982 - 2026-11-10 網格分頁派網數字改以含資金費的淨利為主，避免只看配對而誤判：(1) 月平均主數字改為（配對＋資金費）÷ 有紀錄天數，小字「配對 X · 資金費 Y（USDT／日）」；該月完全沒有資金費時退回配對月均並註明。資金費為 null 的日子以 0 計入（下一天的資金費會涵蓋）。各月紀錄只留一個「每日平均」，與月曆上方同一算法。(2) 月曆、點選日、每日明細以 net_usdt 為主，缺時用配對＋（資金費或 0）；淨利無法計算時顯示配對並標「暫不含資金費」，配對與資金費放小字。(3) 目前倉位「24h 網格」改為「24h 淨利（含資金費）」，大字用 total_net_24h_usdt、百分比用 net_24h_pct（v2 1.0.7 起、schema 仍為 1）；舊檔沒有這些欄位時退回 total_profit_24h_usdt／profit_24h_pct，小字「暫不含資金費」。每列 24h 與排序用 net_24h_usdt，缺則退回 profit_24h_usdt。funding_24h_missing > 0 時註明缺幾個倉位。funding_24h_pending > 0 時註明幾倉最新一次結算派網還沒入帳、暫不計（v2 1.0.7 起）。(4) 資金費佔配對的比例：付出寫「吃掉 X%」、收到寫「加成 X%」。不改 Storage Key、Gist payload 讀寫、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.981 - 2026-11-09 網格目前倉位跟著本機每 10 分鐘更新、富途狀態列配合每 2 分鐘寫入：(1) 派網 live 排程改為每 10 分鐘（:00、:10…）發布 pionex-grid-live.json；網格分頁開著且畫面在前景時，新增 _schedulePionexLiveRefresh 於每個整 10 分後 1 分鐘（:01、:11…）呼叫既有 _refreshPionexGridFiles 重讀 Gist（只 GET，失敗照舊記錄、保留舊 cache），switchTab 切到網格才排、切走即清；畫面隱藏時清除，回到前景且停在網格頁立即重讀一次再接回節奏。(2) _pionexLiveFreshness 灰色門檻 45 分→15 分，標籤「約半小時內」→「約 10 分鐘內」；網格頁說明文字同步。(3) portfolio-quote-bridge 改每 2 分鐘寫一次富途 Gist（Gist 寫入每小時 100 次額度與派網、PT 共用），狀態列灰色門檻 2 分→3 分；5 分鐘逾時不套用的規則不變。(4) 網格頁「24h 網格」格加列過去 24 小時資金費與淨利（含 ÷ 等效倉位 %）：資料是派網發布檔既有的 total_funding_24h_usdt／total_net_24h_usdt／net_24h_pct，派網端不用改；有倉位結算尚未入帳時註明未計入，有倉位缺資料時不算淨利，舊發布檔沒有這些欄位就不顯示。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.980 - 2026-10-26 派網網格 90 天明細：本機發布的 Gist 帳本改為每倉位明細（days[].rows）只保留最近 90 天，更早的日期改帶 rows_trimmed: true；每日總計欄位全部保留，月曆單日／資金／淨利、月平均與各月紀錄、歷史累計配對利潤曲線、資金費卡、點選日上方數字卡都不受影響。點選 90 天前的日期時，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」，取代「當日無倉位明細」。rows 金額改為最多 4 位小數、倉位 id 縮短，畫面顯示位數不變。只改這一行顯示文字，不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.979 - 2026-10-26 GitHub API 額度用完不再誤報 Token 失效：整個 GitHub 帳號每小時 5,000 次額度（同帳號所有 token 與授權 app 共用）用完時，API 也回 403（次要限制可能回 429）。原本 _isAuthError 把所有 403 當成 Token 失效 → 跳「❌ Gist Token 失效或權限不足」並把 _pushRetryCount 設滿停止重試，額度恢復後也不會自己推送（2026-10-22 23:29 實際發生）。新增 _gistRateLimitResetAt / _isRateLimitError：403／429 且有 Retry-After、X-RateLimit-Remaining 為 0、或訊息含 rate limit 才算限流（與 portfolio-quote-bridge 相同）；_fetchGistState、silent push、手動 push 的錯誤都帶 e.rateLimitResetAt（silent push 改用標準寫法讀出 GitHub 訊息）。限流時：silent push 記下重置時間（最少 1 分鐘、最多 1 小時），期間不打 API，沿用 _retryTimer 到時間自動重試，同一個重置時間只提示一次；手動 push 顯示恢復時間，有未同步修改才排自動重試（自動推送不寫 master flag，「標記最新版」請屆時再按一次）；手動拉取改顯示恢復時間；silent pull 遇限流也記下重置時間。真正的 401／403 照舊停止重試。不改 localStorage key、Gist payload、userDataHash、pending、master flag；gist-sync.md 的 401/403 規則同步升級（使用者 2026-10-26 同意）。
@@ -121,6 +122,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.982 - 2026-11-10 網格分頁的派網數字改以淨利（配對＋資金費）為主：月平均、月曆單日、點選日、明細與目前倉位 24 小時都含資金費；沒有資金費時退回配對並標示。付出寫「吃掉」、收到寫「加成」。
         v15.981 - 2026-11-09 網格頁開著時跟著本機每 10 分鐘自動更新目前倉位（每個整 10 分後 1 分鐘重讀，回到畫面時立即重讀），新鮮度標籤改「約 10 分鐘內」；富途報價改每 2 分鐘寫入，狀態列 3 分鐘內維持灰色；「24h 網格」格加列 24h 資金費與淨利。
         v15.980 - 2026-10-26 網格頁：90 天前的日期點進去，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」；月曆、月平均、歷史累計曲線照舊保留全部歷史。
         v15.979 - 2026-10-26 GitHub API 額度用完（整個帳號每小時 5,000 次共用）時不再誤報「Gist Token 失效」：改提示恢復時間，額度恢復後自動同步未上傳的修改；真正的 Token 失效照舊提示。
@@ -446,7 +448,7 @@
         .pionex-month-table th, .pionex-month-table td { padding:0.55rem 0.35rem; text-align:right; white-space:nowrap; border-bottom:1px solid var(--pt-border); }
         .pionex-month-table th:first-child, .pionex-month-table td:first-child { text-align:left; padding-left:0; }
         .pionex-month-table tbody tr:last-child td { border-bottom:0; }
-        /* v15.974：月曆三行（單日／資金／淨利）；淨利行稍粗 */
+        /* v15.982：月曆三行（淨利／配對／資金）；淨利行稍粗 */
         .pionex-cal.is-3row .pionex-cal-cell.has-data { min-height:4.35rem; }
         .pionex-cal-amt.is-net .pionex-cal-amt-value { font-weight:800; }
         .pionex-sub { color:var(--pt-text-muted); font-size:0.7rem; margin-top:0.25rem; line-height:1.45; }
@@ -889,7 +891,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.981</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.982</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1770,7 +1772,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.981';
+        const APP_VERSION = 'v15.982';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -10873,7 +10875,7 @@
 
         function _pionexLiveEff(r) {
             const inv = parseFloat(r && r.investment_usdt);
-            const day = parseFloat(r && r.profit_24h_usdt);
+            const day = _pionexLive24hAmount(r).value;
             const leverage = parseFloat(r && r.leverage);
             if (!Number.isFinite(inv) || inv <= 0 || !Number.isFinite(day)
                 || !Number.isFinite(leverage) || leverage <= 0) return null;
@@ -10885,6 +10887,68 @@
             if (v == null || v === '') return null;
             const n = Number(v);
             return Number.isFinite(n) ? n : null;
+        }
+        // v15.982：單日主數字。有 net_usdt 用它；否則配對＋資金費。兩者都算不出淨利時退回配對並 fallback。
+        function _pionexDayFigure(rec) {
+            const daily = _pionexNum(rec && rec.daily_profit_usdt);
+            const funding = _pionexNum(rec && rec.funding_usdt);
+            const net = _pionexNum(rec && rec.net_usdt);
+            if (net != null) return { value: net, includesFunding: true, daily, funding, fallback: false };
+            if (daily != null && funding != null) {
+                return { value: daily + funding, includesFunding: true, daily, funding, fallback: false };
+            }
+            return { value: daily, includesFunding: false, daily, funding: null, fallback: true };
+        }
+        // v15.982：月平均只有一個意思。有任一筆資金費：（配對＋資金費）÷ 天數；完全沒有則配對月均。
+        // funding 合計裡，null 已在 _pionexMonthlyStats 當成 0（下一天的資金費會涵蓋）。
+        function _pionexMonthAverage(stats) {
+            if (!stats || !stats.count) return null;
+            const pairPerDay = stats.total / stats.count;
+            const pairTotal = stats.total;
+            const fundingTotal = stats.funding || 0;
+            if (!stats.hasFunding) {
+                return {
+                    value: pairPerDay, includesFunding: false, pairPerDay, fundingPerDay: null,
+                    pairTotal, fundingTotal: 0, netTotal: pairTotal, count: stats.count
+                };
+            }
+            const fundingPerDay = fundingTotal / stats.count;
+            return {
+                value: pairPerDay + fundingPerDay, includesFunding: true, pairPerDay, fundingPerDay,
+                pairTotal, fundingTotal, netTotal: pairTotal + fundingTotal, count: stats.count
+            };
+        }
+        // v15.982：列上的 24h。有 net_24h_usdt 用淨利，沒有則退回 profit_24h_usdt。
+        function _pionexLive24hAmount(row) {
+            const pair = _pionexNum(row && row.profit_24h_usdt);
+            const funding = _pionexNum(row && row.funding_24h_usdt);
+            const hasNet = !!(row && Object.prototype.hasOwnProperty.call(row, 'net_24h_usdt'));
+            const net = hasNet ? _pionexNum(row.net_24h_usdt) : null;
+            if (hasNet && net != null) return { value: net, includesFunding: true, pair, funding };
+            return { value: pair, includesFunding: false, pair, funding };
+        }
+        // v15.982：目前倉位 24h 合計。total_net_24h_usdt 不存在或不是數字時退回配對，並由畫面標「暫不含資金費」。
+        function _pionexLive24hSummary(live) {
+            const pair = _pionexNum(live && live.total_profit_24h_usdt);
+            const funding = _pionexNum(live && live.total_funding_24h_usdt);
+            const missingRaw = _pionexNum(live && live.funding_24h_missing);
+            const missing = missingRaw != null && missingRaw > 0 ? missingRaw : 0;
+            // v2 1.0.7：結算後幾分鐘派網才入帳，這幾倉最新一次結算先不計（淨利仍含之前的資金費）
+            const pendingRaw = _pionexNum(live && live.funding_24h_pending);
+            const pending = pendingRaw != null && pendingRaw > 0 ? pendingRaw : 0;
+            const hasNet = !!(live && Object.prototype.hasOwnProperty.call(live, 'total_net_24h_usdt'));
+            const net = hasNet ? _pionexNum(live.total_net_24h_usdt) : null;
+            if (hasNet && net != null) {
+                const hasPct = Object.prototype.hasOwnProperty.call(live, 'net_24h_pct');
+                return {
+                    value: net, pct: hasPct ? _pionexNum(live.net_24h_pct) : null,
+                    includesFunding: true, pair, funding, missing, pending
+                };
+            }
+            return {
+                value: pair, pct: _pionexNum(live && live.profit_24h_pct),
+                includesFunding: false, pair, funding, missing, pending: 0
+            };
         }
         function _pionexEquivalent(r) {
             const eq = _pionexNum(r && r.equivalent_usdt);
@@ -10904,7 +10968,7 @@
             if (key === 'leverage') return String(r.leverage || r.trend || '').toLowerCase();
             if (key === 'investment') return _pionexEquivalent(r);
             if (key === 'grid') return parseFloat(r.grid_profit_usdt);
-            if (key === 'profit24h') return parseFloat(r.profit_24h_usdt);
+            if (key === 'profit24h') return _pionexLive24hAmount(r).value;
             if (key === 'eff') return _pionexLiveEff(r);
             if (key === 'funding') return _pionexNum(r.funding_total_usdt);
             return null;
@@ -10957,18 +11021,23 @@
             const when = _fmtPionexTs(live.captured_at) || '—';
             const rows = _pionexLiveSortedRows(Array.isArray(live.rows) ? live.rows : []);
             const hasFunding = rows.some(r => r.funding_total_usdt !== undefined);
+            const fileHasNet = Object.prototype.hasOwnProperty.call(live, 'total_net_24h_usdt');
             const rowHtml = rows.length
                 ? rows.map(r => {
                     const eff = _pionexLiveEff(r);
                     const effText = eff == null ? '—' : ((eff > 0 ? '+' : '') + eff.toFixed(3) + '%');
                     const eq = _pionexNum(r.equivalent_usdt);
                     const extra = _pionexNum(r.extra_margin_usdt);
+                    const h24 = _pionexLive24hAmount(r);
+                    const h24Sub = h24.includesFunding
+                        ? `<span class="pionex-cell-sub">配對 ${pv(_fmtUsdtAmt(h24.pair))} · 資金 ${pv(_fmtUsdtAmt(h24.funding))}</span>`
+                        : (fileHasNet ? `<span class="pionex-cell-sub">暫不含資金費</span>` : '');
                     return `<tr>
                     <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
                     <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml((r.leverage || r.trend || ''))}${r.equivalent_leverage != null && Math.abs(Number(r.equivalent_leverage) - (parseFloat(r.leverage) || 0)) >= 0.01 ? `<span class="pionex-cell-sub">等效 ${_fmtPionexX(r.equivalent_leverage)}</span>` : ''}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(_pionexEquivalent(r)))}${eq != null && extra ? `<span class="pionex-cell-sub">投入 ${pv(_fmtUsdtAmt(r.investment_usdt))}</span>` : ''}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.grid_profit_usdt)};">${pv(_fmtUsdtAmt(r.grid_profit_usdt))}</td>
-                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.profit_24h_usdt)};">${pv(_fmtUsdtAmt(r.profit_24h_usdt))}</td>
+                    <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(h24.value)};">${pv(_fmtUsdtAmt(h24.value))}${h24Sub}</td>
                     <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(eff)};">${pv(effText)}</td>
                     ${hasFunding ? `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.funding_total_usdt)};">${pv(_fmtPionexJournalPnl(r.funding_total_usdt))}</td>` : ''}
                 </tr>`;
@@ -10977,21 +11046,17 @@
             const walletTwd = live.wallet && live.wallet.twd != null ? pv('NT$ ' + _fmtTwdAmt(live.wallet.twd)) : '—';
             const walletUsdt = live.wallet && live.wallet.usdt ? pv(_fmtUsdtAmt(live.wallet.usdt) + ' USDT') : '';
             const totalEq = _pionexNum(live.total_equivalent_usdt);
-            const pct24 = _pionexNum(live.profit_24h_pct);
+            const s24 = _pionexLive24hSummary(live);
             const fundTotal = _pionexNum(live.total_funding_usdt);
             const gridTotal = _pionexNum(live.total_grid_profit_usdt);
-            const fundShare = fundTotal != null && gridTotal != null && gridTotal > 0 ? Math.abs(fundTotal) / gridTotal * 100 : null;
-            // v15.981：「24h 網格」只是派網回報的網格利潤、不含資金費；派網本機已算好過去 24 小時資金費與淨利
-            // （發布檔早就帶 total_funding_24h_usdt／total_net_24h_usdt／net_24h_pct），一併列出。舊發布檔沒有這些欄位就不顯示。
-            const fund24 = _pionexNum(live.total_funding_24h_usdt);
-            const net24 = _pionexNum(live.total_net_24h_usdt);
-            const netPct24 = _pionexNum(live.net_24h_pct);
-            const pending24 = Number(live.funding_24h_pending) || 0;
-            const missing24 = Number(live.funding_24h_missing) || 0;
-            const funding24Html = live.total_funding_24h_usdt === undefined ? ''
-                : (fund24 != null && net24 != null
-                    ? `<div class="pionex-sub">資金費 <span class="mono" style="color:${_pnlColor(fund24)};">${pv(_fmtUsdtAmt(fund24))}</span> · 淨利 <span class="mono" style="color:${_pnlColor(net24)};font-weight:700;">${pv(_fmtUsdtAmt(net24))}</span>${netPct24 != null ? `（${(netPct24 > 0 ? '+' : '') + netPct24.toFixed(3)}%）` : ''}${pending24 > 0 ? `<br>${pending24} 倉結算尚未入帳，未計入` : ''}</div>`
-                    : `<div class="pionex-sub">資金費${missing24 > 0 ? ` ${missing24} 倉缺資料` : '暫無資料'}，淨利暫不計算</div>`);
+            const fundShare = _pionexFundingShareText(fundTotal, gridTotal, '運行中配對');
+            const s24Share = s24.includesFunding ? _pionexFundingShareText(s24.funding, s24.pair) : '';
+            const s24Miss = [s24.missing > 0 ? `有 ${Math.trunc(s24.missing)} 個倉位缺資金費` : '',
+                s24.pending > 0 ? `${Math.trunc(s24.pending)} 倉最新一次結算派網還沒入帳，暫不計` : ''].filter(Boolean).join('<br>');
+            const s24Pct = s24.pct != null && totalEq != null ? `÷ 等效倉位 ${(s24.pct > 0 ? '+' : '') + s24.pct.toFixed(3)}%` : '';
+            const s24Sub = s24.includesFunding
+                ? `配對 ${pv(_fmtUsdtAmt(s24.pair))} · 資金費 ${pv(_fmtUsdtAmt(s24.funding))}${s24Share ? ` · ${s24Share}` : ''}`
+                : '暫不含資金費';
             return `<div class="glass-card" style="padding:1.15rem 1.35rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
                     <h2 style="color:#f1f5f9;font-size:1.05rem;font-weight:600;margin:0;">目前倉位</h2>
@@ -11006,16 +11071,16 @@
                             ? `<button type="button" onclick="fillPionexWalletIntoCrypto('live')" style="margin-top:0.45rem;padding:0.28rem 0.65rem;font-size:0.72rem;font-weight:700;background:rgba(30,58,110,0.25);border:1px solid rgba(56,139,253,0.28);border-radius:6px;color:#93c5fd;cursor:pointer;">以目前倉位填入加密欄</button>`
                             : ''}
                     </div>
-                    <div><div style="color:#7e93a6;font-size:0.72rem;">24h 網格</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_profit_24h_usdt)};">${pv(_fmtUsdtAmt(live.total_profit_24h_usdt))}</div>${pct24 != null && totalEq != null ? `<div class="pionex-sub">÷ 等效倉位 ${(pct24 > 0 ? '+' : '') + pct24.toFixed(3)}%</div>` : ''}${funding24Html}</div>
+                    <div><div style="color:#7e93a6;font-size:0.72rem;">24h 淨利（含資金費）</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(s24.value)};">${pv(_fmtUsdtAmt(s24.value))}</div><div class="pionex-sub">${s24Sub}${s24Miss ? `<br>${s24Miss}` : ''}${s24Pct ? `<br>${s24Pct}` : ''}</div></div>
                     ${totalEq != null
                         ? `<div><div style="color:#7e93a6;font-size:0.72rem;">等效倉位</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(totalEq))}</div><div class="pionex-sub">投入 ${pv(_fmtUsdtAmt(live.total_investment_usdt))} · 等效槓桿 ${_fmtPionexX(live.leverage_equivalent)}</div></div>`
                         : `<div><div style="color:#7e93a6;font-size:0.72rem;">投入</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:#e2e8f0;">${pv(_fmtUsdtAmt(live.total_investment_usdt))}</div></div>`}
                     <div><div style="color:#7e93a6;font-size:0.72rem;">運行中配對利潤</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(live.total_grid_profit_usdt)};">${pv(_fmtUsdtAmt(live.total_grid_profit_usdt))}</div></div>
-                    ${fundTotal != null ? `<div><div style="color:#7e93a6;font-size:0.72rem;">累計資金費（運行中）</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(fundTotal)};">${pv(_fmtPionexJournalPnl(fundTotal))}</div>${fundShare != null ? `<div class="pionex-sub">${fundTotal < 0 ? '約吃掉' : '約加回'}運行中配對 ${fundShare.toFixed(1)}%</div>` : ''}</div>` : ''}
+                    ${fundTotal != null ? `<div><div style="color:#7e93a6;font-size:0.72rem;">累計資金費（運行中）</div><div class="mono pv-field" style="font-size:1.05rem;font-weight:800;color:${_pnlColor(fundTotal)};">${pv(_fmtPionexJournalPnl(fundTotal))}</div>${fundShare ? `<div class="pionex-sub">${fundShare}</div>` : ''}</div>` : ''}
                 </div>
                 <div style="margin-top:0.45rem;color:#607585;font-size:0.7rem;">金額為上方更新時間的錢包估值；填入會取用這筆台幣金額。本機每 10 分鐘更新，本頁開著時也會自動跟上；要立刻看到最新，先在本機按「更新目前倉位」再重新進入本頁。點欄位標題可排序。</div>
-                <div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">每 U 效率按比例換算為 3 倍槓桿：24h 配對利潤 ÷ 投入 × 3 ÷ 原槓桿 × 100%。</div>
-                ${totalEq != null ? `<div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">等效倉位＝投入＋追加保證金，調高槓桿但保證金留在倉內時不變；等效槓桿＝投入 × 派網槓桿 ÷ 等效倉位。${hasFunding ? '資金費為各倉從建倉起的累計淨額，付出為負，不算進網格利潤。' : ''}</div>` : ''}
+                <div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">每 U 效率按比例換算為 3 倍槓桿：24h 淨利（沒有則用 24h 配對）÷ 投入 × 3 ÷ 原槓桿 × 100%。</div>
+                ${totalEq != null ? `<div style="margin-top:0.3rem;color:#607585;font-size:0.7rem;">等效倉位＝投入＋追加保證金，調高槓桿但保證金留在倉內時不變；等效槓桿＝投入 × 派網槓桿 ÷ 等效倉位。${hasFunding ? '資金費欄是各倉從建倉起的累計淨額，付出為負，不算進運行中配對利潤。24h 淨利已含近 24 小時資金費。' : ''}</div>` : ''}
                 <div style="margin-top:0.7rem;overflow:auto;">
                     <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
                         <thead><tr>
@@ -11023,7 +11088,7 @@
                             ${_pionexLiveSortTh('leverage', '槓桿', 'left')}
                             ${_pionexLiveSortTh('investment', totalEq != null ? '等效倉位' : '倉位', 'right')}
                             ${_pionexLiveSortTh('grid', '網格', 'right')}
-                            ${_pionexLiveSortTh('profit24h', '24h', 'right')}
+                            ${_pionexLiveSortTh('profit24h', fileHasNet ? '24h淨利' : '24h', 'right')}
                             ${_pionexLiveSortTh('eff', '每U效率（3倍）', 'right')}
                             ${hasFunding ? _pionexLiveSortTh('funding', '資金費', 'right') : ''}
                         </tr></thead>
@@ -14210,7 +14275,7 @@ function _isLegacy9747Holding(h) {
                 if (!months[key]) months[key] = { count: 0, total: 0, funding: 0, hasFunding: false };
                 months[key].count += 1;
                 months[key].total += profit;
-                // v15.974：資金費另計，不加進每日利潤；缺值日（如盤中補登）的資金費已併進下一天
+                // v15.982：total 維持配對合計。funding_usdt 為 null 時不加（等於 0），下一天的資金費會涵蓋。
                 if (rec.funding_usdt !== undefined) months[key].hasFunding = true;
                 const funding = _pionexNum(rec.funding_usdt);
                 if (funding != null) months[key].funding += funding;
@@ -14218,9 +14283,11 @@ function _isLegacy9747Holding(h) {
             return months;
         }
 
-        function _pionexFundingShareText(funding, grid) {
-            if (funding == null || grid == null || grid <= 0) return '';
-            return `${funding < 0 ? '吃掉' : '加回'}配對 ${(Math.abs(funding) / grid * 100).toFixed(1)}%`;
+        function _pionexFundingShareText(funding, grid, noun) {
+            const base = noun || '配對';
+            if (funding == null || grid == null || !(grid > 0) || funding === 0) return '';
+            const pct = (Math.abs(funding) / grid * 100).toFixed(1);
+            return `${funding < 0 ? '吃掉' : '加成'}${base} ${pct}%`;
         }
 
         // v15.974：資金費總覽。帳本沒有資金費欄位（舊版）時不顯示
@@ -14241,6 +14308,12 @@ function _isLegacy9747Holding(h) {
             const annual = avg30 != null && eq ? avg30 * 365 / eq * 100 : null;
             const total = _pionexNum((ledger.latest || {}).funding_total_usdt) ?? _pionexNum(latest.funding_total_usdt);
             const trueProfit = _pionexNum(latest.true_profit_usdt);
+            const histShare = total != null && trueProfit != null && trueProfit > 0
+                ? _pionexFundingShareText(total, trueProfit, '歷史累計配對') : '';
+            const monthShare = month && month.hasFunding ? _pionexFundingShareText(month.funding, month.total) : '';
+            const monthSub = !(month && month.hasFunding)
+                ? '本月尚無資料'
+                : `${monthShare || (month.total > 0 ? '資金費為 0' : '本月配對為 0')} · ${month.count} 天`;
             const tile = (label, value, sub) => `<div>
                     <div class="pionex-tile-label">${label}</div>
                     <div class="mono pv-field" style="font-size:1.2rem;font-weight:800;color:${_pnlColor(value)};line-height:1.15;">${pv(_fmtPionexJournalPnl(value))}</div>
@@ -14249,14 +14322,12 @@ function _isLegacy9747Holding(h) {
             return `<div class="glass-card" style="padding:1.1rem 1.35rem;margin-bottom:1rem;">
                 <h2 style="color:#e2e8f0;font-size:1rem;font-weight:600;margin:0 0 0.55rem;">資金費</h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.85rem 1rem;">
-                    ${tile('本月資金費', month && month.hasFunding ? month.funding : null,
-                        month && month.hasFunding ? (_pionexFundingShareText(month.funding, month.total) || '本月配對為 0') + ` · ${month.count} 天` : '本月尚無資料')}
+                    ${tile('本月資金費', month && month.hasFunding ? month.funding : null, monthSub)}
                     ${tile('近 30 天資金費', recent.length ? sum30 : null,
                         avg30 != null ? `日均 ${pv(_fmtPionexJournalPnl(avg30))}${annual != null ? ` · 年化 ${annual.toFixed(1)}%（÷ 等效倉位）` : ''}` : '尚無資料')}
-                    ${tile('歷史累計資金費', total,
-                        total != null && trueProfit ? `佔歷史累計配對 ${(Math.abs(total) / trueProfit * 100).toFixed(1)}%（含已關倉）` : '')}
+                    ${tile('歷史累計資金費', total, histShare ? `${histShare}（含已關倉）` : '')}
                 </div>
-                <div style="margin-top:0.6rem;color:#607585;font-size:0.72rem;line-height:1.5;">口徑：派網每倉累計資金費（淨額，付出為負、收到為正）和上一次每日快照相減。幣本位是當天新增的幣 × 抓取價。資金費只另外顯示，不算進單日配對利潤與月平均。</div>
+                <div style="margin-top:0.6rem;color:#607585;font-size:0.72rem;line-height:1.5;">口徑：派網每倉累計資金費（淨額，付出為負、收到為正）和上一次每日快照相減。幣本位是當天新增的幣 × 抓取價。單日與月平均以淨利（配對＋資金費）為主；資金費未知的日子在月平均先以 0 計，下一天的資金費會涵蓋。</div>
             </div>`;
         }
 
@@ -14264,23 +14335,24 @@ function _isLegacy9747Holding(h) {
             const keys = Object.keys(months).filter(key => key < currentMonth).sort().reverse();
             const withFunding = keys.some(key => months[key].hasFunding);
             const rows = keys.map(key => {
-                const stats = months[key];
-                const average = stats.total / stats.count;
-                const netAverage = stats.hasFunding ? (stats.total + stats.funding) / stats.count : null;
-                return `<tr><td>${key}</td><td>${stats.count} 天</td>
-                    <td class="mono pv-field">${pv(_fmtPionexJournalPnl(stats.total))}</td>
-                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(average)};">${pv(_fmtPionexJournalPnl(average))}</td>
-                    ${withFunding ? `<td class="mono pv-field" style="color:${_pnlColor(stats.hasFunding ? stats.funding : null)};">${stats.hasFunding ? pv(_fmtPionexJournalPnl(stats.funding)) : '—'}</td>
-                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(netAverage)};">${netAverage == null ? '—' : pv(_fmtPionexJournalPnl(netAverage))}</td>` : ''}</tr>`;
+                const avg = _pionexMonthAverage(months[key]);
+                return `<tr><td>${key}</td><td>${avg.count} 天</td>
+                    <td class="mono pv-field">${pv(_fmtPionexJournalPnl(avg.pairTotal))}</td>
+                    ${withFunding ? `<td class="mono pv-field" style="color:${_pnlColor(months[key].hasFunding ? avg.fundingTotal : null)};">${months[key].hasFunding ? pv(_fmtPionexJournalPnl(avg.fundingTotal)) : '—'}</td>` : ''}
+                    <td class="mono pv-field" style="font-weight:700;color:${_pnlColor(avg.value)};">${pv(_fmtPionexJournalPnl(avg.value))}${avg.includesFunding ? '' : '<span class="pionex-cell-sub">配對月均</span>'}</td>
+                </tr>`;
             }).join('');
+            const avgHead = withFunding ? '每日平均（含資金費）' : '每日平均';
             return `<div class="glass-card pionex-month-history">
                 <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.3rem;color:var(--pt-text);">每月平均紀錄</h2>
-                <div class="pionex-month-note">已結束月份 · 每日利潤合計 ÷ 有紀錄天數 · USDT${withFunding ? ' · 淨利＝配對＋資金費' : ''}</div>
+                <div class="pionex-month-note">${withFunding
+                    ? '已結束月份 · 每日平均＝（配對＋資金費）÷ 有紀錄天數；沒有資金費的月份標為配對月均 · USDT'
+                    : '已結束月份 · 每日平均＝配對合計 ÷ 有紀錄天數（尚無資金費）· USDT'}</div>
                 ${rows ? `<div style="overflow-x:auto;margin-top:0.45rem;"><table class="pionex-month-table" aria-label="已結束月份網格平均紀錄">
-                    <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">利潤合計</th><th scope="col">每日平均</th>${withFunding ? '<th scope="col">資金費合計</th><th scope="col">淨利每日平均</th>' : ''}</tr></thead>
+                    <thead><tr><th scope="col">月份</th><th scope="col">天數</th><th scope="col">配對合計</th>${withFunding ? '<th scope="col">資金費合計</th>' : ''}<th scope="col">${avgHead}</th></tr></thead>
                     <tbody>${rows}</tbody></table></div>`
                     : '<div class="pionex-month-note" style="padding:1rem 0;">尚無已結束月份的紀錄，跨月後會自動列入。</div>'}
-                <div class="pionex-month-note" style="margin-top:0.45rem;">依已保存的每日配對紀錄彙整；缺資料或關倉配對待補的日期暫不計入，補齊後同步重算。</div>
+                <div class="pionex-month-note" style="margin-top:0.45rem;">與月曆上方的月平均同一算法。缺資料或關倉配對待補的日期暫不計入，補齊後同步重算。資金費未知的日子以 0 計，下一天的資金費會涵蓋。</div>
             </div>`;
         }
 
@@ -14338,20 +14410,18 @@ function _isLegacy9747Holding(h) {
             const monthKey = `${y}-${String(m).padStart(2, '0')}`;
             const monthlyStats = _pionexMonthlyStats(byDate, today);
             const monthStats = monthlyStats[monthKey];
-            const monthAverage = monthStats ? monthStats.total / monthStats.count : null;
+            const monthAvg = monthStats ? _pionexMonthAverage(monthStats) : null;
             const first = new Date(y, m - 1, 1);
             const startPad = first.getDay();
             const daysInMonth = new Date(y, m, 0).getDate();
             const dows = ['日', '一', '二', '三', '四', '五', '六'];
             let cells = dows.map(d => `<div class="pionex-cal-dow">${d}</div>`).join('');
             for (let i = 0; i < startPad; i++) cells += `<div class="pionex-cal-cell is-muted"></div>`;
-            // v15.972：日曆熱度——底色深淺依當月 |單日利潤| 比例；待補資料日不上色
-            // v15.974：有淨利（配對＋資金費）時改依淨利，沒有資金費的日子退回單日配對
+            // v15.982：底色跟格子主數字（淨利；沒有淨利時是配對）
             const heatOf = (rec) => {
                 if (!rec || Number(rec.unresolved_count) > 0) return null;
-                const net = _pionexNum(rec.net_usdt);
-                const v = net != null ? net : Number(rec.daily_profit_usdt);
-                return Number.isFinite(v) && v !== 0 ? v : null;
+                const v = _pionexDayFigure(rec).value;
+                return v != null && v !== 0 ? v : null;
             };
             const hasFundingData = (ledger.days || []).some(d => d && d.funding_usdt !== undefined);
             let monthMaxAbs = 0;
@@ -14370,13 +14440,18 @@ function _isLegacy9747Holding(h) {
                 const rec = byDate[dateStr];
                 const selectedCls = dateStr === _pionexCalSelected ? ' is-selected' : '';
                 if (rec) {
+                    const fig = _pionexDayFigure(rec);
+                    const mainLabel = fig.includesFunding ? '淨利' : (hasFundingData ? '配對' : '單日');
+                    const extra = hasFundingData
+                        ? (fig.includesFunding
+                            ? `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">配對</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(fig.daily)}">${pv(_fmtPionexJournalPnl(fig.daily))}</span></span>`
+                                + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">資金</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(fig.funding)}">${pv(_fmtPionexJournalPnl(fig.funding))}</span></span>`
+                            : `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">註</span><span class="pionex-cal-amt-value">不含費</span></span>`)
+                        : `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`;
                     cells += `<button type="button" class="pionex-cal-cell has-data${selectedCls}"${heatStyle(rec)} onclick="selectPionexCalDay('${dateStr}')">`
                         + `<span class="pionex-cal-num">${d}</span>`
-                        + `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">單日</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.daily_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.daily_profit_usdt))}</span></span>`
-                        + (hasFundingData
-                            ? `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">資金</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.funding_usdt)}">${pv(_fmtPionexJournalPnl(rec.funding_usdt))}</span></span>`
-                                + `<span class="pionex-cal-amt is-net"><span class="pionex-cal-amt-label">淨利</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.net_usdt)}">${pv(_fmtPionexJournalPnl(rec.net_usdt))}</span></span>`
-                            : `<span class="pionex-cal-amt"><span class="pionex-cal-amt-label">歷史</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(rec.true_profit_usdt)}">${pv(_fmtPionexJournalPnl(rec.true_profit_usdt))}</span></span>`)
+                        + `<span class="pionex-cal-amt is-net"><span class="pionex-cal-amt-label">${mainLabel}</span><span class="pionex-cal-amt-value" style="color:${_pnlColor(fig.value)}">${pv(_fmtPionexJournalPnl(fig.value))}</span></span>`
+                        + extra
                         + `</button>`;
                 } else {
                     cells += `<div class="pionex-cal-cell${selectedCls}"><span class="pionex-cal-num">${d}</span></div>`;
@@ -14386,7 +14461,6 @@ function _isLegacy9747Holding(h) {
             const fresh = _pionexFreshness(ledger.capture_date);
             const when = _fmtPionexTs(ledger.captured_at) || ledger.capture_date || '';
             const gap = Number(latest.gap_days) || 0;
-            const dailyColor = _pnlColor(selected.daily_profit_usdt);
             const rows = Array.isArray(selected.rows) ? selected.rows : [];
             const rowHtml = rows.length
                 ? rows.map(r => {
@@ -14394,35 +14468,56 @@ function _isLegacy9747Holding(h) {
                     // v15.974：倉位改顯示等效倉位（投入＋追加保證金），不同時小字附投入；關倉列沒有等效倉位
                     const eq = _pionexNum(r.equivalent_usdt);
                     const inv = _pionexNum(r.investment_usdt);
-                    const daily = _pionexNum(r.daily_profit_usdt);
-                    const fund = _pionexNum(r.funding_usdt);
-                    const net = daily != null && fund != null ? daily + fund : null;
+                    const fig = _pionexDayFigure(r);
+                    const figSub = fig.includesFunding
+                        ? `配對 ${pv(_fmtPionexJournalPnl(fig.daily))} · 資金 ${pv(_fmtPionexJournalPnl(fig.funding))}`
+                        : '暫不含資金費';
                     return `<tr>
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#e2e8f0;">${_escapeHtml(r.symbol || '')}</td>
                         <td style="text-align:left;padding:0.35rem 0.4rem;color:#7e93a6;">${_escapeHtml(st)}</td>
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtUsdtAmt(eq != null ? eq : r.investment_usdt))}${eq != null && inv != null && Math.abs(eq - inv) >= 0.01 ? `<span class="pionex-cell-sub">投入 ${pv(_fmtUsdtAmt(inv))}</span>` : ''}</td>
-                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtPionexJournalPnl(r.daily_profit_usdt))}</td>
-                        ${hasFundingData ? `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(fund)};">${pv(_fmtPionexJournalPnl(fund))}</td>
-                        <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;font-weight:700;color:${_pnlColor(net)};">${pv(_fmtPionexJournalPnl(net))}</td>` : ''}
+                        ${hasFundingData
+                            ? `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;font-weight:700;color:${_pnlColor(fig.value)};">${pv(_fmtPionexJournalPnl(fig.value))}<span class="pionex-cell-sub">${figSub}</span></td>`
+                            : `<td class="mono" style="text-align:right;padding:0.35rem 0.4rem;color:${_pnlColor(r.daily_profit_usdt)};">${pv(_fmtPionexJournalPnl(r.daily_profit_usdt))}</td>`}
                         <td class="mono" style="text-align:right;padding:0.35rem 0.4rem;">${pv(_fmtPionexJournalPnl(r.cumulative_usdt))}</td>
                     </tr>`;
                 }).join('')
-                : `<tr><td colspan="${hasFundingData ? 7 : 5}" style="padding:0.5rem;color:#607585;">${selected.rows_trimmed ? '90 天前的倉位明細請到本機 dashboard 查看' : '當日無倉位明細'}</td></tr>`;
+                : `<tr><td colspan="5" style="padding:0.5rem;color:#607585;">${selected.rows_trimmed ? '90 天前的倉位明細請到本機 dashboard 查看' : '當日無倉位明細'}</td></tr>`;
             const monthLabel = `${y} 年 ${m} 月`;
-            // v15.974：點選日的資金費、淨利與等效倉位
-            const selFunding = _pionexNum(selected.funding_usdt);
+            const dayFig = _pionexDayFigure(selected);
             const selSpan = _pionexNum(selected.funding_span_days) || 1;
             const selEq = _pionexNum(selected.equivalent_usdt);
-            const selFundNote = selFunding == null
-                ? (selected.date ? '這天沒有可比較的前一筆資金費' : '')
-                : (selSpan > 1 ? `含前 ${selSpan - 1} 天未記到的部分 · ` : '') + _pionexFundingShareText(selFunding, _pionexNum(selected.daily_profit_usdt));
-            const monthNetAverage = monthStats && monthStats.hasFunding ? (monthStats.total + monthStats.funding) / monthStats.count : null;
+            const dayBits = [];
+            if (dayFig.includesFunding) {
+                dayBits.push(`配對 ${pv(_fmtPionexJournalPnl(dayFig.daily))} · 資金費 ${pv(_fmtPionexJournalPnl(dayFig.funding))}`);
+                const dayShare = _pionexFundingShareText(dayFig.funding, dayFig.daily);
+                if (dayShare) dayBits.push(dayShare);
+                if (dayFig.funding != null && selSpan > 1) dayBits.push(`含前 ${selSpan - 1} 天未記到的部分`);
+            } else if (selected.date) {
+                dayBits.push('暫不含資金費');
+            }
+            if (selected.daily_profit_twd != null) dayBits.push(`配對 ${pv('NT$ ' + _fmtPionexJournalPnl(selected.daily_profit_twd))}`);
+            const daySub = dayBits.join(' · ');
+            const dayLabel = dayFig.includesFunding ? '當日淨利（含資金費）' : '單日配對利潤';
+            const isCurrentMonth = monthKey === today.slice(0, 7);
+            const avgLabel = monthAvg && monthAvg.includesFunding
+                ? `${isCurrentMonth ? '當月' : '本月'}平均每日淨利（含資金費）`
+                : `${isCurrentMonth ? '當月' : '本月'}平均每日網格利潤`;
+            const avgSub = !monthAvg ? ''
+                : monthAvg.includesFunding
+                    ? `配對 ${pv(_fmtPionexJournalPnl(monthAvg.pairPerDay))} · 資金費 ${pv(_fmtPionexJournalPnl(monthAvg.fundingPerDay))}（USDT／日）`
+                    : '本月尚無資金費，此為配對月均';
+            const monthShareText = monthAvg && monthAvg.includesFunding ? _pionexFundingShareText(monthAvg.fundingTotal, monthAvg.pairTotal) : '';
+            let monthNote = '本月尚無有效每日紀錄';
+            if (monthAvg) {
+                const rule = monthAvg.includesFunding
+                    ? '依完整紀錄天數計算，含 0 元日；資金費未知的日子以 0 計，下一天的資金費會涵蓋；關倉配對待補日暫不計入'
+                    : '依完整紀錄天數計算，含 0 元日；本月沒有資金費資料，上方是配對月均；關倉配對待補日暫不計入';
+                monthNote = monthAvg.includesFunding
+                    ? `淨利合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthAvg.netTotal))}</span> USDT ÷ ${monthAvg.count} 天<br>配對合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthAvg.pairTotal))}</span> · 資金費合計 <span class="mono pv-field" style="color:${_pnlColor(monthAvg.fundingTotal)};">${pv(_fmtPionexJournalPnl(monthAvg.fundingTotal))}</span>${monthShareText ? `（${monthShareText}）` : ''}<br>${rule}`
+                    : `配對合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthAvg.pairTotal))}</span> USDT ÷ ${monthAvg.count} 天<br>${rule}`;
+            }
             const fundingCard = _renderPionexFundingCard(ledger, monthlyStats);
-            const tile = (label, value, sub, size = '1.35rem') => `<div>
-                            <div class="pionex-tile-label">${label}</div>
-                            <div class="mono pv-field" style="font-size:${size};font-weight:800;color:${_pnlColor(value)};line-height:1.1;">${pv(_fmtPionexJournalPnl(value))}</div>
-                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${sub || ''}</div>
-                        </div>`;
             pane.innerHTML = liveCard + `
             <div class="glass-card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.55rem;">
@@ -14442,32 +14537,24 @@ function _isLegacy9747Holding(h) {
                 </div>
                 <div class="pionex-month-summary">
                     <div>
-                        <div class="pionex-month-label">${monthKey === today.slice(0, 7) ? '當月' : '本月'}平均每日網格利潤</div>
-                        <div class="pionex-month-average mono" style="color:${_pnlColor(monthAverage)};"><span class="pv-field">${pv(_fmtPionexJournalPnl(monthAverage))}</span> <span class="pionex-month-unit">USDT／日</span></div>
+                        <div class="pionex-month-label">${avgLabel}</div>
+                        <div class="pionex-month-average mono" style="color:${_pnlColor(monthAvg && monthAvg.value)};"><span class="pv-field">${pv(_fmtPionexJournalPnl(monthAvg && monthAvg.value))}</span> <span class="pionex-month-unit">USDT／日</span></div>
+                        ${avgSub ? `<div class="pionex-month-note">${avgSub}</div>` : ''}
                     </div>
-                    ${monthNetAverage != null ? `<div>
-                        <div class="pionex-month-label">平均每日淨利（含資金費）</div>
-                        <div class="pionex-month-average mono" style="color:${_pnlColor(monthNetAverage)};"><span class="pv-field">${pv(_fmtPionexJournalPnl(monthNetAverage))}</span> <span class="pionex-month-unit">USDT／日</span></div>
-                    </div>` : ''}
-                    <div class="pionex-month-note">${monthStats
-                        ? `本月合計 <span class="mono pv-field">${pv(_fmtPionexJournalPnl(monthStats.total))}</span> USDT ÷ ${monthStats.count} 天${monthStats.hasFunding
-                            ? `<br>資金費 <span class="mono pv-field" style="color:${_pnlColor(monthStats.funding)};">${pv(_fmtPionexJournalPnl(monthStats.funding))}</span> USDT（${_pionexFundingShareText(monthStats.funding, monthStats.total) || '—'}）` : ''}<br>依完整紀錄天數計算，含 0 元日；關倉配對待補日暫不計入`
-                        : '本月尚無有效每日紀錄'}</div>
+                    <div class="pionex-month-note">${monthNote}</div>
                 </div>
                 <div class="pionex-cal${hasFundingData ? ' is-3row' : ''}">${cells}</div>
                 <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">${hasFundingData
-                    ? '每格：單日配對、資金費、淨利（配對＋資金費）。底色依淨利深淺（綠賺、紅賠）；沒有資金費資料的日子依單日配對；待補資料的日子不上色'
+                    ? '每格主數字是淨利（配對＋資金費），下面是配對與資金費。標「不含費」的日子只有配對。底色依主數字深淺（綠賺、紅賠）；待補資料的日子不上色'
                     : '底色越深代表當日利潤越高（綠賺、紅賠）；待補資料的日子不上色'}</div>
                 <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
                     <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;">
                         <div>
-                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">單日配對利潤</div>
-                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${dailyColor};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.daily_profit_usdt))}</div>
-                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${selected.daily_profit_twd != null ? pv('NT$ ' + _fmtPionexJournalPnl(selected.daily_profit_twd)) : ''}</div>
+                            <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">${dayLabel}</div>
+                            <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(dayFig.value)};line-height:1.1;">${pv(_fmtPionexJournalPnl(dayFig.value))}</div>
+                            <div style="color:#607585;font-size:0.72rem;margin-top:0.3rem;">${daySub}</div>
                         </div>
-                        ${hasFundingData ? tile('當日資金費', selFunding, selFundNote) + tile('當日淨利（配對＋資金費）', _pionexNum(selected.net_usdt), selFunding == null ? '資金費未知，淨利不計' : '')
-                            + `</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-top:0.85rem;">` : ''}
                         <div>
                             <div style="color:#7e93a6;font-size:0.72rem;margin-bottom:0.2rem;">運行中配對利潤</div>
                             <div class="mono pv-field" style="font-size:1.35rem;font-weight:800;color:${_pnlColor(selected.cumulative_usdt)};line-height:1.1;">${pv(_fmtPionexJournalPnl(selected.cumulative_usdt))}</div>
@@ -14502,7 +14589,9 @@ function _isLegacy9747Holding(h) {
                 </div>
                 ${Number(selected.unresolved_count) > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">此日有 ${Number(selected.unresolved_count)} 倉配對資料待補，單日與歷史金額暫計，補齊後自動重算。</div>` : ''}
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
-                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">口徑：單日為兩次每日快照間的配對增量。歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。${hasFundingData ? '資金費與淨利另外顯示，單日配對利潤與月平均不含資金費。' : ''}金額顯示至小數點後 2 位。</div>
+                <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">${hasFundingData
+                    ? '口徑：單日主數字是淨利（兩次每日快照間的配對增量＋資金費），配對與資金費分列在小字。淨利無法計算時顯示配對並標暫不含資金費。'
+                    : '口徑：單日為兩次每日快照間的配對增量。'}歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。金額顯示至小數點後 2 位。</div>
             </div>
             ${fundingCard}
             ${_renderPionexMonthlyHistory(monthlyStats, today.slice(0, 7))}
@@ -14514,9 +14603,7 @@ function _isLegacy9747Holding(h) {
                         <th style="text-align:left;padding:0.35rem 0.4rem;">標的</th>
                         <th style="text-align:left;padding:0.35rem 0.4rem;">狀態</th>
                         <th style="text-align:right;padding:0.35rem 0.4rem;">${hasFundingData ? '等效倉位' : '倉位'}</th>
-                        <th style="text-align:right;padding:0.35rem 0.4rem;">單日利潤</th>
-                        ${hasFundingData ? `<th style="text-align:right;padding:0.35rem 0.4rem;">資金費</th>
-                        <th style="text-align:right;padding:0.35rem 0.4rem;">淨利</th>` : ''}
+                        <th style="text-align:right;padding:0.35rem 0.4rem;">${hasFundingData ? '淨利' : '單日利潤'}</th>
                         <th style="text-align:right;padding:0.35rem 0.4rem;">累計</th>
                     </tr></thead>
                     <tbody>${rowHtml}</tbody>
@@ -14533,11 +14620,13 @@ function _isLegacy9747Holding(h) {
                 .map(d => {
                     // v15.974：扣資金費後＝歷史累計配對＋累計資金費（資金費付出為負）
                     const fundTotal = _pionexNum(d.funding_total_usdt);
+                    const fig = _pionexDayFigure(d);
                     return {
                         date: d.date, v: Number(d.true_profit_usdt), day: Number(d.daily_profit_usdt),
                         unresolved: Number(d.unresolved_count) > 0,
                         net: fundTotal == null ? null : Number(d.true_profit_usdt) + fundTotal,
-                        fund: _pionexNum(d.funding_usdt), fundTotal
+                        fund: _pionexNum(d.funding_usdt), fundTotal,
+                        dayNet: fig.includesFunding ? fig.value : null
                     };
                 })
                 .sort((a, b) => a.date.localeCompare(b.date));
@@ -14616,8 +14705,10 @@ function _isLegacy9747Holding(h) {
                                 const p = pts[item.dataIndex];
                                 const lines = ['累計 ' + usdt(p.v, true) + ' USDT'];
                                 if (p.net != null) lines.push('扣資金費後 ' + usdt(p.net, true) + ' USDT');
-                                if (Number.isFinite(p.day)) lines.push('單日 ' + usdt(p.day, true) + ' USDT');
+                                if (p.dayNet != null) lines.push('當日淨利 ' + usdt(p.dayNet, true) + ' USDT');
+                                if (Number.isFinite(p.day)) lines.push((p.dayNet != null ? '配對 ' : '單日 ') + usdt(p.day, true) + ' USDT');
                                 if (p.fund != null) lines.push('當日資金費 ' + usdt(p.fund, true) + ' USDT');
+                                if (p.dayNet == null && Number.isFinite(p.day) && pts.some(x => x.dayNet != null)) lines.push('暫不含資金費');
                                 if (p.unresolved) lines.push('配對資料待補');
                                 return lines;
                             }

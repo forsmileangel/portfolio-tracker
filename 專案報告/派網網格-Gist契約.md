@@ -17,6 +17,23 @@
 
 ## 這側正在讀的欄位
 
-`days[].date`、`daily_profit_usdt`、`cumulative_usdt`、可選 TWD；`wallet.twd` 給「填入加密欄」；`capture_date`／`captured_at` 給新鮮度。
+`days[].date`、`daily_profit_usdt`、`cumulative_usdt`、可選 TWD；`wallet.twd` 給「填入加密欄」；`capture_date`／`captured_at` 給新鮮度。帳本另讀 `days[].funding_usdt`／`net_usdt`／`funding_span_days`／`funding_total_usdt`（資金費未知時 `net_usdt` 為 null）。網格分頁的單日與月平均以淨利（配對＋資金費）為主；淨利算不出時退回配對並標示。
 
 SQLite 後來加的 `true_profit_*` 目前可忽略；若網格月曆要顯示「真實總利潤」，再讀這些 key，不要因此把 `schema` 改成 2 除非兩邊同一天改。
+
+## 目前倉位 24 小時淨利（v2 1.0.7 起，可選，schema 仍為 1）
+
+本機 v2 1.0.7 起在 `pionex-grid-live.json` **只加欄位**，`schema` 維持 1。舊檔沒有這些欄位時，PT 退回 `total_profit_24h_usdt`／`profit_24h_pct` 與列上的 `profit_24h_usdt`，並標示暫不含資金費。不要為了這些欄位把 `schema` 改成 2。
+
+頂層（可選）：
+
+- `total_funding_24h_usdt`：目前倉位近 24 小時資金費合計。付出為負、收到為正。
+- `total_net_24h_usdt`：近 24 小時淨利，等於配對加上資金費。
+- `net_24h_pct`：淨利除以等效倉位的百分比。有這欄時取代 `profit_24h_pct` 當作 24h 百分比。
+- `funding_24h_missing`：缺資金費資料的倉位數。大於 0 時 `total_net_24h_usdt` 為 null，畫面退回配對並註明。
+- `funding_24h_pending`：派網在 00:00／08:00／16:00 結算後幾分鐘才入帳。這段時間內還沒入帳的倉位數；淨利照算，只是那幾倉最新一次結算先不計，畫面註明。
+
+每列 `rows[]`（可選）：
+
+- `funding_24h_usdt`
+- `net_24h_usdt`：有數字時，該列 24h 與排序用這個值；沒有則退回 `profit_24h_usdt`。
