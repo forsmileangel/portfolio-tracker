@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-10T06:40:41Z",
+  "generatedAt": "2026-11-10T09:40:43Z",
   "symbols": {
     "AAOI": {
       "market": "US",
@@ -9070,12 +9070,6 @@
     "7709.HK": {
       "market": "HK",
       "byDate": {
-        "2026-09-25": {
-          "close": 42.64,
-          "final": true,
-          "source": "hkex-daily-quotation",
-          "fetchedAt": "2026-09-25T14:37:56Z"
-        },
         "2026-09-28": {
           "close": 39.52,
           "final": true,
@@ -9249,6 +9243,12 @@
           "final": true,
           "source": "hkex-daily-quotation",
           "fetchedAt": "2026-11-09T19:52:14Z"
+        },
+        "2026-11-10": {
+          "close": 15.84,
+          "final": false,
+          "source": "fundamentals-bootstrap",
+          "fetchedAt": "2026-11-10T05:41:11.573918+00:00"
         }
       }
     },
@@ -10735,12 +10735,6 @@
     "7747.HK": {
       "market": "HK",
       "byDate": {
-        "2026-09-25": {
-          "close": 83.0,
-          "final": true,
-          "source": "hkex-daily-quotation",
-          "fetchedAt": "2026-09-25T14:37:56Z"
-        },
         "2026-09-28": {
           "close": 77.54,
           "final": true,
@@ -10914,6 +10908,12 @@
           "final": true,
           "source": "hkex-daily-quotation",
           "fetchedAt": "2026-11-09T19:52:14Z"
+        },
+        "2026-11-10": {
+          "close": 38.48,
+          "final": false,
+          "source": "fundamentals-bootstrap",
+          "fetchedAt": "2026-11-10T05:41:11.573918+00:00"
         }
       }
     },
@@ -11309,7 +11309,7 @@
     "HK": {
       "status": "ok",
       "source": "hkex-daily-quotation",
-      "dates": 4,
+      "dates": 3,
       "errors": 0
     }
   }
