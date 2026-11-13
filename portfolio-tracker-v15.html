@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.983 - 2026-11-13 派網網格月曆配合 v2 1.0.8 的「利潤日前移一天」：每天 08:15 的數字（前一天 08:15 到當天 08:15 的利潤）現在記在前一天那一格，所以今天那一格要等明天 08:15 才有。(1) 月曆預設選帳本最新一筆並切到它的月份（原本預設選今天，今天沒有紀錄時退回當月最後一筆；每月 1 號會打開空白月），自動選取的狀態下，新資料進來也會跟著跳到最新一筆。(2) 口徑與空白狀態文字改成「每格是當天 08:15 到隔天 08:15 的利潤，隔天早上的快照記在前一天」，「等 08:05 排程」改成每天 08:15。讀 Gist 帳本的方式不變：days[].date 本來就是格子日期，v2 重新發布後歷史自動前移；頂層 capture_date／captured_at 仍是最新一次擷取（新鮮度標籤照舊）。不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.982 - 2026-11-10 網格分頁派網數字改以含資金費的淨利為主，避免只看配對而誤判：(1) 月平均主數字改為（配對＋資金費）÷ 有紀錄天數，小字「配對 X · 資金費 Y（USDT／日）」；該月完全沒有資金費時退回配對月均並註明。資金費為 null 的日子以 0 計入（下一天的資金費會涵蓋）。各月紀錄只留一個「每日平均」，與月曆上方同一算法。(2) 月曆、點選日、每日明細以 net_usdt 為主，缺時用配對＋（資金費或 0）；淨利無法計算時顯示配對並標「暫不含資金費」，配對與資金費放小字。(3) 目前倉位「24h 網格」改為「24h 淨利（含資金費）」，大字用 total_net_24h_usdt、百分比用 net_24h_pct（v2 1.0.7 起、schema 仍為 1）；舊檔沒有這些欄位時退回 total_profit_24h_usdt／profit_24h_pct，小字「暫不含資金費」。每列 24h 與排序用 net_24h_usdt，缺則退回 profit_24h_usdt。funding_24h_missing > 0 時註明缺幾個倉位。funding_24h_pending > 0 時註明幾倉最新一次結算派網還沒入帳、暫不計（v2 1.0.7 起）。(4) 資金費佔配對的比例：付出寫「吃掉 X%」、收到寫「加成 X%」。不改 Storage Key、Gist payload 讀寫、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.981 - 2026-11-09 網格目前倉位跟著本機每 10 分鐘更新、富途狀態列配合每 2 分鐘寫入：(1) 派網 live 排程改為每 10 分鐘（:00、:10…）發布 pionex-grid-live.json；網格分頁開著且畫面在前景時，新增 _schedulePionexLiveRefresh 於每個整 10 分後 1 分鐘（:01、:11…）呼叫既有 _refreshPionexGridFiles 重讀 Gist（只 GET，失敗照舊記錄、保留舊 cache），switchTab 切到網格才排、切走即清；畫面隱藏時清除，回到前景且停在網格頁立即重讀一次再接回節奏。(2) _pionexLiveFreshness 灰色門檻 45 分→15 分，標籤「約半小時內」→「約 10 分鐘內」；網格頁說明文字同步。(3) portfolio-quote-bridge 改每 2 分鐘寫一次富途 Gist（Gist 寫入每小時 100 次額度與派網、PT 共用），狀態列灰色門檻 2 分→3 分；5 分鐘逾時不套用的規則不變。(4) 網格頁「24h 網格」格加列過去 24 小時資金費與淨利（含 ÷ 等效倉位 %）：資料是派網發布檔既有的 total_funding_24h_usdt／total_net_24h_usdt／net_24h_pct，派網端不用改；有倉位結算尚未入帳時註明未計入，有倉位缺資料時不算淨利，舊發布檔沒有這些欄位就不顯示。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.980 - 2026-10-26 派網網格 90 天明細：本機發布的 Gist 帳本改為每倉位明細（days[].rows）只保留最近 90 天，更早的日期改帶 rows_trimmed: true；每日總計欄位全部保留，月曆單日／資金／淨利、月平均與各月紀錄、歷史累計配對利潤曲線、資金費卡、點選日上方數字卡都不受影響。點選 90 天前的日期時，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」，取代「當日無倉位明細」。rows 金額改為最多 4 位小數、倉位 id 縮短，畫面顯示位數不變。只改這一行顯示文字，不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -122,6 +123,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.983 - 2026-11-13 網格月曆配合 v2 1.0.8，每格是「當天 08:15 到隔天 08:15」的利潤、記在前一天那格（早上看的是昨天）；預設選最新一筆紀錄並切到它的月份，今天那格要等明天 08:15 才有。
         v15.982 - 2026-11-10 網格分頁的派網數字改以淨利（配對＋資金費）為主：月平均、月曆單日、點選日、明細與目前倉位 24 小時都含資金費；沒有資金費時退回配對並標示。付出寫「吃掉」、收到寫「加成」。
         v15.981 - 2026-11-09 網格頁開著時跟著本機每 10 分鐘自動更新目前倉位（每個整 10 分後 1 分鐘重讀，回到畫面時立即重讀），新鮮度標籤改「約 10 分鐘內」；富途報價改每 2 分鐘寫入，狀態列 3 分鐘內維持灰色；「24h 網格」格加列 24h 資金費與淨利。
         v15.980 - 2026-10-26 網格頁：90 天前的日期點進去，明細表改顯示「90 天前的倉位明細請到本機 dashboard 查看」；月曆、月平均、歷史累計曲線照舊保留全部歷史。
@@ -891,7 +893,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.982</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.983</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1772,7 +1774,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.982';
+        const APP_VERSION = 'v15.983';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -14227,20 +14229,24 @@ function _isLegacy9747Holding(h) {
         let _pionexCalSelected = null;
         let _pionexCalAutoSelected = false;
 
-        function _resetPionexCalToTaipeiToday(ledger) {
-            const today = _taipeiCalendarDate();
-            const parts = today.split('-').map(Number);
-            if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return;
-            const byDate = {};
-            let latestInMonth = null;
+        // v15.983：帳本裡最新的一格日期（YYYY-MM-DD）；沒有就回 null。
+        function _pionexLatestLedgerDate(ledger) {
+            let latest = null;
             (ledger && Array.isArray(ledger.days) ? ledger.days : []).forEach(d => {
                 const date = String(d?.date || '');
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-                byDate[date] = d;
-                if (date.slice(0, 7) === today.slice(0, 7) && (!latestInMonth || date > latestInMonth)) latestInMonth = date;
+                if (/^\d{4}-\d{2}-\d{2}$/.test(date) && (!latest || date > latest)) latest = date;
             });
+            return latest;
+        }
+
+        // v15.983：v2 1.0.8 起每格是「利潤日」（08:15 的數字記在前一天），今天那一格要等明天 08:15 才有，
+        // 所以預設選帳本最新一筆並切到它的月份（每月 1 號不會打開空白月）；帳本沒有紀錄時才退回今天。
+        function _resetPionexCalToTaipeiToday(ledger) {
+            const base = _pionexLatestLedgerDate(ledger) || _taipeiCalendarDate();
+            const parts = base.split('-').map(Number);
+            if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return;
             _pionexCalMonth = { y: parts[0], m: parts[1] };
-            _pionexCalSelected = byDate[today] ? today : (latestInMonth || today);
+            _pionexCalSelected = base;
             _pionexCalAutoSelected = true;
         }
 
@@ -14392,7 +14398,7 @@ function _isLegacy9747Holding(h) {
                 closed_unresolved: '關倉未對上'
             };
             if (!ledger || !ledger.days || ledger.days.length === 0) {
-                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等 08:05 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7)) + settlementCard;
+                pane.innerHTML = liveCard + `<div class="glass-card" style="padding:2rem 1.5rem;text-align:center;color:#607585;font-size:0.85rem;margin-bottom:1rem;">尚無派網網格日記帳。請在本機執行 v2 capture（或等每天 08:15 排程）寫入 Gist 第二檔。</div>` + _renderPionexMonthlyHistory({}, today.slice(0, 7)) + settlementCard;
                 _pionexCumChart = _ptDestroyChart(_pionexCumChart);   // v15.972
                 return;
             }
@@ -14400,7 +14406,9 @@ function _isLegacy9747Holding(h) {
             (ledger.days || []).forEach(d => { if (d && d.date) byDate[d.date] = d; });
             if (!_pionexCalMonth || !_pionexCalSelected) _resetPionexCalToTaipeiToday(ledger);
             if (!/^\d{4}-\d{2}-\d{2}$/.test(String(_pionexCalSelected || ''))) _resetPionexCalToTaipeiToday(ledger);
-            if (_pionexCalAutoSelected && _pionexCalSelected === _taipeiCalendarDate() && !byDate[_pionexCalSelected]) {
+            // v15.983：自動選取的狀態下，新資料進來（有更新的一格）就跟著跳到最新一筆；使用者自己點過或換過月份就不動。
+            const latestLedgerDate = _pionexLatestLedgerDate(ledger);
+            if (_pionexCalAutoSelected && latestLedgerDate && _pionexCalSelected !== latestLedgerDate) {
                 _resetPionexCalToTaipeiToday(ledger);
             }
             const selected = byDate[_pionexCalSelected] || {};
@@ -14545,8 +14553,8 @@ function _isLegacy9747Holding(h) {
                 </div>
                 <div class="pionex-cal${hasFundingData ? ' is-3row' : ''}">${cells}</div>
                 <div style="color:#607585;font-size:0.7rem;margin-top:0.4rem;">${hasFundingData
-                    ? '每格主數字是淨利（配對＋資金費），下面是配對與資金費。標「不含費」的日子只有配對。底色依主數字深淺（綠賺、紅賠）；待補資料的日子不上色'
-                    : '底色越深代表當日利潤越高（綠賺、紅賠）；待補資料的日子不上色'}</div>
+                    ? '每格是當天 08:15 到隔天 08:15 的利潤，隔天早上記錄（最新一格是昨天）。主數字是淨利（配對＋資金費），下面是配對與資金費。標「不含費」的日子只有配對。底色依主數字深淺（綠賺、紅賠）；待補資料的日子不上色'
+                    : '每格是當天 08:15 到隔天 08:15 的利潤，隔天早上記錄（最新一格是昨天）。底色越深代表當日利潤越高（綠賺、紅賠）；待補資料的日子不上色'}</div>
                 <div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px solid rgba(148,163,184,0.14);">
                     <div style="color:#c5d0d8;font-size:0.78rem;font-weight:700;margin-bottom:0.55rem;">${_escapeHtml(_pionexCalSelected || '')}　點選日</div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;">
@@ -14590,8 +14598,8 @@ function _isLegacy9747Holding(h) {
                 ${Number(selected.unresolved_count) > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">此日有 ${Number(selected.unresolved_count)} 倉配對資料待補，單日與歷史金額暫計，補齊後自動重算。</div>` : ''}
                 ${gap > 0 ? `<div style="margin-top:0.7rem;color:#fbbf24;font-size:0.75rem;">上次成功間隔 ${gap} 天，中間可能漏抓</div>` : ''}
                 <div style="margin-top:0.55rem;color:#607585;font-size:0.72rem;line-height:1.45;">${hasFundingData
-                    ? '口徑：單日主數字是淨利（兩次每日快照間的配對增量＋資金費），配對與資金費分列在小字。淨利無法計算時顯示配對並標暫不含資金費。'
-                    : '口徑：單日為兩次每日快照間的配對增量。'}歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。金額顯示至小數點後 2 位。</div>
+                    ? '口徑：每格日期是利潤所屬的那一天，隔天早上的快照記在前一天。單日主數字是淨利（兩次每日快照間的配對增量＋資金費），配對與資金費分列在小字。淨利無法計算時顯示配對並標暫不含資金費。'
+                    : '口徑：每格日期是利潤所屬的那一天，隔天早上的快照記在前一天。單日為兩次每日快照間的配對增量。'}歷史累計截至點選日快照，含基準日帶入及之後記錄到的已關倉／提領／複投；記錄前已提領收益可能未涵蓋。運行中利潤隨關倉下降。金額顯示至小數點後 2 位。</div>
             </div>
             ${fundingCard}
             ${_renderPionexMonthlyHistory(monthlyStats, today.slice(0, 7))}

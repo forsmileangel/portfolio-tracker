@@ -49,7 +49,7 @@ test('all inline app scripts compile and the visible version matches APP_VERSION
     const versions = [...html.matchAll(/const APP_VERSION\s*=\s*'(v15\.\d+)';/g)];
     assert.equal(versions.length, 1);
     const version = versions[0];
-    assert.equal(version[1], 'v15.982');
+    assert.equal(version[1], 'v15.983');
     const escaped = version[1].replace(/\./g, '\\.');
     assert.match(html, new RegExp(`pointer-events:none;">${escaped}</div>`));
     assert.match(html, new RegExp(`^\\s*${escaped} - `, 'm'));
@@ -461,4 +461,30 @@ test('pionex grid numbers use net profit including funding, and fall back when i
     assert.match(oldCard, />20\.00/);
     assert.match(oldCard, />5\.00/);
     assert.doesNotMatch(oldCard, /1\.200%/);
+});
+
+test('pionex calendar opens on the latest ledger day, not on today', () => {
+    // v2 1.0.8 files each 08:15 capture under the day before it, so today's cell is empty until tomorrow.
+    const context = vm.createContext({
+        _taipeiCalendarDate: () => '2026-12-01', Number, String, Array
+    });
+    vm.runInContext('let _pionexCalMonth = null; let _pionexCalSelected = null; let _pionexCalAutoSelected = false;\n'
+        + ['_pionexLatestLedgerDate', '_resetPionexCalToTaipeiToday'].map(name => extractFunction(html, name)).join('\n'), context);
+    const state = () => vm.runInContext('({ month: _pionexCalMonth, selected: _pionexCalSelected, auto: _pionexCalAutoSelected })', context);
+
+    // 12/01 morning: the newest cell is 11/30 (the 12/01 capture), so November opens, not an empty December.
+    context._resetPionexCalToTaipeiToday({ days: [{ date: '2026-11-29' }, { date: '2026-11-30' }, { date: '2026-11-28' }] });
+    assert.deepEqual(JSON.parse(JSON.stringify(state())), { month: { y: 2026, m: 11 }, selected: '2026-11-30', auto: true });
+
+    // Rows without a usable date are ignored.
+    assert.equal(context._pionexLatestLedgerDate({ days: [{ date: 'bad' }, { }, { date: '2026-10-02' }] }), '2026-10-02');
+    assert.equal(context._pionexLatestLedgerDate({ days: [] }), null);
+    assert.equal(context._pionexLatestLedgerDate(null), null);
+
+    // An empty ledger falls back to today.
+    context._resetPionexCalToTaipeiToday({ days: [] });
+    assert.deepEqual(JSON.parse(JSON.stringify(state())), { month: { y: 2026, m: 12 }, selected: '2026-12-01', auto: true });
+
+    assert.match(html, /每格是當天 08:15 到隔天 08:15 的利潤/);
+    assert.doesNotMatch(html, /（或等 08:05 排程）/);
 });
