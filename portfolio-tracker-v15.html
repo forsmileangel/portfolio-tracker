@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.985 - 2026-11-21 趨勢圖游標對齊日期：滑鼠移到 K 線時，垂直虛線貫穿三個窗格到時間軸並在軸上標出日期，游標旁也顯示日期；原本上方窗格對不到日期。
   v15.984 - 2026-11-20 新增「趨勢」分頁（Tab 11）＋修正啟動自動拉取會蓋掉未上傳修改的既有臭蟲：(1) 趨勢頁：獨立的標的清單（和持倉、觀察清單分開；新增／刪除／排序），每檔顯示日線與週線目前的顏色、前一個顏色、起始日與已持續根數；右側三窗格圖（lightweight-charts 4.2.3，淺色底）：K 線依趨勢變綠／灰／黑、EMA／MA 20／60／120 六條均線、20／60／120 扣抵黃點、ATRX 副圖、Price deduction 副圖，可切日線／週線（週線由日線在本機合成，週線 120 期均線為近似）。版面與指標參考雷公（LoneCapital）的 TradingView 版面；原始碼不公開，變色規則是依其公開說法並拿使用者截圖逐根比對重建的規則 H（20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向為灰；拿使用者 6 檔標的的日線＋週線截圖共 748 根 K 線比對，吻合 91%，雙線同向時 97–100%，誤差集中在雙線不同向、原版有時畫灰色的地方；TREND_RULE 一個常數可換規則），ATRX 與 Price deduction 為近似版。資料用 Yahoo 日線（range=5y，一檔一次請求、記憶體快取 10 分鐘、失敗保留舊資料），清單狀態摘要快取在 pt_trend_status_v1、UI 偏好在 pt_trend_ui_v1；分頁不在前景不抓、啟動不抓；不併入 _allAnalysisTargets。(2) 同步：新增 user data 欄位 trend_list（pt_trend_list_v1、dirty domain trendList）；空清單不進 userDataHash（升版不改任何人的 hash），裝置知道清單狀態（清單非空、或曾在本機編輯／曾收到清單）時才在 user push 寫 trend_list，payload 缺 key（舊版寫的、或還沒看過清單的裝置寫的）時保留本機清單並在趨勢頁提示「重新上傳」（使用者按了才推、推送成功提示才消失）；不升 PT_SCHEMA_VERSION；K 線與狀態快取不進 hash／pending／Gist。(3) 修既有臭蟲（v15.080 起）：_gistSilentPull 沒處理 cloud_user_same_system_newer 而落到「套用雲端」，改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改會被雲端舊資料覆蓋且 dirty 被清掉；現在改為有未上傳修改就推送、否則不動，都不套用雲端（假 Gist 實測：舊版修改消失、新版保留並補推）。(4) 指標核心為純函式（// #region Trend Core），tests/trend-core.test.cjs 12 項；另與 Gemini、Grok 各自獨立寫的 Python 參考實作在 USD／2330.TW／0700.HK 共 9.4 萬個值逐值比對一致；新舊版三台裝置混用情境 16 項檢查通過。
   v15.983 - 2026-11-13 派網網格月曆配合 v2 1.0.8 的「利潤日前移一天」：每天 08:15 的數字（前一天 08:15 到當天 08:15 的利潤）現在記在前一天那一格，所以今天那一格要等明天 08:15 才有。(1) 月曆預設選帳本最新一筆並切到它的月份（原本預設選今天，今天沒有紀錄時退回當月最後一筆；每月 1 號會打開空白月），自動選取的狀態下，新資料進來也會跟著跳到最新一筆。(2) 口徑與空白狀態文字改成「每格是當天 08:15 到隔天 08:15 的利潤，隔天早上的快照記在前一天」，「等 08:05 排程」改成每天 08:15。讀 Gist 帳本的方式不變：days[].date 本來就是格子日期，v2 重新發布後歷史自動前移；頂層 capture_date／captured_at 仍是最新一次擷取（新鮮度標籤照舊）。不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.982 - 2026-11-10 網格分頁派網數字改以含資金費的淨利為主，避免只看配對而誤判：(1) 月平均主數字改為（配對＋資金費）÷ 有紀錄天數，小字「配對 X · 資金費 Y（USDT／日）」；該月完全沒有資金費時退回配對月均並註明。資金費為 null 的日子以 0 計入（下一天的資金費會涵蓋）。各月紀錄只留一個「每日平均」，與月曆上方同一算法。(2) 月曆、點選日、每日明細以 net_usdt 為主，缺時用配對＋（資金費或 0）；淨利無法計算時顯示配對並標「暫不含資金費」，配對與資金費放小字。(3) 目前倉位「24h 網格」改為「24h 淨利（含資金費）」，大字用 total_net_24h_usdt、百分比用 net_24h_pct（v2 1.0.7 起、schema 仍為 1）；舊檔沒有這些欄位時退回 total_profit_24h_usdt／profit_24h_pct，小字「暫不含資金費」。每列 24h 與排序用 net_24h_usdt，缺則退回 profit_24h_usdt。funding_24h_missing > 0 時註明缺幾個倉位。funding_24h_pending > 0 時註明幾倉最新一次結算派網還沒入帳、暫不計（v2 1.0.7 起）。(4) 資金費佔配對的比例：付出寫「吃掉 X%」、收到寫「加成 X%」。不改 Storage Key、Gist payload 讀寫、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -124,6 +125,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.985 - 2026-11-21 趨勢圖游標對齊日期：垂直虛線貫穿三個窗格到時間軸並標出日期，游標旁也顯示日期。
         v15.984 - 2026-11-20 新增「趨勢」分頁：自己的標的清單，K 線依趨勢變綠／灰／黑，附 20／60／120 均線、扣抵黃點、ATRX 與 Price deduction 副圖，可切日線／週線（參考雷公的版面，變色規則是重建版）；清單會跨裝置同步。另修正：改完資料馬上關掉 App，下次開啟時修改被雲端舊資料蓋掉的問題。
         v15.983 - 2026-11-13 網格月曆配合 v2 1.0.8，每格是「當天 08:15 到隔天 08:15」的利潤、記在前一天那格（早上看的是昨天）；預設選最新一筆紀錄並切到它的月份，今天那格要等明天 08:15 才有。
         v15.982 - 2026-11-10 網格分頁的派網數字改以淨利（配對＋資金費）為主：月平均、月曆單日、點選日、明細與目前倉位 24 小時都含資金費；沒有資金費時退回配對並標示。付出寫「吃掉」、收到寫「加成」。
@@ -470,7 +472,10 @@
         .trend-ph-main { font-weight:800; color:#c62828; }
         .trend-ph-sub { font-size:0.78rem; color:#7a7e85; max-width:36rem; word-break:break-word; }
         .trend-chart-box .trend-btn { margin-top:0.4rem; background:#fff; border-color:#c8d3e6; color:#1d4ed8; }
-        .trend-lc { display:flex; flex-direction:column; background:#fbfbf8; }
+        .trend-lc { display:flex; flex-direction:column; background:#fbfbf8; position:relative; }
+        .trend-lc-vline { position:absolute; width:0; border-left:1px dashed #758696; z-index:4; pointer-events:none; display:none; }
+        .trend-lc-xdate { position:absolute; z-index:5; pointer-events:none; display:none; background:#363A45; color:#fff; font-size:11px; line-height:16px; padding:0 6px; border-radius:2px; white-space:nowrap; }
+        .trend-lc-tip { position:absolute; z-index:6; pointer-events:none; display:none; background:rgba(255,255,255,0.92); border:1px solid #c9ccd3; color:#222; font-size:12px; font-weight:700; line-height:16px; padding:1px 6px; border-radius:3px; white-space:nowrap; }
         .trend-lc-legend { display:flex; flex-wrap:wrap; align-items:center; gap:0.25rem 0.8rem; padding:0.4rem 0.65rem 0.35rem; border-bottom:1px solid #e6e7e1; color:#333; font-size:0.7rem; font-weight:700; line-height:1.3; }
         .trend-lc-li { display:inline-flex; align-items:center; gap:0.3rem; white-space:nowrap; }
         .trend-lc-sw { display:inline-block; width:14px; border-radius:2px; }
@@ -962,7 +967,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.984</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.985</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1845,7 +1850,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.984';
+        const APP_VERSION = 'v15.985';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -6504,6 +6509,72 @@
         function _trendCvSetRange(st, r) {
             st.charts.forEach(ch => { try { ch.timeScale().setVisibleLogicalRange({ from: r.from, to: r.to }); } catch (_) {} });
         }
+        // 自畫游標覆蓋層：垂直虛線貫穿三窗格＋時間軸日期標籤＋游標旁日期 chip（不用 setCrosshairPosition，避免其他窗格被硬塞水平線與價格標籤）
+        function _trendCvDateText(st, t) {
+            if (!t) return '';
+            if (st.tf === 'W') return t + ' 當週';
+            let w = '';
+            try { w = '（' + '日一二三四五六'.charAt(new Date(t + 'T00:00:00Z').getUTCDay()) + '）'; } catch (_) {}
+            return t + w;
+        }
+        function _trendCvInitCrosshair(st) {
+            const mkEl = cls => { const el = document.createElement('div'); el.className = cls; st.wrap.appendChild(el); return el; };
+            const vline = mkEl('trend-lc-vline'), xdate = mkEl('trend-lc-xdate'), tip = mkEl('trend-lc-tip');
+            const hide = () => { vline.style.display = xdate.style.display = tip.style.display = 'none'; };
+            let owner = -1;   // 目前擁有覆蓋層的 chart 序號：指標離開 A 進入 B 時 A 的「離開」事件可能晚到，不可把 B 的覆蓋層藏掉
+            st.charts.forEach((ch, i) => {
+                const handler = (param) => {
+                    if (_trendCv !== st) return;
+                    try {
+                        const times = st.times;
+                        let idx = null;
+                        if (param && param.point && param.time !== undefined) {
+                            idx = (param.logical !== undefined && param.logical !== null) ? Math.round(param.logical) : Math.round(ch.timeScale().coordinateToLogical(param.point.x));
+                        }
+                        if (idx === null || !isFinite(idx) || idx < 0 || idx > times.length - 1) {
+                            if (owner === i || owner === -1) { owner = -1; hide(); }
+                            return;
+                        }
+                        owner = i;
+                        const ts = ch.timeScale();
+                        let x = ts.logicalToCoordinate(idx);
+                        if (x === null || x === undefined) x = ts.timeToCoordinate(param.time);
+                        if (x === null || x === undefined) x = param.point.x;
+                        const hostEl = st.hosts[i], paneEl = hostEl.parentNode;
+                        const first = st.hosts[0].parentNode, lastHost = st.hosts[2], last = lastHost.parentNode;
+                        let tsH = 0, psW = 0;
+                        try { tsH = st.charts[2].timeScale().height(); } catch (_) {}
+                        try { psW = st.charts[0].priceScale('right').width(); } catch (_) {}
+                        if (!psW) psW = TREND_CV_SCALE_W;
+                        const plotW = Math.max(0, hostEl.clientWidth - psW);
+                        if (x < 0 || x > plotW) { hide(); return; }
+                        const text = _trendCvDateText(st, times[idx]);
+                        const top = first.offsetTop;
+                        const axisTop = last.offsetTop + lastHost.offsetHeight - tsH;
+                        vline.style.left = Math.round(x) + 'px';
+                        vline.style.top = top + 'px';
+                        vline.style.height = Math.max(0, axisTop - top) + 'px';
+                        vline.style.display = 'block';
+                        xdate.textContent = text;
+                        xdate.style.display = 'block';
+                        const xw = xdate.offsetWidth;
+                        xdate.style.left = Math.round(Math.max(0, Math.min(plotW - xw, x - xw / 2))) + 'px';
+                        xdate.style.top = Math.round(axisTop + Math.max(0, (tsH - 16) / 2)) + 'px';
+                        tip.textContent = text;
+                        tip.style.display = 'block';
+                        const tw = tip.offsetWidth, th = tip.offsetHeight;
+                        const px = param.point.x, py = paneEl.offsetTop + param.point.y;
+                        let tx = px + 12, ty = py - 30;
+                        if (tx + tw > plotW) tx = px - 12 - tw;
+                        if (ty < top) ty = py + 18;   // 不蓋到上方的圖例列
+                        tip.style.left = Math.round(Math.max(0, tx)) + 'px';
+                        tip.style.top = Math.round(ty) + 'px';
+                    } catch (_) { hide(); }
+                };
+                ch.subscribeCrosshairMove(handler);
+                st.unsubs.push(() => ch.unsubscribeCrosshairMove(handler));
+            });
+        }
         function _trendCvMount(box, LWC, model, res, key, sym, tf) {
             const hasRO = typeof ResizeObserver !== 'undefined';
             const wrap = document.createElement('div');
@@ -6524,7 +6595,9 @@
                     grid: { vertLines: { color: 'rgba(0,0,0,0.06)' }, horzLines: { color: 'rgba(0,0,0,0.06)' } },
                     rightPriceScale: { borderColor: '#d9dbd3', minimumWidth: TREND_CV_SCALE_W, mode: o.mode || 0, scaleMargins: o.margins },
                     timeScale: { visible: !!o.time, borderColor: '#d9dbd3', rightOffset: TREND_CV_RIGHT_PAD },
-                    crosshair: { mode: 0 },                       // CrosshairMode.Normal
+                    // 原生垂直線只在被指到的窗格出現、且只有最下面有日期軸；改由 _trendCvInitCrosshair 自畫貫穿三窗格的線與日期
+                    crosshair: { mode: 0, vertLine: { visible: false, labelVisible: false } },   // CrosshairMode.Normal；水平線與價格標籤保留
+
                     handleScroll: { vertTouchDrag: false },       // 手機直向滑動交給頁面捲動
                     localization: { dateFormat: 'yyyy-MM-dd' }
                 };
@@ -6585,6 +6658,7 @@
                 src.timeScale().subscribeVisibleLogicalRangeChange(handler);
                 st.unsubs.push(() => src.timeScale().unsubscribeVisibleLogicalRangeChange(handler));
             });
+            _trendCvInitCrosshair(st);
             const n = model.times.length;
             // 預設顯示根數依繪圖區寬度收斂（每根至少約 5px）：桌機 150／120 根，手機約 50–60 根，不會擠成一團
             const plotW = Math.max(120, (hosts[0].clientWidth || box.clientWidth || 900) - TREND_CV_SCALE_W);

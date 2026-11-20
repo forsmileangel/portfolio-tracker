@@ -49,7 +49,7 @@ test('all inline app scripts compile and the visible version matches APP_VERSION
     const versions = [...html.matchAll(/const APP_VERSION\s*=\s*'(v15\.\d+)';/g)];
     assert.equal(versions.length, 1);
     const version = versions[0];
-    assert.equal(version[1], 'v15.984');
+    assert.equal(version[1], 'v15.985');
     const escaped = version[1].replace(/\./g, '\\.');
     assert.match(html, new RegExp(`pointer-events:none;">${escaped}</div>`));
     assert.match(html, new RegExp(`^\\s*${escaped} - `, 'm'));
