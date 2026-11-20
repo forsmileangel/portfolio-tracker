@@ -11,7 +11,7 @@
 - **Storage Key**：`pt_v13p_state`（localStorage）
 
 ## 技術
-純 HTML / CSS / JS，無框架。Chart.js 4.4.1。lightweight-charts 4.2.3（v15.929 起，**僅觀察清單 Pro 原生圖用、lazy-load CDN、啟動不載**）。TradingView Advanced Chart widget（觀察清單 Pro）。Yahoo Finance API / OKX API（CORS proxy）。
+純 HTML / CSS / JS，無框架。Chart.js 4.4.1。lightweight-charts 4.2.3（v15.929 起，**只有觀察清單 Pro 原生圖與 v15.984 的趨勢 Tab 使用、lazy-load CDN、啟動不載**；兩個 Tab 各自管理自己的圖表狀態，不共用）。TradingView Advanced Chart widget（觀察清單 Pro）。Yahoo Finance API / OKX API（CORS proxy）。
 
 ## 後端（本機開發用）
 - `server.py`：提供 CORS proxy 與基本面資料（PE、FPE、PEG、EPS）

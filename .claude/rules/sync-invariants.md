@@ -58,6 +58,13 @@
 - `deposits`
 - `tradeHistory`
 - `watchlist`
+- `trend_list`（v15.984，趨勢 Tab 的標的清單；hash 物件內的 key 是 `trendList`）
+  - **空清單不加進 hash**：`_trendListForHash()` 對空清單回 `null`，本機端與雲端端都不加 key，所以空清單裝置的 hash 與 v15.983 完全相同。
+  - **只有「知道清單狀態」的裝置才在 user push 寫 `trend_list`**（`_trendListKnown()`：清單非空，或 localStorage 已有 `pt_trend_list_v1`，也就是使用者在本機編輯過、或套用過別處來的 array）。這時空清單寫 `[]`，代表「使用者把清單刪光」。
+  - 不知道的裝置（剛升級、從沒看過清單）**不寫這個 key**，行為同舊版。不可為了「每次都寫」而寫出 `[]`：別台會當成使用者刪光而清掉自己的清單。
+  - payload **缺這個 key** 代表是舊版 client、或還不知道清單的裝置寫的。任何 pull / 套用路徑遇到缺 key：**保留本機清單**，只設 `_trendCloudMissing`（跳一次提示＋趨勢頁顯示「重新上傳」，使用者按了才推，推送成功才清掉）。不可照 `loans` 的寫法清成 `[]`。
+  - payload 有 array 就**一律套用**（含 `[]`，和 `watchlist` 一樣）。不可加「本機修改時間較新就跳過」的判斷：跳過後 baseline 仍設成雲端 hash、dirty 被清掉，留下來的本機清單不會被推上去，之後一次不相干的修改就蓋掉雲端清單。
+  - K 線與狀態快取（`pt_trend_status_v1`）是 system data，不進 hash、不進 pending、不進 Gist。
 - `currency`
 - `sheet_url`
 - `cash_pie_cb` / `crypto_twd` / `crypto_pie_cb` / `moxa_twd` / `moxa_pie_cb`
@@ -116,7 +123,7 @@
 
 ### 兩類 domain 區分
 - **user domains**（會影響 UI pending count 與「未同步」提示）：
-  - `holdings` / `deposits` / `tradeHistory` / `watchlist` / `settings`
+  - `holdings` / `deposits` / `tradeHistory` / `watchlist` / `trendList`（v15.984）/ `settings`
 - **system domains**（**不**影響 pending count）：
   - `marketSnapshots` / `dailyPnlSnapshots` / cache / logs
 
@@ -166,6 +173,9 @@
 ### Auto-pull
 - 啟動時無條件 `_gistSilentPull()`，由 hash-first classify 主導
 - hash_match → 只更 baseline，不覆蓋本機
+- `cloud_user_same_system_newer`（雲端 user data 與上次同步相同、本機不同）→ **不可套用雲端**（v15.984）
+  - 本機才是較新的一方。有 dirty / pending 就比照 `dirty_cloud_same` 呼叫 `_gistSilentPush()`；沒有就直接 return。
+  - 這個 state 必須在 `_gistSilentPull` 的「套用雲端」之前攔下來；任何新增的 classify state 都要確認 silent pull 有對應分支，不能靠預設落到套用。
 - 未處理 master id → 強制 force apply cloud
 - dirty + cloud_newer + hash_diff → reject 並提示
 
@@ -258,6 +268,7 @@
 | v15.907-910 | v15.902「各市場收盤瞬間切出今日損益」造成下午起三市場今日全空白；盤中暫存 pair 污染收盤後數值 | **投資日（台北 08:00 換日）模型**：今日採計 `open` + `closed_retained`，收盤凍結值保留至隔日 08:00（§1 第 6 條同步改寫）；close pair 加 `final` 標記，closed_retained 與 previousTradingDate pair 都只接受 final；close pair cache 升 v3 多日期 |
 | v15.923 | Yahoo 前日 close=null 時 pair 跳到更早交易日 → prevClose 取錯日、損益放大 | final close pair 必須精確銜接 `_previousTradingDate(target)`；缺值只可用同日期 fundamentals / cache 補，禁止跳日 |
 | v15.924 | `MARKET_CALENDARS` 只涵蓋 2026，`_isExactFinalClosePair` 與兩個抓取端要求 `_isTradingDay === true`（2027 回 null）→ 2027 起今日/前次收盤損益全滅、close pair fetch 無限重試 | 未涵蓋年份降級週末判斷（`_isPossibleTradingDay` / `_expectedPrevTradingDate`）；`=== false`（明確週末/假日）仍 reject；**2026-Q4 必須補 2027 年表**（TWSE 約 9-10 月 / HKEX 約 7 月公告，NYSE 已可查）恢復精確假日 |
+| v15.984 | （既有臭蟲，新增趨勢清單時由獨立審查找出並實測重現）`_gistSilentPull` 沒有處理 `cloud_user_same_system_newer`，落到「套用雲端」：改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改被雲端舊資料覆蓋、dirty / pending 也被清掉，修改永遠沒推上去（v15.080 加這個 state 時只改了 preflight） | silent pull 加分支：有 dirty / pending → `_gistSilentPush()`，否則 return，都不套用雲端。同版新增 user data 欄位 `trend_list`（空清單不進 hash、缺 key 保留本機，見 §2） |
 | v15.925 | （v15.924 deferred 落地）補 **NYSE 2027** 行事曆（US `years` 加 2027 + 10 個全休日 + 11/26 半日，對照官方表），美股 2027 恢復精確；**TW/HK 2027 仍未補**，待 2026-Q4 官方公告後補（在那之前 TW/HK 2027 走週末降級，per-market 獨立不影響 US）|
 
 ---

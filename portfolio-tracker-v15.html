@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.984 - 2026-11-20 新增「趨勢」分頁（Tab 11）＋修正啟動自動拉取會蓋掉未上傳修改的既有臭蟲：(1) 趨勢頁：獨立的標的清單（和持倉、觀察清單分開；新增／刪除／排序），每檔顯示日線與週線目前的顏色、前一個顏色、起始日與已持續根數；右側三窗格圖（lightweight-charts 4.2.3，淺色底）：K 線依趨勢變綠／灰／黑、EMA／MA 20／60／120 六條均線、20／60／120 扣抵黃點、ATRX 副圖、Price deduction 副圖，可切日線／週線（週線由日線在本機合成，週線 120 期均線為近似）。版面與指標參考雷公（LoneCapital）的 TradingView 版面；原始碼不公開，變色規則是依其公開說法並拿使用者截圖逐根比對重建的規則 H（20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向為灰；拿使用者 6 檔標的的日線＋週線截圖共 748 根 K 線比對，吻合 91%，雙線同向時 97–100%，誤差集中在雙線不同向、原版有時畫灰色的地方；TREND_RULE 一個常數可換規則），ATRX 與 Price deduction 為近似版。資料用 Yahoo 日線（range=5y，一檔一次請求、記憶體快取 10 分鐘、失敗保留舊資料），清單狀態摘要快取在 pt_trend_status_v1、UI 偏好在 pt_trend_ui_v1；分頁不在前景不抓、啟動不抓；不併入 _allAnalysisTargets。(2) 同步：新增 user data 欄位 trend_list（pt_trend_list_v1、dirty domain trendList）；空清單不進 userDataHash（升版不改任何人的 hash），裝置知道清單狀態（清單非空、或曾在本機編輯／曾收到清單）時才在 user push 寫 trend_list，payload 缺 key（舊版寫的、或還沒看過清單的裝置寫的）時保留本機清單並在趨勢頁提示「重新上傳」（使用者按了才推、推送成功提示才消失）；不升 PT_SCHEMA_VERSION；K 線與狀態快取不進 hash／pending／Gist。(3) 修既有臭蟲（v15.080 起）：_gistSilentPull 沒處理 cloud_user_same_system_newer 而落到「套用雲端」，改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改會被雲端舊資料覆蓋且 dirty 被清掉；現在改為有未上傳修改就推送、否則不動，都不套用雲端（假 Gist 實測：舊版修改消失、新版保留並補推）。(4) 指標核心為純函式（// #region Trend Core），tests/trend-core.test.cjs 12 項；另與 Gemini、Grok 各自獨立寫的 Python 參考實作在 USD／2330.TW／0700.HK 共 9.4 萬個值逐值比對一致；新舊版三台裝置混用情境 16 項檢查通過。
   v15.983 - 2026-11-13 派網網格月曆配合 v2 1.0.8 的「利潤日前移一天」：每天 08:15 的數字（前一天 08:15 到當天 08:15 的利潤）現在記在前一天那一格，所以今天那一格要等明天 08:15 才有。(1) 月曆預設選帳本最新一筆並切到它的月份（原本預設選今天，今天沒有紀錄時退回當月最後一筆；每月 1 號會打開空白月），自動選取的狀態下，新資料進來也會跟著跳到最新一筆。(2) 口徑與空白狀態文字改成「每格是當天 08:15 到隔天 08:15 的利潤，隔天早上的快照記在前一天」，「等 08:05 排程」改成每天 08:15。讀 Gist 帳本的方式不變：days[].date 本來就是格子日期，v2 重新發布後歷史自動前移；頂層 capture_date／captured_at 仍是最新一次擷取（新鮮度標籤照舊）。不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.982 - 2026-11-10 網格分頁派網數字改以含資金費的淨利為主，避免只看配對而誤判：(1) 月平均主數字改為（配對＋資金費）÷ 有紀錄天數，小字「配對 X · 資金費 Y（USDT／日）」；該月完全沒有資金費時退回配對月均並註明。資金費為 null 的日子以 0 計入（下一天的資金費會涵蓋）。各月紀錄只留一個「每日平均」，與月曆上方同一算法。(2) 月曆、點選日、每日明細以 net_usdt 為主，缺時用配對＋（資金費或 0）；淨利無法計算時顯示配對並標「暫不含資金費」，配對與資金費放小字。(3) 目前倉位「24h 網格」改為「24h 淨利（含資金費）」，大字用 total_net_24h_usdt、百分比用 net_24h_pct（v2 1.0.7 起、schema 仍為 1）；舊檔沒有這些欄位時退回 total_profit_24h_usdt／profit_24h_pct，小字「暫不含資金費」。每列 24h 與排序用 net_24h_usdt，缺則退回 profit_24h_usdt。funding_24h_missing > 0 時註明缺幾個倉位。funding_24h_pending > 0 時註明幾倉最新一次結算派網還沒入帳、暫不計（v2 1.0.7 起）。(4) 資金費佔配對的比例：付出寫「吃掉 X%」、收到寫「加成 X%」。不改 Storage Key、Gist payload 讀寫、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
   v15.981 - 2026-11-09 網格目前倉位跟著本機每 10 分鐘更新、富途狀態列配合每 2 分鐘寫入：(1) 派網 live 排程改為每 10 分鐘（:00、:10…）發布 pionex-grid-live.json；網格分頁開著且畫面在前景時，新增 _schedulePionexLiveRefresh 於每個整 10 分後 1 分鐘（:01、:11…）呼叫既有 _refreshPionexGridFiles 重讀 Gist（只 GET，失敗照舊記錄、保留舊 cache），switchTab 切到網格才排、切走即清；畫面隱藏時清除，回到前景且停在網格頁立即重讀一次再接回節奏。(2) _pionexLiveFreshness 灰色門檻 45 分→15 分，標籤「約半小時內」→「約 10 分鐘內」；網格頁說明文字同步。(3) portfolio-quote-bridge 改每 2 分鐘寫一次富途 Gist（Gist 寫入每小時 100 次額度與派網、PT 共用），狀態列灰色門檻 2 分→3 分；5 分鐘逾時不套用的規則不變。(4) 網格頁「24h 網格」格加列過去 24 小時資金費與淨利（含 ÷ 等效倉位 %）：資料是派網發布檔既有的 total_funding_24h_usdt／total_net_24h_usdt／net_24h_pct，派網端不用改；有倉位結算尚未入帳時註明未計入，有倉位缺資料時不算淨利，舊發布檔沒有這些欄位就不顯示。不改 Storage Key、Gist payload、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -123,6 +124,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.984 - 2026-11-20 新增「趨勢」分頁：自己的標的清單，K 線依趨勢變綠／灰／黑，附 20／60／120 均線、扣抵黃點、ATRX 與 Price deduction 副圖，可切日線／週線（參考雷公的版面，變色規則是重建版）；清單會跨裝置同步。另修正：改完資料馬上關掉 App，下次開啟時修改被雲端舊資料蓋掉的問題。
         v15.983 - 2026-11-13 網格月曆配合 v2 1.0.8，每格是「當天 08:15 到隔天 08:15」的利潤、記在前一天那格（早上看的是昨天）；預設選最新一筆紀錄並切到它的月份，今天那格要等明天 08:15 才有。
         v15.982 - 2026-11-10 網格分頁的派網數字改以淨利（配對＋資金費）為主：月平均、月曆單日、點選日、明細與目前倉位 24 小時都含資金費；沒有資金費時退回配對並標示。付出寫「吃掉」、收到寫「加成」。
         v15.981 - 2026-11-09 網格頁開著時跟著本機每 10 分鐘自動更新目前倉位（每個整 10 分後 1 分鐘重讀，回到畫面時立即重讀），新鮮度標籤改「約 10 分鐘內」；富途報價改每 2 分鐘寫入，狀態列 3 分鐘內維持灰色；「24h 網格」格加列 24h 資金費與淨利。
@@ -427,6 +429,65 @@
         .watchlist-pro-field-status { min-height:1.2em; color:var(--pt-text-muted); font-size:0.7rem; font-weight:600; }
         .watchlist-pro-cat-btn { flex:1; min-width:64px; padding:0.42rem 0.5rem; border-radius:7px; border:1px solid var(--pt-border); background:var(--pt-surface-1); color:var(--pt-text-muted); font-size:0.8rem; font-weight:800; cursor:pointer; text-transform:none; letter-spacing:0; line-height:1.2; transition:border-color 0.15s, background 0.15s, color 0.15s; }
         .watchlist-pro-cat-btn.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); color:var(--pt-accent-strong); }
+        /* ── 趨勢 Tab ── */
+        .trend-layout { display:grid; grid-template-columns:270px minmax(0, 1fr); gap:1rem; align-items:start; }
+        .trend-list-panel, .trend-chart-panel { min-width:0; }
+        .trend-panel-head { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.55rem; }
+        .trend-title { color:#f1f5f9; font-size:1.05rem; font-weight:700; margin:0; }
+        .trend-btn { padding:0.4rem 0.75rem; background:rgba(30,58,110,0.25); border:1.5px solid rgba(56,139,253,0.28); border-radius:8px; color:#60a5fa; font-weight:800; font-size:0.8rem; cursor:pointer; text-transform:none; letter-spacing:0; white-space:nowrap; }
+        .trend-btn.primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); border:none; color:#fff; }
+        .trend-btn.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); color:var(--pt-accent-strong); }
+        .trend-add { display:flex; gap:0.35rem; margin-bottom:0.55rem; }
+        .trend-add input { flex:1 1 auto; min-width:0; width:auto; padding:0.45rem 0.6rem; font-size:0.86rem; }
+        .trend-add select { flex:0 0 auto; width:5.2rem; padding:0.45rem 0.4rem; font-size:0.82rem; }
+        .trend-notice { margin-bottom:0.55rem; padding:0.55rem 0.7rem; background:rgba(213,176,113,0.12); border:1px solid rgba(213,176,113,0.35); border-radius:8px; color:var(--pt-warning); font-size:0.78rem; display:flex; gap:0.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+        .trend-stamp { min-height:1.1em; margin-bottom:0.45rem; font-size:0.72rem; font-weight:600; }
+        .trend-list { display:flex; flex-direction:column; gap:0.4rem; max-height:650px; overflow-y:auto; padding-right:0.2rem; }
+        .trend-row { padding:0.6rem 0.75rem; background:var(--pt-surface-1); border:1px solid var(--pt-border); border-radius:8px; color:var(--pt-text); cursor:pointer; transition:border-color 0.18s, background 0.18s; }
+        .trend-row:hover { border-color:var(--pt-border-strong); background:var(--pt-surface-hover); }
+        .trend-row.active { border-color:var(--pt-accent); background:var(--pt-accent-soft); }
+        .trend-row-top { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.2rem; min-width:0; }
+        .trend-sym { font-size:0.95rem; font-weight:800; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        /* 色點放在淺色底的小膠囊上（和圖表同底色），黑色才看得出是黑色而不是空心 */
+        .trend-dots { margin-left:auto; display:inline-flex; align-items:center; gap:0.25rem; flex-shrink:0; background:#fbfbf8; border-radius:999px; padding:0.14rem 0.5rem; }
+        .trend-dl { color:#555; font-size:0.68rem; font-weight:700; }
+        .trend-dot { display:inline-block; width:0.8rem; height:0.8rem; border-radius:50%; border:1px solid rgba(0,0,0,0.18); box-sizing:border-box; }
+        .trend-dot.s-G { background:#29AB87; }
+        .trend-dot.s-Y { background:#B2B5BE; }
+        .trend-dot.s-B { background:#363A45; }
+        .trend-dot.s-none { background:transparent; border:1px dashed #999; }
+        .trend-line { color:var(--pt-text-soft); font-size:0.74rem; line-height:1.5; }
+        .trend-muted { color:var(--pt-text-muted); }
+        .trend-tag { display:inline-block; margin-left:0.3rem; padding:0 0.3rem; border-radius:4px; background:var(--pt-info-soft); color:var(--pt-info); font-size:0.62rem; font-weight:800; line-height:1.5; vertical-align:middle; }
+        .trend-tag.old { background:rgba(213,176,113,0.16); color:var(--pt-warning); }
+        .trend-row-ctl { display:flex; gap:0.35rem; justify-content:flex-end; margin-top:0.4rem; }
+        .trend-chart-head { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+        .trend-chart-title { font-size:1.05rem; font-weight:800; color:#f1f5f9; }
+        .trend-chart-status { flex:1 1 100%; color:var(--pt-text-soft); font-size:0.8rem; min-height:1.2em; }
+        .trend-tf { display:inline-flex; gap:0.3rem; margin-left:auto; }
+        .trend-chart-box { min-height:480px; border:1px solid #d9dbd3; border-radius:8px; overflow:hidden; background:#fbfbf8; color:#333; }
+        .trend-chart-ph { min-height:420px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.35rem; color:#6b6f76; text-align:center; padding:2rem; }
+        .trend-ph-main { font-weight:800; color:#c62828; }
+        .trend-ph-sub { font-size:0.78rem; color:#7a7e85; max-width:36rem; word-break:break-word; }
+        .trend-chart-box .trend-btn { margin-top:0.4rem; background:#fff; border-color:#c8d3e6; color:#1d4ed8; }
+        .trend-lc { display:flex; flex-direction:column; background:#fbfbf8; }
+        .trend-lc-legend { display:flex; flex-wrap:wrap; align-items:center; gap:0.25rem 0.8rem; padding:0.4rem 0.65rem 0.35rem; border-bottom:1px solid #e6e7e1; color:#333; font-size:0.7rem; font-weight:700; line-height:1.3; }
+        .trend-lc-li { display:inline-flex; align-items:center; gap:0.3rem; white-space:nowrap; }
+        .trend-lc-sw { display:inline-block; width:14px; border-radius:2px; }
+        .trend-lc-sw.dot { width:8px; height:8px; border-radius:50%; background:#FFC40C; }
+        .trend-lc-note { margin-left:auto; color:#8a8d93; font-weight:600; }
+        .trend-lc-pane { position:relative; }
+        .trend-lc-pane + .trend-lc-pane { border-top:1px solid #e6e7e1; }
+        .trend-lc-host { width:100%; overflow:hidden; }
+        .trend-lc-price .trend-lc-host { height:380px; }
+        .trend-lc-atrx .trend-lc-host { height:110px; }
+        .trend-lc-dk .trend-lc-host { height:130px; }
+        .trend-lc-label { position:absolute; top:4px; left:6px; z-index:3; pointer-events:none; padding:0 4px; border-radius:3px; background:rgba(251,251,248,0.82); color:#555; font-size:11px; font-weight:700; line-height:16px; }
+        @media (max-width:640px) {
+            .trend-lc-price .trend-lc-host { height:300px; }
+            .trend-lc-legend { gap:0.2rem 0.6rem; font-size:0.66rem; }
+        }
+        .trend-empty { padding:3rem 1rem; color:#607585; text-align:center; font-size:0.9rem; border:1px dashed var(--pt-border); border-radius:8px; }
         .pionex-cal { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:0.28rem; }
         .pionex-cal-dow { text-align:center; color:var(--pt-text-muted); font-size:0.68rem; font-weight:700; padding:0.15rem 0 0.3rem; }
         .pionex-cal-cell { min-height:3.6rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); padding:0.22rem 0.18rem 0.28rem; text-align:center; color:var(--pt-text-muted); }
@@ -566,8 +627,12 @@
             #tab-pane-6,
             #tab-pane-7,
             #tab-pane-8,
-            #tab-pane-9 { padding-top: 0.4rem !important; }
+            #tab-pane-9,
+            #tab-pane-11 { padding-top: 0.4rem !important; }
             .watchlist-pro-layout { grid-template-columns:1fr !important; }
+            .trend-layout { grid-template-columns:1fr !important; }
+            .trend-list { max-height:340px !important; }
+            .trend-chart-box { min-height:360px !important; }
             .watchlist-pro-chart-card { min-height:520px !important; }
             .watchlist-pro-chart { min-height:480px !important; }
             .watchlist-pro-form-grid { grid-template-columns:1fr !important; }
@@ -780,6 +845,10 @@
         .tab-btn { background: transparent !important; color: var(--pt-text-muted) !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; }
         .tab-btn:hover { background: rgba(255,255,255,0.025) !important; color: var(--pt-text-soft) !important; }
         .tab-btn.active { background: var(--pt-accent-soft) !important; color: var(--pt-accent-strong) !important; border-bottom-color: var(--pt-accent) !important; }
+        /* 趨勢 Tab：主題對所有 button 套 !important 底色，選取中／主要／淺色圖表面板內的按鈕要另外蓋回來 */
+        .trend-btn.active { background: var(--pt-accent-soft) !important; color: var(--pt-accent-strong) !important; border-color: var(--pt-accent) !important; }
+        .trend-btn.primary { background: var(--pt-accent) !important; color: #101512 !important; border-color: var(--pt-accent-strong) !important; }
+        .trend-chart-box .trend-btn { background: #fff !important; color: #1d4ed8 !important; border-color: #c8d3e6 !important; }
 
         table { color: var(--pt-text-soft); }
         table th { color: var(--pt-accent-strong) !important; border-color: var(--pt-border) !important; }
@@ -893,7 +962,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.983</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.984</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -914,6 +983,7 @@
             <button class="tab-btn" id="tab-btn-8" onclick="switchTab(8)"><i class="ic">▤</i> 貸款</button>
             <button class="tab-btn" id="tab-btn-9" onclick="switchTab(9)"><i class="ic">◉</i> 觀察清單</button>
             <button class="tab-btn" id="tab-btn-10" onclick="switchTab(10)"><i class="ic">▥</i> 網格</button>
+            <button class="tab-btn" id="tab-btn-11" onclick="switchTab(11)"><i class="ic">◩</i> 趨勢</button>
         </div>
 
         <!-- Tab 1: Holdings -->
@@ -1457,6 +1527,7 @@
 
         <!-- Tab 9: 觀察清單 Pro（v15.926） -->
         <div id="tab-pane-10" class="tab-pane" style="padding-top:1rem;"></div>
+        <div id="tab-pane-11" class="tab-pane" style="padding-top:1rem;"></div>
 
         <div id="tab-pane-9" class="tab-pane" style="padding-top:1rem;">
             <div class="glass-card" style="padding:1.5rem 1.75rem;">
@@ -1774,7 +1845,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.983';
+        const APP_VERSION = 'v15.984';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -1793,6 +1864,7 @@
             corporateActions: 'pt_corporate_actions_v1', // v15.920：股票分割 / 反分割紀錄
             corporateActionPlans: 'pt_corporate_action_plans_v1', // v15.922：股票分割 / 反分割預約
             watchlist:        'pt_watchlist',
+            trendList:        'pt_trend_list_v1',    // 趨勢 Tab：使用者管理的趨勢標的清單（user data，Gist trend_list，入 hash/pending）
             snapshots:        'pt_snapshots',
             netWorthSnapshots:'pt_net_worth_snapshots_v1', // v15.967：貸款頁淨資產每日快照（system data，不入 hash/pending）
             // 圓餅圖手動欄位
@@ -1807,6 +1879,7 @@
             font:             'pt_font',
             fontSize:         'font_size',
             watchlistMoonPhases: 'pt_watchlist_moon_phases_v1', // v15.947：TradingView 月相 UI 偏好（本機，不同步）
+            trendUi:          'pt_trend_ui_v1',      // 趨勢 Tab：選取標的 + 週期 UI 偏好（本機，不同步、不入 hash）
             // Gist 同步
             gistToken:        'pt_gist_token_v15',
             gistId:           'pt_gist_id_v15',
@@ -1848,6 +1921,7 @@
             yfProxyIdx:       'pt_yf_proxy_idx_v1',    // v15.934：Yahoo proxy 上次成功節點（跨開頁持久化，冷開不再從死節點等 timeout）
             sheetProxyIdx:    'pt_sheet_proxy_idx_v1', // v15.934：Sheet CSV proxy 上次成功節點（同上）
             futuQuoteGistId:  'pt_futu_quote_gist_id_v1', // v15.975：富途報價獨立 Gist id（自動從 Gist 清單找到；本機、不同步、不入 hash）
+            trendStatusCache: 'pt_trend_status_v1',  // 趨勢 Tab：趨勢狀態計算結果快取（system data，不入 hash/pending/Gist）
             // 後端
             pionexGridLedger: 'pt_pionex_grid_ledger_v1', // v15.954：派網網格日記帳（Gist 第二檔，不入 hash/pending）
             pionexGridLive:   'pt_pionex_grid_live_v1',   // v15.962：目前倉位暫存（Gist 第三檔，不入 hash/pending）
@@ -5820,6 +5894,783 @@
         function loadLoans() {
             try { loans = _normalizeLoans(JSON.parse(localStorage.getItem(PT_LOANS_KEY)) || []); } catch(_) { loans = []; }
         }
+        // ── 趨勢 Tab：使用者管理的趨勢標的清單（user data）──
+        // 項目固定為 { symbol, market, yahooSymbol }（字串），保留使用者順序、依 yahooSymbol 去重。
+        // Gist payload key = trend_list（新版 client 每次 user push 一律寫入，含 []）；
+        // 缺 key = 舊版 client 寫的 payload → pull 時保留本機清單、只設 _trendCloudMissing，不可清成 []。
+        // hash：清單非空才加 trendList key（_trendListForHash），空清單裝置的 hash 與舊版完全相同。
+        const PT_TREND_LIST_KEY = STORAGE_KEYS.trendList;
+        let trendList = [];
+        let _trendCloudMissing = false;   // 最近一次套用的雲端 / 檔案 payload 缺 trend_list 且本機清單非空
+        function _normalizeTrendItem(input) {
+            const isObj = input && typeof input === 'object';
+            let raw = String(isObj ? (input.symbol ?? '') : (input ?? '')).trim().toUpperCase();
+            if (!raw) return null;
+            const given = String((isObj && input.market) || '').trim().toUpperCase();
+            // 明確給的市場優先（已存的項目、或使用者在下拉選了市場）：選「美股」輸入 BTC／SOL 就是美股代號。
+            // 這也讓重新正規化冪等：已存項目一定帶 market，不會在第二次被改判成別的市場（兩端 hash 才一致）。
+            let market = (given === 'TW' || given === 'HK' || given === 'US' || given === 'CRYPTO') ? given : '';
+            if (!market) {
+                // 自動判斷：全域 getSymbolMarket 不認 .TWO 與 5–6 碼純數字的台股 ETF（00878／006208），這裡先補
+                if (/\.TWO?$/.test(raw) || /^\d{5,6}[A-Z]?$/.test(raw)) market = 'TW';
+                else if (_isWatchlistCryptoSymbol(raw, '')) market = 'CRYPTO';   // BTC / ETHUSDT / BTC-USD …
+                else market = getSymbolMarket(raw);
+            }
+            if (market === 'US') raw = raw.replace(/^.*:/, '');   // NYSE:XXX → XXX（Yahoo 不吃交易所前綴）
+            if (!raw) return null;
+            // 已存的 yahooSymbol 優先（.TWO 等無法從 base symbol 反推，重新正規化須維持冪等）
+            let yahooSymbol = isObj ? String(input.yahooSymbol || '').trim().toUpperCase() : '';
+            if (!yahooSymbol) {
+                if (market === 'US') {
+                    // 不走 _inferWatchlistYahooSymbol：它會把 BTC／SOL 這類代號一律當加密
+                    try { yahooSymbol = _canonicalYahooSymbol(raw, 'US') || raw; } catch(_) { yahooSymbol = raw; }
+                } else {
+                    yahooSymbol = _inferWatchlistYahooSymbol(raw, market);
+                }
+                yahooSymbol = String(yahooSymbol || '').trim().toUpperCase();
+            }
+            if (!yahooSymbol) return null;
+            const symbol = market === 'CRYPTO' ? raw : _watchlistBaseSymbol(raw, market);
+            if (!symbol) return null;
+            return { symbol, market, yahooSymbol };
+        }
+        function _normalizeTrendList(arr) {
+            if (!Array.isArray(arr)) return [];
+            const out = [];
+            const seen = new Set();
+            for (const it of arr) {
+                const n = _normalizeTrendItem(it);
+                if (!n || seen.has(n.yahooSymbol)) continue;
+                seen.add(n.yahooSymbol);
+                out.push(n);
+            }
+            return out;
+        }
+        // hash 輸入：空 / 非 array → null（呼叫端不加 key）；兩端（本機 / 雲端）走同一正規化，保證 canonical 一致
+        function _trendListForHash(arr) {
+            const list = _normalizeTrendList(arr);
+            if (!list.length) return null;
+            return list.map(x => ({ symbol: String(x.symbol), market: String(x.market), yahooSymbol: String(x.yahooSymbol) }));
+        }
+        function saveTrendList() {
+            try {
+                trendList = _normalizeTrendList(trendList);
+                localStorage.setItem(PT_TREND_LIST_KEY, JSON.stringify(trendList));
+                return true;
+            } catch(e) {
+                _handleStorageWriteError('trendList', e);
+                return false;
+            }
+        }
+        function loadTrendList() {
+            try { trendList = _normalizeTrendList(JSON.parse(localStorage.getItem(PT_TREND_LIST_KEY)) || []); } catch(_) { trendList = []; }
+            // 「雲端缺清單」提示要撐過重新整理（重開後不一定馬上有 pull）：旗標跟著 UI 偏好存本機，不入 hash、不同步
+            try {
+                const ui = JSON.parse(localStorage.getItem(STORAGE_KEYS.trendUi) || 'null');
+                _trendCloudMissing = !!(ui && ui.cloudMissing) && trendList.length > 0;
+            } catch(_) { _trendCloudMissing = false; }
+        }
+        // 這台裝置「知不知道」趨勢清單的狀態：清單非空，或 localStorage 已有 pt_trend_list_v1
+        // （只有使用者在本機編輯過、或套用過雲端／檔案的 array 時 saveTrendList() 才會寫出這個 key）。
+        // 推送 payload 只有「知道」時才寫 trend_list。剛升級、從沒看過清單的裝置若寫出 []，
+        // 別台會把它當成「使用者把清單刪光」而清掉自己的清單（舊版把 key 洗掉之後尤其會發生）；
+        // 不知道就不寫 key，行為和舊版一樣，別台會保留清單並提示重新上傳。
+        function _trendListKnown() {
+            if (trendList.length > 0) return true;
+            try { return localStorage.getItem(PT_TREND_LIST_KEY) !== null; } catch(_) { return false; }
+        }
+        // 設定「雲端缺清單」旗標並存進 UI 偏好（只寫本機 UI key；不標 dirty、不排 push，pull 期間呼叫也安全）
+        function _setTrendCloudMissing(v) {
+            v = !!v;
+            if (_trendCloudMissing === v) return;
+            _trendCloudMissing = v;
+            try {
+                const ui = JSON.parse(localStorage.getItem(STORAGE_KEYS.trendUi) || 'null') || {};
+                ui.cloudMissing = v;
+                localStorage.setItem(STORAGE_KEYS.trendUi, JSON.stringify(ui));
+            } catch(_) {}
+            // 提示列若已在畫面上就同步顯示／隱藏（推送成功後自動消失）
+            try {
+                const n = document.getElementById('trend-notice');
+                if (n) n.style.display = (v && trendList.length) ? 'flex' : 'none';
+            } catch(_) {}
+            // 剛變成「缺」的那一次提示一下（旗標有存檔，所以不會每次啟動都跳）：這個狀態下本機 hash 與雲端不同，
+            // 快照等系統資料也推不上去，不能只藏在趨勢頁裡等使用者自己發現。
+            if (v && trendList.length) {
+                try { showWarnToast('雲端缺少趨勢清單（可能被舊版裝置覆蓋）。請到「趨勢」分頁按「重新上傳」', 7000); } catch(_) {}
+            }
+        }
+        // 使用者新增 / 刪除 / 排序後由 UI 呼叫（本階段不呼叫）
+        function _markTrendListChanged() {
+            try { _markAndAutoPush(['trendList']); } catch(_) {}
+        }
+        // pull / FSA apply 共用：payload 有 array → 一律套用（含 []，和 watchlist 一樣）；缺 key → 保留本機 + 設 flag。
+        // 不用「本機修改時間較新就跳過」那種判斷：跳過之後 baseline 仍會設成雲端 hash、dirty 被清掉，
+        // 留下來的本機清單既沒套用雲端也不會被推上去，之後一次不相干的修改就把雲端清單蓋掉。
+        // 只寫 localStorage，不標 dirty、不排 push（呼叫端都在 _isApplyingCloudPull = true 期間）
+        function _applyTrendListFromPayload(saved) {
+            if (!saved || !Array.isArray(saved.trend_list)) {
+                _setTrendCloudMissing(trendList.length > 0);
+                return false;
+            }
+            _setTrendCloudMissing(false);
+            trendList = _normalizeTrendList(saved.trend_list);
+            saveTrendList();
+            if (typeof renderTrendTab === 'function') { try { renderTrendTab(); } catch (_) {} }
+            // 趨勢頁開著時，新拉進來的標的要馬上抓狀態（只抓行情，不碰 sync；頁面不在前景時函式自己會跳過）
+            if (typeof _trendRefreshStatuses === 'function') { try { _trendRefreshStatuses(); } catch (_) {} }
+            return true;
+        }
+        // ==================== 趨勢 Tab：外殼 / 清單 UI / 資料與狀態層 ====================
+        // 純 visual + system 資料：只讀 trendList；會呼叫 _markTrendListChanged() 的只有 add / remove / move 三個使用者動作
+        // （加上「重新上傳」按鈕）。狀態快取（STORAGE_KEYS.trendStatusCache）是 system data，不碰任何 sync / dirty 函式。
+        //
+        // ── 圖表階段（後續）合約 ──
+        //   #trend-chart-box        圖表階段擁有的容器；清單變動時外殼不會重建它
+        //   _trendSelectedItem()    目前選取標的 { symbol, market, yahooSymbol } 或 null
+        //   _trendTf                'D' | 'W'
+        //   TREND_RULE              著色規則（見 tcTrendStates；改規則只改這一個常數）
+        //   _trendGetBars(sym,{force}) -> Promise<{bars,tz,fetchedAt,error}>（日線；週線用 tcBuildModel(bars,'W',TREND_RULE)）
+        //   _renderTrendChart()     圖表區段實作；選取 / 週期變更 / 選取標的 bars 更新時被呼叫
+        //   _disposeTrendCharts()   圖表區段實作；清空 / 重建圖表容器前、刪除選取標的時被呼叫
+        // 'H'：20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向才是灰。
+        // 雷公原始碼不公開；H 是拿使用者 TradingView 截圖逐根比對後最吻合的重建：6 檔（USD／NVDL／QLD／TSLL／MSTR／SPCX）
+        // 日線＋週線共 748 根清楚的 K 線，吻合 91%。20 期雙線同向時（約 85% 的 K 線）吻合 97–100%；誤差集中在雙線不同向時，
+        // 原版有時畫灰、有時維持趨勢色，試過上千種均線／扣抵／記憶前一根的組合都沒有比 H 高的（只看方向的規則上限約 92–93%）。
+        // 備選 'A'（只看 20 期雙線）、'B'、'C'、'D' 仍保留在 tcTrendStates，方便日後對照調整。
+        const TREND_RULE = 'H';
+        const TREND_BARS_TTL_MS = 10 * 60 * 1000;
+        const TREND_REFRESH_MS = 15 * 60 * 1000;
+        let _trendSelected = null;      // yahooSymbol
+        let _trendTf = 'D';
+        let _trendEditMode = false;
+        let _trendLoaded = false;       // UI 偏好 + 狀態快取是否已載入（首次開 Tab 才載）
+        let _trendStatus = {};          // yahooSymbol -> { D, W, lastTime, live, fetchedAt }
+        const _trendErr = new Set();    // 最近一次抓取失敗的 yahooSymbol
+        const _trendBarsCache = new Map();
+        const _trendBarsInflight = new Map();
+        let _trendRefreshing = false;
+        let _trendTimer = null;
+        let _trendChartKey = null;      // 目前圖表容器對應的 sym|tf
+
+        function _trendPaneActive() {
+            const p = document.getElementById('tab-pane-11');
+            return !!(p && p.classList.contains('active'));
+        }
+        function _trendSelectedItem() {
+            return trendList.find(x => x.yahooSymbol === _trendSelected) || null;
+        }
+        function _trendLoadOnce() {
+            if (_trendLoaded) return;
+            _trendLoaded = true;
+            try {
+                const ui = JSON.parse(localStorage.getItem(STORAGE_KEYS.trendUi) || 'null');
+                if (ui && typeof ui === 'object') {
+                    if (typeof ui.sel === 'string') _trendSelected = ui.sel;
+                    if (ui.tf === 'D' || ui.tf === 'W') _trendTf = ui.tf;
+                }
+            } catch (_) {}
+            try {
+                const c = JSON.parse(localStorage.getItem(STORAGE_KEYS.trendStatusCache) || 'null');
+                if (c && c.v === 1 && c.rule === TREND_RULE && c.items && typeof c.items === 'object') {
+                    const keep = new Set(trendList.map(x => x.yahooSymbol));
+                    Object.keys(c.items).forEach(k => { if (keep.has(k) && c.items[k] && c.items[k].D && c.items[k].W) _trendStatus[k] = c.items[k]; });
+                }
+            } catch (_) {}
+        }
+        function _trendSaveUi() {
+            try { localStorage.setItem(STORAGE_KEYS.trendUi, JSON.stringify({ sel: _trendSelected, tf: _trendTf, cloudMissing: _trendCloudMissing })); } catch (_) {}
+        }
+        function _trendSaveStatusCache() {
+            try {
+                const keep = new Set(trendList.map(x => x.yahooSymbol));
+                const items = {};
+                Object.keys(_trendStatus).forEach(k => { if (keep.has(k)) items[k] = _trendStatus[k]; });
+                localStorage.setItem(STORAGE_KEYS.trendStatusCache, JSON.stringify({ v: 1, rule: TREND_RULE, items }));
+            } catch (_) {}
+        }
+        function _trendFixSelection() {
+            const before = _trendSelected;
+            if (!trendList.length) _trendSelected = null;
+            else if (!trendList.some(x => x.yahooSymbol === _trendSelected)) _trendSelected = trendList[0].yahooSymbol;
+            if (before !== _trendSelected) _trendSaveUi();
+        }
+
+        // ── 資料層 ──
+        function _trendGetBars(sym, opts) {
+            const force = !!(opts && opts.force);
+            const c = _trendBarsCache.get(sym);
+            if (!force && c && !c.error && Date.now() - c.fetchedAt < TREND_BARS_TTL_MS) return Promise.resolve(c);
+            const inflight = _trendBarsInflight.get(sym);
+            if (inflight) return inflight;
+            const p = (async () => {
+                try {
+                    const json = await yfFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5y`);
+                    const r = tcParseYahooChart(json, sym);
+                    if (!r.bars.length) throw new Error('無 K 線資料');
+                    const e = { bars: r.bars, tz: r.tz, fetchedAt: Date.now(), error: null };
+                    _trendBarsCache.set(sym, e);
+                    return e;
+                } catch (err) {
+                    const msg = String((err && err.message) || err);
+                    const prev = _trendBarsCache.get(sym);
+                    if (prev) {   // stale fallback：保留舊 bars
+                        const e = Object.assign({}, prev, { error: msg });
+                        _trendBarsCache.set(sym, e);
+                        return e;
+                    }
+                    return { bars: [], tz: null, fetchedAt: 0, error: msg };
+                } finally {
+                    _trendBarsInflight.delete(sym);
+                }
+            })();
+            _trendBarsInflight.set(sym, p);
+            return p;
+        }
+        // 最後一根還在形成中：最後一根日期 = 交易所時區的今天，且該市場目前正規盤中（加密永遠 live）
+        function _trendIsLive(bars, tz, item) {
+            if (!bars.length || !item) return false;
+            let today;
+            try { today = new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (_) { return false; }
+            if (bars[bars.length - 1].time !== today) return false;
+            if (item.market === 'CRYPTO') return true;
+            try { return _marketSession(item.market).status === 'open'; } catch (_) { return true; }
+        }
+        async function _trendFetchOne(sym, opts) {
+            const res = await _trendGetBars(sym, opts);
+            const item = trendList.find(x => x.yahooSymbol === sym);
+            if (!item) return res;
+            if (res.error) _trendErr.add(sym); else _trendErr.delete(sym);
+            if (res.bars.length) {
+                const s = tcSummary(res.bars, TREND_RULE);
+                _trendStatus[sym] = { D: s.D, W: s.W, lastTime: s.lastTime, live: _trendIsLive(res.bars, res.tz, item), fetchedAt: res.fetchedAt };
+                _trendSaveStatusCache();
+            }
+            _trendUpdateRow(sym);
+            _trendUpdateStamp();
+            if (sym === _trendSelected) {
+                _trendUpdateHeader();
+                // 選取中的標的拿到 K 線就交給圖表：同一份資料（fetchedAt 相同）時 _renderTrendChart 自己會略過，
+                // 資料較新就原地更新、先前失敗就重畫。不管是誰觸發這次抓取（點選、重新整理、計時器）都一致。
+                if (res.bars.length && _trendPaneActive()) _renderTrendChart();
+            }
+            return res;
+        }
+        async function _trendRefreshStatuses(opts) {
+            if (!_trendPaneActive() || document.hidden || _trendRefreshing) return;
+            const force = !!(opts && opts.force);
+            _trendRefreshing = true;
+            _trendSetRefreshBtn();
+            try {
+                const syms = trendList.map(x => x.yahooSymbol);
+                const run = async (sym) => {
+                    try { await _trendFetchOne(sym, { force }); } catch (_) {}   // 圖表更新由 _trendFetchOne 負責
+                };
+                if (_trendSelected && syms.includes(_trendSelected)) await run(_trendSelected);
+                await _runTaskPool(syms.filter(s => s !== _trendSelected).map(s => () => run(s)), 3);
+            } finally {
+                _trendRefreshing = false;
+                _trendSetRefreshBtn();
+            }
+        }
+        function _scheduleTrendRefresh() {
+            clearTimeout(_trendTimer);
+            _trendTimer = null;
+            if (!_trendPaneActive() || document.hidden) return;
+            _trendTimer = setTimeout(async () => {
+                _trendTimer = null;
+                await _trendRefreshStatuses();
+                _scheduleTrendRefresh();
+            }, TREND_REFRESH_MS);
+        }
+
+        // ── 文字 / 列 HTML ──
+        function _trendStateName(c) { return c === 'G' ? '綠' : c === 'B' ? '黑' : '灰'; }
+        function _trendSinceText(since) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(since || '');
+            if (!m) return '';
+            const md = (+m[2]) + '/' + (+m[3]);
+            return (+m[1] === new Date().getFullYear()) ? md : (+m[1]) + '/' + md;
+        }
+        function _trendLineText(label, t) {
+            if (!t) return '';
+            if (t.insufficient) return `${label} 資料不足（${t.bars} 根）`;
+            return `${label} ${t.prev ? _trendStateName(t.prev) + '→' : ''}${_trendStateName(t.cur)} ${_trendSinceText(t.since)} 起（${t.barsAgo + 1} 根）`;
+        }
+        function _trendEmptyStatusText(sym) {
+            return _trendErr.has(sym) ? '讀取失敗' : '讀取中…';
+        }
+        function _trendRowMainHtml(it) {
+            const sym = it.yahooSymbol, st = _trendStatus[sym];
+            const dot = tf => { const t = st && st[tf]; return `<span class="trend-dot ${t && !t.insufficient ? 's-' + t.cur : 's-none'}"></span>`; };
+            const old = (st && _trendErr.has(sym)) ? '<span class="trend-tag old">舊</span>' : '';
+            const live = (st && st.live) ? '<span class="trend-tag">盤中</span>' : '';
+            const lines = st
+                ? `<div class="trend-line">${_escapeHtml(_trendLineText('日', st.D))}${live}</div><div class="trend-line">${_escapeHtml(_trendLineText('週', st.W))}${live}</div>`
+                : `<div class="trend-line trend-muted">${_trendEmptyStatusText(sym)}</div>`;
+            return `<div class="trend-row-top"><span class="trend-sym" title="${_escapeHtml(sym)}">${_escapeHtml(it.symbol)}</span><span class="watchlist-pro-market">${_escapeHtml(it.market)}</span>${old}<span class="trend-dots"><span class="trend-dl">日</span>${dot('D')}<span class="trend-dl">週</span>${dot('W')}</span></div>${lines}`;
+        }
+        function _trendRowEl(sym) {
+            const rows = document.querySelectorAll('#trend-list .trend-row');
+            for (const r of rows) if (r.dataset.sym === sym) return r;
+            return null;
+        }
+        function _trendUpdateRow(sym) {
+            const row = _trendRowEl(sym);
+            const it = trendList.find(x => x.yahooSymbol === sym);
+            const main = row && row.querySelector('.trend-row-main');
+            if (main && it) main.innerHTML = _trendRowMainHtml(it);
+        }
+        function _trendUpdateStamp() {
+            const el = document.getElementById('trend-stamp');
+            if (!el) return;
+            let newest = 0;
+            trendList.forEach(x => { const s = _trendStatus[x.yahooSymbol]; if (s && s.fetchedAt > newest) newest = s.fetchedAt; });
+            if (!newest) { el.textContent = ''; return; }
+            el.textContent = '狀態更新 ' + new Date(newest).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+            el.style.color = _freshnessColor(Date.now() - newest, 20 * 60 * 1000, 2 * 60 * 60 * 1000);
+        }
+        function _trendSetRefreshBtn() {
+            const b = document.getElementById('trend-refresh-btn');
+            if (b) { b.disabled = _trendRefreshing; b.textContent = _trendRefreshing ? '更新中…' : '↻ 重新整理'; }
+        }
+        function renderTrendList() {
+            const list = document.getElementById('trend-list');
+            if (!list) return;
+            const notice = document.getElementById('trend-notice');
+            if (notice) notice.style.display = (_trendCloudMissing && trendList.length) ? 'flex' : 'none';
+            const editBtn = document.getElementById('trend-edit-btn');
+            if (editBtn) { editBtn.textContent = _trendEditMode ? '完成' : '編輯'; editBtn.classList.toggle('active', _trendEditMode); }
+            if (!trendList.length) { list.innerHTML = '<div style="color:#607585;text-align:center;padding:1.5rem 0;font-size:0.82rem;">尚無標的</div>'; _trendUpdateStamp(); return; }
+            list.innerHTML = trendList.map((it, i) => {
+                const ctl = _trendEditMode
+                    ? `<div class="trend-row-ctl"><button class="watchlist-pro-icon-btn watchlist-pro-order-btn" onclick="event.stopPropagation(); moveTrendSymbol(${i}, -1)" aria-label="上移" ${i === 0 ? 'disabled' : ''}>上移</button><button class="watchlist-pro-icon-btn watchlist-pro-order-btn" onclick="event.stopPropagation(); moveTrendSymbol(${i}, 1)" aria-label="下移" ${i === trendList.length - 1 ? 'disabled' : ''}>下移</button><button class="watchlist-pro-icon-btn danger" onclick="event.stopPropagation(); removeTrendSymbolAt(${i})">刪除</button></div>`
+                    : '';
+                return `<div class="trend-row${it.yahooSymbol === _trendSelected ? ' active' : ''}" data-sym="${_escapeHtml(it.yahooSymbol)}" onclick="selectTrendSymbol(${i})"><div class="trend-row-main">${_trendRowMainHtml(it)}</div>${ctl}</div>`;
+            }).join('');
+            _trendUpdateStamp();
+        }
+        function _trendUpdateHeader() {
+            const it = _trendSelectedItem();
+            const title = document.getElementById('trend-chart-title');
+            const status = document.getElementById('trend-chart-status');
+            if (title) title.textContent = it ? `${it.symbol}（${it.yahooSymbol}）` : '';
+            ['D', 'W'].forEach(tf => { const b = document.getElementById('trend-tf-' + tf); if (b) b.classList.toggle('active', tf === _trendTf); });
+            if (status) {
+                const st = it && _trendStatus[it.yahooSymbol];
+                if (!it) status.textContent = '';
+                else if (!st) status.textContent = _trendEmptyStatusText(it.yahooSymbol);
+                else status.textContent = _trendLineText(_trendTf === 'D' ? '日' : '週', st[_trendTf]) + (st.live ? ' ・盤中' : '') + (_trendErr.has(it.yahooSymbol) ? ' ・舊資料' : '');
+            }
+        }
+        // 清單 / 選取變動後同步圖表容器（空清單顯示空狀態、否則交給圖表階段）
+        function _trendSyncChart() {
+            const box = document.getElementById('trend-chart-box');
+            const empty = document.getElementById('trend-empty');
+            const head = document.getElementById('trend-chart-head');
+            if (!box) return;
+            if (!_trendSelected) {
+                _disposeTrendCharts();
+                box.innerHTML = '';
+                box.style.display = 'none';
+                if (head) head.style.display = 'none';
+                if (empty) empty.style.display = '';
+                _trendChartKey = null;
+                return;
+            }
+            box.style.display = '';
+            if (head) head.style.display = '';
+            if (empty) empty.style.display = 'none';
+            const key = _trendSelected + '|' + _trendTf;
+            if (key === _trendChartKey) return;
+            _trendChartKey = key;
+            _renderTrendChart();
+        }
+        function renderTrendTab() {
+            const pane = document.getElementById('tab-pane-11');
+            if (!pane || !pane.classList.contains('active')) return;   // 未開啟的 Tab 不渲染（切過去時 switchTab 會再呼叫）
+            _trendLoadOnce();
+            if (!document.getElementById('trend-layout')) {
+                _disposeTrendCharts();
+                _trendChartKey = null;
+                pane.innerHTML = `<div class="glass-card" style="padding:1.5rem 1.75rem;"><div class="trend-layout" id="trend-layout">
+                    <div class="trend-list-panel">
+                        <div class="trend-panel-head">
+                            <h2 class="trend-title"><i class="ic">◩</i> 趨勢清單</h2>
+                            <div style="display:flex;gap:0.35rem;">
+                                <button class="trend-btn" id="trend-edit-btn" onclick="toggleTrendEditMode()">編輯</button>
+                                <button class="trend-btn" id="trend-refresh-btn" onclick="_trendRefreshStatuses({force:true})">↻ 重新整理</button>
+                            </div>
+                        </div>
+                        <div class="trend-notice" id="trend-notice" style="display:none;"><span>雲端缺少趨勢清單（可能被舊版裝置覆蓋）</span><button class="trend-btn" onclick="trendReuploadList()">重新上傳</button></div>
+                        <div class="trend-add">
+                            <input id="trend-add-input" type="text" placeholder="代號，如 AAPL / 2330" autocomplete="off" autocapitalize="characters" onkeydown="if(event.key==='Enter' && !event.isComposing){addTrendSymbol();}">
+                            <select id="trend-add-market"><option value="">自動</option><option value="US">美股</option><option value="TW">台股</option><option value="HK">港股</option><option value="CRYPTO">加密</option></select>
+                            <button class="trend-btn primary" onclick="addTrendSymbol()">新增</button>
+                        </div>
+                        <div class="trend-stamp" id="trend-stamp"></div>
+                        <div class="trend-list" id="trend-list"></div>
+                    </div>
+                    <div class="trend-chart-panel">
+                        <div class="trend-chart-head" id="trend-chart-head">
+                            <span class="trend-chart-title" id="trend-chart-title"></span>
+                            <span class="trend-tf"><button class="trend-btn" id="trend-tf-D" onclick="setTrendTimeframe('D')">日線</button><button class="trend-btn" id="trend-tf-W" onclick="setTrendTimeframe('W')">週線</button></span>
+                            <div class="trend-chart-status" id="trend-chart-status"></div>
+                        </div>
+                        <div class="trend-empty" id="trend-empty" style="display:none;">尚未加入任何標的，請在左側輸入代號後按「新增」</div>
+                        <div class="trend-chart-box" id="trend-chart-box"></div>
+                    </div>
+                </div></div>`;
+            }
+            _trendFixSelection();
+            renderTrendList();
+            _trendSetRefreshBtn();
+            _trendUpdateHeader();
+            _trendSyncChart();
+        }
+
+        // ── 清單操作 ──
+        function _trendEnsureStatus(sym) {
+            const c = _trendBarsCache.get(sym);
+            const fresh = c && !c.error && Date.now() - c.fetchedAt < TREND_BARS_TTL_MS;
+            if (!_trendStatus[sym] || !fresh) _trendFetchOne(sym);
+        }
+        function addTrendSymbol() {
+            const inp = document.getElementById('trend-add-input');
+            const mk = document.getElementById('trend-add-market');
+            if (!inp) return;
+            const raw = (inp.value || '').trim();
+            if (!raw) { showWarnToast('請輸入代號'); return; }
+            const item = _normalizeTrendItem(mk && mk.value ? { symbol: raw, market: mk.value } : { symbol: raw });
+            if (!item) { showWarnToast('代號無效：' + raw); return; }
+            if (trendList.some(x => x.yahooSymbol === item.yahooSymbol)) { showWarnToast(item.symbol + ' 已在趨勢清單'); return; }
+            trendList.push(item);
+            saveTrendList();
+            _markTrendListChanged();
+            inp.value = '';
+            _trendSelected = item.yahooSymbol;
+            _trendSaveUi();
+            renderTrendList();
+            _trendUpdateHeader();
+            _trendSyncChart();
+            _trendEnsureStatus(item.yahooSymbol);
+        }
+        function removeTrendSymbolAt(i) {
+            const it = trendList[i];
+            if (!it) return;
+            const sym = it.yahooSymbol;
+            trendList.splice(i, 1);
+            saveTrendList();
+            _markTrendListChanged();
+            delete _trendStatus[sym];
+            _trendErr.delete(sym);
+            _trendBarsCache.delete(sym);
+            _trendSaveStatusCache();
+            if (!trendList.length) _setTrendCloudMissing(false);   // 清單空了就沒有「雲端缺清單」這回事
+            if (_trendSelected === sym) {
+                _disposeTrendCharts();
+                _trendSelected = trendList.length ? trendList[Math.min(i, trendList.length - 1)].yahooSymbol : null;
+                _trendSaveUi();
+                _trendChartKey = null;
+            }
+            renderTrendList();
+            _trendUpdateHeader();
+            _trendSyncChart();
+            if (_trendSelected) _trendEnsureStatus(_trendSelected);
+        }
+        function moveTrendSymbol(i, delta) {
+            const j = i + delta;
+            if (!trendList[i] || !trendList[j]) return;
+            const t = trendList[i]; trendList[i] = trendList[j]; trendList[j] = t;
+            saveTrendList();
+            _markTrendListChanged();
+            renderTrendList();
+        }
+        function selectTrendSymbol(i) {
+            const it = trendList[i];
+            if (!it) return;
+            _trendSelected = it.yahooSymbol;
+            _trendSaveUi();
+            document.querySelectorAll('#trend-list .trend-row').forEach(r => r.classList.toggle('active', r.dataset.sym === _trendSelected));
+            _trendUpdateHeader();
+            _trendSyncChart();
+            _trendEnsureStatus(_trendSelected);
+        }
+        function setTrendTimeframe(tf) {
+            if (tf !== 'D' && tf !== 'W') return;
+            _trendTf = tf;
+            _trendSaveUi();
+            _trendUpdateHeader();
+            _trendSyncChart();
+        }
+        function toggleTrendEditMode() {
+            _trendEditMode = !_trendEditMode;
+            renderTrendList();
+        }
+        function trendReuploadList() {
+            // 只排入上傳；提示列等推送真的成功（_gistSilentPush／gistPush 會呼叫 _setTrendCloudMissing(false)）才消失，
+            // 離線或被擋下時提示還在，使用者才知道雲端仍然缺清單。
+            _markTrendListChanged();
+            showImportToast('已排入上傳，完成後這則提示會自動消失', 2500);
+        }
+
+        // ==================== 趨勢 Tab：圖表（lightweight-charts 4.2.3，三窗格，嚴格 visual-only）====================
+        // 只寫 #trend-chart-box 與 _trendCv* 狀態；不碰 holdings／報價／sync／dirty／renderAll／localStorage。
+        // 與 Tab 9 原生圖（_wlNativeCharts / _wlNativeResizeHandler）完全分開，只共用 _ensureLightweightCharts()。
+        // 三張 chart（價格／ATRX／價格扣抵）的每個 series 對每根 bar 都給一筆（null → whitespace { time }），
+        // 三張圖的 logical index 因此一致，再用 visible logical range 互相同步。
+        const TREND_CV_STATE_COLORS = { G: '#29AB87', Y: '#B2B5BE', B: '#363A45' };   // null（暖機期）用 Y 灰
+        const TREND_CV_LINES = [
+            { key: 'ema20', label: 'EMA20', color: '#555555', width: 1.5 },
+            { key: 'sma20', label: 'MA20', color: '#CCCCCC', width: 2 },
+            { key: 'ema60', label: 'EMA60', color: '#FF0000', width: 1.5 },
+            { key: 'sma60', label: 'MA60', color: '#FFC0CB', width: 2 },
+            { key: 'ema120', label: 'EMA120', color: '#00A0FF', width: 1.5 },
+            { key: 'sma120', label: 'MA120', color: '#ADD8E6', width: 2 }
+        ];
+        const TREND_CV_DOT_COLOR = '#FFC40C';
+        const TREND_CV_SCALE_W = 76;            // 三張圖右側價格軸同寬，繪圖區才會對齊
+        const TREND_CV_VIEW_BARS = { D: 150, W: 120 };
+        const TREND_CV_RIGHT_PAD = 5;           // 初始畫面右側留白（根數）
+        let _trendCv = null;      // 已掛載的圖表 { key, sym, tf, fetchedAt, times, wrap, hosts, charts, series, unsubs, resizeHandler, syncing }
+        let _trendCvSeq = 0;      // render 序號：render / retry / dispose 都 +1；await 後序號變了就放棄
+
+        function _trendCvTeardown() {
+            const st = _trendCv;
+            _trendCv = null;
+            if (!st) return;
+            st.unsubs.forEach(f => { try { f(); } catch (_) {} });
+            st.unsubs = [];
+            if (st.resizeHandler) { try { window.removeEventListener('resize', st.resizeHandler); } catch (_) {} st.resizeHandler = null; }
+            st.charts.forEach(ch => { try { ch.remove(); } catch (_) {} });   // remove() 也會 disconnect autoSize 的 ResizeObserver
+            st.charts = [];
+            if (st.wrap && st.wrap.parentNode) st.wrap.parentNode.removeChild(st.wrap);
+        }
+        function _disposeTrendCharts() {
+            _trendCvSeq++;            // 讓進行中的 render 在下一個 await 後放棄
+            _trendCvTeardown();
+            const box = document.getElementById('trend-chart-box');
+            if (box) box.innerHTML = '';
+        }
+        function _trendCvMsg(box, main, sub, retry) {
+            _trendCvTeardown();
+            _trendChartKey = null;   // 沒有畫出圖：下次選同一檔／同週期時要能重畫，不能被「key 相同」擋掉
+            const btn = retry ? `<button class="trend-btn" onclick="_trendCvRetry(${retry === 'bars' ? 'true' : 'false'})">重試</button>` : '';
+            box.innerHTML = `<div class="trend-chart-ph"><div class="trend-ph-main">${_escapeHtml(main)}</div>${sub ? `<div class="trend-ph-sub">${_escapeHtml(sub)}</div>` : ''}${btn}</div>`;
+        }
+        function _trendCvLine(times, arr) {
+            return times.map((t, i) => (tcFin(arr[i]) ? { time: t, value: arr[i] } : { time: t }));
+        }
+        function _trendCvData(model) {
+            const times = model.times;
+            const candles = model.bars.map((b, i) => {
+                const c = TREND_CV_STATE_COLORS[model.states[i]] || TREND_CV_STATE_COLORS.Y;
+                return { time: b.time, open: b.open, high: b.high, low: b.low, close: b.close, color: c, borderColor: c, wickColor: c };
+            });
+            const dotAt = new Map(model.dots.filter(d => tcFin(d.low)).map(d => [d.index, d.low]));
+            const lines = {};
+            TREND_CV_LINES.forEach(l => { lines[l.key] = _trendCvLine(times, model[l.key]); });
+            return {
+                candles, lines,
+                dots: times.map((t, i) => (dotAt.has(i) ? { time: t, value: dotAt.get(i) } : { time: t })),
+                bd: _trendCvLine(times, model.bd), atrx: _trendCvLine(times, model.atrx),
+                risk: _trendCvLine(times, model.risk),
+                dk120: _trendCvLine(times, model.dk120), dk60: _trendCvLine(times, model.dk60), dk20: _trendCvLine(times, model.dk20)
+            };
+        }
+        function _trendCvSetData(st, d) {
+            const s = st.series;
+            s.candles.setData(d.candles);
+            TREND_CV_LINES.forEach(l => s.lines[l.key].setData(d.lines[l.key]));
+            s.dots.setData(d.dots);
+            s.bd.setData(d.bd);
+            s.atrx.setData(d.atrx);
+            s.risk.setData(d.risk);
+            s.dk120.setData(d.dk120);
+            s.dk60.setData(d.dk60);
+            s.dk20.setData(d.dk20);
+        }
+        // 價格扣抵窗格的 autoscale 一定含 0，Baseline 的填色才會落在 0 而不是窗格底
+        function _trendCvWithZero(original) {
+            const r = original();
+            if (!r || !r.priceRange) return r;
+            return Object.assign({}, r, { priceRange: { minValue: Math.min(r.priceRange.minValue, 0), maxValue: Math.max(r.priceRange.maxValue, 0) } });
+        }
+        function _trendCvLegendHtml(tf) {
+            const items = TREND_CV_LINES.map(l => `<span class="trend-lc-li"><span class="trend-lc-sw" style="background:${l.color};height:${l.width >= 2 ? 3 : 2}px;"></span>${l.label}</span>`).join('');
+            return items + '<span class="trend-lc-li"><span class="trend-lc-sw dot"></span>扣抵</span>'
+                + (tf === 'W' ? '<span class="trend-lc-note">週線長均線為近似</span>' : '');
+        }
+        function _trendCvSetRange(st, r) {
+            st.charts.forEach(ch => { try { ch.timeScale().setVisibleLogicalRange({ from: r.from, to: r.to }); } catch (_) {} });
+        }
+        function _trendCvMount(box, LWC, model, res, key, sym, tf) {
+            const hasRO = typeof ResizeObserver !== 'undefined';
+            const wrap = document.createElement('div');
+            wrap.className = 'trend-lc';
+            wrap.innerHTML = `<div class="trend-lc-legend">${_trendCvLegendHtml(tf)}</div>`
+                + '<div class="trend-lc-pane trend-lc-price"><div class="trend-lc-host"></div><div class="trend-lc-label">Trend on candles</div></div>'
+                + '<div class="trend-lc-pane trend-lc-atrx"><div class="trend-lc-host"></div><div class="trend-lc-label">ATRX</div></div>'
+                + '<div class="trend-lc-pane trend-lc-dk"><div class="trend-lc-host"></div><div class="trend-lc-label">Price deduction</div></div>';
+            box.innerHTML = '';
+            box.appendChild(wrap);
+            const hosts = Array.from(wrap.querySelectorAll('.trend-lc-host'));
+            const st = { key, sym, tf, fetchedAt: res.fetchedAt, times: model.times.slice(), wrap, hosts, charts: [], series: {}, unsubs: [], resizeHandler: null, syncing: false };
+            _trendCv = st;   // 先登記：後面任何一步 throw，teardown 都清得到已建立的 chart
+            const opts = (host, o) => {
+                const c = {
+                    autoSize: hasRO,
+                    layout: { background: { type: 'solid', color: '#fbfbf8' }, textColor: '#333333', fontSize: 11, attributionLogo: !!o.logo },
+                    grid: { vertLines: { color: 'rgba(0,0,0,0.06)' }, horzLines: { color: 'rgba(0,0,0,0.06)' } },
+                    rightPriceScale: { borderColor: '#d9dbd3', minimumWidth: TREND_CV_SCALE_W, mode: o.mode || 0, scaleMargins: o.margins },
+                    timeScale: { visible: !!o.time, borderColor: '#d9dbd3', rightOffset: TREND_CV_RIGHT_PAD },
+                    crosshair: { mode: 0 },                       // CrosshairMode.Normal
+                    handleScroll: { vertTouchDrag: false },       // 手機直向滑動交給頁面捲動
+                    localization: { dateFormat: 'yyyy-MM-dd' }
+                };
+                if (!hasRO) { c.width = host.clientWidth || 600; c.height = host.clientHeight || 120; }
+                return c;
+            };
+            const mk = (host, o) => { const ch = LWC.createChart(host, opts(host, o)); st.charts.push(ch); return ch; };
+            const priceCh = mk(hosts[0], { mode: 1, margins: { top: 0.06, bottom: 0.06 } });   // PriceScaleMode.Logarithmic
+            const atrxCh = mk(hosts[1], { margins: { top: 0.15, bottom: 0.02 } });
+            const dkCh = mk(hosts[2], { time: true, logo: true, margins: { top: 0.12, bottom: 0.08 } });   // 只留一個 TradingView attribution logo
+            const s = st.series;
+            const gray = TREND_CV_STATE_COLORS.Y;
+            const lastClose = model.bars[model.bars.length - 1].close;
+            const prec = lastClose < 0.01 ? 6 : lastClose < 1 ? 4 : 2;
+            s.candles = priceCh.addCandlestickSeries({
+                upColor: gray, downColor: gray, borderVisible: true, borderColor: gray, borderUpColor: gray, borderDownColor: gray,
+                wickVisible: true, wickColor: gray, wickUpColor: gray, wickDownColor: gray,
+                priceFormat: { type: 'price', precision: prec, minMove: Math.pow(10, -prec) }
+            });
+            s.lines = {};
+            TREND_CV_LINES.forEach(l => {
+                s.lines[l.key] = priceCh.addLineSeries({ color: l.color, lineWidth: l.width, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false });
+            });
+            s.dots = priceCh.addLineSeries({
+                color: TREND_CV_DOT_COLOR, lineWidth: 1, lineVisible: false, pointMarkersVisible: true, pointMarkersRadius: 4,
+                lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false
+            });
+            s.bd = atrxCh.addHistogramSeries({ color: '#f9d6e3', base: 0, lastValueVisible: false, priceLineVisible: false });
+            s.atrx = atrxCh.addLineSeries({ color: '#F23645', lineWidth: 1.5, priceLineVisible: false, crosshairMarkerVisible: false });
+            const fill = 'rgba(173,216,230,0.55)';   // #ADD8E6
+            s.risk = dkCh.addBaselineSeries({
+                baseValue: { type: 'price', price: 0 },
+                topLineColor: '#ADD8E6', topFillColor1: fill, topFillColor2: fill,
+                bottomLineColor: '#ADD8E6', bottomFillColor1: fill, bottomFillColor2: fill,
+                lineWidth: 1, priceLineVisible: false, crosshairMarkerVisible: false,
+                autoscaleInfoProvider: _trendCvWithZero
+            });
+            s.dk120 = dkCh.addLineSeries({ color: '#2196F3', lineWidth: 1.5, priceLineVisible: false, crosshairMarkerVisible: false });
+            s.dk60 = dkCh.addLineSeries({ color: '#FF5252', lineWidth: 1.5, priceLineVisible: false, crosshairMarkerVisible: false });
+            s.dk20 = dkCh.addLineSeries({ color: '#787B86', lineWidth: 1.5, priceLineVisible: false, crosshairMarkerVisible: false });
+            _trendCvSetData(st, _trendCvData(model));
+            // 三張圖時間軸同步：re-entrancy flag + 等值檢查雙重防回授（setVisibleLogicalRange 在 4.2.3 是延到下一個 frame 才套用）
+            st.charts.forEach((src, i) => {
+                const handler = (rng) => {
+                    if (!rng || st.syncing || _trendCv !== st) return;
+                    st.syncing = true;
+                    try {
+                        st.charts.forEach((dst, j) => {
+                            if (j === i) return;
+                            try {
+                                const cur = dst.timeScale().getVisibleLogicalRange();
+                                if (cur && Math.abs(cur.from - rng.from) < 1e-6 && Math.abs(cur.to - rng.to) < 1e-6) return;
+                                dst.timeScale().setVisibleLogicalRange({ from: rng.from, to: rng.to });
+                            } catch (_) {}
+                        });
+                    } finally { st.syncing = false; }
+                };
+                src.timeScale().subscribeVisibleLogicalRangeChange(handler);
+                st.unsubs.push(() => src.timeScale().unsubscribeVisibleLogicalRangeChange(handler));
+            });
+            const n = model.times.length;
+            // 預設顯示根數依繪圖區寬度收斂（每根至少約 5px）：桌機 150／120 根，手機約 50–60 根，不會擠成一團
+            const plotW = Math.max(120, (hosts[0].clientWidth || box.clientWidth || 900) - TREND_CV_SCALE_W);
+            const viewBars = Math.max(40, Math.min(TREND_CV_VIEW_BARS[tf] || 150, Math.floor(plotW / 5)));
+            _trendCvSetRange(st, { from: n - viewBars, to: n - 1 + TREND_CV_RIGHT_PAD });
+            if (!hasRO) {
+                st.resizeHandler = () => {
+                    st.charts.forEach((ch, i) => {
+                        const w = st.hosts[i].clientWidth, h = st.hosts[i].clientHeight;
+                        if (w > 0 && h > 0) { try { ch.applyOptions({ width: w, height: h }); } catch (_) {} }
+                    });
+                };
+                window.addEventListener('resize', st.resizeHandler);
+            }
+        }
+        // 同 sym/tf 的 bars 更新：原地 setData，保留使用者目前的可視範圍（頭部 bar 被 5y 視窗擠掉時平移 index）
+        function _trendCvUpdate(st, model, res) {
+            const cur = st.charts[0].timeScale().getVisibleLogicalRange();
+            const oldT = st.times, newT = model.times;
+            let shift = 0;
+            if (oldT.length && newT.length && oldT[0] !== newT[0]) {
+                const a = newT.indexOf(oldT[0]);
+                if (a >= 0) shift = a;
+                else { const b = oldT.indexOf(newT[0]); shift = b >= 0 ? -b : 0; }
+            }
+            st.syncing = true;
+            try { _trendCvSetData(st, _trendCvData(model)); } finally { st.syncing = false; }
+            st.times = newT.slice();
+            st.fetchedAt = res.fetchedAt;
+            if (cur) _trendCvSetRange(st, { from: cur.from + shift, to: cur.to + shift });
+        }
+        async function _renderTrendChart() {
+            const seq = ++_trendCvSeq;
+            const box = document.getElementById('trend-chart-box');
+            if (!box || !_trendSelected) return;
+            const sym = _trendSelected, tf = _trendTf, key = sym + '|' + tf;
+            // 每個 await 之後都要過這關；pane 被藏起來時把 _trendChartKey 清掉，切回 Tab 時外殼才會再呼叫一次
+            const gone = () => {
+                if (seq !== _trendCvSeq) return true;
+                if (!_trendPaneActive() || !box.isConnected || !box.getClientRects().length) { _trendChartKey = null; return true; }
+                return _trendSelected !== sym || _trendTf !== tf;
+            };
+            if (gone()) return;
+            const cur = _trendCv;
+            const mounted = !!(cur && cur.key === key && cur.wrap && cur.wrap.isConnected && box.contains(cur.wrap));
+            if (!mounted) {
+                _trendCvTeardown();
+                box.innerHTML = '<div class="trend-chart-ph">載入中…</div>';
+            }
+            const [lib, res] = await Promise.all([
+                _ensureLightweightCharts().then(L => ({ L }), e => ({ e })),
+                _trendGetBars(sym).catch(e => ({ bars: [], tz: null, fetchedAt: 0, error: String((e && e.message) || e) }))
+            ]);
+            if (gone()) return;
+            if (mounted) {
+                if (_trendCv !== cur) return;
+                // bars 沒變（同 fetchedAt）或這次抓不到：什麼都不做（stale 優於空白）
+                if (!res.bars || !res.bars.length || res.fetchedAt === cur.fetchedAt) { if (cur.resizeHandler) cur.resizeHandler(); return; }
+                const model = tcBuildModel(res.bars, tf, TREND_RULE);
+                if (model.bars.length < 2) return;
+                try { _trendCvUpdate(cur, model, res); }
+                catch (e) { _trendCvMsg(box, '圖表更新失敗', String((e && e.message) || e), 'render'); }
+                return;
+            }
+            if (lib.e) { _trendCvMsg(box, '圖表元件載入失敗，請稍後重試或檢查網路', '原因：' + String((lib.e && lib.e.message) || lib.e) + '（圖表為 visual-only，不影響報價與損益）', 'lib'); return; }
+            if (!res.bars || !res.bars.length) { _trendCvMsg(box, '無法取得 K 線資料', res.error || '無 K 線資料', 'bars'); return; }
+            const model = tcBuildModel(res.bars, tf, TREND_RULE);
+            if (model.bars.length < 2) { _trendCvMsg(box, `K 線不足（${model.bars.length} 根${tf === 'W' ? '週' : '日'} K），無法繪圖`, '', null); return; }
+            try { _trendCvMount(box, lib.L, model, res, key, sym, tf); }
+            catch (e) { _trendCvMsg(box, '圖表繪製失敗', String((e && e.message) || e), 'render'); }
+        }
+        // 錯誤畫面的「重試」：force=true 先強制重抓 bars（走 _trendFetchOne，清單列的讀取失敗狀態也一併更新）
+        async function _trendCvRetry(force) {
+            const sym = _trendSelected;
+            const box = document.getElementById('trend-chart-box');
+            if (!sym || !box) return;
+            if (force) {
+                const seq = ++_trendCvSeq;
+                _trendCvTeardown();
+                box.innerHTML = '<div class="trend-chart-ph">重新抓取中…</div>';
+                try { await _trendFetchOne(sym, { force: true }); } catch (_) {}
+                if (seq !== _trendCvSeq || sym !== _trendSelected) return;
+                if (!_trendPaneActive()) { _trendChartKey = null; return; }
+            }
+            _renderTrendChart();
+        }
         const PT_CORPORATE_ACTIONS_KEY = STORAGE_KEYS.corporateActions;   // v15.920
         let corporateActions = [];   // v15.920：股票分割 / 反分割紀錄
         function _normalizeCorporateActions(list) {
@@ -7563,6 +8414,190 @@
             wrap.appendChild(script);
             box.appendChild(wrap);
         }
+        // #region Trend Core BEGIN (pure)
+        // 趨勢頁計算核心：純函式（無 DOM／window／localStorage／Date.now），由 tests/trend-core.test.cjs 抽出測試。
+        function tcFin(v) { return typeof v === 'number' && isFinite(v); }
+        function tcFallbackTz(sym) {
+            const s = String(sym || '').toUpperCase();
+            if (/\.(TW|TWO)$/.test(s)) return 'Asia/Taipei';
+            if (/\.HK$/.test(s)) return 'Asia/Hong_Kong';
+            if (/-USD$/.test(s)) return 'UTC';
+            return 'America/New_York';
+        }
+        function tcParseYahooChart(json, symbolHint) {
+            let tz = tcFallbackTz(symbolHint);
+            try {
+                const r = json.chart.result[0];
+                tz = (r.meta && r.meta.exchangeTimezoneName) || tcFallbackTz((r.meta && r.meta.symbol) || symbolHint);
+                const ts = r.timestamp, q = r.indicators.quote[0];
+                if (!Array.isArray(ts) || !q) return { bars: [], tz };
+                const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+                const byTime = new Map();
+                for (let i = 0; i < ts.length; i++) {
+                    const o = q.open && q.open[i], h = q.high && q.high[i], l = q.low && q.low[i], c = q.close && q.close[i];
+                    if (!tcFin(ts[i]) || !tcFin(o) || !tcFin(h) || !tcFin(l) || !tcFin(c)) continue;
+                    if (!(o > 0 && h > 0 && l > 0 && c > 0)) continue;
+                    const p = {};
+                    fmt.formatToParts(new Date(ts[i] * 1000)).forEach(x => { p[x.type] = x.value; });
+                    const time = p.year + '-' + p.month + '-' + p.day;
+                    byTime.set(time, { time, open: o, high: h, low: l, close: c });
+                }
+                const bars = Array.from(byTime.values()).sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+                return { bars, tz };
+            } catch (e) {
+                return { bars: [], tz };
+            }
+        }
+        function tcSMA(values, n) {
+            const out = new Array(values.length).fill(null);
+            for (let i = n - 1; i < values.length; i++) {
+                let sum = 0, ok = true;
+                for (let k = i - n + 1; k <= i; k++) {
+                    if (!tcFin(values[k])) { ok = false; break; }
+                    sum += values[k];
+                }
+                if (ok) out[i] = sum / n;
+            }
+            return out;
+        }
+        function tcEMA(values, n) {
+            const out = new Array(values.length).fill(null);
+            const alpha = 2 / (n + 1);
+            let s = -1;
+            for (let i = n - 1; i < values.length && s < 0; i++) {
+                let ok = true;
+                for (let k = i - n + 1; k <= i; k++) if (!tcFin(values[k])) { ok = false; break; }
+                if (ok) s = i;
+            }
+            if (s < 0) return out;
+            let sum = 0;
+            for (let k = s - n + 1; k <= s; k++) sum += values[k];
+            out[s] = sum / n;
+            for (let i = s + 1; i < values.length; i++) {
+                if (tcFin(values[i]) && out[i - 1] !== null) out[i] = alpha * values[i] + (1 - alpha) * out[i - 1];
+            }
+            return out;
+        }
+        function tcTrueRange(bars) {
+            return bars.map((b, i) => {
+                if (i === 0) return b.high - b.low;
+                const pc = bars[i - 1].close;
+                return Math.max(b.high - b.low, Math.abs(b.high - pc), Math.abs(b.low - pc));
+            });
+        }
+        function tcWeekKey(time) {
+            const d = new Date(time + 'T00:00:00Z');
+            d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+            return d.toISOString().slice(0, 10);
+        }
+        function tcAggregateWeekly(daily) {
+            const out = [];
+            let key = null, w = null;
+            daily.forEach(b => {
+                const k = tcWeekKey(b.time);
+                if (k !== key) {
+                    key = k;
+                    w = { time: b.time, open: b.open, high: b.high, low: b.low, close: b.close, lastTime: b.time };
+                    out.push(w);
+                } else {
+                    w.high = Math.max(w.high, b.high);
+                    w.low = Math.min(w.low, b.low);
+                    w.close = b.close;
+                    w.lastTime = b.time;
+                }
+            });
+            return out;
+        }
+        function tcTrendStates(bars, rule) {
+            const r = rule || 'A';
+            const c = bars.map(b => b.close);
+            const e = tcEMA(c, 20), s = tcSMA(c, 20);
+            const use60 = r === 'B' || r === 'H';
+            const e6 = use60 ? tcEMA(c, 60) : null, s6 = use60 ? tcSMA(c, 60) : null;
+            return c.map((_, i) => {
+                if (r === 'H') {
+                    // 20 期雙線同向直接定色；不同向時由 60 期雙線決定；60 期也不同向（或資料不足）才是灰
+                    if (i < 1 || e[i] === null || e[i - 1] === null || s[i] === null || s[i - 1] === null) return null;
+                    const eUp = e[i] > e[i - 1], eDn = e[i] < e[i - 1], sUp = s[i] > s[i - 1], sDn = s[i] < s[i - 1];
+                    if (eUp && sUp) return 'G';
+                    if (eDn && sDn) return 'B';
+                    if (e6[i] === null || e6[i - 1] === null || s6[i] === null || s6[i - 1] === null) return 'Y';
+                    if (e6[i] > e6[i - 1] && s6[i] > s6[i - 1]) return 'G';
+                    if (e6[i] < e6[i - 1] && s6[i] < s6[i - 1]) return 'B';
+                    return 'Y';
+                }
+                if (r === 'C') {
+                    if (i < 20) return null;
+                    if (c[i] > c[i - 20]) return 'G';
+                    if (i >= 60 && c[i] < c[i - 20] && c[i] < c[i - 60]) return 'B';
+                    return 'Y';
+                }
+                if (r === 'D') {
+                    if (i < 3 || s[i] === null || e[i] === null || s[i - 3] === null) return null;
+                    const slope = s[i] - s[i - 3];
+                    if (c[i] > s[i] && c[i] > e[i] && slope > 0) return 'G';
+                    if (c[i] < s[i] && c[i] < e[i] && slope < 0) return 'B';
+                    return 'Y';
+                }
+                if (i < 1) return null;
+                const lines = r === 'B' ? [e, s, e6, s6] : [e, s];
+                if (lines.some(l => l[i] === null || l[i - 1] === null)) return null;
+                if (lines.every(l => l[i] > l[i - 1])) return 'G';
+                if (lines.every(l => l[i] < l[i - 1])) return 'B';
+                return 'Y';
+            });
+        }
+        function tcLastChange(states, times) {
+            const last = states.length - 1;
+            if (last < 0 || states[last] === null) return { insufficient: true };
+            const cur = states[last];
+            let j = last;
+            while (j >= 0 && states[j] === cur) j--;
+            const prev = (j >= 0 && states[j] !== null) ? states[j] : null;
+            return { insufficient: false, cur, prev, barsAgo: last - (j + 1), since: times[j + 1] };
+        }
+        function tcDeductionIdx(length, N) {
+            const i = length - 1 - N;
+            return i >= 0 ? i : null;
+        }
+        function tcPriceDeduction(closes, N) {
+            return closes.map((c, i) => (i < N || closes[i - N] <= 0) ? null : (c / closes[i - N] - 1) * 100);
+        }
+        function tcBuildModel(daily, tf, rule) {
+            const bars = tf === 'W' ? tcAggregateWeekly(daily) : daily;
+            const c = bars.map(b => b.close);
+            const times = bars.map(b => b.time);
+            const states = tcTrendStates(bars, rule);
+            const tr = tcTrueRange(bars);
+            const bd = tr.map((t, i) => t / c[i] * 100);
+            const dk20 = tcPriceDeduction(c, 20), dk60 = tcPriceDeduction(c, 60), dk120 = tcPriceDeduction(c, 120);
+            const dots = [];
+            [20, 60, 120].forEach(n => {
+                const index = tcDeductionIdx(bars.length, n);
+                if (index !== null) dots.push({ n, index, time: bars[index].time, low: bars[index].low });
+            });
+            const n = bars.length;
+            return {
+                tf, rule, bars, times, states,
+                ema20: tcEMA(c, 20), sma20: tcSMA(c, 20), ema60: tcEMA(c, 60), sma60: tcSMA(c, 60),
+                ema120: tcEMA(c, 120), sma120: tcSMA(c, 120),
+                dots, bd, atrx: tcEMA(bd, 10), dk20, dk60, dk120,
+                risk: c.map((_, i) => (dk20[i] !== null && dk60[i] !== null && dk120[i] !== null) ? dk20[i] + dk60[i] + dk120[i] : null),
+                change: tcLastChange(states, times),
+                lastTime: n ? (tf === 'W' ? bars[n - 1].lastTime : bars[n - 1].time) : null
+            };
+        }
+        function tcSummary(daily, rule) {
+            const wk = tcAggregateWeekly(daily);
+            const d = tcLastChange(tcTrendStates(daily, rule), daily.map(b => b.time));
+            const w = tcLastChange(tcTrendStates(wk, rule), wk.map(b => b.time));
+            return {
+                D: Object.assign({}, d, { bars: daily.length }),
+                W: Object.assign({}, w, { bars: wk.length }),
+                lastTime: daily.length ? daily[daily.length - 1].time : null
+            };
+        }
+        // #endregion Trend Core END
         // ==================== v15.929：觀察清單 Pro 原生圖（lightweight-charts，lazy-load，嚴格 visual-only）====================
         // 只寫自己的 DOM + _wlNativeCharts；不碰 holdings／報價快取／close pair／今日損益／snapshot／baseline／Gist／userDataHash／pending。
         let _lwcLoadPromise = null;
@@ -8325,7 +9360,7 @@
 
         function _applyCloudDomainTimes(saved, fallbackTs) {
             const updated = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
-            const domains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'general'];
+            const domains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'trendList', 'settings', 'marketSnapshots', 'general'];
             const appliedAt = saved?.sync_meta?.pushedAt || saved?.pushedAt || fallbackTs;
             domains.forEach(d => {
                 const ts = saved?.sync_meta?.domains?.[d]?.updatedAt || appliedAt;
@@ -8339,7 +9374,7 @@
         async function _buildSyncMeta(pushedAt, domains, opts) {
             const domainUpdatedAt = _readJsonStorage(PT_DOMAIN_UPDATED_AT, {});
             // v15.071：加入 dailyPnlSnapshots dirty domain
-            const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings', 'marketSnapshots', 'dailyPnlSnapshots', 'general'];
+            const allDomains = ['holdings', 'deposits', 'tradeHistory', 'watchlist', 'trendList', 'settings', 'marketSnapshots', 'dailyPnlSnapshots', 'general'];
             const domainMeta = {};
             allDomains.forEach(d => domainMeta[d] = { updatedAt: domainUpdatedAt[d] || null });
             const userDataHash = (opts && opts.userDataHash) || await _userDataHash(_buildLocalUserPayload());
@@ -8462,7 +9497,7 @@
             return Array.isArray(arr) ? arr.map(_normalizeHoldingForHash) : [];
         }
         function _buildLocalUserPayload() {
-            return {
+            const out = {
                 holdings:      _normalizeHoldingsForHash(holdings),
                 watchlist,
                 tradeHistory,
@@ -8479,10 +9514,14 @@
                 moxa_twd:      parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0,
                 moxa_pie_cb:   document.getElementById('moxa-pie-cb')?.checked   || false
             };
+            // 趨勢 Tab：清單非空才加 trendList key → 空清單裝置的 hash 與舊版完全相同（升級本身不改 hash）
+            const trendForHash = _trendListForHash(trendList);
+            if (trendForHash) out.trendList = trendForHash;
+            return out;
         }
         function _extractUserDataFromGistPayload(payload) {
             if (!payload || typeof payload !== 'object') return null;
-            return {
+            const out = {
                 holdings:      _normalizeHoldingsForHash(payload.holdings),   // 同步排除雲端 payload 內的動態報價欄位
                 watchlist:     payload.watchlist    || [],
                 tradeHistory:  payload.tradeHistory || [],
@@ -8499,6 +9538,10 @@
                 moxa_twd:      payload.moxa_twd     ?? 0,
                 moxa_pie_cb:   payload.moxa_pie_cb  ?? false
             };
+            // 趨勢 Tab：與 _buildLocalUserPayload 同一 helper；缺 key 或 [] 都不加 trendList key
+            const trendForHash = _trendListForHash(payload.trend_list);
+            if (trendForHash) out.trendList = trendForHash;
+            return out;
         }
         // 遞迴排序物件 keys（陣列順序保留），讓 JSON.stringify 結果穩定
         function _canonicalize(obj) {
@@ -9114,6 +10157,11 @@
                 if (Array.isArray(before.manual_realized_entries)) { manualRealizedEntries = before.manual_realized_entries; saveManualRealizedEntries(); }   // v15.905
                 corporateActions = Array.isArray(before.corporate_actions) ? before.corporate_actions : []; saveCorporateActions();   // v15.920
                 corporateActionPlans = Array.isArray(before.corporate_action_plans) ? before.corporate_action_plans : []; saveCorporateActionPlans();   // v15.922
+                // 趨勢 Tab：只有 array 才還原；缺 key（舊版 client 寫的雲端）保留本機清單，不清成 []
+                if (Array.isArray(before.trend_list)) {
+                    trendList = _normalizeTrendList(before.trend_list); saveTrendList();
+                    if (typeof renderTrendTab === 'function') { try { renderTrendTab(); } catch (_) {} }
+                }
                 if (Array.isArray(before.marketSnapshots)) { marketSnapshots = before.marketSnapshots; saveSnapshots(); }
                 if (Array.isArray(before.net_worth_snapshots)) {
                     netWorthSnapshots = _mergeNetWorthSnapshots(netWorthSnapshots, before.net_worth_snapshots);
@@ -9161,7 +10209,7 @@
                 // 標 user domains dirty 但「不」auto-push，由使用者自行選擇暫存或標記最新版
                 try {
                     const ts = new Date().toISOString();
-                    _markDomainsModified(['holdings', 'deposits', 'tradeHistory', 'watchlist', 'settings'], ts);
+                    _markDomainsModified(['holdings', 'deposits', 'tradeHistory', 'watchlist', 'trendList', 'settings'], ts);
                     localStorage.setItem(PT_LOCAL_MODIFY_TS, ts);
                     const cur = parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10);
                     localStorage.setItem(PT_PENDING_PUSH_COUNT, String(cur + 1));
@@ -9614,6 +10662,7 @@
                         cloudRevision: _pf.state.cloudRevision,
                         cloudUpdatedAt: _pf.state.cloudUpdatedAt
                     }, { userDataHash: _pf.localHash });
+                    _setTrendCloudMissing(false);   // 雲端與本機 hash 相同 → 雲端已有趨勢清單
                     _pushRetryCount = 0;
                     clearTimeout(_retryTimer);
                     _updateSyncTimeLabels();
@@ -9633,6 +10682,7 @@
                     loans,                                            // v15.918
                     corporate_actions: corporateActions,               // v15.920
                     corporate_action_plans: corporateActionPlans,       // v15.922
+                    trend_list: _trendListKnown() ? trendList : undefined,   // 趨勢 Tab：本機知道清單狀態才寫（含 []）；undefined 會被 JSON.stringify 略過 = 不寫 key
                     currency,
                     exchangeRates,
                     sheet_url:     document.getElementById('sheet-url')?.value?.trim() || '',
@@ -9675,6 +10725,7 @@
                     { data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt },
                     { userDataHash: _pf.localHash }
                 );
+                _setTrendCloudMissing(false);   // 這次推送已寫入 trend_list
                 _pushRetryCount = 0;
                 clearTimeout(_retryTimer);
                 _updateSyncTimeLabels();
@@ -11281,6 +12332,7 @@
                     { data: _pf.state.data, saved: _pf.state.saved, cloudRevision: _pf.state.cloudRevision, cloudUpdatedAt: _pf.state.cloudUpdatedAt },
                     { userDataHash: _pf.localHash }
                 );
+                _setTrendCloudMissing(false);   // 雲端與本機 hash 相同 → 雲端已有趨勢清單
                 _updateSyncTimeLabels();
                 localStorage.removeItem('pt_last_push_error');
                 const t0 = new Date().toLocaleTimeString('zh-TW');
@@ -11355,6 +12407,7 @@
                 loans,                                            // v15.918
                 corporate_actions: corporateActions,               // v15.920
                 corporate_action_plans: corporateActionPlans,       // v15.922
+                trend_list: _trendListKnown() ? trendList : undefined,   // 趨勢 Tab：本機知道清單狀態才寫（含 []）；undefined 會被 JSON.stringify 略過 = 不寫 key
                 currency,
                 exchangeRates,
                 sheet_url:    document.getElementById('sheet-url')?.value?.trim() || '',
@@ -11423,6 +12476,7 @@
                     { data, saved: null, cloudRevision: _gistRevision(data), cloudUpdatedAt: data?.updated_at || pushedAt },
                     { userDataHash: _pf.localHash }
                 );
+                _setTrendCloudMissing(false);   // 這次推送已寫入 trend_list
                 // master 模式：把自己這次的 master id 加入「已處理」清單，避免下次 silent pull 把自己又拉一次
                 if (mode === 'master' && userConfirmedCloudMaster) {
                     _addProcessedMasterId(userConfirmedCloudMaster.id);
@@ -11538,6 +12592,8 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
+                // 趨勢 Tab：雲端有 array 才套用；缺 key（舊版 client 寫的 payload）保留本機清單、不清成 []
+                _applyTrendListFromPayload(saved);
                 // 還原已實現損益紀錄（永遠以雲端為準，無資料則清空）
                 tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
                 saveTradeHistory();
@@ -11654,6 +12710,9 @@
                     return;
                 }
 
+                // 趨勢 Tab：不論後續 classify 走哪條（hash_match / clean_cloud_same / 衝突 return），先依雲端 payload 更新缺 key flag（只寫本機 UI 偏好，不動使用者資料）
+                _setTrendCloudMissing(!Array.isArray(saved.trend_list) && trendList.length > 0);
+
                 // v15.079：hash-first + master flag detection
                 // v15.911: close pairs are public system quote data, so merge them even when user data later conflicts.
                 try { _applyClosePairSystemDataFromPayload(saved); } catch(_) {}
@@ -11698,6 +12757,20 @@
                 if (!_forceApplyCloud) {
                     if (cls === 'clean_cloud_same') {
                         return;   // 雲端 = 本機 baseline，無事
+                    }
+                    // v15.984：cloud_user_same_system_newer = 雲端 user data 與上次同步時相同，不同的是本機
+                    // （有未上傳修改，或本機保留了雲端沒有的趨勢清單）。本機才是較新的一方，絕不可落到下面
+                    // 「套用雲端」把本機蓋掉。v15.080 加這個 state 時只處理了 preflight（放行 push），漏了這裡：
+                    // 改完 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改就被雲端舊資料覆蓋、dirty 也被清掉。
+                    // 有未上傳修改 → 比照 dirty_cloud_same 啟動推送；沒有 → 什麼都不做。
+                    if (cls === 'cloud_user_same_system_newer') {
+                        const _hasLocalDirty = _getDirtyDomains().length > 0
+                            || parseInt(localStorage.getItem(PT_PENDING_PUSH_COUNT) || '0', 10) > 0;
+                        if (_hasLocalDirty) {
+                            setGistStatus('本機有未上傳修改，啟動推送…', '#fbbf24');
+                            _gistSilentPush();
+                        }
+                        return;
                     }
                     if (cls === 'dirty_cloud_same') {
                         // 本機有未上傳修改但 baseline 對齊雲端 → 安全 push
@@ -11775,6 +12848,8 @@
                     saveWatchlist();
                     renderWatchlist();
                 }
+                // 趨勢 Tab：雲端有 array 就套用（和 watchlist 一樣，不看本機修改時間）；缺 key（舊版 client 寫的 payload）保留本機清單、不清成 []
+                _applyTrendListFromPayload(saved);
                 // 還原已實現損益紀錄
                 if (Array.isArray(saved.tradeHistory) && saved.tradeHistory.length > 0) {
                     if (_gistIsNewer || tradeHistory.length === 0) {
@@ -14222,7 +15297,9 @@ function _isLegacy9747Holding(h) {
                 renderPionexGridTab();
                 _refreshPionexGridFiles();
             }
+            if (n === 11) { renderTrendTab(); _trendRefreshStatuses(); }
             _schedulePionexLiveRefresh();   // v15.981：切到網格才排定時重讀，切走即清除
+            _scheduleTrendRefresh();        // 趨勢 Tab：切到才排 15 分鐘重抓，切走即清除
         }
 
         let _pionexCalMonth = null;
@@ -15281,6 +16358,7 @@ function _isLegacy9747Holding(h) {
                 loans,                                            // v15.918
                 corporate_actions: corporateActions,               // v15.920
                 corporate_action_plans: corporateActionPlans,       // v15.922
+                trend_list: _trendListKnown() ? trendList : undefined,   // 趨勢 Tab：本機知道清單狀態才寫（含 []）
                 deposits,
                 marketSnapshots,
                 net_worth_snapshots: netWorthSnapshots,
@@ -15308,7 +16386,7 @@ function _isLegacy9747Holding(h) {
             if (saved.sync_source != null && saved.sync_source !== 'local_fsa' && saved.sync_source !== '') {
                 return { ok: false, reason: `sync_source 非預期：${saved.sync_source}` };
             }
-            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries','loans','corporate_actions','corporate_action_plans']) {
+            for (const k of ['watchlist','tradeHistory','deposits','marketSnapshots','manual_realized_entries','loans','corporate_actions','corporate_action_plans','trend_list']) {
                 if (saved[k] != null && !Array.isArray(saved[k])) {
                     return { ok: false, reason: `${k} 欄位存在但不是 array` };
                 }
@@ -15360,6 +16438,8 @@ function _isLegacy9747Holding(h) {
                     const cb = document.getElementById('moxa-pie-cb'); if (cb) cb.checked = !!saved.moxa_pie_cb;
                 }
                 if (Array.isArray(saved.watchlist)) { watchlist = saved.watchlist; saveWatchlist(); renderWatchlist(); }
+                // 趨勢 Tab：檔案有 array 才套用；缺 key（舊版寫的檔案）保留本機清單、不清成 []
+                _applyTrendListFromPayload(saved);
                 tradeHistory = Array.isArray(saved.tradeHistory) ? saved.tradeHistory : [];
                 saveTradeHistory();
                 // v15.905：FSA pull 還原期間補錄
@@ -15456,6 +16536,7 @@ function _isLegacy9747Holding(h) {
                 localStorage.setItem(STORAGE_KEYS.localSyncLastPushAt,   payload.pushedAt);
                 localStorage.removeItem(STORAGE_KEYS.localSyncLastError);
                 _clearLocalSyncDirty();
+                if (payload && Array.isArray(payload.trend_list)) _setTrendCloudMissing(false);   // 檔案已寫入趨勢清單
                 _setLocalSyncStatus(`✅ 已推送${force?'（強制覆蓋）':''}`, '#10b981');
                 _renderLocalSyncStatus();
                 return true;
@@ -16726,6 +17807,7 @@ function _isLegacy9747Holding(h) {
             loadCrypto();            // 還原加密倉位設定
             loadMoxa();              // 還原 MOXA 股票設定
             loadWatchlist();         // 還原觀察清單
+            loadTrendList();         // 趨勢 Tab：還原趨勢標的清單（須在 _gistSilentPull 之前，hash 才含本機清單）
             loadTradeHistory();      // 還原已實現損益紀錄
             loadManualRealizedEntries();  // v15.905：還原期間補錄
             loadLoans();             // v15.918：還原貸款資料
@@ -16871,6 +17953,7 @@ function _isLegacy9747Holding(h) {
                     clearInterval(_autoMacroTimer);
                     clearInterval(_autoEarningsTimer);
                     _schedulePionexLiveRefresh();   // v15.981：隱藏時只會清除網格定時重讀
+                    _scheduleTrendRefresh();        // 趨勢 Tab：隱藏時清除定時重抓
                 } else {
                     startAutoRefresh();
                     startAutoAnalysis();
@@ -16879,6 +17962,8 @@ function _isLegacy9747Holding(h) {
                     // v15.981：回到前景且停在網格頁 → 立即重讀一次，再接回每 10 分鐘節奏
                     if (document.getElementById('tab-pane-10')?.classList.contains('active')) _refreshPionexGridFiles();
                     _schedulePionexLiveRefresh();
+                    if (document.getElementById('tab-pane-11')?.classList.contains('active')) _trendRefreshStatuses();
+                    _scheduleTrendRefresh();
                 }
             });
         }
