@@ -1221,6 +1221,16 @@
                         <input type="checkbox" id="crypto-pie-cb" onchange="saveCrypto(); renderAll();" style="width:14px;height:14px;accent-color:#22c55e;cursor:pointer;">
                         <span id="crypto-pie-cb-label" style="font-size:0.8rem;font-weight:600;color:#7e93a6;white-space:nowrap;">含加密</span>
                     </label>
+                    <!-- v15.987：加密自動帶入派網總金額（本機開關）。自動值只用在計算與顯示，不寫回手動欄位。
+                         這組一樣佔 4 個 grid child（1 個整列 + 3 個隱藏），手機版 nth-child(4n-1)/(4n) 規則才不會錯位 -->
+                    <div id="crypto-auto-row" style="grid-column:1 / -1; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-top:-0.15rem; font-size:0.75rem;">
+                        <label style="display:inline-flex;align-items:center;gap:0.3rem;cursor:pointer;user-select:none;color:#7e93a6;white-space:nowrap;">
+                            <input type="checkbox" id="crypto-auto-cb" checked onchange="setCryptoAutoPionex(this.checked)" style="width:13px;height:13px;accent-color:#22c55e;cursor:pointer;">
+                            自動帶入派網總金額
+                        </label>
+                        <span id="crypto-auto-info" style="color:#7e93a6;"></span>
+                    </div>
+                    <span style="display:none;"></span><span style="display:none;"></span><span style="display:none;"></span>
                     <!-- MOXA 列 -->
                     <span style="color:#a8bdd0; font-size:0.85rem; white-space:nowrap;">未上市股票（TWD）</span>
                     <input type="number" id="moxa-twd-input" min="0" placeholder="0" onchange="saveMoxa(); renderAll();" class="pv-field"
