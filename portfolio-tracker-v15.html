@@ -1488,6 +1488,19 @@
             </div>
             <div id="sheet-url-status" style="margin-top:0.45rem; font-size:0.78rem; color:#607585;"></div>
         </div>
+
+        <!-- v15.987：分頁顯示（本機設定，不同步） -->
+        <div class="glass-card" style="padding:1rem 1.5rem; margin-top:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <label style="color:#60a5fa; font-size:0.85rem; font-weight:600;"><i class="ic">▥</i> 分頁顯示</label>
+                <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; user-select:none;">
+                    <input type="checkbox" id="show-grid-tab-cb" onchange="setShowGridTab(this.checked)"
+                        style="width:15px; height:15px; accent-color:#3b82f6; cursor:pointer;">
+                    <span style="font-size:0.8rem; color:#7e93a6;">顯示網格分頁</span>
+                </label>
+            </div>
+            <div style="margin-top:0.4rem; font-size:0.72rem; color:#607585;">只存在這台裝置，不會同步。隱藏時派網資料照常讀取，加密欄自動帶入不受影響。</div>
+        </div>
     </div>
 
         </div><!-- /tab-pane-1 -->
