@@ -5652,7 +5652,7 @@
             if (_pieGroupMode !== _pieSnapshot.groupMode) return true;
             // v15.076 P0-2：cashNow 改用 _depositsTWD()（跟 renderPie 一致；v15.049 改存款 Tab 後 #cash-twd-input 已非真實來源）
             const cashNow    = _depositsTWD();
-            const cryptoNow  = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            const cryptoNow  = _cryptoTwdEffective();   // v15.987：與 renderPie 同一來源（自動帶入時為派網總金額）
             const moxaNow    = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
             const cbCash     = document.getElementById('cash-pie-cb')?.checked   ?? false;
             const cbCrypto   = document.getElementById('crypto-pie-cb')?.checked ?? false;
