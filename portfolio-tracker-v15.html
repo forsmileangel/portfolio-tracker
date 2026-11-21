@@ -5811,9 +5811,9 @@
         function renderPie(stats) {
             const pieSection    = document.getElementById('pie-section');
             const cashTWD       = _depositsTWD();
-            const cryptoTWD     = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            const cryptoTWD     = _cryptoTwdEffective();   // v15.987：只用於總資產／圓餅顯示；同步與 hash 仍讀手動欄位
             const moxaTWD       = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
-            const showCashInPie   = document.getElementById('cash-pie-cb')?.checked   ?? false;
+            const showCashInPie  = document.getElementById('cash-pie-cb')?.checked   ?? false;
             const showCryptoInPie = document.getElementById('crypto-pie-cb')?.checked ?? false;
             const showMoxaInPie   = document.getElementById('moxa-pie-cb')?.checked   ?? false;
             const hasAny = holdings.length > 0 || cashTWD > 0 || cryptoTWD > 0 || moxaTWD > 0;
