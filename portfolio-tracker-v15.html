@@ -1,6 +1,6 @@
 <!--
   Portfolio Tracker v15
-  v15.986 - 2026-11-21 趨勢頁上方新增「轉色訊號」區塊：列出清單裡日線近 5 根、週線近 4 週內轉色的標的，分轉強／轉弱兩組（綠→灰→黑 賣出、黑→灰→綠 買進等），最新一根的變化特別標出；只看已收盤的 K 線，週線等當週收完才算（依市場行事曆判斷），點一下就跳到該標的的日線或週線圖。狀態快取升 v2（舊快取重抓），不新增 localStorage key、不碰同步。
+  v15.986 - 2026-11-21 （同版追加：K 線窗格自己也顯示日期軸，不用捲到最下面）趨勢頁上方新增「轉色訊號」區塊：列出清單裡日線近 5 根、週線近 4 週內轉色的標的，分轉強／轉弱兩組（綠→灰→黑 賣出、黑→灰→綠 買進等），最新一根的變化特別標出；只看已收盤的 K 線，週線等當週收完才算（依市場行事曆判斷），點一下就跳到該標的的日線或週線圖。狀態快取升 v2（舊快取重抓），不新增 localStorage key、不碰同步。
   v15.985 - 2026-11-21 趨勢圖游標對齊日期：滑鼠移到 K 線時，垂直虛線貫穿三個窗格到時間軸並在軸上標出日期，游標旁也顯示日期；原本上方窗格對不到日期。
   v15.984 - 2026-11-20 新增「趨勢」分頁（Tab 11）＋修正啟動自動拉取會蓋掉未上傳修改的既有臭蟲：(1) 趨勢頁：獨立的標的清單（和持倉、觀察清單分開；新增／刪除／排序），每檔顯示日線與週線目前的顏色、前一個顏色、起始日與已持續根數；右側三窗格圖（lightweight-charts 4.2.3，淺色底）：K 線依趨勢變綠／灰／黑、EMA／MA 20／60／120 六條均線、20／60／120 扣抵黃點、ATRX 副圖、Price deduction 副圖，可切日線／週線（週線由日線在本機合成，週線 120 期均線為近似）。版面與指標參考雷公（LoneCapital）的 TradingView 版面；原始碼不公開，變色規則是依其公開說法並拿使用者截圖逐根比對重建的規則 H（20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向為灰；拿使用者 6 檔標的的日線＋週線截圖共 748 根 K 線比對，吻合 91%，雙線同向時 97–100%，誤差集中在雙線不同向、原版有時畫灰色的地方；TREND_RULE 一個常數可換規則），ATRX 與 Price deduction 為近似版。資料用 Yahoo 日線（range=5y，一檔一次請求、記憶體快取 10 分鐘、失敗保留舊資料），清單狀態摘要快取在 pt_trend_status_v1、UI 偏好在 pt_trend_ui_v1；分頁不在前景不抓、啟動不抓；不併入 _allAnalysisTargets。(2) 同步：新增 user data 欄位 trend_list（pt_trend_list_v1、dirty domain trendList）；空清單不進 userDataHash（升版不改任何人的 hash），裝置知道清單狀態（清單非空、或曾在本機編輯／曾收到清單）時才在 user push 寫 trend_list，payload 缺 key（舊版寫的、或還沒看過清單的裝置寫的）時保留本機清單並在趨勢頁提示「重新上傳」（使用者按了才推、推送成功提示才消失）；不升 PT_SCHEMA_VERSION；K 線與狀態快取不進 hash／pending／Gist。(3) 修既有臭蟲（v15.080 起）：_gistSilentPull 沒處理 cloud_user_same_system_newer 而落到「套用雲端」，改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改會被雲端舊資料覆蓋且 dirty 被清掉；現在改為有未上傳修改就推送、否則不動，都不套用雲端（假 Gist 實測：舊版修改消失、新版保留並補推）。(4) 指標核心為純函式（// #region Trend Core），tests/trend-core.test.cjs 12 項；另與 Gemini、Grok 各自獨立寫的 Python 參考實作在 USD／2330.TW／0700.HK 共 9.4 萬個值逐值比對一致；新舊版三台裝置混用情境 16 項檢查通過。
   v15.983 - 2026-11-13 派網網格月曆配合 v2 1.0.8 的「利潤日前移一天」：每天 08:15 的數字（前一天 08:15 到當天 08:15 的利潤）現在記在前一天那一格，所以今天那一格要等明天 08:15 才有。(1) 月曆預設選帳本最新一筆並切到它的月份（原本預設選今天，今天沒有紀錄時退回當月最後一筆；每月 1 號會打開空白月），自動選取的狀態下，新資料進來也會跟著跳到最新一筆。(2) 口徑與空白狀態文字改成「每格是當天 08:15 到隔天 08:15 的利潤，隔天早上的快照記在前一天」，「等 08:05 排程」改成每天 08:15。讀 Gist 帳本的方式不變：days[].date 本來就是格子日期，v2 重新發布後歷史自動前移；頂層 capture_date／captured_at 仍是最新一次擷取（新鮮度標籤照舊）。不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -126,7 +126,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
-        v15.986 - 2026-11-21 趨勢頁新增「轉色訊號」：列出日線近 5 根、週線近 4 週內轉色的標的（分轉強／轉弱，最新一根特別標出），只看已收盤 K 線、週線等當週收完，點一下跳到該標的的圖。
+        v15.986 - 2026-11-21 （追加：K 線窗格也顯示日期軸）趨勢頁新增「轉色訊號」：列出日線近 5 根、週線近 4 週內轉色的標的（分轉強／轉弱，最新一根特別標出），只看已收盤 K 線、週線等當週收完，點一下跳到該標的的圖。
         v15.985 - 2026-11-21 趨勢圖游標對齊日期：垂直虛線貫穿三個窗格到時間軸並標出日期，游標旁也顯示日期。
         v15.984 - 2026-11-20 新增「趨勢」分頁：自己的標的清單，K 線依趨勢變綠／灰／黑，附 20／60／120 均線、扣抵黃點、ATRX 與 Price deduction 副圖，可切日線／週線（參考雷公的版面，變色規則是重建版）；清單會跨裝置同步。另修正：改完資料馬上關掉 App，下次開啟時修改被雲端舊資料蓋掉的問題。
         v15.983 - 2026-11-13 網格月曆配合 v2 1.0.8，每格是「當天 08:15 到隔天 08:15」的利潤、記在前一天那格（早上看的是昨天）；預設選最新一筆紀錄並切到它的月份，今天那格要等明天 08:15 才有。
@@ -486,12 +486,12 @@
         .trend-lc-pane { position:relative; }
         .trend-lc-pane + .trend-lc-pane { border-top:1px solid #e6e7e1; }
         .trend-lc-host { width:100%; overflow:hidden; }
-        .trend-lc-price .trend-lc-host { height:380px; }
+        .trend-lc-price .trend-lc-host { height:408px; }
         .trend-lc-atrx .trend-lc-host { height:110px; }
         .trend-lc-dk .trend-lc-host { height:130px; }
         .trend-lc-label { position:absolute; top:4px; left:6px; z-index:3; pointer-events:none; padding:0 4px; border-radius:3px; background:rgba(251,251,248,0.82); color:#555; font-size:11px; font-weight:700; line-height:16px; }
         @media (max-width:640px) {
-            .trend-lc-price .trend-lc-host { height:300px; }
+            .trend-lc-price .trend-lc-host { height:328px; }
             .trend-lc-legend { gap:0.2rem 0.6rem; font-size:0.66rem; }
         }
         .trend-empty { padding:3rem 1rem; color:#607585; text-align:center; font-size:0.9rem; border:1px dashed var(--pt-border); border-radius:8px; }
@@ -6780,8 +6780,8 @@
         }
         function _trendCvInitCrosshair(st) {
             const mkEl = cls => { const el = document.createElement('div'); el.className = cls; st.wrap.appendChild(el); return el; };
-            const vline = mkEl('trend-lc-vline'), xdate = mkEl('trend-lc-xdate'), tip = mkEl('trend-lc-tip');
-            const hide = () => { vline.style.display = xdate.style.display = tip.style.display = 'none'; };
+            const vline = mkEl('trend-lc-vline'), xdate = mkEl('trend-lc-xdate'), xdate2 = mkEl('trend-lc-xdate'), tip = mkEl('trend-lc-tip');   // xdate2：K 線窗格自己那條日期軸上的標籤
+            const hide = () => { vline.style.display = xdate.style.display = xdate2.style.display = tip.style.display = 'none'; };
             let owner = -1;   // 目前擁有覆蓋層的 chart 序號：指標離開 A 進入 B 時 A 的「離開」事件可能晚到，不可把 B 的覆蓋層藏掉
             st.charts.forEach((ch, i) => {
                 const handler = (param) => {
@@ -6821,6 +6821,14 @@
                         const xw = xdate.offsetWidth;
                         xdate.style.left = Math.round(Math.max(0, Math.min(plotW - xw, x - xw / 2))) + 'px';
                         xdate.style.top = Math.round(axisTop + Math.max(0, (tsH - 16) / 2)) + 'px';
+                        let tsH0 = 0;
+                        try { tsH0 = st.charts[0].timeScale().height(); } catch (_) {}
+                        if (tsH0 > 0) {
+                            xdate2.textContent = text;
+                            xdate2.style.display = 'block';
+                            xdate2.style.left = xdate.style.left;
+                            xdate2.style.top = Math.round(first.offsetTop + st.hosts[0].offsetHeight - tsH0 + Math.max(0, (tsH0 - 16) / 2)) + 'px';
+                        } else xdate2.style.display = 'none';
                         tip.textContent = text;
                         tip.style.display = 'block';
                         const tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -6866,7 +6874,7 @@
                 return c;
             };
             const mk = (host, o) => { const ch = LWC.createChart(host, opts(host, o)); st.charts.push(ch); return ch; };
-            const priceCh = mk(hosts[0], { mode: 1, margins: { top: 0.06, bottom: 0.06 } });   // PriceScaleMode.Logarithmic
+            const priceCh = mk(hosts[0], { time: true, mode: 1, margins: { top: 0.06, bottom: 0.06 } });   // PriceScaleMode.Logarithmic；K 線窗格自己也顯示日期軸，不用捲到最下面才對得到日期
             const atrxCh = mk(hosts[1], { margins: { top: 0.15, bottom: 0.02 } });
             const dkCh = mk(hosts[2], { time: true, logo: true, margins: { top: 0.12, bottom: 0.08 } });   // 只留一個 TradingView attribution logo
             const s = st.series;
