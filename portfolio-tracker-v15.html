@@ -7496,7 +7496,7 @@
         function _grandTotalTWD() {
             const stockTWD  = _currentStockValueTWD();
             const cashTWD   = _depositsTWD();
-            const cryptoTWD = parseFloat(localStorage.getItem(PT_CRYPTO_KEY) || '0') || 0;
+            const cryptoTWD = _cryptoTwdEffective(parseFloat(localStorage.getItem(PT_CRYPTO_KEY) || '0') || 0);   // v15.987：自動帶入時用派網總金額（net_worth_snapshots 是 system data，不入 hash）
             const moxaTWD   = parseFloat(localStorage.getItem(PT_MOXA_KEY)   || '0') || 0;
             return stockTWD + cashTWD + cryptoTWD + moxaTWD;
         }
