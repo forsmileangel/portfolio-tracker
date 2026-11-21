@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.986 - 2026-11-21 趨勢頁上方新增「轉色訊號」區塊：列出清單裡日線近 5 根、週線近 4 週內轉色的標的，分轉強／轉弱兩組（綠→灰→黑 賣出、黑→灰→綠 買進等），最新一根的變化特別標出；只看已收盤的 K 線，週線等當週收完才算（依市場行事曆判斷），點一下就跳到該標的的日線或週線圖。狀態快取升 v2（舊快取重抓），不新增 localStorage key、不碰同步。
   v15.985 - 2026-11-21 趨勢圖游標對齊日期：滑鼠移到 K 線時，垂直虛線貫穿三個窗格到時間軸並在軸上標出日期，游標旁也顯示日期；原本上方窗格對不到日期。
   v15.984 - 2026-11-20 新增「趨勢」分頁（Tab 11）＋修正啟動自動拉取會蓋掉未上傳修改的既有臭蟲：(1) 趨勢頁：獨立的標的清單（和持倉、觀察清單分開；新增／刪除／排序），每檔顯示日線與週線目前的顏色、前一個顏色、起始日與已持續根數；右側三窗格圖（lightweight-charts 4.2.3，淺色底）：K 線依趨勢變綠／灰／黑、EMA／MA 20／60／120 六條均線、20／60／120 扣抵黃點、ATRX 副圖、Price deduction 副圖，可切日線／週線（週線由日線在本機合成，週線 120 期均線為近似）。版面與指標參考雷公（LoneCapital）的 TradingView 版面；原始碼不公開，變色規則是依其公開說法並拿使用者截圖逐根比對重建的規則 H（20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向為灰；拿使用者 6 檔標的的日線＋週線截圖共 748 根 K 線比對，吻合 91%，雙線同向時 97–100%，誤差集中在雙線不同向、原版有時畫灰色的地方；TREND_RULE 一個常數可換規則），ATRX 與 Price deduction 為近似版。資料用 Yahoo 日線（range=5y，一檔一次請求、記憶體快取 10 分鐘、失敗保留舊資料），清單狀態摘要快取在 pt_trend_status_v1、UI 偏好在 pt_trend_ui_v1；分頁不在前景不抓、啟動不抓；不併入 _allAnalysisTargets。(2) 同步：新增 user data 欄位 trend_list（pt_trend_list_v1、dirty domain trendList）；空清單不進 userDataHash（升版不改任何人的 hash），裝置知道清單狀態（清單非空、或曾在本機編輯／曾收到清單）時才在 user push 寫 trend_list，payload 缺 key（舊版寫的、或還沒看過清單的裝置寫的）時保留本機清單並在趨勢頁提示「重新上傳」（使用者按了才推、推送成功提示才消失）；不升 PT_SCHEMA_VERSION；K 線與狀態快取不進 hash／pending／Gist。(3) 修既有臭蟲（v15.080 起）：_gistSilentPull 沒處理 cloud_user_same_system_newer 而落到「套用雲端」，改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改會被雲端舊資料覆蓋且 dirty 被清掉；現在改為有未上傳修改就推送、否則不動，都不套用雲端（假 Gist 實測：舊版修改消失、新版保留並補推）。(4) 指標核心為純函式（// #region Trend Core），tests/trend-core.test.cjs 12 項；另與 Gemini、Grok 各自獨立寫的 Python 參考實作在 USD／2330.TW／0700.HK 共 9.4 萬個值逐值比對一致；新舊版三台裝置混用情境 16 項檢查通過。
   v15.983 - 2026-11-13 派網網格月曆配合 v2 1.0.8 的「利潤日前移一天」：每天 08:15 的數字（前一天 08:15 到當天 08:15 的利潤）現在記在前一天那一格，所以今天那一格要等明天 08:15 才有。(1) 月曆預設選帳本最新一筆並切到它的月份（原本預設選今天，今天沒有紀錄時退回當月最後一筆；每月 1 號會打開空白月），自動選取的狀態下，新資料進來也會跟著跳到最新一筆。(2) 口徑與空白狀態文字改成「每格是當天 08:15 到隔天 08:15 的利潤，隔天早上的快照記在前一天」，「等 08:05 排程」改成每天 08:15。讀 Gist 帳本的方式不變：days[].date 本來就是格子日期，v2 重新發布後歷史自動前移；頂層 capture_date／captured_at 仍是最新一次擷取（新鮮度標籤照舊）。不改 Storage Key、Gist payload 讀法、holdings、userDataHash、pending、push／pull 或 PWA 啟動流程。
@@ -125,6 +126,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.986 - 2026-11-21 趨勢頁新增「轉色訊號」：列出日線近 5 根、週線近 4 週內轉色的標的（分轉強／轉弱，最新一根特別標出），只看已收盤 K 線、週線等當週收完，點一下跳到該標的的圖。
         v15.985 - 2026-11-21 趨勢圖游標對齊日期：垂直虛線貫穿三個窗格到時間軸並標出日期，游標旁也顯示日期。
         v15.984 - 2026-11-20 新增「趨勢」分頁：自己的標的清單，K 線依趨勢變綠／灰／黑，附 20／60／120 均線、扣抵黃點、ATRX 與 Price deduction 副圖，可切日線／週線（參考雷公的版面，變色規則是重建版）；清單會跨裝置同步。另修正：改完資料馬上關掉 App，下次開啟時修改被雲端舊資料蓋掉的問題。
         v15.983 - 2026-11-13 網格月曆配合 v2 1.0.8，每格是「當天 08:15 到隔天 08:15」的利潤、記在前一天那格（早上看的是昨天）；預設選最新一筆紀錄並切到它的月份，今天那格要等明天 08:15 才有。
@@ -493,6 +495,99 @@
             .trend-lc-legend { gap:0.2rem 0.6rem; font-size:0.66rem; }
         }
         .trend-empty { padding:3rem 1rem; color:#607585; text-align:center; font-size:0.9rem; border:1px dashed var(--pt-border); border-radius:8px; }
+        /* 趨勢 Tab：轉色訊號（v15.986）。主題對所有 button 套 !important，這裡的按鈕用 #trend-signals 提高優先序蓋回來 */
+        .trend-sig { position:relative; margin:0 0 1.1rem; padding:0.9rem 1rem 0.85rem; background:var(--pt-surface-2); border:1px solid var(--pt-border); border-radius:8px; overflow:hidden; }
+        .trend-sig::before { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg, #29AB87 0 33.3%, #B2B5BE 33.3% 66.6%, #5a5f6c 66.6% 100%); opacity:0.8; }
+        .trend-sig.is-compact { padding:0.7rem 1rem 0.65rem; }
+        .trend-sig-head { display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem 0.7rem; }
+        .trend-sig-title { margin:0; color:#f1f5f9; font-size:0.98rem; font-weight:800; display:inline-flex; align-items:center; gap:0.35rem; white-space:nowrap; }
+        .trend-sig-counts { display:inline-flex; gap:0.35rem; flex-wrap:wrap; }
+        .trend-sig-count { display:inline-flex; align-items:center; gap:0.3rem; padding:0.08rem 0.55rem; border-radius:999px; background:var(--pt-surface-1); border:1px solid var(--pt-border); color:var(--pt-text-soft); font-size:0.72rem; font-weight:700; white-space:nowrap; }
+        .trend-sig-count b { font-size:0.82rem; font-variant-numeric:tabular-nums; }
+        .trend-sig-count.up b { color:var(--pt-positive); }
+        .trend-sig-count.dn b { color:var(--pt-negative); }
+        .trend-sig-count i { font-style:normal; font-size:0.62rem; font-weight:800; padding:0 0.3rem; border-radius:4px; background:rgba(233,237,234,0.1); color:var(--pt-text); }
+        .trend-sig-state { margin-left:auto; color:var(--pt-text-muted); font-size:0.74rem; font-weight:600; white-space:nowrap; }
+        .trend-sig-empty { color:var(--pt-text-muted); font-size:0.8rem; font-weight:600; }
+        .trend-sig-empty small { font-size:0.7rem; font-weight:500; opacity:0.85; }
+        .trend-sig-cap { margin-top:0.3rem; color:var(--pt-text-muted); font-size:0.72rem; line-height:1.45; }
+        .trend-sig-groups { display:grid; grid-template-columns:minmax(0, 1fr); gap:0.8rem; margin-top:0.75rem; }
+        @media (min-width:900px) { .trend-sig-groups { grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:1.1rem; } }
+        .trend-sig-group { min-width:0; }
+        .trend-sig-ghead { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.45rem; padding-bottom:0.3rem; border-bottom:1px solid var(--pt-border); font-size:0.78rem; font-weight:800; }
+        .trend-sig-gtitle { display:inline-flex; align-items:center; gap:0.3rem; letter-spacing:0.06em; }
+        .g-up .trend-sig-gtitle { color:var(--pt-positive); }
+        .g-dn .trend-sig-gtitle { color:var(--pt-negative); }
+        .trend-sig-ghint { margin-left:auto; color:var(--pt-text-muted); font-size:0.68rem; font-weight:600; }
+        .trend-sig-none { padding:0.35rem 0.1rem; color:var(--pt-text-muted); font-size:0.76rem; }
+        .trend-sig-list { display:flex; flex-direction:column; gap:0.35rem; container-type:inline-size; }
+        #trend-signals .trend-sig-item {
+            position:relative; overflow:hidden; width:100%; margin:0; text-align:left; cursor:pointer; font:inherit;
+            display:grid; grid-template-columns:minmax(0, 1fr) auto; grid-template-areas:"id when" "path verdict"; align-items:center; gap:0.32rem 0.6rem;
+            padding:0.5rem 0.65rem 0.5rem 0.85rem;
+            background:var(--pt-surface-1) !important; color:var(--pt-text-soft) !important; border:1px solid var(--pt-border) !important; border-radius:7px !important; box-shadow:none !important;
+            transition:border-color 0.15s, background 0.15s;
+        }
+        #trend-signals .trend-sig-item:hover { background:var(--pt-surface-hover) !important; border-color:var(--pt-border-strong) !important; color:var(--pt-text) !important; }
+        #trend-signals .trend-sig-item:focus-visible { outline:2px solid var(--pt-accent-strong); outline-offset:2px; }
+        #trend-signals .trend-sig-item.is-old { background:rgba(34,42,38,0.55) !important; }
+        #trend-signals .trend-sig-item.is-old:hover { background:var(--pt-surface-hover) !important; }
+        #trend-signals .trend-sig-item.is-new::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+        #trend-signals .trend-sig-item.up.is-new::before { background:#29AB87; }
+        #trend-signals .trend-sig-item.dn.is-new::before { background:var(--pt-negative); }
+        #trend-signals .trend-sig-item.up.is-new { background:linear-gradient(90deg, rgba(41,171,135,0.2), rgba(41,171,135,0.05) 75%) !important; border-color:rgba(41,171,135,0.5) !important; color:var(--pt-text) !important; }
+        #trend-signals .trend-sig-item.dn.is-new { background:linear-gradient(90deg, rgba(224,146,146,0.18), rgba(224,146,146,0.04) 75%) !important; border-color:rgba(224,146,146,0.48) !important; color:var(--pt-text) !important; }
+        #trend-signals .trend-sig-item.up.is-new:hover { background:linear-gradient(90deg, rgba(41,171,135,0.28), rgba(41,171,135,0.09) 75%) !important; }
+        #trend-signals .trend-sig-item.dn.is-new:hover { background:linear-gradient(90deg, rgba(224,146,146,0.26), rgba(224,146,146,0.08) 75%) !important; }
+        #trend-signals .trend-sig-list > .trend-sig-item.active { border-color:var(--pt-accent-strong) !important; box-shadow:inset 0 0 0 1px var(--pt-accent-strong) !important; }
+        .trend-sig-id { grid-area:id; display:flex; align-items:center; gap:0.35rem; min-width:0; }
+        .trend-sig-sym { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--pt-text); font-size:0.92rem; font-weight:800; }
+        .is-old .trend-sig-sym { color:var(--pt-text-soft); }
+        .trend-sig-id .watchlist-pro-market { font-size:0.62rem; padding:0.05rem 0.34rem; }
+        .trend-sig-id .trend-tag { margin-left:0; }
+        .trend-sig-tf { flex-shrink:0; padding:0 0.32rem; border-radius:4px; border:1px solid var(--pt-border-strong); color:var(--pt-text-soft); font-size:0.64rem; font-weight:800; line-height:1.55; }
+        .trend-sig-new { flex-shrink:0; padding:0 0.36rem; border-radius:4px; font-size:0.64rem; font-weight:900; line-height:1.6; letter-spacing:0.04em; }
+        .up .trend-sig-new { background:#29AB87; color:#fff; }
+        .dn .trend-sig-new { background:var(--pt-negative); color:#241616; }
+        .trend-sig-path { grid-area:path; justify-self:start; display:inline-flex; align-items:center; gap:0.22rem; padding:0.12rem 0.5rem; border-radius:999px; background:#fbfbf8; color:#4a4d52; font-size:0.7rem; font-weight:700; white-space:nowrap; }
+        .is-old .trend-sig-path { background:rgba(251,251,248,0.8); }
+        .trend-sig-step { display:inline-flex; align-items:center; gap:0.2rem; }
+        .trend-sig-path .trend-dot { width:0.72rem; height:0.72rem; }
+        .trend-sig-arrow { color:#9a9da3; font-size:0.68rem; }
+        .trend-sig-verdict { grid-area:verdict; justify-self:end; padding:0.08rem 0.55rem; border-radius:999px; border:1px solid transparent; font-size:0.72rem; font-weight:800; white-space:nowrap; }
+        .trend-sig-verdict.v-buy { background:var(--pt-positive-soft); color:var(--pt-positive); border-color:rgba(139,198,156,0.5); }
+        .trend-sig-verdict.v-sell { background:var(--pt-negative-soft); color:var(--pt-negative); border-color:rgba(224,146,146,0.5); }
+        .trend-sig-verdict.v-turn-up { color:var(--pt-positive); border-color:rgba(139,198,156,0.38); }
+        .trend-sig-verdict.v-turn-dn { color:var(--pt-negative); border-color:rgba(224,146,146,0.38); }
+        .trend-sig-verdict.v-watch { color:var(--pt-warning); border:1px dashed rgba(213,176,113,0.55); }
+        .trend-sig-verdict.v-back { color:var(--pt-text-soft); border-color:var(--pt-border-strong); }
+        .trend-sig-when { grid-area:when; justify-self:end; display:inline-flex; align-items:baseline; gap:0.35rem; white-space:nowrap; }
+        .trend-sig-date { color:var(--pt-text-soft); font-size:0.76rem; font-weight:700; font-variant-numeric:tabular-nums; }
+        .trend-sig-ago { color:var(--pt-text-muted); font-size:0.66rem; font-weight:600; }
+        .up.is-new .trend-sig-ago { color:#5cc9a7; font-weight:800; }
+        .dn.is-new .trend-sig-ago { color:var(--pt-negative); font-weight:800; }
+        @container (min-width:560px) {
+            #trend-signals .trend-sig-item { grid-template-columns:minmax(0, 1fr) 9.6rem 6.9rem 7rem; grid-template-areas:"id path verdict when"; padding-top:0.42rem; padding-bottom:0.42rem; }
+            .trend-sig-verdict { justify-self:start; }
+        }
+        #trend-signals .trend-sig-more { display:none; width:100%; margin-top:0.6rem; padding:0.35rem 0.6rem; justify-content:center; cursor:pointer; font-size:0.76rem; font-weight:700;
+            background:transparent !important; color:var(--pt-accent-strong) !important; border:1px dashed var(--pt-border-strong) !important; border-radius:7px !important; }
+        #trend-signals .trend-sig-more:hover { background:var(--pt-accent-soft) !important; border-color:var(--pt-accent) !important; }
+        #trend-signals .trend-sig-more:focus-visible { outline:2px solid var(--pt-accent-strong); outline-offset:2px; }
+        #trend-signals .trend-sig-more.need-desk { display:flex; }
+        .trend-sig:not(.expanded) .trend-sig-item.x-desk { display:none !important; }
+        @media (max-width:640px) {
+            .trend-sig { padding:0.75rem 0.7rem 0.7rem; margin-bottom:0.75rem; }
+            .trend-sig.is-compact { padding:0.6rem 0.7rem 0.55rem; }
+            .trend-sig-title { font-size:0.92rem; }
+            .trend-sig-state { margin-left:0; }
+            .trend-sig-empty small { display:block; margin-top:0.1rem; }
+            .trend-sig-groups { gap:0.65rem; margin-top:0.6rem; }
+            #trend-signals .trend-sig-item { padding:0.45rem 0.55rem 0.45rem 0.75rem; gap:0.28rem 0.45rem; }
+            .trend-sig:not(.expanded) .trend-sig-item.x-phone { display:none !important; }
+            #trend-signals .trend-sig-more.need-phone { display:flex; }
+            #trend-signals .trend-sig-more.need-desk:not(.need-phone) { display:none; }
+        }
         .pionex-cal { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:0.28rem; }
         .pionex-cal-dow { text-align:center; color:var(--pt-text-muted); font-size:0.68rem; font-weight:700; padding:0.15rem 0 0.3rem; }
         .pionex-cal-cell { min-height:3.6rem; border:1px solid var(--pt-border); border-radius:7px; background:var(--pt-surface-1); padding:0.22rem 0.18rem 0.28rem; text-align:center; color:var(--pt-text-muted); }
@@ -967,7 +1062,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.985</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.986</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1850,7 +1945,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.985';
+        const APP_VERSION = 'v15.986';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -6022,6 +6117,7 @@
             trendList = _normalizeTrendList(saved.trend_list);
             saveTrendList();
             if (typeof renderTrendTab === 'function') { try { renderTrendTab(); } catch (_) {} }
+            if (typeof _trendScheduleSignals === 'function') { try { _trendScheduleSignals(); } catch (_) {} }   // 分頁沒開時 renderTrendTab 不畫；這裡只重畫訊號區塊，不碰 sync
             // 趨勢頁開著時，新拉進來的標的要馬上抓狀態（只抓行情，不碰 sync；頁面不在前景時函式自己會跳過）
             if (typeof _trendRefreshStatuses === 'function') { try { _trendRefreshStatuses(); } catch (_) {} }
             return true;
@@ -6057,6 +6153,11 @@
         let _trendRefreshing = false;
         let _trendTimer = null;
         let _trendChartKey = null;      // 目前圖表容器對應的 sym|tf
+        // 轉色訊號（v15.986）：日線列出近 5 根、週線近 4 週內的變色（barsAgo 0 = 最新一根收完就變色）
+        const TREND_SIG_MAX_AGO = { D: 4, W: 3 };
+        const TREND_SIG_SHOW = { desktop: 5, phone: 3 };   // 每組先顯示幾筆，其餘收在「顯示全部」
+        let _trendSigExpanded = false;  // 只存在記憶體
+        let _trendSigRaf = 0;
 
         function _trendPaneActive() {
             const p = document.getElementById('tab-pane-11');
@@ -6077,7 +6178,7 @@
             } catch (_) {}
             try {
                 const c = JSON.parse(localStorage.getItem(STORAGE_KEYS.trendStatusCache) || 'null');
-                if (c && c.v === 1 && c.rule === TREND_RULE && c.items && typeof c.items === 'object') {
+                if (c && c.v === 2 && c.rule === TREND_RULE && c.items && typeof c.items === 'object') {   // v2（v15.986）：每筆多了 sig，v1 舊快取直接略過重抓
                     const keep = new Set(trendList.map(x => x.yahooSymbol));
                     Object.keys(c.items).forEach(k => { if (keep.has(k) && c.items[k] && c.items[k].D && c.items[k].W) _trendStatus[k] = c.items[k]; });
                 }
@@ -6091,7 +6192,7 @@
                 const keep = new Set(trendList.map(x => x.yahooSymbol));
                 const items = {};
                 Object.keys(_trendStatus).forEach(k => { if (keep.has(k)) items[k] = _trendStatus[k]; });
-                localStorage.setItem(STORAGE_KEYS.trendStatusCache, JSON.stringify({ v: 1, rule: TREND_RULE, items }));
+                localStorage.setItem(STORAGE_KEYS.trendStatusCache, JSON.stringify({ v: 2, rule: TREND_RULE, items }));
             } catch (_) {}
         }
         function _trendFixSelection() {
@@ -6141,6 +6242,29 @@
             if (item.market === 'CRYPTO') return true;
             try { return _marketSession(item.market).status === 'open'; } catch (_) { return true; }
         }
+        // 最後一根「算進來」的日線（'YYYY-MM-DD'）所在那週（週一起算，同 tcWeekKey）是否已收完：
+        // 同一週後面的日子都不可能再是交易日才算收完。加密每天交易 → 只有最後一根是週日才算。
+        // 股票用市場行事曆：_isPossibleTradingDay（_isTradingDay !== false；未涵蓋年份的平日視為可能交易日，臨時休市算休市）。
+        // 任何例外 → 當作沒收完（寧可晚一週出訊號，也不提早報）。
+        function _trendWeekDone(item, lastDate) {
+            try {
+                if (!item || !/^\d{4}-\d{2}-\d{2}$/.test(lastDate || '')) return false;
+                const wd = new Date(lastDate + 'T12:00:00Z').getUTCDay();   // 0=Sun
+                if (isNaN(wd)) return false;
+                if (item.market === 'CRYPTO') return wd === 0;
+                const mk = item.market === 'TW' || item.market === 'HK' ? item.market : 'US';
+                const left = wd === 0 ? 0 : 7 - wd;   // 到週日還剩幾天
+                for (let k = 1; k <= left; k++) {
+                    if (_isPossibleTradingDay(mk, _shiftDate(lastDate, k))) return false;
+                }
+                return true;
+            } catch (_) { return false; }
+        }
+        function _trendComputeSignals(bars, live, item) {
+            const n = bars.length - (live ? 1 : 0);
+            const lastCounted = n > 0 ? bars[n - 1].time : null;
+            return tcSignals(bars, TREND_RULE, { dropLastDaily: !!live, weekDone: _trendWeekDone(item, lastCounted) });
+        }
         async function _trendFetchOne(sym, opts) {
             const res = await _trendGetBars(sym, opts);
             const item = trendList.find(x => x.yahooSymbol === sym);
@@ -6148,11 +6272,15 @@
             if (res.error) _trendErr.add(sym); else _trendErr.delete(sym);
             if (res.bars.length) {
                 const s = tcSummary(res.bars, TREND_RULE);
-                _trendStatus[sym] = { D: s.D, W: s.W, lastTime: s.lastTime, live: _trendIsLive(res.bars, res.tz, item), fetchedAt: res.fetchedAt };
+                const live = _trendIsLive(res.bars, res.tz, item);
+                let sig = null;
+                try { sig = _trendComputeSignals(res.bars, live, item); } catch (_) { sig = null; }
+                _trendStatus[sym] = { D: s.D, W: s.W, lastTime: s.lastTime, live, fetchedAt: res.fetchedAt, sig };
                 _trendSaveStatusCache();
             }
             _trendUpdateRow(sym);
             _trendUpdateStamp();
+            _trendScheduleSignals();
             if (sym === _trendSelected) {
                 _trendUpdateHeader();
                 // 選取中的標的拿到 K 線就交給圖表：同一份資料（fetchedAt 相同）時 _renderTrendChart 自己會略過，
@@ -6166,6 +6294,7 @@
             const force = !!(opts && opts.force);
             _trendRefreshing = true;
             _trendSetRefreshBtn();
+            _trendScheduleSignals();
             try {
                 const syms = trendList.map(x => x.yahooSymbol);
                 const run = async (sym) => {
@@ -6176,6 +6305,7 @@
             } finally {
                 _trendRefreshing = false;
                 _trendSetRefreshBtn();
+                _trendScheduleSignals();
             }
         }
         function _scheduleTrendRefresh() {
@@ -6268,6 +6398,131 @@
                 else status.textContent = _trendLineText(_trendTf === 'D' ? '日' : '週', st[_trendTf]) + (st.live ? ' ・盤中' : '') + (_trendErr.has(it.yahooSymbol) ? ' ・舊資料' : '');
             }
         }
+        // ── 轉色訊號（v15.986）：只讀 _trendStatus[sym].sig（system data），只重建 #trend-signals 自己；不碰 renderAll／儲存／同步 ──
+        function _trendSigVerdict(s) {
+            if (s.cur === 'Y') return s.prev === 'B' ? { text: '轉灰・留意轉強', k: 'watch' } : { text: '轉灰・留意轉弱', k: 'watch' };
+            if (s.cur === 'G') {
+                if (s.prev === 'B' || s.prev2 === 'B') return { text: '買進訊號', k: 'buy' };
+                if (s.prev2 === 'G') return { text: '回到綠', k: 'back' };
+                return { text: '轉綠', k: 'turn-up' };
+            }
+            if (s.prev === 'G' || s.prev2 === 'G') return { text: '賣出訊號', k: 'sell' };
+            if (s.prev2 === 'B') return { text: '回到黑', k: 'back' };
+            return { text: '轉黑', k: 'turn-dn' };
+        }
+        function _trendSigEntries() {
+            const out = [];
+            trendList.forEach((it, idx) => {
+                const st = _trendStatus[it.yahooSymbol];
+                const sig = st && st.sig;
+                if (!sig) return;
+                ['D', 'W'].forEach(tf => {
+                    const s = sig[tf];
+                    if (!s || s.insufficient || !s.prev || !s.cur || !(s.barsAgo >= 0) || s.barsAgo > TREND_SIG_MAX_AGO[tf]) return;
+                    out.push({ it, idx, tf, s, up: s.cur === 'G' || (s.cur === 'Y' && s.prev === 'B'), v: _trendSigVerdict(s), old: _trendErr.has(it.yahooSymbol) });
+                });
+            });
+            // 最新的在前 → 已定色（綠／黑）在「轉灰」前 → 日線在週線前 → 清單順序
+            out.sort((a, b) => (a.s.barsAgo - b.s.barsAgo) || ((a.s.cur === 'Y' ? 1 : 0) - (b.s.cur === 'Y' ? 1 : 0)) || ((a.tf === 'W' ? 1 : 0) - (b.tf === 'W' ? 1 : 0)) || (a.idx - b.idx));
+            return out;
+        }
+        function _trendSigPath(s) {
+            return (s.prev === 'Y' && s.prev2) ? [s.prev2, s.prev, s.cur] : [s.prev, s.cur];
+        }
+        function _trendSigItemHtml(e, pos) {
+            const s = e.s, isNew = s.barsAgo === 0, tfName = e.tf === 'D' ? '日線' : '週線';
+            const ago = isNew ? (e.tf === 'D' ? '最新一根' : '最新一週') : `${s.barsAgo} ${e.tf === 'D' ? '根' : '週'}前`;
+            const date = _trendSinceText(s.since);
+            const path = _trendSigPath(s);
+            const active = e.it.yahooSymbol === _trendSelected && e.tf === _trendTf;
+            const cls = ['trend-sig-item', e.up ? 'up' : 'dn', isNew ? 'is-new' : 'is-old', active ? 'active' : '',
+                pos >= TREND_SIG_SHOW.phone ? 'x-phone' : '', pos >= TREND_SIG_SHOW.desktop ? 'x-desk' : ''].filter(Boolean).join(' ');
+            const label = `${e.it.symbol} ${tfName} ${path.map(_trendStateName).join('→')}，${e.v.text}，${date} ${ago}${e.old ? '（舊資料）' : ''}`;
+            const steps = path.map(c => `<span class="trend-sig-step"><span class="trend-dot s-${c === 'G' || c === 'B' ? c : 'Y'}"></span>${_trendStateName(c)}</span>`).join('<span class="trend-sig-arrow" aria-hidden="true">→</span>');
+            return `<button type="button" class="${cls}" data-sym="${_escapeHtml(e.it.yahooSymbol)}" data-tf="${e.tf}" onclick="trendSignalGo(this)" aria-pressed="${active ? 'true' : 'false'}" aria-label="${_escapeHtml(label)}" title="${_escapeHtml(e.it.yahooSymbol + ' ' + tfName)}">`
+                + `<span class="trend-sig-id">${isNew ? '<span class="trend-sig-new">新</span>' : ''}<span class="trend-sig-sym">${_escapeHtml(e.it.symbol)}</span><span class="watchlist-pro-market">${_escapeHtml(e.it.market)}</span><span class="trend-sig-tf">${e.tf === 'D' ? '日' : '週'}</span>${e.old ? '<span class="trend-tag old">舊</span>' : ''}</span>`
+                + `<span class="trend-sig-path" aria-hidden="true">${steps}</span>`
+                + `<span class="trend-sig-verdict v-${e.v.k}">${_escapeHtml(e.v.text)}</span>`
+                + `<span class="trend-sig-when"><span class="trend-sig-date">${_escapeHtml(date)}</span><span class="trend-sig-ago">${ago}</span></span>`
+                + `</button>`;
+        }
+        function renderTrendSignals() {
+            const box = document.getElementById('trend-signals');
+            if (!box) return;
+            if (!trendList.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+            box.style.display = '';
+            // 重建前記住鍵盤焦點，重建後放回同一筆（每次狀態更新都會重建）
+            const ae = document.activeElement;
+            const focusKey = (ae && box.contains(ae) && ae.dataset) ? (ae.dataset.sym ? ae.dataset.sym + '|' + ae.dataset.tf : (ae.classList.contains('trend-sig-more') ? 'more' : '')) : '';
+            const total = trendList.length;
+            const pending = trendList.filter(x => !_trendStatus[x.yahooSymbol] && !_trendErr.has(x.yahooSymbol)).length;
+            const known = trendList.filter(x => _trendStatus[x.yahooSymbol] && _trendStatus[x.yahooSymbol].sig).length;
+            const all = _trendSigEntries();
+            const title = '<h3 class="trend-sig-title"><i class="ic">◐</i> 轉色訊號</h3>';
+            const cap = '只看已收盤的 K 線；週線等當週收完才算。日線列出近 5 根、週線列出近 4 週內的變化';
+            const checking = pending > 0 ? (pending === total ? '檢查中…' : `檢查中 ${total - pending}/${total}`) : '';
+            if (!all.length) {
+                box.classList.add('is-compact');
+                box.classList.remove('expanded');
+                let msg;
+                if (pending > 0 && !known) msg = '<span class="trend-sig-empty">檢查中…</span>';
+                else if (!known) msg = '<span class="trend-sig-empty">無法取得 K 線資料</span>';
+                else msg = `<span class="trend-sig-empty">近期沒有轉色 <small>（日線近 5 根、週線近 4 週，只看已收盤）</small></span>${checking ? `<span class="trend-sig-state">${checking}</span>` : ''}`;
+                box.innerHTML = `<div class="trend-sig-head">${title}${msg}</div>`;
+                return;
+            }
+            box.classList.remove('is-compact');
+            box.classList.toggle('expanded', _trendSigExpanded);
+            const up = all.filter(e => e.up), dn = all.filter(e => !e.up);
+            const newCount = list => list.filter(e => e.s.barsAgo === 0).length;
+            const count = (k, label, list) => { const n = newCount(list); return `<span class="trend-sig-count ${k}">${label} <b>${list.length}</b>${n ? `<i>新 ${n}</i>` : ''}</span>`; };
+            const group = (k, label, icon, list) => `<div class="trend-sig-group g-${k}"><div class="trend-sig-ghead"><span class="trend-sig-gtitle"><span aria-hidden="true">${icon}</span>${label}</span><span class="trend-sig-ghint">${k === 'up' ? '黑→灰→綠' : '綠→灰→黑'}</span></div>`
+                + (list.length ? `<div class="trend-sig-list">${list.map(_trendSigItemHtml).join('')}</div>` : '<div class="trend-sig-none">近期沒有</div>')
+                + '</div>';
+            const maxLen = Math.max(up.length, dn.length);
+            const moreCls = ['trend-sig-more', maxLen > TREND_SIG_SHOW.desktop ? 'need-desk' : '', maxLen > TREND_SIG_SHOW.phone ? 'need-phone' : ''].filter(Boolean).join(' ');
+            box.innerHTML = `<div class="trend-sig-head">${title}<span class="trend-sig-counts">${count('up', '轉強', up)}${count('dn', '轉弱', dn)}</span>${checking ? `<span class="trend-sig-state">${checking}</span>` : ''}</div>`
+                + `<div class="trend-sig-cap">${cap}</div>`
+                + `<div class="trend-sig-groups">${group('up', '轉強', '▲', up)}${group('dn', '轉弱', '▼', dn)}</div>`
+                + (maxLen > TREND_SIG_SHOW.phone ? `<button type="button" class="${moreCls}" onclick="toggleTrendSignalsAll()" aria-expanded="${_trendSigExpanded ? 'true' : 'false'}">${_trendSigExpanded ? '收合' : `顯示全部（${all.length}）`}</button>` : '');
+            if (focusKey) {
+                const el = focusKey === 'more' ? box.querySelector('.trend-sig-more')
+                    : Array.from(box.querySelectorAll('.trend-sig-item')).find(b => (b.dataset.sym + '|' + b.dataset.tf) === focusKey);
+                if (el) { try { el.focus({ preventScroll: true }); } catch (_) {} }
+            }
+        }
+        // 一次重新整理會連續更新很多檔：合併成下一個 frame 只重建一次
+        function _trendScheduleSignals() {
+            if (_trendSigRaf) return;
+            const run = () => { _trendSigRaf = 0; try { renderTrendSignals(); } catch (_) {} };
+            _trendSigRaf = (typeof requestAnimationFrame === 'function') ? requestAnimationFrame(run) : setTimeout(run, 16);
+        }
+        // 選取 / 週期變了只換高亮，不重建（保留鍵盤焦點）
+        function _trendSigUpdateActive() {
+            document.querySelectorAll('#trend-signals .trend-sig-item').forEach(b => {
+                const on = b.dataset.sym === _trendSelected && b.dataset.tf === _trendTf;
+                b.classList.toggle('active', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        }
+        function toggleTrendSignalsAll() {
+            _trendSigExpanded = !_trendSigExpanded;
+            renderTrendSignals();
+        }
+        function trendSignalGo(btn) {
+            const sym = btn && btn.dataset ? btn.dataset.sym : null;
+            const tf = btn && btn.dataset ? btn.dataset.tf : null;
+            const i = trendList.findIndex(x => x.yahooSymbol === sym);
+            if (i < 0 || (tf !== 'D' && tf !== 'W')) return;
+            _trendTf = tf;            // 先換週期再選標的：圖表只重畫一次（selectTrendSymbol 會存 UI、更新標題與圖表）
+            selectTrendSymbol(i);
+            try {
+                if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+                    const panel = document.querySelector('#tab-pane-11 .trend-chart-panel');
+                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (_) {}
+        }
         // 清單 / 選取變動後同步圖表容器（空清單顯示空狀態、否則交給圖表階段）
         function _trendSyncChart() {
             const box = document.getElementById('trend-chart-box');
@@ -6298,7 +6553,7 @@
             if (!document.getElementById('trend-layout')) {
                 _disposeTrendCharts();
                 _trendChartKey = null;
-                pane.innerHTML = `<div class="glass-card" style="padding:1.5rem 1.75rem;"><div class="trend-layout" id="trend-layout">
+                pane.innerHTML = `<div class="glass-card" style="padding:1.5rem 1.75rem;"><section class="trend-sig" id="trend-signals" aria-label="轉色訊號" style="display:none;"></section><div class="trend-layout" id="trend-layout">
                     <div class="trend-list-panel">
                         <div class="trend-panel-head">
                             <h2 class="trend-title"><i class="ic">◩</i> 趨勢清單</h2>
@@ -6329,6 +6584,7 @@
             }
             _trendFixSelection();
             renderTrendList();
+            renderTrendSignals();
             _trendSetRefreshBtn();
             _trendUpdateHeader();
             _trendSyncChart();
@@ -6356,6 +6612,7 @@
             _trendSelected = item.yahooSymbol;
             _trendSaveUi();
             renderTrendList();
+            renderTrendSignals();
             _trendUpdateHeader();
             _trendSyncChart();
             _trendEnsureStatus(item.yahooSymbol);
@@ -6379,6 +6636,7 @@
                 _trendChartKey = null;
             }
             renderTrendList();
+            renderTrendSignals();
             _trendUpdateHeader();
             _trendSyncChart();
             if (_trendSelected) _trendEnsureStatus(_trendSelected);
@@ -6390,6 +6648,7 @@
             saveTrendList();
             _markTrendListChanged();
             renderTrendList();
+            renderTrendSignals();   // 排序相同時依清單順序
         }
         function selectTrendSymbol(i) {
             const it = trendList[i];
@@ -6397,6 +6656,7 @@
             _trendSelected = it.yahooSymbol;
             _trendSaveUi();
             document.querySelectorAll('#trend-list .trend-row').forEach(r => r.classList.toggle('active', r.dataset.sym === _trendSelected));
+            _trendSigUpdateActive();
             _trendUpdateHeader();
             _trendSyncChart();
             _trendEnsureStatus(_trendSelected);
@@ -6405,6 +6665,7 @@
             if (tf !== 'D' && tf !== 'W') return;
             _trendTf = tf;
             _trendSaveUi();
+            _trendSigUpdateActive();
             _trendUpdateHeader();
             _trendSyncChart();
         }
@@ -8670,6 +8931,39 @@
                 W: Object.assign({}, w, { bars: wk.length }),
                 lastTime: daily.length ? daily[daily.length - 1].time : null
             };
+        }
+        // 轉色訊號：只看 states[0..upto]，回傳最近一次變色。
+        //   cur      upto 那根的狀態；since / barsAgo：目前這段顏色的第一根（barsAgo 0 = 最新一根剛變色）
+        //   prev     目前這段之前的顏色（這段從暖機期開始 → null，不算訊號）；prevSince / prevBars：prev 那段的起點與根數
+        //   prev2    prev 那段之前的顏色（沒有或暖機期 → null），用來分辨 黑→灰→綠 與 綠→灰→綠
+        function tcSignal(states, times, upto) {
+            if (!Array.isArray(states) || !(upto >= 0) || upto >= states.length || states[upto] === null || states[upto] === undefined) return { insufficient: true };
+            const cur = states[upto];
+            let j = upto;
+            while (j >= 0 && states[j] === cur) j--;
+            const out = { insufficient: false, cur, prev: null, prev2: null, since: times[j + 1], barsAgo: upto - (j + 1), prevSince: null, prevBars: 0 };
+            if (j < 0 || states[j] === null || states[j] === undefined) return out;
+            const prev = states[j];
+            let k = j;
+            while (k >= 0 && states[k] === prev) k--;
+            out.prev = prev;
+            out.prevSince = times[k + 1];
+            out.prevBars = j - k;
+            out.prev2 = (k >= 0 && states[k] !== null && states[k] !== undefined) ? states[k] : null;
+            return out;
+        }
+        // 只用「已收完」的 K 線算日／週訊號（不改 tcSummary 的輸出）。
+        //   opts.dropLastDaily  最後一根日線還在形成中 → 不算
+        //   opts.weekDone       最後一根「算進來」的日線所在那週是否已收完；沒收完 → 最後一根週線不算
+        // 週線只用算進來的日線合成：被丟掉的那根日線若是新一週的唯一一根，那根週線根本不存在。
+        function tcSignals(daily, rule, opts) {
+            const o = opts || {};
+            const list = Array.isArray(daily) ? daily : [];
+            const counted = (o.dropLastDaily && list.length) ? list.slice(0, list.length - 1) : list;
+            const D = tcSignal(tcTrendStates(counted, rule), counted.map(b => b.time), counted.length - 1);
+            const wk = tcAggregateWeekly(counted);
+            const W = tcSignal(tcTrendStates(wk, rule), wk.map(b => b.time), wk.length - 1 - (o.weekDone ? 0 : 1));
+            return { D, W };
         }
         // #endregion Trend Core END
         // ==================== v15.929：觀察清單 Pro 原生圖（lightweight-charts，lazy-load，嚴格 visual-only）====================

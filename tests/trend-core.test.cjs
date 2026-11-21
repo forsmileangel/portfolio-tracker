@@ -183,6 +183,82 @@ test('tcLastChange', () => {
         { insufficient: false, cur: 'B', prev: 'G', barsAgo: 2, since: 't2' });
 });
 
+test('tcSignal', () => {
+    const t = ['t0', 't1', 't2', 't3', 't4', 't5'];
+    // insufficient
+    assert.deepEqual(J(T.tcSignal([], [], -1)), { insufficient: true });
+    assert.deepEqual(J(T.tcSignal(['G', null], ['a', 'b'], 1)), { insufficient: true });
+    assert.deepEqual(J(T.tcSignal(['G'], ['a'], 3)), { insufficient: true });
+    // direct change G -> B on the latest bar
+    assert.deepEqual(J(T.tcSignal(['G', 'G', 'G', 'B'], t, 3)),
+        { insufficient: false, cur: 'B', prev: 'G', prev2: null, since: 't3', barsAgo: 0, prevSince: 't0', prevBars: 3 });
+    // via gray with prev2: B B Y G G -> cur G since t3, prev Y (1 bar), prev2 B
+    assert.deepEqual(J(T.tcSignal(['B', 'B', 'Y', 'G', 'G'], t, 4)),
+        { insufficient: false, cur: 'G', prev: 'Y', prev2: 'B', since: 't3', barsAgo: 1, prevSince: 't2', prevBars: 1 });
+    // prev run starts at warm-up -> prev2 null
+    assert.deepEqual(J(T.tcSignal([null, 'Y', 'Y', 'G'], t, 3)),
+        { insufficient: false, cur: 'G', prev: 'Y', prev2: null, since: 't3', barsAgo: 0, prevSince: 't1', prevBars: 2 });
+    // warm-up -> colour is not a signal
+    const w = J(T.tcSignal([null, null, 'G', 'G'], t, 3));
+    assert.equal(w.prev, null); assert.equal(w.prev2, null); assert.equal(w.since, 't2'); assert.equal(w.barsAgo, 1);
+    // upto excludes later bars: the B at index 4 is ignored
+    assert.deepEqual(J(T.tcSignal(['Y', 'G', 'G', 'G', 'B'], t, 3)),
+        { insufficient: false, cur: 'G', prev: 'Y', prev2: null, since: 't1', barsAgo: 2, prevSince: 't0', prevBars: 1 });
+});
+
+test('tcSignals: completed bars only', () => {
+    const up = Array.from({ length: 140 }, (_, i) => 100 + i);
+    const crash = Array.from({ length: 30 }, (_, i) => 230 - i * 6);
+    const daily = series([...up, ...crash]); // 2024-01-01 (Mon) ..
+    const n = daily.length;
+    const full = T.tcSignals(daily, 'A', {});
+    const s = T.tcTrendStates(daily, 'A');
+    // daily: without drop equals tcSignal on the full array; with drop equals tcSignal up to n-2
+    assert.deepEqual(J(full.D), J(T.tcSignal(s, daily.map(b => b.time), n - 1)));
+    const dropped = T.tcSignals(daily, 'A', { dropLastDaily: true, weekDone: true });
+    assert.deepEqual(J(dropped.D), J(T.tcSignal(s, daily.map(b => b.time), n - 2)));
+    // a change on the last bar disappears when that bar is still forming
+    const flip = series([...up, 50]);
+    const fs = T.tcTrendStates(flip, 'A');
+    assert.notEqual(fs[fs.length - 1], fs[fs.length - 2]);
+    assert.equal(T.tcSignals(flip, 'A', {}).D.barsAgo, 0);
+    assert.equal(T.tcSignals(flip, 'A', { dropLastDaily: true }).D.cur, fs[fs.length - 2]);
+    // weekly: weekDone true counts the last week, false excludes it
+    const wk = T.tcAggregateWeekly(daily);
+    const ws = T.tcTrendStates(wk, 'A');
+    const wt = wk.map(b => b.time);
+    assert.deepEqual(J(T.tcSignals(daily, 'A', { weekDone: true }).W), J(T.tcSignal(ws, wt, wk.length - 1)));
+    assert.deepEqual(J(T.tcSignals(daily, 'A', { weekDone: false }).W), J(T.tcSignal(ws, wt, wk.length - 2)));
+    assert.equal(full.W.insufficient, false); assert.equal(full.D.insufficient, false);
+    assert.equal(full.D.cur, 'B'); assert.equal(full.D.prev !== null, true);
+    // empty input
+    assert.deepEqual(J(T.tcSignals([], 'A', { dropLastDaily: true, weekDone: true })), { D: { insufficient: true }, W: { insufficient: true } });
+});
+
+test('tcSignals: dropped daily bar that is the only bar of a new week', () => {
+    // 2024-01-01 is a Monday; 7*k days later is a Monday too. Mon..Fri bars for 30 weeks, then one Monday bar.
+    const bars = [];
+    let c = 100;
+    for (let w = 0; w < 30; w++) for (let d = 0; d < 5; d++) { c += (w < 26 ? 1 : -3); bars.push(mk(day(w * 7 + d), c, c + 1, c - 1, c)); }
+    const lastFri = bars[bars.length - 1].time;
+    bars.push(mk(day(30 * 7), 1, 2, 0.5, 1)); // new week, single (forming) bar
+    const wkAll = T.tcAggregateWeekly(bars);
+    const wkKept = T.tcAggregateWeekly(bars.slice(0, -1));
+    assert.equal(wkAll.length, wkKept.length + 1);
+    const ws = T.tcTrendStates(wkKept, 'A'), wt = wkKept.map(b => b.time);
+    // dropped + the previous week (ending lastFri) is finished -> its weekly bar counts
+    const done = T.tcSignals(bars, 'A', { dropLastDaily: true, weekDone: true });
+    assert.deepEqual(J(done.W), J(T.tcSignal(ws, wt, wkKept.length - 1)));
+    assert.equal(done.W.insufficient, false);
+    assert.equal(done.W.prev !== null, true);
+    assert.equal(T.tcWeekKey(lastFri), wkKept[wkKept.length - 1].time);
+    // not finished -> one more weekly bar excluded
+    const notDone = T.tcSignals(bars, 'A', { dropLastDaily: true, weekDone: false });
+    assert.deepEqual(J(notDone.W), J(T.tcSignal(ws, wt, wkKept.length - 2)));
+    // tcSummary unchanged: still sees the forming bar's week
+    assert.equal(T.tcSummary(bars, 'A').W.bars, wkAll.length);
+});
+
 test('tcDeductionIdx / tcPriceDeduction', () => {
     assert.equal(T.tcDeductionIdx(100, 20), 79);
     assert.equal(T.tcDeductionIdx(21, 20), 0);
