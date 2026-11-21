@@ -7155,8 +7155,115 @@
             _usdtTWD = exchangeRates.USD_TWD || 32;
             _updateCryptoHint();
         }
+        // ── v15.987：加密欄自動帶入派網總金額 ──
+        // 只在「計算與顯示」時換數字（總資產、圓餅、USDT 提示、貸款頁淨資產與其每日快照）。
+        // 寫進 Gist payload / userDataHash / dirty / 備份匯出 / localStorage 的地方一律照舊讀手動欄位 crypto-twd-input，
+        // 所以 crypto_twd 這個使用者資料不會被派網（system data）改到。開關存本機 STORAGE_KEYS.cryptoAutoPionex，不同步。
+        const PIONEX_WALLET_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;   // 超過 7 天沒更新不採用，退回手動值
+        function _cryptoAutoEnabled() {
+            try { return localStorage.getItem(STORAGE_KEYS.cryptoAutoPionex) !== '0'; } catch (_) { return true; }   // 預設開
+        }
+        function _cryptoTwdManual() {
+            return parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+        }
+        // 派網目前倉位（live，每 10 分鐘）與每日帳本（ledger）兩份錢包總額，取擷取時間較新的那份
+        function _pionexWalletLatest() {
+            const cands = [];
+            [['live', _loadPionexLive()], ['daily', _loadPionexLedger()]].forEach(([source, snap]) => {
+                if (!snap || !snap.wallet) return;
+                const twd = Math.round(Number(snap.wallet.twd));
+                if (!Number.isFinite(twd) || twd <= 0) return;
+                let ts = Date.parse(snap.captured_at || '');
+                if (!Number.isFinite(ts) && /^\d{4}-\d{2}-\d{2}$/.test(String(snap.capture_date || ''))) {
+                    ts = Date.parse(snap.capture_date + 'T00:00:00+08:00');
+                }
+                if (!Number.isFinite(ts)) return;
+                const usdt = Number(snap.wallet.usdt);
+                cands.push({ source, twd, usdt: Number.isFinite(usdt) && usdt > 0 ? usdt : null, ts, capturedAt: snap.captured_at || snap.capture_date || '' });
+            });
+            if (!cands.length) return null;
+            cands.sort((a, b) => b.ts - a.ts);
+            return cands[0];
+        }
+        // mode：off（開關關）／none（沒有派網總金額）／stale（超過 7 天）／auto（採用派網總金額）
+        function _cryptoAutoState() {
+            if (!_cryptoAutoEnabled()) return { mode: 'off', wallet: null, ageMs: null };
+            let wallet = null;
+            try { wallet = _pionexWalletLatest(); } catch (_) { wallet = null; }
+            if (!wallet) return { mode: 'none', wallet: null, ageMs: null };
+            const ageMs = Math.max(0, Date.now() - wallet.ts);
+            return { mode: ageMs > PIONEX_WALLET_MAX_AGE_MS ? 'stale' : 'auto', wallet, ageMs };
+        }
+        // manualTwd 省略時讀手動欄位；_grandTotalTWD 照舊傳 localStorage 值進來
+        function _cryptoTwdEffective(manualTwd) {
+            const manual = manualTwd === undefined ? _cryptoTwdManual() : (parseFloat(manualTwd) || 0);
+            const st = _cryptoAutoState();
+            return st.mode === 'auto' ? st.wallet.twd : manual;
+        }
+        function _cryptoAutoSignature() {
+            const st = _cryptoAutoState();
+            return st.mode + '|' + (st.wallet ? st.wallet.twd + '|' + st.wallet.ts : '');
+        }
+        let _cryptoAutoRenderedSig = null;
+        let _cryptoAutoRerenderTimer = null;
+        // 派網檔案更新後（_applyPionexLive / _applyPionexLedger）呼叫：自動值或時間有變才重畫。
+        // 延後到 pull 套用結束後才 renderAll；只重畫，不標 dirty、不排 push。
+        function _maybeRerenderCryptoAuto() {
+            let sig;
+            try { sig = _cryptoAutoSignature(); } catch (_) { return; }
+            if (sig === _cryptoAutoRenderedSig) return;
+            clearTimeout(_cryptoAutoRerenderTimer);
+            const run = () => {
+                if (_isApplyingCloudPull) { _cryptoAutoRerenderTimer = setTimeout(run, 500); return; }
+                _cryptoAutoRerenderTimer = null;
+                try { renderAll(); } catch (_) {}
+                try { _updateCryptoHint(); } catch (_) {}
+            };
+            _cryptoAutoRerenderTimer = setTimeout(run, 0);
+        }
+        function setCryptoAutoPionex(on) {
+            try { localStorage.setItem(STORAGE_KEYS.cryptoAutoPionex, on ? '1' : '0'); }
+            catch (e) { _handleStorageWriteError('cryptoAutoPionex', e); }
+            // 只重畫；手動欄位的值、crypto_twd、dirty / pending 都不動
+            try { renderAll(); } catch (_) {}
+            _updateCryptoHint();
+        }
+        // 加密列下方的自動帶入狀態 + 手動欄位變灰（值保留，只有自動值生效時唯讀）
+        function _renderCryptoAutoRow(st) {
+            const cb = document.getElementById('crypto-auto-cb');
+            const info = document.getElementById('crypto-auto-info');
+            const input = document.getElementById('crypto-twd-input');
+            if (cb) cb.checked = st.mode !== 'off';
+            const active = st.mode === 'auto';
+            if (input) {
+                input.readOnly = active;
+                input.style.opacity = active ? '0.45' : '';
+                input.title = active ? '自動帶入派網總金額中，這格的手動值保留但不採用；關掉「自動帶入派網總金額」才能修改' : '';
+            }
+            if (!info) return;
+            const when = st.wallet ? (_fmtPionexTs(st.wallet.capturedAt) || '—') : '';
+            if (st.mode === 'auto') {
+                const color = _freshnessColor(st.ageMs, 24 * 60 * 60 * 1000, 3 * 24 * 60 * 60 * 1000);   // 1 天內正常、1–3 天黃、超過 3 天紅
+                info.style.color = color;
+                info.innerHTML = `自動：${pv('NT$ ' + _fmtTwdAmt(st.wallet.twd))}（派網 ${_escapeHtml(when)}）`;
+            } else if (st.mode === 'stale') {
+                info.style.color = '#ef4444';
+                info.innerHTML = `派網總金額超過 7 天沒更新（${_escapeHtml(when)}），改用手動值`;
+            } else if (st.mode === 'none') {
+                info.style.color = '#607585';
+                info.textContent = '尚無派網總金額，使用手動值';
+            } else {
+                info.style.color = '#607585';
+                info.textContent = '';
+            }
+        }
+
         function _updateCryptoHint() {
-            const cryptoTWD = parseFloat(document.getElementById('crypto-twd-input')?.value) || 0;
+            let autoSt = { mode: 'off', wallet: null, ageMs: null };
+            try { autoSt = _cryptoAutoState(); } catch (_) {}
+            try { _renderCryptoAutoRow(autoSt); } catch (_) {}
+            try { _cryptoAutoRenderedSig = _cryptoAutoSignature(); } catch (_) {}
+            const cryptoTWD = autoSt.mode === 'auto' ? autoSt.wallet.twd : _cryptoTwdManual();   // v15.987：與 _cryptoTwdEffective() 同義
             const hint = document.getElementById('crypto-usdt-hint');
             if (!hint) return;
             let usdt = null;
