@@ -1,5 +1,6 @@
 <!--
   Portfolio Tracker v15
+  v15.987 - 2026-11-21 隱藏網格分頁、加密欄自動帶入派網總金額：(1) 持倉頁「加密（TWD）」新增本機開關「自動帶入派網總金額」（預設開，pt_crypto_auto_pionex_v1）：開著時，總資產列、圓餅圖、USDT 提示、貸款頁總資產／淨資產（含其每日快照）改用派網總金額——取 pionex-grid-live.json 與 pionex-grid-ledger.json 中擷取時間較新的那份錢包台幣總額；超過 7 天沒更新就不採用、退回手動值並註明。加密列下方顯示「自動：NT$ ○○（派網 MM/DD HH:mm）」，1 天內灰、1–3 天黃、超過 3 天紅；自動值生效時手動欄位變灰唯讀，值保留。只在計算與顯示時換數字：手動欄位、crypto_twd、Gist payload、userDataHash、dirty／pending、備份匯出都照舊讀手動值，切開關只重畫。原本網格頁的「填入加密欄」按鈕保留。(2) 網格分頁預設隱藏，持倉頁最下方新增「分頁顯示」設定「顯示網格分頁」（本機，pt_show_grid_tab_v1，預設關），打開立即出現；網格頁程式與資料全部保留。(3) 網格頁沒開時也會在啟動與回到前景時重讀派網兩檔（只 GET，距上次讀到 Gist 至少 10 分鐘，啟動時 silent pull 已讀過就跳過），不另開常駐計時器；派網總金額有變才重畫。新增兩個本機 localStorage key（已登記 STORAGE_KEYS）；不改 Gist payload、PT_SCHEMA_VERSION、holdings、userDataHash、pending、push／pull。
   v15.986 - 2026-11-21 （同版追加：K 線窗格自己也顯示日期軸，不用捲到最下面）趨勢頁上方新增「轉色訊號」區塊：列出清單裡日線近 5 根、週線近 4 週內轉色的標的，分轉強／轉弱兩組（綠→灰→黑 賣出、黑→灰→綠 買進等），最新一根的變化特別標出；只看已收盤的 K 線，週線等當週收完才算（依市場行事曆判斷），點一下就跳到該標的的日線或週線圖。狀態快取升 v2（舊快取重抓），不新增 localStorage key、不碰同步。
   v15.985 - 2026-11-21 趨勢圖游標對齊日期：滑鼠移到 K 線時，垂直虛線貫穿三個窗格到時間軸並在軸上標出日期，游標旁也顯示日期；原本上方窗格對不到日期。
   v15.984 - 2026-11-20 新增「趨勢」分頁（Tab 11）＋修正啟動自動拉取會蓋掉未上傳修改的既有臭蟲：(1) 趨勢頁：獨立的標的清單（和持倉、觀察清單分開；新增／刪除／排序），每檔顯示日線與週線目前的顏色、前一個顏色、起始日與已持續根數；右側三窗格圖（lightweight-charts 4.2.3，淺色底）：K 線依趨勢變綠／灰／黑、EMA／MA 20／60／120 六條均線、20／60／120 扣抵黃點、ATRX 副圖、Price deduction 副圖，可切日線／週線（週線由日線在本機合成，週線 120 期均線為近似）。版面與指標參考雷公（LoneCapital）的 TradingView 版面；原始碼不公開，變色規則是依其公開說法並拿使用者截圖逐根比對重建的規則 H（20 期 EMA／MA 同向直接定色，不同向時看 60 期雙線，再不同向為灰；拿使用者 6 檔標的的日線＋週線截圖共 748 根 K 線比對，吻合 91%，雙線同向時 97–100%，誤差集中在雙線不同向、原版有時畫灰色的地方；TREND_RULE 一個常數可換規則），ATRX 與 Price deduction 為近似版。資料用 Yahoo 日線（range=5y，一檔一次請求、記憶體快取 10 分鐘、失敗保留舊資料），清單狀態摘要快取在 pt_trend_status_v1、UI 偏好在 pt_trend_ui_v1；分頁不在前景不抓、啟動不抓；不併入 _allAnalysisTargets。(2) 同步：新增 user data 欄位 trend_list（pt_trend_list_v1、dirty domain trendList）；空清單不進 userDataHash（升版不改任何人的 hash），裝置知道清單狀態（清單非空、或曾在本機編輯／曾收到清單）時才在 user push 寫 trend_list，payload 缺 key（舊版寫的、或還沒看過清單的裝置寫的）時保留本機清單並在趨勢頁提示「重新上傳」（使用者按了才推、推送成功提示才消失）；不升 PT_SCHEMA_VERSION；K 線與狀態快取不進 hash／pending／Gist。(3) 修既有臭蟲（v15.080 起）：_gistSilentPull 沒處理 cloud_user_same_system_newer 而落到「套用雲端」，改完資料 2 秒內（auto-push 防抖）或離線時關掉 App，下次啟動修改會被雲端舊資料覆蓋且 dirty 被清掉；現在改為有未上傳修改就推送、否則不動，都不套用雲端（假 Gist 實測：舊版修改消失、新版保留並補推）。(4) 指標核心為純函式（// #region Trend Core），tests/trend-core.test.cjs 12 項；另與 Gemini、Grok 各自獨立寫的 Python 參考實作在 USD／2330.TW／0700.HK 共 9.4 萬個值逐值比對一致；新舊版三台裝置混用情境 16 項檢查通過。
@@ -126,6 +127,7 @@
   v15.063 - 資料新鮮度 UX + Chart.js SRI + STORAGE_KEYS 集中 + Claude rules：(1) 新增 _freshnessColor() helper；_updateSourceTimes() 與兩處匯率顯示函式依資料年齡套色（基本面 TTL 8hr <6hr 灰藍、6-12hr 橘、>12hr 紅；技術面與匯率 TTL 1hr 同邏輯），看一眼知道資料是否新鮮；(2) Chart.js CDN script tag 加 integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" + crossorigin="anonymous"，CDN 被入侵時瀏覽器拒絕執行；(3) 新增 STORAGE_KEYS 集中物件登記全部 ~30 個 localStorage key，採保守路線：純新增不動既有 PT_*_KEY 常數，避免破壞既有資料；(4) 新增 .claude/rules/storage-keys.md 與 .claude/rules/cache-strategy.md；更新 .claude/rules/gist-sync.md 補 v15.061/062 auth status 規則。Notion 同步本批不做，等 Codex review 後再補
   v15.064 - 錯誤可觀測性 UI + Region 標記 + Render Health Check：(1) 新增 _recordAppError(source, err, meta) helper；STORAGE_KEYS 加 errorLog ('pt_error_log_v1')，最多 50 筆滾動式錯誤日誌；_recordPushError 連動寫入；(2) 設定 Tab 加錯誤日誌 glass-card：「查看（N 筆）」+「清除」兩按鈕、pre 區塊用 textContent 倒序顯示（避免 innerHTML 注入）；(3) 三類 catch 點埋設：gist_push / gist_pull / csv_proxy_all_fail / fundamentals_json_load / render_health；(4) server.py 新增 GET /health 端點回 JSON {ok:true, service:'portfolio-tracker-backend'}；前端啟動 IIFE 內加 Render warm-up（背景 fetch /health，60s timeout，失敗只寫 log 不彈 toast）；(5) HTML 加 // #region / // #endregion 標記三個關鍵區段（Storage Keys & Freshness Helper / Gist Sync / Analysis Data）方便 VS Code 折疊；(6) Notion 同步本批不做，等 Codex review 後補
   v15.065 - 修補 v15.064 的 P2/P3（Codex review）：(1) P2 startup 相容性：Render warm-up 改用 try/catch + AbortController + setTimeout，避免 iOS Safari < 17.4 / 舊 Chrome 缺 AbortSignal.timeout 時 sync throw 中斷 startAutoRefresh / startAutoAnalysis 等啟動序列；(2) P3 錯誤日誌洗版：_recordAppError 加 60s 內同 source+message 去重，僅更新最後一筆的 ts 與 count，避免 fetchSymbolDataFromYahoo 31 個 symbol 同輪刷新時 fundamentals_json_load 寫 31 筆把 50 筆上限填滿；toggleErrorLog UI 顯示「× N」標示重複次數；(3) 順手把 scripts/pull_log.txt 加進 .gitignore 並 git rm --cached，避免每日排程 log 混進功能批次 commit history
+        v15.987 - 2026-11-21 網格分頁預設隱藏（持倉頁最下方「分頁顯示」可叫回）；加密欄可自動帶入派網總金額（預設開，只用在總資產、圓餅與提示，不改手動值、不影響同步），超過 7 天沒更新就退回手動值。
         v15.986 - 2026-11-21 （追加：K 線窗格也顯示日期軸）趨勢頁新增「轉色訊號」：列出日線近 5 根、週線近 4 週內轉色的標的（分轉強／轉弱，最新一根特別標出），只看已收盤 K 線、週線等當週收完，點一下跳到該標的的圖。
         v15.985 - 2026-11-21 趨勢圖游標對齊日期：垂直虛線貫穿三個窗格到時間軸並標出日期，游標旁也顯示日期。
         v15.984 - 2026-11-20 新增「趨勢」分頁：自己的標的清單，K 線依趨勢變綠／灰／黑，附 20／60／120 均線、扣抵黃點、ATRX 與 Price deduction 副圖，可切日線／週線（參考雷公的版面，變色規則是重建版）；清單會跨裝置同步。另修正：改完資料馬上關掉 App，下次開啟時修改被雲端舊資料蓋掉的問題。
@@ -1062,7 +1064,7 @@
     <div style="max-width:1200px; margin:0 auto; position:relative; z-index:1;">
         
         <!-- Header -->
-        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.986</div>
+        <div style="position:fixed; top:0.5rem; left:0.5rem; z-index:9999; font-size:0.7rem; color:rgba(230,235,231,0.45); font-family:monospace; pointer-events:none;">v15.987</div>
         <div id="pending-push-indicator" style="position:fixed; top:1.8rem; left:0.5rem; z-index:9999; font-size:0.72rem; color:#fbbf24; font-family:monospace; display:none; background:rgba(251,191,36,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(251,191,36,0.3); cursor:pointer;" title="點此立即重試推送" onclick="_retryPushNow()">⚠ <span id="pending-push-count">0</span> 筆改動尚未同步</div>
         <div id="main-header" style="margin-bottom:1.25rem; text-align:center; padding-top:2.5rem;">
             <div id="main-header-wrap" style="display:inline-block; position:relative; padding:0.75rem 1rem; margin-bottom:0.5rem;">
@@ -1968,7 +1970,7 @@
         // v15.066：PWA 版本基準（每次 bump 版本要同步更新此常數）
         // 用於與網路上抓回的 HTML 版本字串比對；不同 → 提示重載
         // ────────────────────────────────────────────────────────
-        const APP_VERSION = 'v15.986';
+        const APP_VERSION = 'v15.987';
 
         // ────────────────────────────────────────────────────────
         // STORAGE_KEYS — 集中登記所有 localStorage key（v15.063 起）
@@ -5813,7 +5815,7 @@
             const cashTWD       = _depositsTWD();
             const cryptoTWD     = _cryptoTwdEffective();   // v15.987：只用於總資產／圓餅顯示；同步與 hash 仍讀手動欄位
             const moxaTWD       = parseFloat(document.getElementById('moxa-twd-input')?.value)   || 0;
-            const showCashInPie  = document.getElementById('cash-pie-cb')?.checked   ?? false;
+            const showCashInPie   = document.getElementById('cash-pie-cb')?.checked   ?? false;
             const showCryptoInPie = document.getElementById('crypto-pie-cb')?.checked ?? false;
             const showMoxaInPie   = document.getElementById('moxa-pie-cb')?.checked   ?? false;
             const hasAny = holdings.length > 0 || cashTWD > 0 || cryptoTWD > 0 || moxaTWD > 0;
@@ -9941,6 +9943,7 @@
             } catch (e) {
                 try { _recordAppError('pionex_live', e); } catch (_) {}
             }
+            _pionexFilesReadAt = Date.now();   // v15.987：背景重讀派網兩檔的節流基準（任何 GET 成功都算）
             return { data, saved, ledger, cloudRevision: _gistRevision(data), cloudUpdatedAt: data.updated_at || saved?.pushedAt || '' };
         }
 
@@ -12421,6 +12424,7 @@
             if (pane && pane.classList.contains('active')) {
                 try { renderPionexGridTab(); } catch (_) {}
             }
+            try { _maybeRerenderCryptoAuto(); } catch (_) {}   // v15.987：派網總金額有變 → 重畫加密自動值（只重畫）
             if (storeError) throw storeError;   // 呼叫端照舊記錄錯誤
         }
 
@@ -12665,7 +12669,8 @@
             if (!token || !gistId) return;
             try {
                 await _fetchGistState(token, gistId);
-                renderPionexGridTab();
+                // v15.987：背景重讀（網格頁沒開）時不畫隱藏的網格頁；加密自動值由 _maybeRerenderCryptoAuto 重畫
+                if (document.getElementById('tab-pane-10')?.classList.contains('active')) renderPionexGridTab();
             } catch (e) {
                 try { _recordAppError('pionex_live', e); } catch (_) {}
             }
@@ -12691,6 +12696,20 @@
             }, next - now);
         }
 
+        // v15.987：網格分頁隱藏後，加密欄自動帶入仍要跟上派網總金額。
+        // 啟動與回到前景時重讀一次派網兩檔（距上次讀到 Gist 至少 10 分鐘；啟動時 silent pull 已讀過就跳過），
+        // 不另開常駐計時器。走既有 _refreshPionexGridFiles：只 GET，不碰 holdings / hash / dirty / pending / push。
+        let _pionexFilesReadAt = 0;      // 上次成功讀到 Gist（_fetchGistState 寫入）
+        let _pionexBgRefreshTriedAt = 0; // 上次背景重讀的嘗試時間（失敗也算，離線時不會每次回前景都打）
+        function _maybeRefreshPionexFilesInBackground() {
+            if (document.hidden) return;
+            const now = Date.now();
+            if (now < _gistRateLimitUntil) return;   // 額度用完時不打 API
+            if (now - Math.max(_pionexFilesReadAt, _pionexBgRefreshTriedAt) < PIONEX_LIVE_REFRESH_MS) return;
+            _pionexBgRefreshTriedAt = now;
+            _refreshPionexGridFiles();
+        }
+
         function _applyPionexLedger(obj) {
             if (!_validatePionexLedger(obj)) throw new Error('pionex ledger schema invalid');
             // v15.976：先更新記憶體與畫面；儲存空間滿而存檔失敗時，網格頁不能卡在舊資料
@@ -12706,6 +12725,7 @@
             if (pane && pane.classList.contains('active')) {
                 try { renderPionexGridTab(); } catch (_) {}
             }
+            try { _maybeRerenderCryptoAuto(); } catch (_) {}   // v15.987：派網總金額有變 → 重畫加密自動值（只重畫）
             if (storeError) throw storeError;   // 呼叫端照舊記錄錯誤
         }
 
@@ -15760,6 +15780,26 @@ function _isLegacy9747Holding(h) {
         // ==================== Tab System ====================
         let _lastAnalysisLoad = 0; // 最後一次載入分析的時間戳
 
+        // v15.987：網格分頁（Tab 10）預設隱藏，設定「顯示網格分頁」打開才出現；只存本機 STORAGE_KEYS.showGridTab。
+        // 網格頁的程式、資料與 renderPionexGridTab 全部保留。
+        function _showGridTabEnabled() {
+            try { return localStorage.getItem(STORAGE_KEYS.showGridTab) === '1'; } catch (_) { return false; }
+        }
+        function _applyGridTabVisibility() {
+            const on = _showGridTabEnabled();
+            const btn = document.getElementById('tab-btn-10');
+            if (btn) btn.style.display = on ? '' : 'none';
+            const cb = document.getElementById('show-grid-tab-cb');
+            if (cb) cb.checked = on;
+            // 停在網格頁時被隱藏 → 回持倉管理
+            if (!on && document.getElementById('tab-pane-10')?.classList.contains('active')) switchTab(1);
+        }
+        function setShowGridTab(on) {
+            try { localStorage.setItem(STORAGE_KEYS.showGridTab, on ? '1' : '0'); }
+            catch (e) { _handleStorageWriteError('showGridTab', e); }
+            _applyGridTabVisibility();
+        }
+
         function switchTab(n) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -18340,6 +18380,7 @@ function _isLegacy9747Holding(h) {
             holdings.forEach(_ensureLots); // 舊資料向下相容：補齊 lots 欄位
             loadPrivacy();           // 還原隱私模式設定
             loadFont();              // 還原字型設定
+            _applyGridTabVisibility(); // v15.987：網格分頁預設隱藏（本機設定）
             setCurrency(currency); // 同步按鈕高亮（預設 TWD，或從 localStorage 還原的值）
 
             // v15.069：抽成 _hydrateDailyPnlCachesFromAnalysisCache，Gist pull 後也能呼叫
@@ -18398,6 +18439,8 @@ function _isLegacy9747Holding(h) {
                 }
             })();
             _refreshAfterStartupSync([startupGistPull, startupLocalPull]);
+            // v15.987：silent pull 結束後，若它沒讀到 Gist（例如網路失敗）就補讀一次派網兩檔；已讀過則節流跳過
+            Promise.allSettled([startupGistPull]).then(() => { try { _maybeRefreshPionexFilesInBackground(); } catch (_) {} });
             // 啟動時自動抓取即時匯率（快取 1hr 內直接用快取，不打 API）
             (async () => {
                 const fx = await _fetchFxRates(false);
@@ -18469,6 +18512,7 @@ function _isLegacy9747Holding(h) {
                     startAutoEarnings();
                     // v15.981：回到前景且停在網格頁 → 立即重讀一次，再接回每 10 分鐘節奏
                     if (document.getElementById('tab-pane-10')?.classList.contains('active')) _refreshPionexGridFiles();
+                    else _maybeRefreshPionexFilesInBackground();   // v15.987：不在網格頁也重讀（至少間隔 10 分鐘），加密自動帶入用
                     _schedulePionexLiveRefresh();
                     if (document.getElementById('tab-pane-11')?.classList.contains('active')) _trendRefreshStatuses();
                     _scheduleTrendRefresh();
